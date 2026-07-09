@@ -1,0 +1,76 @@
+services:
+  # Next.js Frontend
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: gamezygo-frontend
+    restart: unless-stopped
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NODE_ENV=development
+    depends_on:
+      - backend
+
+  # Laravel API Backend (PHP-FPM)
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: gamezygo-backend
+    restart: unless-stopped
+    volumes:
+      - ./backend:/var/www/html
+    environment:
+      - APP_ENV=local
+      - APP_DEBUG=true
+    depends_on:
+      - postgres
+      - redis
+
+  # Nginx Web Server for Backend API
+  nginx:
+    image: nginx:alpine
+    container_name: gamezygo-nginx
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend:/var/www/html
+      - ./docker/nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: gamezygo-db
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: gamezygo
+      POSTGRES_USER: dev_admin
+      POSTGRES_PASSWORD: SecretPGDBPassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  # Redis Cache & Queue
+  redis:
+    image: redis:7-alpine
+    container_name: gamezygo-redis
+    restart: unless-stopped
+    ports:
+      - "6379:6379"
+    volumes:
+      - redisdata:/data
+
+volumes:
+  pgdata:
+    driver: local
+  redisdata:
+    driver: local

@@ -1,165 +1,165 @@
 # Gamezygo Docker Development Setup Guide
 
-Panduan ini menjelaskan cara melakukan setup Docker untuk pengembangan proyek **Gamezygo E-Commerce** sesuai dengan spesifikasi pada Product Requirements Document (PRD).
+This guide explains how to set up Docker for the **Gamezygo E-Commerce** project development according to the specifications in the Product Requirements Document (PRD).
 
 ---
 
-## 🏗️ Arsitektur Docker & Kecocokan PRD
+## 🏗️ Docker Architecture & PRD Alignment
 
-Setup Docker ini dirancang agar sesuai dengan spesifikasi teknologi dan infrastruktur yang tertulis pada PRD:
+This Docker setup is designed to match the technology and infrastructure specifications outlined in the PRD:
 
-| Komponen | Spesifikasi PRD | Konfigurasi Docker | URL / Port Lokal |
+| Component | PRD Specification | Docker Configuration | Local URL / Port |
 | :--- | :--- | :--- | :--- |
 | **Frontend** | Next.js 16 (SPA Pages Router) | Node.js 22 Alpine | `http://localhost:3000` |
-| **Backend** | Laravel 13.x | PHP 8.5 FPM Alpine | Diakses via Nginx (`http://localhost:8000`) |
-| **Nginx Web Server** | Reverse Proxy | Nginx Alpine (Forwarding port 8000 ke PHP-FPM) | `http://localhost:8000` |
+| **Backend** | Laravel 13.x | PHP 8.5 FPM Alpine | Accessed via Nginx (`http://localhost:8000`) |
+| **Nginx Web Server** | Reverse Proxy | Nginx Alpine (Forwarding port 8000 to PHP-FPM) | `http://localhost:8000` |
 | **Database** | PostgreSQL 16.x | `postgres:16-alpine` | `127.0.0.1:5432` |
 | **Caching & Queue** | Redis 7.x | `redis:7-alpine` | `127.0.0.1:6379` |
 
 ---
 
-## 📁 Struktur Folder Docker
+## 📁 Docker Folder Structure
 
-Berikut adalah struktur file Docker yang telah dibuat di workspace proyek Anda:
+Here is the Docker file structure created in your project workspace:
 
 ```text
 gamezygo/
 ├── backend/
-│   ├── Dockerfile             # Konfigurasi PHP 8.5-FPM + Composer + Ext Postgres/Redis
-│   └── .env.example           # Template env backend dengan host db/redis internal Docker
+│   ├── Dockerfile             # PHP 8.5-FPM + Composer + Postgres/Redis Ext configuration
+│   └── .env.example           # Backend env template with internal Docker db/redis host
 ├── frontend/
-│   ├── Dockerfile             # Konfigurasi Node 22 + Script auto-fallback initialization
-│   └── .env.local.example     # Template env frontend untuk Next.js
+│   ├── Dockerfile             # Node 22 configuration + Auto-fallback initialization script
+│   └── .env.local.example     # Frontend env template for Next.js
 ├── docker/
 │   └── nginx/
-│       └── default.conf       # Konfigurasi routing Nginx untuk melayani Laravel API
-├── docker-compose.yml         # Orkestrasi seluruh container (Next.js, Laravel, Nginx, Postgres, Redis)
-├── setup-project.ps1          # Script inisialisasi otomatis menggunakan Docker (Windows PowerShell)
-├── setup-project.sh           # Script inisialisasi otomatis menggunakan Docker (Bash/macOS/Linux)
-└── README.md                  # Dokumentasi setup ini (file ini)
+│       └── default.conf       # Nginx routing configuration to serve the Laravel API
+├── docker-compose.yml         # Orchestration for all containers (Next.js, Laravel, Nginx, Postgres, Redis)
+├── setup-project.ps1          # Automated initialization script using Docker (Windows PowerShell)
+├── setup-project.sh           # Automated initialization script using Docker (Bash/macOS/Linux)
+└── README.md                  # This setup documentation (this file)
 ```
 
 ---
 
-## 🚀 Langkah-Langkah Setup Pertama Kali
+## 🚀 First-Time Setup Steps
 
-Untuk memudahkan setup tanpa perlu menginstal PHP, Composer, Node.js, atau NPM secara lokal di sistem operasi Anda, kami telah menyediakan script inisialisasi otomatis yang memanfaatkan container Docker sementara.
+To facilitate setup without needing to install PHP, Composer, Node.js, or NPM locally on your operating system, we have provided automated initialization scripts that utilize temporary Docker containers.
 
-### Langkah 1: Jalankan Script Inisialisasi Instan
+### Step 1: Run the Instant Initialization Script
 
-Jalankan perintah satu baris berikut di terminal Anda (pada direktori proyek `C:\laragon\www\gamezygo`):
+Run the following one-line command in your terminal (in the project directory `C:\laragon\www\gamezygo`):
 
-#### **A. Untuk Windows (PowerShell):**
+#### **A. For Windows (PowerShell):**
 ```powershell
 Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force; .\setup-project.ps1
 ```
 
-#### **B. Untuk macOS / Linux / WSL / Git Bash:**
+#### **B. For macOS / Linux / WSL / Git Bash:**
 ```bash
 chmod +x setup-project.sh && ./setup-project.sh
 ```
 
-**Apa yang dilakukan script ini?**
-1. Membuat folder `backend` dan `frontend` (jika belum ada).
-2. Men-download image Docker Composer sementara dan menginisialisasi framework **Laravel 13** ke dalam `./backend`.
-3. Men-download image Docker Node sementara dan menginisialisasi framework **Next.js 16 (Pages Router)** dengan Tailwind CSS & TypeScript ke dalam `./frontend`.
-4. Membuat file `.env` untuk backend dan `.env.local` untuk frontend berdasarkan template yang sesuai dengan konfigurasi database Docker.
+**What does this script do?**
+1. Creates the `backend` and `frontend` folders (if they don't exist).
+2. Downloads a temporary Docker Composer image and initializes the **Laravel 13** framework into `./backend`.
+3. Downloads a temporary Docker Node image and initializes the **Next.js 16 (Pages Router)** framework with Tailwind CSS & TypeScript into `./frontend`.
+4. Creates the `.env` file for the backend and `.env.local` for the frontend based on templates that match the Docker database configuration.
 
 ---
 
-### Langkah 2: Build dan Jalankan Container Docker
+### Step 2: Build and Run Docker Containers
 
-Setelah inisialisasi selesai, jalankan seluruh service menggunakan Docker Compose:
+After initialization is complete, run all services using Docker Compose:
 
 ```bash
 docker-compose up -d --build
 ```
 
-Perintah ini akan membangun image Docker lokal untuk Next.js dan Laravel, serta menjalankan database PostgreSQL dan Redis di latar belakang.
+This command will build local Docker images for Next.js and Laravel, and run the PostgreSQL and Redis databases in the background.
 
 ---
 
-### Langkah 3: Setup Awal Laravel (Migrasi Database)
+### Step 3: Initial Laravel Setup (Database Migration)
 
-Setelah container menyala, jalankan perintah setup awal Laravel (seperti generating key dan menjalankan migrasi database) di dalam container backend:
+Once the containers are running, execute the initial Laravel setup commands (such as generating keys and running database migrations) inside the backend container:
 
-1. **Masuk ke container backend:**
+1. **Enter the backend container:**
    ```bash
    docker exec -it gamezygo-backend sh
    ```
-2. **Jalankan key generator & migrasi:**
+2. **Run the key generator & migration:**
    ```bash
    php artisan key:generate
    php artisan migrate
    ```
-3. **(Opsional) Keluar dari container:**
+3. **(Optional) Exit the container:**
    ```bash
    exit
    ```
 
 ---
 
-## ⚙️ Detail Konfigurasi Environment (`.env`)
+## ⚙️ Environment Configuration Details (`.env`)
 
 ### Backend (Laravel)
-File `backend/.env` diatur untuk menggunakan service host internal Docker:
-- `DB_HOST=postgres` (menghubungkan ke container database)
-- `REDIS_HOST=redis` (menghubungkan ke container redis)
+The `backend/.env` file is configured to use internal Docker host services:
+- `DB_HOST=postgres` (connects to the database container)
+- `REDIS_HOST=redis` (connects to the redis container)
 
-*Catatan: Jika Anda ingin menjalankan perintah php artisan secara lokal langsung dari host OS Anda (tidak dari dalam docker), Anda perlu mengubah `DB_HOST` dan `REDIS_HOST` menjadi `127.0.0.1` sementara.*
+*Note: If you want to run php artisan commands locally directly from your host OS (not from within docker), you need to temporarily change `DB_HOST` and `REDIS_HOST` to `127.0.0.1`.*
 
 ### Frontend (Next.js)
-File `frontend/.env.local` dikonfigurasi untuk berkomunikasi dengan API backend:
+The `frontend/.env.local` file is configured to communicate with the backend API:
 - `NEXT_PUBLIC_API_URL=http://localhost:8000/api/v1`
 
 ---
 
-## 🛠️ Perintah-Perintah Penting Selama Development
+## 🛠️ Important Commands During Development
 
-### 1. Menghentikan Semua Container
+### 1. Stopping All Containers
 ```bash
 docker-compose down
 ```
 
-### 2. Melihat Log Container
-Jika terjadi error atau ingin memantau log Next.js / Laravel:
+### 2. Viewing Container Logs
+If an error occurs or you want to monitor Next.js / Laravel logs:
 ```bash
 docker-compose logs -f
-# Atau log untuk service tertentu
+# Or logs for a specific service
 docker-compose logs -f frontend
 docker-compose logs -f backend
 ```
 
-### 3. Menjalankan Queue Worker Laravel (Redis)
-Sesuai dengan PRD Section 7.1, Redis digunakan sebagai queue broker untuk email & transaksi:
+### 3. Running Laravel Queue Worker (Redis)
+According to PRD Section 7.1, Redis is used as the queue broker for emails & transactions:
 ```bash
 docker exec -it gamezygo-backend php artisan queue:work
 ```
 
-### 4. Melakukan Hard Reset Database (Postgres)
+### 4. Performing a Hard Database Reset (Postgres)
 ```bash
 docker exec -it gamezygo-backend php artisan migrate:fresh --seed
 ```
 
 ---
 
-## 🔍 Troubleshooting (Penanganan Masalah)
+## 🔍 Troubleshooting
 
 ### 1. Error: `open //./pipe/dockerDesktopLinuxEngine: The system cannot find the file specified`
-* **Penyebab:** Docker Desktop di Windows belum berjalan atau sedang proses booting.
-* **Solusi:** Buka aplikasi **Docker Desktop** dari Start Menu Windows Anda. Tunggu sampai ikon paus di pojok kiri bawah berwarna **hijau** (*Engine Running*). Restart terminal Anda dan coba jalankan kembali perintah.
+* **Cause:** Docker Desktop on Windows is not running or is booting up.
+* **Solution:** Open the **Docker Desktop** application from your Windows Start Menu. Wait until the whale icon in the bottom left corner turns **green** (*Engine Running*). Restart your terminal and try running the command again.
 
-### 2. Next.js atau Laravel Tidak Ter-mount/Kosong Setelah Script Setup
-* **Penyebab 1 (Format Path):** Docker Windows sensitif terhadap campuran garis miring (`/` vs `\`). Script `setup-project.ps1` sekarang sudah diperbaiki untuk menggunakan format backslash (`\`) default Windows agar volume mount terpetakan dengan benar.
-* **Penyebab 2 (Folder Konflik):** Adanya folder bawaan kosong seperti `node_modules` di direktori target yang memicu proteksi *no-overwrite* (`cp -rn`) saat menyalin file framework dari Docker container.
-* **Solusi:** Kosongkan folder `frontend/` atau `backend/` dari sisa-sisa file sebelumnya (kecuali berkas `Dockerfile`), lalu jalankan kembali script setup:
+### 2. Next.js or Laravel Not Mounted/Empty After Setup Script
+* **Cause 1 (Path Format):** Docker on Windows is sensitive to mixed slashes (`/` vs `\`). The `setup-project.ps1` script has been updated to use the default Windows backslash format (`\`) so volume mounts are mapped correctly.
+* **Cause 2 (Folder Conflict):** The presence of empty default folders like `node_modules` in the target directory triggers *no-overwrite* protection (`cp -rn`) when copying framework files from the Docker container.
+* **Solution:** Clear the `frontend/` or `backend/` folders of any previous file remnants (except for the `Dockerfile`), then rerun the setup script:
   ```powershell
   Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope Process -Force; .\setup-project.ps1
   ```
 
-### 3. Peringatan `tempnam(): file created in the system's temporary directory`
-* **Penyebab:** Laravel/Composer tidak memiliki hak akses tulis (*write permission*) pada folder `storage` atau `bootstrap/cache` di dalam kontainer Docker.
-* **Solusi:** Jalankan perintah berikut di PowerShell root proyek untuk memberikan izin tulis dan mengatur kepemilikan folder ke user web server (`www-data`):
+### 3. Warning `tempnam(): file created in the system's temporary directory`
+* **Cause:** Laravel/Composer lacks write permissions on the `storage` or `bootstrap/cache` folders inside the Docker container.
+* **Solution:** Run the following commands in PowerShell at the project root to grant write permissions and set folder ownership to the web server user (`www-data`):
   ```powershell
   docker exec -it gamezygo-backend chmod -R 777 storage bootstrap/cache
   docker exec -it gamezygo-backend chown -R www-data:www-data storage bootstrap/cache
@@ -167,23 +167,23 @@ docker exec -it gamezygo-backend php artisan migrate:fresh --seed
 
 ---
 
-## 👥 Kolaborasi Tim & Git (Push & Clone)
+## 👥 Team Collaboration & Git (Push & Clone)
 
-Untuk berbagi proyek ini dengan tim Anda melalui Git, ikuti panduan berikut:
+To share this project with your team via Git, follow this guide:
 
-### 📤 Langkah untuk Pengembang yang Melakukan Push (Pertama Kali)
-Pastikan berkas sensitif (`.env` dan `node_modules`/`vendor`) diabaikan oleh Git. Kemudian jalankan perintah:
+### 📤 Steps for the Developer Pushing (First Time)
+Make sure sensitive files (`.env` and `node_modules`/`vendor`) are ignored by Git. Then run the commands:
 ```bash
 git add .
 git commit -m "feat: setup docker environment for next.js 16 and laravel 13"
 git push origin main
 ```
 
-### 📥 Langkah untuk Anggota Tim Lain (Melakukan Clone)
-Setelah melakukan clone proyek dari repositori Git, jalankan langkah berikut di laptop masing-masing:
+### 📥 Steps for Other Team Members (Cloning)
+After cloning the project from the Git repository, run the following steps on their respective laptops:
 
-1. **Copy File Environment:**
-   Salin template `.env` yang sudah disiapkan:
+1. **Copy Environment Files:**
+   Copy the prepared `.env` templates:
    * **Windows PowerShell:**
      ```powershell
      copy backend/.env.example backend/.env
@@ -196,7 +196,7 @@ Setelah melakukan clone proyek dari repositori Git, jalankan langkah berikut di 
      ```
 
 2. **Install Composer Dependencies:**
-   Instal paket-paket Laravel lewat kontainer Composer sementara (tanpa perlu menginstal PHP/Composer secara lokal):
+   Install Laravel packages via a temporary Composer container (without needing to install PHP/Composer locally):
    * **Windows PowerShell:**
      ```powershell
      docker run --rm -v "${PWD}/backend:/app" -w /app composer install
@@ -206,15 +206,15 @@ Setelah melakukan clone proyek dari repositori Git, jalankan langkah berikut di 
      docker run --rm -v "$(pwd)/backend:/app" -w /app composer install
      ```
 
-3. **Jalankan Docker Compose:**
-   Bangun dan jalankan seluruh container:
+3. **Run Docker Compose:**
+   Build and run all containers:
    ```bash
    docker-compose up -d --build
    ```
-   *(Catatan: NPM dependencies Next.js akan otomatis terinstal di latar belakang ketika kontainer frontend menyala pertama kali).*
+   *(Note: Next.js NPM dependencies will automatically install in the background when the frontend container starts for the first time).*
 
-4. **Jalankan Setup Awal Laravel:**
-   Generate key aplikasi baru dan lakukan migrasi database PostgreSQL:
+4. **Run Initial Laravel Setup:**
+   Generate a new application key and perform PostgreSQL database migrations:
    ```bash
    docker exec -it gamezygo-backend php artisan key:generate
    docker exec -it gamezygo-backend php artisan migrate

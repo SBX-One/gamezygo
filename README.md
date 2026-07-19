@@ -211,7 +211,7 @@ After cloning the project from the Git repository, run the following steps on th
    ```bash
    docker-compose up -d --build
    ```
-   *(Note: Next.js NPM dependencies will automatically install in the background when the frontend container starts for the first time).*
+   *(Note: Next.js pnpm dependencies will automatically install in the background when the frontend container starts for the first time).*
 
 4. **Run Initial Laravel Setup:**
    Generate a new application key and perform PostgreSQL database migrations:

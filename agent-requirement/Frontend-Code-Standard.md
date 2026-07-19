@@ -1,243 +1,255 @@
-# Code standar next js
+# Next.js 16 & React 19 Coding Standards — Gamezygo Frontend
 
-# Standar Struktur & Konvensi Next.js — Enterprise Project
+This document defines the architecture, design principles, and coding standards for the frontend of the Gamezygo platform.
 
-Stack asumsi: Next.js 14+ (App Router), TypeScript, Tailwind CSS, Zustand, Auth.js, Prisma/Drizzle.
+## Core Stack Assumptions
+
+- **Framework**: Next.js 16 (Pages Router)
+- **Library**: React 19
+- **Styling**: Tailwind CSS v4 (configured via PostCSS / `@import "tailwindcss"` in `globals.css`)
+- **State Management**: Zustand (strictly client-only UI/session state)
+- **Data Fetching & Cache**: TanStack Query (React Query)
+- **API Client**: Axios / Fetch with interceptors
+- **Form Validation**: Zod + React Hook Form (or React 19 Action States)
+
+> [!WARNING]
+> **No Local Database or Auth.js Clients**
+> Gamezygo uses a decoupled frontend/backend architecture. Do NOT install or write database connection clients (like Prisma or Drizzle) or server-only auth libraries (like Auth.js / NextAuth.js) in the frontend workspace. All authentication, data persistence, and sessions are authorized and managed solely by the decoupled Laravel REST API backend (`http://localhost:8000/api/v1`).
 
 ---
 
-## 1. Struktur Folder (Root Level)
+## 1. Directory Structure (Pages Router + Features Architecture)
 
-```
+The frontend project utilizes the **Next.js Pages Router** coupled with a domain-driven **Features Architecture**.
+The `src/pages/` folder is reserved strictly for route definitions and layout compositions. All business logic, UI components, hooks, types, and api services must be organized into cohesive feature modules in `src/features/`.
+
+```text
 src/
-├── app/                        # Routing (App Router) — HANYA untuk routing & page composition
-│   ├── (auth)/                 # Route group: auth pages (login, register)
-│   │   ├── login/
-│   │   │   └── page.tsx
-│   │   └── register/
-│   │       └── page.tsx
-│   ├── (dashboard)/             # Route group: halaman setelah login
-│   │   ├── layout.tsx
-│   │   ├── dashboard/
-│   │   │   └── page.tsx
-│   │   └── settings/
-│   │       └── page.tsx
-│   ├── api/                     # Route handlers (kalau tidak pakai backend terpisah)
-│   │   └── users/
-│   │       └── route.ts
-│   ├── layout.tsx               # Root layout
-│   ├── globals.css
-│   └── not-found.tsx
+├── pages/                      # Routing (Pages Router) — strictly for page/layout composition
+│   ├── _app.tsx                # App wrapper, global styles, providers
+│   ├── _document.tsx           # Document markup customization
+│   ├── index.tsx               # Landing Storefront
+│   ├── login.tsx               # Login page (Google OAuth Integration)
+│   ├── checkout.tsx            # Checkout & Midtrans Snap trigger page
+│   ├── library.tsx             # Private customer game credentials vault
+│   └── admin/
+│       ├── dashboard.tsx       # Admin financial reporting dashboard
+│       └── catalog.tsx         # Admin games & credentials catalog CMS
 │
-├── features/                    # Domain/feature-based modules (INTI dari project besar)
-│   ├── auth/
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   ├── services/             # API calls khusus fitur ini
-│   │   ├── store/                 # Zustand store khusus fitur ini
-│   │   ├── types.ts
-│   │   └── utils.ts
-│   ├── user-management/
-│   │   ├── components/
-│   │   ├── hooks/
-│   │   ├── services/
-│   │   ├── store/
-│   │   └── types.ts
-│   └── billing/
-│       └── ...
+├── features/                   # Domain-based modules (loose coupling, highly cohesive)
+│   ├── auth/                   # Auth components, Zustand state, login actions
+│   ├── catalog/                # Product grids, search, admin catalog tables
+│   ├── checkout/               # Cart drawer, checkout validation, Midtrans Snap script loads
+│   └── library/                # Private vault, credentials cards, decrypt components
+│       ├── components/         # Feature-specific components
+│       ├── hooks/              # Feature-specific hooks (React Query)
+│       ├── services/           # Feature-specific API clients
+│       ├── store/              # Feature-specific Zustand store (if any)
+│       ├── types.ts            # Type definitions for the feature
+│       └── utils.ts            # Pure helper functions for the feature
 │
-├── components/                  # Shared/reusable components (BUKAN spesifik 1 fitur)
-│   ├── ui/                       # Primitives: Button, Input, Modal, dll (mirip shadcn)
-│   ├── layout/                   # Navbar, Sidebar, Footer
-│   └── shared/                   # Komponen gabungan yang dipakai lintas fitur
+├── components/                 # Shared / Reusable components (non-feature specific)
+│   ├── ui/                     # Primitive design tokens (Buttons, Inputs, Modals, Cards)
+│   ├── layout/                 # Global UI structure (Header, Footer, Sidebar, Navigation)
+│   └── shared/                 # Cross-feature combined components
 │
-├── lib/                         # Konfigurasi & helper pihak ketiga
-│   ├── auth.ts                   # Konfigurasi Auth.js
-│   ├── db.ts                     # Prisma/Drizzle client
-│   ├── redis.ts
-│   └── axios.ts / fetcher.ts
-│
-├── hooks/                       # Custom hooks yang GLOBAL (bukan punya 1 fitur)
-│   └── use-debounce.ts
-│
-├── store/                       # Zustand store GLOBAL (misal: auth session, theme)
-│   └── use-app-store.ts
-│
-├── services/                    # API layer global (kalau tidak feature-based)
-│   └── api-client.ts
-│
-├── types/                       # Global TypeScript types & interfaces
-│   ├── index.ts
-│   └── api.ts
-│
-├── constants/                   # Konstanta global (routes, roles, config)
-│   └── routes.ts
-│
-├── utils/                       # Pure functions, tidak bergantung pada React
-│   ├── format-date.ts
-│   └── cn.ts                     # classnames merge helper
-│
-├── styles/                      # Kalau butuh CSS tambahan di luar Tailwind
-│
-└── middleware.ts                # Next.js middleware (auth guard, redirect, dll)
+├── lib/                        # Third-party configurations & clients (axios, queryClient, etc.)
+├── hooks/                      # Global reusable React hooks (e.g., useDebounce, useWindowSize)
+├── store/                      # Global Zustand stores (e.g., useAppStore, useCartStore)
+├── services/                   # Global API services & clients
+├── types/                      # Global TypeScript definitions
+├── constants/                  # Global configuration parameters & endpoints
+└── utils/                      # Global pure utility helpers (e.g., formatCurrency, class merger)
 ```
 
-> **Kenapa `features/`?**
-Di project besar, folder berbasis tipe file (`components/`, `hooks/`, `services/` semua digabung jadi satu untuk seluruh app) cepat jadi berantakan. Feature-based folder membuat setiap domain (auth, billing, dsb) self-contained — gampang di-onboarding-kan ke developer baru, gampang dihapus/dipisah jadi module lain.
-> 
+---
+
+## 2. File & Folder Naming Conventions
+
+| File/Folder Type | Convention | Example |
+| :--- | :--- | :--- |
+| **Feature Folders** | `kebab-case` | `src/features/user-management/` |
+| **Component Files** | `PascalCase.tsx` | `UserCard.tsx`, `LoginForm.tsx` |
+| **Hook Files** | `use-kebab-case.ts` | `use-auth.ts`, `use-fetch-users.ts` |
+| **Utility/Helper Files** | `kebab-case.ts` | `format-currency.ts` |
+| **Store (Zustand)** | `use-[name]-store.ts` | `use-cart-store.ts` |
+| **Type Files** | `kebab-case.ts` / `types.ts` | `user.types.ts`, `types.ts` |
+| **Constant Files** | `kebab-case.ts` | `api-endpoints.ts` |
+| **Pages Files (Routing)** | Next.js Page defaults | `index.tsx`, `login.tsx`, `admin/dashboard.tsx` |
+| **Test Files** | `[name].test.ts` / `.spec.ts` | `UserCard.test.tsx` |
+
+### Internal Code Conventions
+
+- **React Components**: `PascalCase` (e.g., `export function UserCard() {}`).
+- **Standard Functions & Hooks**: `camelCase` (e.g., `function formatDate() {}`, `useAuth()`).
+- **Constants**: `UPPER_SNAKE_CASE` (e.g., `const MAX_RETRY_COUNT = 3`).
+- **Interfaces & Types**: `PascalCase` (e.g., `interface UserResponse`). Do not use `I` or `T` prefixes.
+- **Booleans**: Prefixed with `is`, `has`, or `should` (e.g., `isLoading`, `hasError`, `shouldRedirect`).
 
 ---
 
-## 2. Konvensi Penamaan File & Folder
+## 3. React 19 Standards & Best Practices
 
-| Jenis | Konvensi | Contoh |
-| --- | --- | --- |
-| Folder | `kebab-case` | `user-management/`, `auth-forms/` |
-| Component file | `PascalCase.tsx` | `UserCard.tsx`, `LoginForm.tsx` |
-| Hook file | `use-kebab-case.ts` | `use-auth.ts`, `use-fetch-users.ts` |
-| Utility/helper | `kebab-case.ts` | `format-currency.ts` |
-| Store (Zustand) | `use-[nama]-store.ts` | `use-cart-store.ts` |
-| Type/interface file | `kebab-case.ts` atau `types.ts` | `user.types.ts` |
-| Constant file | `kebab-case.ts` | `api-endpoints.ts` |
-| Route folder (App Router) | `kebab-case` | `app/user-profile/page.tsx` |
-| Test file | `[nama].test.ts` / `.spec.ts` | `UserCard.test.tsx` |
-| API route handler | selalu `route.ts` | `app/api/users/route.ts` |
-| Page file | selalu `page.tsx` | wajib sesuai konvensi Next.js |
+With **React 19**, several legacy patterns are deprecated. Follow these rules strictly:
 
-**Penamaan internal kode:**
-
-- Komponen React → `PascalCase` (`function UserCard() {}`)
-- Function biasa/hook → `camelCase` (`function formatDate() {}`, `useAuth()`)
-- Konstanta → `UPPER_SNAKE_CASE` (`const MAX_RETRY_COUNT = 3`)
-- Interface/Type → `PascalCase`, prefix opsional `T` atau `I` **tidak wajib** tapi harus konsisten satu tim (contoh: `UserResponse`, bukan `IUserResponse` kalau tim sepakat tanpa prefix)
-- Boolean variable/props → prefix `is/has/should` (`isLoading`, `hasError`, `shouldRedirect`)
-
----
-
-## 3. Aturan Component
+### A. Ref as a Prop (No `forwardRef`)
+You no longer need to wrap components with `forwardRef` to pass refs down. In React 19, `ref` can be passed as a normal prop.
 
 ```tsx
-// components/ui/Button.tsx
-import { cn } from "@/utils/cn";
-
-interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
-  variant?: "primary" | "secondary" | "danger";
+// Correct (React 19)
+interface CustomInputProps extends React.InputHTMLAttributes<HTMLInputElement> {
+  label: string;
+  ref?: React.Ref<HTMLInputElement>;
 }
 
-export function Button({ variant = "primary", className, ...props }: ButtonProps) {
+export function CustomInput({ label, ref, ...props }: CustomInputProps) {
   return (
-    <button className={cn("rounded-md px-4 py-2", variantStyles[variant], className)} {...props} />
+    <label>
+      {label}
+      <input ref={ref} {...props} />
+    </label>
   );
 }
 ```
 
-**Aturan:**
+### B. Direct Context Components (No `<Context.Provider>`)
+Use `<MyContext>` directly as the provider instead of `<MyContext.Provider>`.
 
-1. Satu komponen = satu file. Kalau komponen besar, boleh dipecah jadi sub-folder dengan `index.tsx` sebagai entry.
-2. Gunakan **named export**, hindari default export untuk component (memudahkan auto-import & refactor konsisten). Default export hanya untuk `page.tsx`, `layout.tsx` (wajib dari Next.js).
-3. Props interface diberi nama `[ComponentName]Props`.
-4. Pisahkan **Server Component** (default) dan **Client Component** (`"use client"`) — jangan taruh `"use client"` di komponen besar kalau cuma butuh interaktivitas kecil; pecah jadi child component.
+```tsx
+import { createContext } from 'react';
 
----
+export const ThemeContext = createContext<'light' | 'dark'>('dark');
 
-## 4. Aturan Import (Path Alias)
-
-Set di `tsconfig.json`:
-
-```json
-{
-  "compilerOptions": {
-    "paths": {
-      "@/*": ["./src/*"]
-    }
-  }
+export function ThemeProvider({ children }: { children: React.ReactNode }) {
+  // Correct (React 19)
+  return <ThemeContext value="dark">{children}</ThemeContext>;
 }
 ```
 
-Urutan import (disarankan pakai `eslint-plugin-import` + `simple-import-sort`):
+### C. Reading Promises & Context with `use()`
+You can use the new `use` API to read promises or context dynamically inside loops, conditional statements, or anywhere in the render path.
 
 ```tsx
-// 1. External packages
-import { useState } from "react";
-import { z } from "zod";
+import { use } from 'react';
+import { ThemeContext } from './ThemeContext';
 
-// 2. Internal absolute (alias)
-import { Button } from "@/components/ui/Button";
-import { useAuthStore } from "@/store/use-auth-store";
+export function ThemeDisplay() {
+  // Reads context dynamically using the use() hook
+  const theme = use(ThemeContext);
+  return <div>Current theme: {theme}</div>;
+}
+```
 
-// 3. Relative import (dalam fitur yang sama)
-import { LoginSchema } from "./login.schema";
+### D. Form Actions, `useActionState`, and `useFormStatus`
+React 19 introduces form Actions to handle pending states, errors, and sequential updates out of the box.
+- `useActionState` replaces the deprecated `useFormState`.
+- `useFormStatus` enables nested child components to read parent form submitting states.
 
-// 4. Types
-import type { User } from "@/types";
+```tsx
+import { useActionState } from 'react';
+
+async function updateProfile(prevState: any, formData: FormData) {
+  try {
+    const response = await fetch('/api/profile', { method: 'POST', body: formData });
+    return await response.json();
+  } catch (error) {
+    return { error: 'Failed to update profile' };
+  }
+}
+
+export function ProfileForm() {
+  const [state, formAction, isPending] = useActionState(updateProfile, null);
+
+  return (
+    <form action={formAction}>
+      <input type="text" name="name" required />
+      <button type="submit" disabled={isPending}>
+        {isPending ? 'Saving...' : 'Save Profile'}
+      </button>
+      {state?.error && <p className="text-red-500">{state.error}</p>}
+    </form>
+  );
+}
 ```
 
 ---
 
-## 5. Layer Data & API
+## 4. Next.js 16 Standards & Specific Features
 
-```
-features/user-management/
-├── services/
-│   └── user.service.ts     # Fungsi fetch/mutate: getUsers(), createUser()
-├── hooks/
-│   └── use-users.ts        # React Query hook: useUsers()
-└── types.ts                 # User, CreateUserPayload, dll
+### A. Stable Turbopack by Default
+Next.js 16 uses **Turbopack** by default for both development and build steps.
+- Do not run commands using the `--turbopack` or `--turbo` flags.
+- Any webpack-specific plugins or loaders must either be migrated to Turbopack configuration or run explicitly using `next build --webpack` if absolutely necessary (discouraged).
+- Turbopack configurations belong in the top-level `turbopack` key inside `next.config.ts`:
+
+```ts
+// next.config.ts
+import type { NextConfig } from 'next';
+
+const nextConfig: NextConfig = {
+  turbopack: {
+    resolveAlias: {
+      // Turbopack aliases
+    },
+  },
+};
+
+export default nextConfig;
 ```
 
-- Gunakan **TanStack Query (React Query)** untuk data fetching + caching, bukan `useEffect` manual.
-- Zustand khusus untuk **client state** (UI state, auth session, cart), bukan untuk server data.
-- Validasi input pakai **Zod**, schema disimpan sefile dengan form terkait (`login.schema.ts`).
+### B. Middleware Renamed to Proxy
+In Next.js 16, the `middleware.ts` filename and export have been deprecated and renamed to `proxy.ts`.
+- Rename your route interceptor file to `proxy.ts`.
+- Rename the exported function to `proxy(request: Request)`.
+- The `edge` runtime is NOT supported in proxy.ts; it runs under the standard `nodejs` runtime. If you must use the Edge runtime, stick to the legacy `middleware.ts` filename.
+
+```ts
+// src/proxy.ts
+import { NextResponse } from 'next/server';
+import type { Request } from 'next/server';
+
+export function proxy(request: Request) {
+  // Proxy intercepts, rewrites, and headers configuration
+  return NextResponse.next();
+}
+```
+
+### C. Stable React Compiler
+Next.js 16 native React Compiler support is stable. It automatically memoizes components, eliminating manual `useMemo` and `useCallback` boilerplate.
+- Enable it via `reactCompiler: true` in your config.
+- Ensure `babel-plugin-react-compiler` is installed as a devDependency.
+
+```ts
+// next.config.ts
+const nextConfig = {
+  reactCompiler: true,
+};
+export default nextConfig;
+```
+
+### D. Next/Image Cache & Pattern Enhancements
+- **Local Images with Query Strings**: Requires explicit pattern validation configuration in `next.config.ts` to prevent enumeration attacks.
+- **Cache TTL**: Default cache validation lifetime `minimumCacheTTL` is now **4 hours** (previously 60s) to minimize revalidation performance costs.
+- **Image Sizes**: Width `16` is removed from the default `imageSizes` arrays to optimize layout outputs.
 
 ---
 
-## 6. Environment & Config
+## 5. Components & Modular Styling Standards
 
-```
-.env.local          # Local development (gitignored)
-.env.example         # Template — WAJIB di-commit
-```
-
-Semua akses env HARUS lewat satu file validator, contoh `lib/env.ts` (pakai Zod), supaya error env langsung ketahuan saat build, bukan runtime.
-
----
-
-## 7. Testing
-
-```
-src/
-├── features/
-│   └── auth/
-│       └── __tests__/
-│           └── login-form.test.tsx
-```
-
-Atau co-located: `LoginForm.tsx` + `LoginForm.test.tsx` di folder yang sama — pilih salah satu, konsisten se-tim.
+1. **Named Exports Only**: Always export components using named exports (`export function Component()`) for tooling safety. Never use default exports except for page components in the `src/pages/` folder.
+2. **Glassmorphism Dark Mode Styling (Tailwind CSS v4)**:
+   - Use dynamic combinations via the `cn(...)` utility (combining `clsx` and `tailwind-merge`).
+   - Standard Glassmorphic Class Structure:
+     `backdrop-blur-md bg-white/5 border border-white/10 shadow-xl`
+   - Primary accents: Indigo (`text-indigo-400`, `bg-indigo-600`) and Violet gradients (`bg-gradient-to-r from-violet-500 to-rose-500`).
 
 ---
 
-## 8. Tooling Wajib untuk Tim Besar
+## 6. Decoupled Data & API Layer
 
-| Tool | Fungsi |
-| --- | --- |
-| ESLint + `@typescript-eslint` | Lint konsistensi kode |
-| Prettier | Format otomatis |
-| Husky + lint-staged | Pre-commit hook (lint & format sebelum commit) |
-| Commitlint (Conventional Commits) | `feat:`, `fix:`, `chore:`, dll |
-| Turborepo (opsional) | Kalau project jadi monorepo (web + admin + api) |
-
-Contoh commit message:
-
-```
-feat(user-management): add bulk delete user
-fix(auth): resolve session expiry redirect loop
-```
-
----
-
-## 9. Prinsip Umum
-
-1. **Colocation over centralization** — taruh file dekat dengan tempat dipakai (feature folder), bukan semua digeneralisir di root.
-2. **Barrel export** (`index.ts`) di tiap feature folder untuk expose API publik fitur tersebut, sembunyikan detail internal.
-3. Jangan biarkan `app/` folder berisi logic bisnis — `app/` cuma untuk routing & compose komponen dari `features/`.
-4. Satu fitur idealnya bisa dihapus tanpa merusak fitur lain (loose coupling).
+- **REST Client**: Use TanStack Query (React Query) for handling fetches, caching, mutations, and query validations. Do not write manual `useEffect` handlers for CRUD logic.
+- **Zustand State**: Limit Zustand strictly to global UI states (e.g., active cart drawer, user authentication tokens, theme toggles). Do not cache database items inside Zustand.
+- **Authorization Flow**:
+  - Store JWT bearer tokens securely (either inside Zustand memory or cookies).
+  - Append bearer tokens to every query client header: `Authorization: Bearer <token>`.
+  - All communication is routed to the Laravel REST API backend at `http://localhost:8000/api/v1`.

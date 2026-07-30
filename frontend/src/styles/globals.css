@@ -1,26 +1,72 @@
 @import "tailwindcss";
 
-:root {
+/* :root {
   --background: #ffffff;
-  --foreground: #171717;
-}
+  --foreground: #ffffff;
+} */
 
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  /* --color-background: var(--background);
+  --color-foreground: var(--foreground); */
+  --font-sans: "Inter", var(--font-geist-sans), sans-serif;
   --font-mono: var(--font-geist-mono);
-}
 
+  /* Typography Design Tokens */
+  
+  /* Headings (responsive using clamp, line-height 120%) */
+  --text-h1: clamp(2rem, 4vw, 3rem);
+  --text-h1--line-height: 1.2;
+  --text-h2: clamp(1.625rem, 3.25vw, 2.25rem);
+  --text-h2--line-height: 1.2;
+  --text-h3: clamp(1.375rem, 2.75vw, 1.875rem);
+  --text-h3--line-height: 1.2;
+  --text-h4: clamp(1.25rem, 2vw, 1.5rem);
+  --text-h4--line-height: 1.2;
+  --text-h5: clamp(1.125rem, 1.5vw, 1.25rem);
+  --text-h5--line-height: 1.2;
+  --text-h6: clamp(1rem, 1.25vw, 1.125rem);
+  --text-h6--line-height: 1.2;
+
+  /* Body (line-height 140%) */
+  --text-body-xl: 1.25rem;
+  --text-body-xl--line-height: 1.4;
+  --text-body-lg: 1.125rem;
+  --text-body-lg--line-height: 1.4;
+  --text-body-md: 1rem;
+  --text-body-md--line-height: 1.4;
+  --text-body-sm: 0.875rem;
+  --text-body-sm--line-height: 1.4;
+  --text-body-xs: 0.75rem;
+  --text-body-xs--line-height: 1.4;
+
+  /* Label (line-height 120%) */
+  --text-label-xl: 1.25rem;
+  --text-label-xl--line-height: 1.2;
+  --text-label-lg: 1.125rem;
+  --text-label-lg--line-height: 1.2;
+  --text-label-md: 1rem;
+  --text-label-md--line-height: 1.2;
+  --text-label-sm: 0.875rem;
+  --text-label-sm--line-height: 1.2;
+  --text-label-xs: 0.75rem;
+  --text-label-xs--line-height: 1.2;
+
+  /* Base Color Placeholder Tokens */
+  --color-brand-default: #6366f1;
+  --color-brand-hover: #4f46e5;
+  --color-text-default: #0f172a;
+  --color-text-muted: #64748b;
+}
+/* 
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
-}
-
+} */
+/* 
 body {
   background: var(--background);
   color: var(--foreground);
   font-family: Arial, Helvetica, sans-serif;
-}
+} */

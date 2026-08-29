@@ -4,12 +4,14 @@ import { cn } from "@/lib/utils";
 export interface HeadingProps extends React.HTMLAttributes<HTMLHeadingElement> {
   level: 1 | 2 | 3 | 4 | 5 | 6;
   emphasized?: boolean;
+  gradient?: boolean;
   children: React.ReactNode;
 }
 
 export function Heading({
   level,
   emphasized = false,
+  gradient = false,
   className,
   children,
   ...props
@@ -30,6 +32,7 @@ export function Heading({
       className={cn(
         sizeClasses[level],
         emphasized ? "font-bold" : "font-medium tracking-[-4%]",
+        gradient && "text-gradient-heading",
         className
       )}
       {...props}

@@ -1,0 +1,50 @@
+import * as React from "react";
+
+export interface FilterModalProps
+  extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
+  /** Apakah modal terbuka (jika digunakan sebagai overlay dialog) */
+  isOpen?: boolean;
+  /** Mode dialog overlay dengan backdrop atau inline card component (default: false) */
+  isDialog?: boolean;
+  /** Callback saat tombol close atau backdrop diklik */
+  onClose?: () => void;
+  /** Callback saat tombol Reset diklik */
+  onReset?: () => void;
+  /** Callback saat tombol Apply diklik */
+  onApply?: () => void;
+  /** Judul header modal (default: 'Filter & Sort') */
+  title?: React.ReactNode;
+  /** Daftar kategori filter teratas (default: Hot Deals, Best Seller, New Release, Coming Soon) */
+  categories?: string[];
+  /** Daftar genre utama */
+  genres?: string[];
+  /** Daftar launcher platform (default: Steam, Epic Game, EA, PS4) */
+  launchers?: string[];
+  /** Daftar opsi pengurutan (default: Terbaru, Nama (A - Z)) */
+  sortOptions?: string[];
+  /** Daftar tag / subgenre tambahan di bawah */
+  tags?: string[];
+  /** Batas minimum harga numerik (default: 0) */
+  minPrice?: number;
+  /** Batas maksimum harga numerik (default: 200000) */
+  maxPrice?: number;
+  /** Step pergeseran harga (default: 5000) */
+  priceStep?: number;
+  /** Nilai harga aktif [min, max] */
+  priceRange?: [number, number];
+  /** Callback saat range harga berubah */
+  onPriceRangeChange?: (range: [number, number]) => void;
+  /** State pilihan aktif */
+  selectedCategories?: string[];
+  selectedGenres?: string[];
+  selectedLaunchers?: string[];
+  selectedSort?: string;
+  selectedTags?: string[];
+  onToggleCategory?: (category: string) => void;
+  onToggleGenre?: (genre: string) => void;
+  onToggleLauncher?: (launcher: string) => void;
+  onSelectSort?: (sort: string) => void;
+  onToggleTag?: (tag: string) => void;
+  /** React 19 native ref */
+  ref?: React.Ref<HTMLDivElement>;
+}

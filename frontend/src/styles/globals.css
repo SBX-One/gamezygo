@@ -431,301 +431,6 @@
   --color-slate-900: #0f172a;
   --color-slate-950: #020617;
 
-  /* ==========================================================================
-     6. Semantic Color Tokens (Mapped to Primitives)
-     ========================================================================== */
-
-  /* Primary -> Pale Red */
-  --color-primary-50: var(--color-pale-red-50);
-  --color-primary-100: var(--color-pale-red-100);
-  --color-primary-200: var(--color-pale-red-200);
-  --color-primary-300: var(--color-pale-red-300);
-  --color-primary-400: var(--color-pale-red-400);
-  --color-primary-500: var(--color-pale-red-500);
-  --color-primary-600: var(--color-pale-red-600);
-  --color-primary-700: var(--color-pale-red-700);
-  --color-primary-800: var(--color-pale-red-800);
-  --color-primary-900: var(--color-pale-red-900);
-  --color-primary-950: var(--color-pale-red-950);
-
-  /* Secondary -> Deep Blue */
-  --color-secondary-50: var(--color-deep-blue-50);
-  --color-secondary-100: var(--color-deep-blue-100);
-  --color-secondary-200: var(--color-deep-blue-200);
-  --color-secondary-300: var(--color-deep-blue-300);
-  --color-secondary-400: var(--color-deep-blue-400);
-  --color-secondary-500: var(--color-deep-blue-500);
-  --color-secondary-600: var(--color-deep-blue-600);
-  --color-secondary-700: var(--color-deep-blue-700);
-  --color-secondary-800: var(--color-deep-blue-800);
-  --color-secondary-900: var(--color-deep-blue-900);
-  --color-secondary-950: var(--color-deep-blue-950);
-
-  /* Neutral -> Gray */
-  --color-neutral-50: var(--color-gray-50);
-  --color-neutral-100: var(--color-gray-100);
-  --color-neutral-200: var(--color-gray-200);
-  --color-neutral-300: var(--color-gray-300);
-  --color-neutral-400: var(--color-gray-400);
-  --color-neutral-500: var(--color-gray-500);
-  --color-neutral-600: var(--color-gray-600);
-  --color-neutral-700: var(--color-gray-700);
-  --color-neutral-800: var(--color-gray-800);
-  --color-neutral-850: var(--color-gray-850);
-  --color-neutral-900: var(--color-gray-900);
-  --color-neutral-950: var(--color-gray-950);
-
-  /* Accent -> Pale Yellow */
-  --color-accent-50: var(--color-pale-yellow-50);
-  --color-accent-100: var(--color-pale-yellow-100);
-  --color-accent-200: var(--color-pale-yellow-200);
-  --color-accent-300: var(--color-pale-yellow-300);
-  --color-accent-400: var(--color-pale-yellow-400);
-  --color-accent-500: var(--color-pale-yellow-500);
-  --color-accent-600: var(--color-pale-yellow-600);
-  --color-accent-700: var(--color-pale-yellow-700);
-  --color-accent-800: var(--color-pale-yellow-800);
-  --color-accent-900: var(--color-pale-yellow-900);
-  --color-accent-950: var(--color-pale-yellow-950);
-
-  /* Error -> Red */
-  --color-error-50: var(--color-red-50);
-  --color-error-100: var(--color-red-100);
-  --color-error-200: var(--color-red-200);
-  --color-error-300: var(--color-red-300);
-  --color-error-400: var(--color-red-400);
-  --color-error-500: var(--color-red-500);
-  --color-error-600: var(--color-red-600);
-  --color-error-700: var(--color-red-700);
-  --color-error-800: var(--color-red-800);
-  --color-error-900: var(--color-red-900);
-  --color-error-950: var(--color-red-950);
-
-  /* Success -> Green */
-  --color-success-50: var(--color-green-50);
-  --color-success-100: var(--color-green-100);
-  --color-success-200: var(--color-green-200);
-  --color-success-300: var(--color-green-300);
-  --color-success-400: var(--color-green-400);
-  --color-success-500: var(--color-green-500);
-  --color-success-600: var(--color-green-600);
-  --color-success-700: var(--color-green-700);
-  --color-success-800: var(--color-green-800);
-  --color-success-900: var(--color-green-900);
-  --color-success-950: var(--color-green-950);
-
-  /* Warning -> Yellow */
-  --color-warning-50: var(--color-yellow-50);
-  --color-warning-100: var(--color-yellow-100);
-  --color-warning-200: var(--color-yellow-200);
-  --color-warning-300: var(--color-yellow-300);
-  --color-warning-400: var(--color-yellow-400);
-  --color-warning-500: var(--color-yellow-500);
-  --color-warning-600: var(--color-yellow-600);
-  --color-warning-700: var(--color-yellow-700);
-  --color-warning-800: var(--color-yellow-800);
-  --color-warning-900: var(--color-yellow-900);
-  --color-warning-950: var(--color-yellow-950);
-
-  /* Information -> Blue */
-  --color-information-50: var(--color-blue-50);
-  --color-information-100: var(--color-blue-100);
-  --color-information-200: var(--color-blue-200);
-  --color-information-300: var(--color-blue-300);
-  --color-information-400: var(--color-blue-400);
-  --color-information-500: var(--color-blue-500);
-  --color-information-600: var(--color-blue-600);
-  --color-information-700: var(--color-blue-700);
-  --color-information-800: var(--color-blue-800);
-  --color-information-900: var(--color-blue-900);
-  --color-information-950: var(--color-blue-950);
-
-  /* Status Colors */
-  --color-status-success: var(--color-success-500);
-  --color-status-error: var(--color-error-500);
-  --color-status-warning: var(--color-warning-500);
-  --color-status-information: var(--color-information-500);
-
-  /* Legacy & Brand Aliases */
-  --color-brand-default: #6366f1;
-  --color-brand-hover: #4f46e5;
-  --color-text-default: #0f172a;
-  --color-text-muted: #64748b;
-
-  /* ==========================================================================
-     7. Contextual Color Tokens (Surface, Text, Border, Icon)
-     ========================================================================== */
-
-  /* Surface Contextual */
-  --color-surface-primary-default: var(--color-primary-500);
-  --color-surface-primary-hover: var(--color-primary-600);
-  --color-surface-primary-focus: var(--color-primary-700);
-  --color-surface-primary-selected: var(--color-primary-600);
-  --color-surface-primary-pressed: var(--color-primary-800);
-
-  --color-surface-secondary-default: var(--color-secondary-900);
-  --color-surface-secondary-hover: var(--color-secondary-700);
-  --color-surface-secondary-focus: var(--color-secondary-900);
-  --color-surface-secondary-selected: var(--color-secondary-700);
-  --color-surface-secondary-pressed: var(--color-secondary-700);
-
-  --color-surface-accent-default: var(--color-accent-500);
-  --color-surface-accent-hover: var(--color-accent-600);
-  --color-surface-accent-focus: var(--color-accent-700);
-  --color-surface-accent-selected: var(--color-accent-600);
-  --color-surface-accent-pressed: var(--color-accent-800);
-
-  --color-surface-error-default: var(--color-error-900);
-  --color-surface-error-hover: var(--color-error-800);
-  --color-surface-error-focus: var(--color-error-900);
-  --color-surface-error-selected: var(--color-error-950);
-  --color-surface-error-pressed: var(--color-error-950);
-
-  --color-surface-success-default: var(--color-success-900);
-  --color-surface-success-hover: var(--color-success-800);
-  --color-surface-success-focus: var(--color-success-900);
-  --color-surface-success-selected: var(--color-success-950);
-  --color-surface-success-pressed: var(--color-success-950);
-
-  --color-surface-warning-default: var(--color-warning-900);
-  --color-surface-warning-hover: var(--color-warning-800);
-  --color-surface-warning-focus: var(--color-warning-900);
-  --color-surface-warning-selected: var(--color-warning-950);
-  --color-surface-warning-pressed: var(--color-warning-950);
-
-  --color-surface-background: var(--color-deep-blue-950);
-  --color-surface-panel: var(--color-deep-blue-900);
-  --color-surface-white: var(--color-neutral-50);
-
-  /* Text Contextual */
-  --color-content-primary-default: var(--color-primary-100);
-  --color-content-primary-hover: var(--color-primary-200);
-  --color-content-primary-focus: var(--color-primary-100);
-  --color-content-primary-selected: var(--color-primary-300);
-  --color-content-primary-pressed: var(--color-primary-300);
-
-  --color-content-secondary-default: var(--color-neutral-50);
-  --color-content-secondary-hover: var(--color-secondary-200);
-  --color-content-secondary-focus: var(--color-neutral-50);
-  --color-content-secondary-selected: var(--color-secondary-200);
-  --color-content-secondary-pressed: var(--color-secondary-200);
-
-  --color-content-accent-default: var(--color-accent-500);
-  --color-content-accent-hover: var(--color-accent-600);
-  --color-content-accent-focus: var(--color-accent-500);
-  --color-content-accent-selected: var(--color-accent-600);
-  --color-content-accent-pressed: var(--color-accent-800);
-
-  --color-content-error-default: var(--color-error-600);
-  --color-content-error-hover: var(--color-error-700);
-  --color-content-error-focus: var(--color-error-600);
-  --color-content-error-selected: var(--color-error-800);
-  --color-content-error-pressed: var(--color-error-900);
-
-  --color-content-success-default: var(--color-success-500);
-  --color-content-success-hover: var(--color-success-700);
-  --color-content-success-focus: var(--color-success-500);
-  --color-content-success-selected: var(--color-success-800);
-  --color-content-success-pressed: var(--color-success-800);
-
-  --color-content-warning-default: var(--color-warning-600);
-  --color-content-warning-hover: var(--color-warning-700);
-  --color-content-warning-focus: var(--color-warning-600);
-  --color-content-warning-selected: var(--color-warning-800);
-  --color-content-warning-pressed: var(--color-warning-800);
-
-  --color-content-heading: var(--color-neutral-50);
-  --color-content-subheading: var(--color-neutral-200);
-  --color-content-body: var(--color-neutral-400);
-  --color-content-label: var(--color-neutral-200);
-  --color-content-placeholder: var(--color-neutral-400);
-  --color-content-emphasized: var(--color-accent-500);
-
-  /* Border Contextual */
-  --color-border-primary-default: var(--color-primary-500);
-  --color-border-primary-hover: var(--color-primary-600);
-  --color-border-primary-focus: var(--color-primary-700);
-  --color-border-primary-selected: var(--color-primary-600);
-  --color-border-primary-pressed: var(--color-primary-800);
-
-  --color-border-secondary-default: var(--color-secondary-900);
-  --color-border-secondary-hover: var(--color-secondary-700);
-  --color-border-secondary-focus: var(--color-secondary-900);
-  --color-border-secondary-selected: var(--color-secondary-700);
-  --color-border-secondary-pressed: var(--color-border-secondary-900);
-
-  --color-border-accent-default: var(--color-accent-500);
-  --color-border-accent-hover: var(--color-accent-600);
-  --color-border-accent-focus: var(--color-accent-700);
-  --color-border-accent-selected: var(--color-accent-600);
-  --color-border-accent-pressed: var(--color-accent-800);
-
-  --color-border-error-default: var(--color-error-600);
-  --color-border-error-hover: var(--color-error-700);
-  --color-border-error-focus: var(--color-error-600);
-  --color-border-error-selected: var(--color-error-800);
-  --color-border-error-pressed: var(--color-error-900);
-
-  --color-border-success-default: var(--color-success-900);
-  --color-border-success-hover: var(--color-success-800);
-  --color-border-success-focus: var(--color-success-900);
-  --color-border-success-selected: var(--color-success-950);
-  --color-border-success-pressed: var(--color-success-950);
-
-  --color-border-warning-default: var(--color-warning-900);
-  --color-border-warning-hover: var(--color-warning-800);
-  --color-border-warning-focus: var(--color-warning-900);
-  --color-border-warning-selected: var(--color-warning-950);
-  --color-border-warning-pressed: var(--color-warning-950);
-
-  --color-border-background: var(--color-neutral-950);
-  --color-border-default: var(--color-neutral-700);
-  --color-border-white: var(--color-neutral-50);
-  --color-border-emphasized: var(--color-accent-500);
-
-  /* Icon Contextual */
-  --color-icon-primary-default: var(--color-primary-100);
-  --color-icon-primary-hover: var(--color-primary-200);
-  --color-icon-primary-focus: var(--color-primary-100);
-  --color-icon-primary-selected: var(--color-primary-300);
-  --color-icon-primary-pressed: var(--color-primary-300);
-
-  --color-icon-secondary-default: var(--color-secondary-100);
-  --color-icon-secondary-hover: var(--color-secondary-400);
-  --color-icon-secondary-focus: var(--color-secondary-100);
-  --color-icon-secondary-selected: var(--color-secondary-400);
-  --color-icon-secondary-pressed: var(--color-secondary-400);
-
-  --color-icon-accent-default: var(--color-accent-100);
-  --color-icon-accent-hover: var(--color-accent-300);
-  --color-icon-accent-focus: var(--color-accent-100);
-  --color-icon-accent-selected: var(--color-accent-400);
-  --color-icon-accent-pressed: var(--color-accent-400);
-
-  --color-icon-error-default: var(--color-error-600);
-  --color-icon-error-hover: var(--color-error-700);
-  --color-icon-error-focus: var(--color-error-600);
-  --color-icon-error-selected: var(--color-error-800);
-  --color-icon-error-pressed: var(--color-error-900);
-
-  --color-icon-success-default: var(--color-success-500);
-  --color-icon-success-hover: var(--color-success-700);
-  --color-icon-success-focus: var(--color-success-500);
-  --color-icon-success-selected: var(--color-success-800);
-  --color-icon-success-pressed: var(--color-success-800);
-
-  --color-icon-warning-default: var(--color-warning-600);
-  --color-icon-warning-hover: var(--color-warning-700);
-  --color-icon-warning-focus: var(--color-warning-600);
-  --color-icon-warning-selected: var(--color-warning-800);
-  --color-icon-warning-pressed: var(--color-warning-800);
-
-  --color-icon-heading: var(--color-neutral-50);
-  --color-icon-subheading: var(--color-neutral-200);
-  --color-icon-body: var(--color-neutral-400);
-  --color-icon-label: var(--color-neutral-200);
-  --color-icon-placeholder: var(--color-neutral-500);
-
   /* Component Button/Input Overlays */
   --color-surface-button-outline: rgba(26, 26, 26, 0.7);
   --color-surface-button-outline-hover: rgba(15, 15, 15, 0.7);
@@ -735,7 +440,7 @@
   /* ==========================================================================
      8. Semantic State Gradients (Typography, Border, Surface)
      ========================================================================== */
-  --background-image-gradient-heading: linear-gradient(180deg, #FAFAFA 0%, #949494 100%);
+  --background-image-gradient-heading: linear-gradient(16deg, #FAFAFA 0%, #949494 100%);
   --image-gradient-heading: linear-gradient(180deg, #FAFAFA 0%, #949494 100%);
 
   /* Border & Surface Primary */
@@ -784,7 +489,7 @@
    ========================================================================== */
 :root {
   /* Gradients */
-  --gradient-heading: linear-gradient(180deg, #FAFAFA 0%, #949494 100%);
+  --gradient-heading: linear-gradient(90deg, #FAFAFA 0%, #949494 100%);
   --gradient-primary-default: linear-gradient(180deg, #BF3E42 50%, #7F1D1D 100%);
   --gradient-primary-focus: linear-gradient(180deg, rgba(191, 62, 66, 0.93) 50%, rgba(127, 29, 29, 0.90) 100%);
   --gradient-primary-hover: linear-gradient(180deg, rgba(135, 44, 47, 0.93) 50%, rgba(100, 23, 23, 0.90) 100%);
@@ -795,28 +500,6 @@
   --gradient-surface-secondary-pressed: linear-gradient(180deg, #0E0E14 0%, #15161D 100%);
   --gradient-surface-secondary-focus: linear-gradient(180deg, #15161D 0%, #1B1B1E 100%);
 
-  /* Contextual Non-Component Tokens */
-  --surface-non-component-background: var(--color-deep-blue-950);
-  --surface-non-component-default: var(--color-deep-blue-900);
-  --surface-non-component-white: var(--color-neutral-50);
-
-  --text-non-component-heading: var(--color-neutral-50);
-  --text-non-component-subheading: var(--color-neutral-200);
-  --text-non-component-body: var(--color-neutral-400);
-  --text-non-component-label: var(--color-neutral-200);
-  --text-non-component-placeholder: var(--color-neutral-400);
-  --text-non-component-emphasized: var(--color-accent-500);
-
-  --border-non-component-background: var(--color-neutral-950);
-  --border-non-component-default: var(--color-neutral-700);
-  --border-non-component-white: var(--color-neutral-50);
-  --border-non-component-emphasized: var(--color-accent-500);
-
-  --icon-non-component-heading: var(--color-neutral-50);
-  --icon-non-component-subheading: var(--color-neutral-200);
-  --icon-non-component-body: var(--color-neutral-400);
-  --icon-non-component-label: var(--color-neutral-200);
-  --icon-non-component-placeholder: var(--color-neutral-500);
 }
 
 @utility text-gradient-heading {
@@ -825,4 +508,64 @@
   background-clip: text;
   -webkit-text-fill-color: transparent;
   color: transparent;
+}
+
+@utility border-gradient-primary {
+  border: 1px solid transparent;
+  background-image: linear-gradient(#15161D, #15161D), var(--gradient-primary-default);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+}
+
+@utility border-b-gradient-secondary {
+  border-bottom: 1px solid transparent;
+  border-image: var(--gradient-secondary-border) 1;
+}
+
+@utility border-r-gradient-secondary {
+  border-right: 1px solid transparent;
+  border-image: var(--gradient-secondary-border) 1;
+}
+
+@utility border-y-gradient-secondary {
+  border-top: 1px solid transparent;
+  border-bottom: 1px solid transparent;
+  border-image: var(--gradient-secondary-border) 1;
+}
+
+@utility border-gradient-outline {
+  border: 1px solid transparent;
+  background-image: var(--gradient-surface-secondary-default), var(--gradient-secondary-border);
+  background-origin: border-box;
+  background-clip: padding-box, border-box;
+
+  &:hover {
+    background-image: var(--gradient-surface-secondary-hover), var(--gradient-secondary-border);
+  }
+
+  &:active {
+    background-image: var(--gradient-surface-secondary-pressed), var(--gradient-secondary-border);
+  }
+}
+
+@utility bg-gradient-primary {
+  background-image: var(--gradient-primary-default);
+}
+
+@utility border-gradient-inactive {
+  position: relative;
+  background-color: transparent;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(--gradient-secondary-border);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
 }

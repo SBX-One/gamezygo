@@ -73,7 +73,7 @@ export function GameListItem({
           {/* Discount Pill */}
           <div>
             {discount ? (
-              <Pill variant="primary" size="xs">
+              <Pill variant="secondary" size="xs" className="">
                 {discount}
               </Pill>
             ) : null}

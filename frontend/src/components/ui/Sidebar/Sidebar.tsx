@@ -1,6 +1,7 @@
+﻿import Link from "next/link";
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import type { SidebarProps, SidebarSection, SidebarItem } from "./Sidebar.types";
+import type { SidebarProps, SidebarSection } from "./Sidebar.types";
 
 const HomeIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -180,9 +181,9 @@ const defaultSidebarSections: SidebarSection[] = [
   {
     id: "main",
     items: [
-      { id: "toko", label: "Toko", icon: <HomeIcon /> },
-      { id: "paket", label: "Paket", icon: <CrownIcon /> },
-      { id: "perpustakaan", label: "Perpustakaan", icon: <GamesIcon /> },
+      { id: "toko", label: "Toko", icon: <HomeIcon />, href: "/store" },
+      { id: "paket", label: "Paket", icon: <CrownIcon />, href: "/bundle" },
+      { id: "perpustakaan", label: "Perpustakaan", icon: <GamesIcon />, href: "/library" },
       { id: "riwayat", label: "Riwayat Pembelian", icon: <ClockIcon /> },
     ],
   },
@@ -190,7 +191,7 @@ const defaultSidebarSections: SidebarSection[] = [
     id: "explore",
     items: [
       { id: "request", label: "Request Game", icon: <AddIcon /> },
-      { id: "wishlist", label: "Wishlist", icon: <BookmarkIcon /> },
+      { id: "wishlist", label: "Wishlist", icon: <BookmarkIcon />, href: "/wishlist" },
       { id: "leaderboard", label: "Leaderboard", icon: <LeaderboardIcon /> },
       { id: "ulasan", label: "Ulasan", icon: <ReviewIcon /> },
     ],
@@ -238,18 +239,14 @@ export function Sidebar({
             <div className="flex flex-col gap-3">
               {section.items.map((item) => {
                 const isActive = activeId === item.id;
-                return (
-                  <button
-                    key={item.id}
-                    type="button"
-                    disabled={item.disabled}
-                    onClick={() => onItemClick?.(item)}
-                    className={cn(
-                      "flex items-center gap-4 text-left transition-colors duration-150 group cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-gray-50/50 rounded-md py-1",
-                      item.disabled && "opacity-50 pointer-events-none cursor-not-allowed",
-                      isActive && "font-bold"
-                    )}
-                  >
+                const itemClasses = cn(
+                  "flex items-center gap-4 text-left transition-colors duration-150 group cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-gray-50/50 rounded-md py-1",
+                  item.disabled && "opacity-50 pointer-events-none cursor-not-allowed",
+                  isActive && "font-bold"
+                );
+
+                const itemContent = (
+                  <>
                     {/* Icon Slot */}
                     <span
                       className={cn(
@@ -276,6 +273,27 @@ export function Sidebar({
                         {item.badge}
                       </span>
                     )}
+                  </>
+                );
+
+                return item.href ? (
+                  <Link
+                    key={item.id}
+                    href={item.href}
+                    onClick={() => onItemClick?.(item)}
+                    className={itemClasses}
+                  >
+                    {itemContent}
+                  </Link>
+                ) : (
+                  <button
+                    key={item.id}
+                    type="button"
+                    disabled={item.disabled}
+                    onClick={() => onItemClick?.(item)}
+                    className={itemClasses}
+                  >
+                    {itemContent}
                   </button>
                 );
               })}

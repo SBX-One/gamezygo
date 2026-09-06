@@ -21,7 +21,7 @@ export type ButtonState =
   | "disabled";
 
 export const buttonVariants = cva(
-  "inline-flex w-fit h-fit items-center justify-center gap-4 font-medium transition-all duration-150 select-none cursor-pointer focus-visible:outline-none focus-visible:ring-offset-1 focus-visible:ring-offset-black disabled:cursor-not-allowed disabled:bg-gray-700 disabled:bg-none disabled:border-transparent",
+  "inline-flex w-fit h-fit items-center justify-center gap-4  transition-all duration-150 select-none cursor-pointer focus-visible:outline-none focus-visible:ring-offset-1 focus-visible:ring-offset-black disabled:cursor-not-allowed disabled:bg-gray-700 disabled:bg-none disabled:border-transparent",
   {
     variants: {
       variant: {
@@ -32,7 +32,7 @@ export const buttonVariants = cva(
         outline:
           "border-gradient-outline text-white hover:[&_.button-main-text]:text-deep-blue-400 active:[&_.button-main-text]:text-deep-blue-400 hover:[&_.button-left-icon]:text-deep-blue-100 hover:[&_.button-right-icon]:text-deep-blue-100 active:[&_.button-left-icon]:text-deep-blue-100 active:[&_.button-right-icon]:text-deep-blue-100  active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none",
         ghost:
-          "bg-transparent text-white border-b-2 border-white !rounded-none hover:[&_.button-main-text]:text-deep-blue-400 active:[&_.button-main-text]:text-deep-blue-400 hover:[&_.button-left-icon]:text-deep-blue-100 hover:[&_.button-right-icon]:text-deep-blue-100 active:[&_.button-left-icon]:text-deep-blue-100 active:[&_.button-right-icon]:text-deep-blue-100  active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none",
+          "bg-transparent text-white !rounded-none hover:[&_.button-main-text]:text-deep-blue-400 active:[&_.button-main-text]:text-deep-blue-400 hover:[&_.button-left-icon]:text-deep-blue-100 hover:[&_.button-right-icon]:text-deep-blue-100 active:[&_.button-left-icon]:text-deep-blue-100 active:[&_.button-right-icon]:text-deep-blue-100  active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none",
         inactive:
           "border-gradient-inactive text-white hover:[&_.button-left-icon]:text-deep-blue-100 hover:[&_.button-right-icon]:text-deep-blue-100 active:[&_.button-left-icon]:text-deep-blue-100 active:[&_.button-right-icon]:text-deep-blue-100  active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none",
         inactiveDashboard:
@@ -43,7 +43,7 @@ export const buttonVariants = cva(
       size: {
         xs: "text-label-xs rounded-lg gap-4 p-1",
         sm: "text-label-sm rounded-lg gap-4 px-3.75 py-2.5",
-        md: "text-label-md rounded-lg gap-4 p-4",
+        md: "text-label-md rounded-lg gap-4 p-4.5 ",
         lg: "text-label-lg rounded-lg gap-4 p-6",
       },
       forceState: {
@@ -84,10 +84,10 @@ export interface ButtonProps
 }
 
 const labelSizeClasses: Record<ButtonSize, string> = {
-  xs: "text-label-xs text-gray-400 font-normal leading-none",
-  sm: "text-label-xs text-gray-400 font-normal leading-none",
-  md: "text-label-sm text-gray-400 font-normal leading-none",
-  lg: "text-label-sm text-gray-400 font-normal leading-none",
+  xs: "text-label-xs text-gray-400 ",
+  sm: "text-label-xs text-gray-400 ",
+  md: "text-label-sm text-gray-400 ",
+  lg: "text-label-sm text-gray-400 ",
 };
 
 const iconSizeClasses: Record<ButtonSize, string> = {
@@ -157,7 +157,7 @@ export function Button({
 
       {/* 3. Main Text / Children Slot */}
       {children && (
-        <span className="button-main-text font-medium truncate text-white inline-flex items-center gap-4">
+        <span className="button-main-text text-label-md font-semibold  text-white inline-flex items-center gap-4">
           {children}
         </span>
       )}

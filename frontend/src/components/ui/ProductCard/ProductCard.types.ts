@@ -1,4 +1,4 @@
-import * as React from "react";
+﻿import * as React from "react";
 
 export type ProductCardOrientation = "vertical" | "horizontal";
 export type ProductCardState = "default" | "unavailable" | "pre-order";
@@ -28,7 +28,7 @@ export interface ProductCardProps
   /** Harga asli yang dicoret (misal: 'Rp 439.000,00') */
   originalPrice?: React.ReactNode;
   /** Harga aktif / final (misal: 'Rp 219.500') */
-  price: React.ReactNode;
+  price?: React.ReactNode;
   /** Diskon harga untuk Pill primary xs (misal: '-30%') */
   discount?: React.ReactNode;
   /** Teks info rilis untuk pre-order (misal: 'Release at 5 July') */
@@ -39,6 +39,10 @@ export interface ProductCardProps
   onActionClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   /** Link tujuan saat card diklik */
   href?: string;
+  /** Apakah menampilkan harga game (default: true) */
+  showPrice?: boolean;
+  /** Apakah menampilkan tombol aksi (default: true) */
+  showActionButton?: boolean;
   /** React 19 native ref */
   ref?: React.Ref<HTMLDivElement>;
 }

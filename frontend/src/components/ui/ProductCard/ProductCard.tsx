@@ -1,4 +1,4 @@
-import * as React from "react";
+﻿import * as React from "react";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Pill } from "@/components/ui/Pill";
@@ -43,6 +43,8 @@ export function ProductCard({
   buttonText,
   onActionClick,
   href,
+  showPrice = true,
+  showActionButton = true,
   className,
   ref,
   ...props
@@ -89,12 +91,13 @@ export function ProductCard({
         <Button
           type="button"
           variant="outline"
-          size="md"
-          className="w-full justify-center cursor-pointer"
+          size="md" 
+          className="w-full justify-center cursor-pointer text-xs sm:text-sm"
           onClick={onActionClick}
         >
           {buttonText || "Tambah Keranjang"}
         </Button>
+
       );
     }
 
@@ -102,8 +105,8 @@ export function ProductCard({
       <Button
         type="button"
         variant="secondary"
-        size="sm"
-        className="w-full justify-center cursor-pointer"
+        size="md"
+        className="w-full justify-center cursor-pointer text-xs "
         onClick={onActionClick}
       >
         {buttonText || "Tambah Keranjang"}
@@ -113,14 +116,14 @@ export function ProductCard({
 
   // Pricing & Discount sub-component
   const renderPrices = () => (
-    <div className="flex items-center justify-between gap-2">
-      <div className="flex items-center gap-2 shrink-0">
+    <div className="flex items-center gap-1.5 sm:gap-4 flex-wrap">
+      <div className="flex items-baseline sm:items-center justify-start gap-1 sm:gap-2 shrink-0 flex-wrap">
         {originalPrice && (
-          <span className="text-body-xs text-gray-400 line-through">
+          <span className="text-[10px] sm:text-body-xs text-gray-400 line-through">
             {originalPrice}
           </span>
         )}
-        <span className="text-body-sm font-semibold text-white">
+        <span className="text-body-xs sm:text-body-lg font-semibold leading-[140%] text-white">
           {price}
         </span>
       </div>
@@ -133,19 +136,19 @@ export function ProductCard({
     </div>
   );
 
-  // Horizontal Card Layout (Width: 518px -> w-129.5, Height: 260px -> h-65, p-3, gap-6)
+  // Horizontal Card Layout
   if (isHorizontal) {
     return (
       <div
         ref={ref}
         className={cn(
-          "flex flex-row gap-6 p-3 items-center rounded-2xl bg-deep-blue-900 border border-white/5 select-none transition-all duration-150 w-129.5 max-w-full h-65 shrink-0",
+          "flex flex-col sm:flex-row gap-4 sm:gap-6 p-3 items-stretch sm:items-center rounded-lg bg-deep-blue-900 border border-white/5 select-none transition-all duration-150 w-full sm:min-w-129.5 max-w-full h-auto sm:h-65 shrink-0",
           className
         )}
         {...props}
       >
-        {/* Left: Game Cover (Takes full height of card inner: 236px) */}
-        <div className="h-full aspect-3/4 rounded-xl overflow-hidden relative bg-deep-blue-950 shrink-0">
+        {/* Left: Game Cover */}
+        <div className="w-full sm:w-auto h-44 sm:h-full aspect-video sm:aspect-3/4 rounded-lg overflow-hidden relative bg-deep-blue-950 shrink-0">
           {/* Cover Image */}
           {imageSlot ? (
             imageSlot
@@ -163,7 +166,7 @@ export function ProductCard({
 
           {/* Badges Overlay at Top */}
           <div className="absolute top-2.5 left-2.5 right-2.5 flex items-center justify-between gap-1.5 pointer-events-none">
-            {/* Steam Platform Badge (No border) */}
+            {/* Steam Platform Badge */}
             {platform && (
               <div className="flex items-center gap-1.5 drop-shadow-md">
                 <SteamIcon />
@@ -182,27 +185,27 @@ export function ProductCard({
           </div>
         </div>
 
-        {/* Right: Content Column (h-full flex flex-col justify-between) */}
-        <div className="flex flex-col justify-between flex-1 self-stretch min-w-0 h-full py-0.5">
-          {/* Top Block: Title & Genres (gap-5 / 20px) */}
-          <div className="flex flex-col gap-5">
+        {/* Right: Content Column */}
+        <div className="flex flex-col justify-between flex-1 self-stretch min-w-0 h-full py-0.5 gap-3">
+          {/* Top Block: Title & Genres */}
+          <div className="flex flex-col gap-2.5 sm:gap-5">
             {/* 1. Title Game */}
             {href ? (
               <Link
                 href={href}
-                className="text-body-sm font-semibold text-gray-50 hover:text-white line-clamp-2 transition-colors outline-none leading-snug"
+                className="text-xs sm:text-body-sm font-semibold text-gray-50 hover:text-white line-clamp-2 transition-colors outline-none leading-tight sm:leading-snug"
               >
                 {title}
               </Link>
             ) : (
-              <h4 className="text-h6 font-semibold text-gray-50 leading-[120%] pt-5">
+              <h4 className="text-xs sm:text-h6 font-semibold text-gray-50 leading-tight sm:leading-[120%] pt-1 sm:pt-5 line-clamp-2">
                 {title}
               </h4>
             )}
 
             {/* 2. Genres Pills */}
             {genres && genres.length > 0 && (
-              <div className="flex items-center gap-2 flex-wrap">
+              <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                 {genres.map((genre, idx) => (
                   <Pill key={idx} variant="secondary" size="xs">
                     {genre}
@@ -212,9 +215,9 @@ export function ProductCard({
             )}
           </div>
 
-          {/* Bottom Block: Prices & Action Button (gap-3 / 12px) */}
-          <div className="flex flex-col gap-3 mt-auto">
-            {renderPrices()}
+          {/* Bottom Block: Prices & Action Button */}
+          <div className="flex flex-col gap-2.5 sm:gap-3 mt-auto">
+            {showPrice && price && renderPrices()}
             {renderActionButton()}
           </div>
         </div>
@@ -222,18 +225,18 @@ export function ProductCard({
     );
   }
 
-  // Vertical Card Layout (max-w-60 / 240px, bg-transparent, gap-6 per item, gap-4 between title and price)
+  // Vertical Card Layout (Optimized for 2-column mobile and 4-column desktop)
   return (
     <div
       ref={ref}
       className={cn(
-        "flex flex-col gap-6 w-full max-w-60 bg-transparent select-none transition-all duration-150",
+        "flex flex-col justify-between h-full gap-2.5 sm:gap-4 lg:gap-6 w-full bg-transparent select-none transition-all duration-150",
         className
       )}
       {...props}
     >
       {/* 1. Game Cover Image */}
-      <div className="w-full aspect-3/4 rounded-xl overflow-hidden relative bg-deep-blue-950 shrink-0">
+      <div className="w-full aspect-3/4 rounded-lg overflow-hidden relative bg-deep-blue-950 shrink-0">
         {imageSlot ? (
           imageSlot
         ) : imageSrc ? (
@@ -261,9 +264,9 @@ export function ProductCard({
         </div>
       </div>
 
-      {/* 2. Genres Pills (secondary extra small, gap-2) */}
+      {/* 2. Genres Pills */}
       {genres && genres.length > 0 && (
-        <div className="flex items-center gap-2 flex-wrap">
+        <div className="flex items-center gap-1 sm:gap-2 flex-wrap">
           {genres.map((genre, idx) => (
             <Pill key={idx} variant="secondary" size="xs">
               {genre}
@@ -272,28 +275,28 @@ export function ProductCard({
         </div>
       )}
 
-      {/* 3. Title & Pricing block (gap-4 / 16px) */}
-      <div className="flex flex-col gap-4">
+      {/* 3. Title & Pricing block */}
+      <div className="flex flex-col gap-1.5 sm:gap-3 lg:gap-4">
         {/* Title */}
         {href ? (
           <Link
             href={href}
-            className="text-body-sm font-semibold text-gray-50 hover:text-white line-clamp-2 transition-colors outline-none leading-snug"
+            className="text-xs sm:text-body-sm font-semibold text-gray-50 hover:text-white line-clamp-2 transition-colors outline-none leading-tight sm:leading-snug"
           >
             {title}
           </Link>
         ) : (
-          <h4 className="text-body-sm font-semibold text-gray-50 line-clamp-2 leading-snug">
+          <h4 className="text-xs sm:text-body-sm font-semibold text-gray-50 line-clamp-2 leading-tight sm:leading-snug">
             {title}
           </h4>
         )}
 
         {/* Pricing & Discount */}
-        {renderPrices()}
+        {showPrice && price && renderPrices()}
       </div>
 
       {/* 4. Action Button */}
-      <div>{renderActionButton()}</div>
+      {showActionButton && <div>{renderActionButton()}</div>}
     </div>
   );
 }

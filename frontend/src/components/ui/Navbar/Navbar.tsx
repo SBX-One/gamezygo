@@ -207,7 +207,7 @@ export function Navbar({
     <header
       ref={ref}
       className={cn(
-        "w-full bg-transparent flex flex-col select-none transition-colors",
+        "w-full bg-transparent flex flex-col select-none transition-colors ",
         className
       )}
       {...props}
@@ -231,7 +231,7 @@ export function Navbar({
       {/* ========================================================
           1. BARIS ATAS: Kiri (Logo W:60 H:32 + Divider + Nav Links) & Kanan (Search + Actions)
          ======================================================== */}
-      <div className="w-full px-6 md:px-10 py-3 flex items-center justify-between">
+      <div className="w-full px-20 py-11 flex items-center justify-between">
         {variant === "back" ? (
           <div className="flex items-center gap-4">
             <Button

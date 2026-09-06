@@ -24,3 +24,4 @@ export * from "./TestimonialCard";
 export * from "./ProductCard";
 export * from "./SectionHeader";
 export * from "./FilterModal";
+export * from "./BannerCarousel";

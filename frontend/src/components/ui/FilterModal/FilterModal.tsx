@@ -1,4 +1,4 @@
-import * as React from "react";
+﻿import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import type { FilterModalProps } from "./FilterModal.types";
@@ -49,21 +49,6 @@ const DEFAULT_LAUNCHERS = ["Steam", "Epic Game", "EA", "PS4"];
 
 const DEFAULT_SORT_OPTIONS = ["Terbaru", "Nama (A - Z)"];
 
-const DEFAULT_TAGS = [
-  "Action",
-  "Adventure",
-  "Sport-Racing",
-  "Fighting",
-  "NSFW",
-  "Fantasy",
-  "RPG",
-  "Horror",
-  "Multiplayer",
-  "Romance",
-  "Comedy",
-  "Casual",
-];
-
 function formatRupiah(amount: number): string {
   if (amount <= 0) return "RP 0";
   return `RP ${amount.toLocaleString("id-ID")}`;
@@ -72,6 +57,7 @@ function formatRupiah(amount: number): string {
 export function FilterModal({
   isOpen = true,
   isDialog = false,
+  variant = "dropdown",
   onClose,
   onReset,
   onApply,
@@ -80,7 +66,6 @@ export function FilterModal({
   genres = DEFAULT_GENRES,
   launchers = DEFAULT_LAUNCHERS,
   sortOptions = DEFAULT_SORT_OPTIONS,
-  tags = DEFAULT_TAGS,
   minPrice = 0,
   maxPrice = 200000,
   priceStep = 5000,
@@ -90,12 +75,10 @@ export function FilterModal({
   selectedGenres: propGenres,
   selectedLaunchers: propLaunchers,
   selectedSort: propSort,
-  selectedTags: propTags,
   onToggleCategory,
   onToggleGenre,
   onToggleLauncher,
   onSelectSort,
-  onToggleTag,
   className,
   ref,
   ...props
@@ -107,7 +90,6 @@ export function FilterModal({
   const [internalGenres, setInternalGenres] = React.useState<string[]>([]);
   const [internalLaunchers, setInternalLaunchers] = React.useState<string[]>([]);
   const [internalSort, setInternalSort] = React.useState<string>("Terbaru");
-  const [internalTags, setInternalTags] = React.useState<string[]>([]);
   const [internalPriceRange, setInternalPriceRange] = React.useState<
     [number, number]
   >([minPrice, maxPrice]);
@@ -116,7 +98,6 @@ export function FilterModal({
   const activeGenres = propGenres ?? internalGenres;
   const activeLaunchers = propLaunchers ?? internalLaunchers;
   const activeSort = propSort ?? internalSort;
-  const activeTags = propTags ?? internalTags;
   const [currentMinPrice, currentMaxPrice] =
     propPriceRange ?? internalPriceRange;
 
@@ -266,7 +247,6 @@ export function FilterModal({
     setInternalGenres([]);
     setInternalLaunchers([]);
     setInternalSort("Terbaru");
-    setInternalTags([]);
     setInternalPriceRange([minPrice, maxPrice]);
     if (onPriceRangeChange) {
       onPriceRangeChange([minPrice, maxPrice]);
@@ -310,12 +290,8 @@ export function FilterModal({
 
       {/* 2. Top Category Pills */}
       {categories && categories.length > 0 && (
-        <div className="flex flex-col gap-3">
-          <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
-            GENRE
-          </span>
-          <div className="flex flex-wrap items-center gap-2">
-            {categories.map((cat) => {
+        <div className="flex flex-wrap items-center gap-2">
+          {categories.map((cat) => {
               const isSelected = activeCategories.includes(cat);
               return (
                 <Button
@@ -336,7 +312,6 @@ export function FilterModal({
                 </Button>
               );
             })}
-          </div>
         </div>
       )}
 
@@ -491,39 +466,7 @@ export function FilterModal({
         </div>
       )}
 
-      {/* 7. Bottom Tags / Extra Genre Section */}
-      {tags && tags.length > 0 && (
-        <div className="flex flex-col gap-3">
-          <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
-            GENRE
-          </span>
-          <div className="flex flex-wrap items-center gap-2">
-            {tags.map((tag, idx) => {
-              const isSelected = activeTags.includes(tag);
-              return (
-                <Button
-                  key={`${tag}-${idx}`}
-                  type="button"
-                  variant={isSelected ? "active" : "inactive"}
-                  size="sm"
-                  onClick={() =>
-                    handleToggle(
-                      tag,
-                      activeTags,
-                      setInternalTags,
-                      onToggleTag
-                    )
-                  }
-                >
-                  {tag}
-                </Button>
-              );
-            })}
-          </div>
-        </div>
-      )}
-
-      {/* 8. Footer Actions (Reset: Secondary SM, Apply: Primary SM) */}
+      {/* Footer Actions (Reset: Secondary SM, Apply: Primary SM) */}
       <div className="flex items-center justify-end gap-3 pt-2">
         <Button
           type="button"
@@ -547,13 +490,44 @@ export function FilterModal({
     </div>
   );
 
-  if (isDialog) {
+  if (!isOpen) return null;
+
+  if (variant === "dialog" || (isDialog && variant !== "dropdown")) {
     return (
       <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-        {ModalContent}
+        <div className="fixed inset-0" onClick={onClose} />
+        <div className="relative z-10 w-full max-w-md">
+          {ModalContent}
+        </div>
       </div>
     );
   }
 
-  return ModalContent;
+  if (variant === "inline") {
+    return ModalContent;
+  }
+
+  // Default: Dropdown Popover matching Image 3
+  return (
+    <>
+      {/* Invisible overlay for click-outside to close */}
+      <div
+        className="fixed inset-0 z-40 bg-transparent"
+        onClick={onClose}
+      />
+
+      {/* Floating Dropdown Card */}
+      <div
+        className={cn(
+          "fixed sm:absolute right-4 sm:right-8 lg:right-20 top-20 sm:top-18 z-50",
+          "w-[calc(100vw-32px)] sm:w-115 max-h-[calc(100vh-100px)] overflow-y-auto",
+          "rounded-2xl border border-white/10 shadow-2xl bg-[#0D121F]/98 backdrop-blur-xl",
+          "scrollbar-thin animate-in fade-in slide-in-from-top-2 duration-150",
+          className
+        )}
+      >
+        {ModalContent}
+      </div>
+    </>
+  );
 }

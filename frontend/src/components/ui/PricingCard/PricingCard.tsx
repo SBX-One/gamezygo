@@ -100,60 +100,66 @@ export function PricingCard({
       <div
         ref={ref}
         className={cn(
-          "flex flex-col md:flex-row md:items-center justify-between gap-6 p-6 rounded-lg bg-deep-blue-900 border border-deep-blue-700/60 select-none w-full transition-all duration-150 hover:border-neutral-500",
+          "flex flex-col md:flex-row justify-between md:items-end gap-6 p-6 sm:p-8 rounded-2xl bg-deep-blue-950 border border-white/10 select-none w-full transition-all duration-150 hover:border-neutral-500",
           className
         )}
         {...props}
       >
         {/* Left Section: Header, Price & Expiry Meta */}
-        <div className="flex flex-col gap-4">
+        <div className="flex flex-col gap-6 sm:gap-7">
           {/* Header */}
           <div className="flex items-center gap-3">
-            <div className="rounded-xl bg-deep-blue-800 border border-deep-blue-700 p-3 flex items-center justify-center text-deep-blue-100 shrink-0">
-              {icon || <DefaultPeopleSearchIcon />}
+                        <div className="rounded-xl bg-deep-blue-800 border border-deep-blue-700 p-3 flex items-center justify-center text-deep-blue-100 shrink-0">
+    {icon || <DefaultPeopleSearchIcon />}
             </div>
-            <span className="font-semibold text-pale-red-100 text-h4">{title}</span>
+                         <span className="font-semibold text-pale-red-100 text-h4">{title}</span>
+
           </div>
 
-          {/* Price */}
-          <div className="flex items-baseline gap-1.5 w-fit">
-            <span className="text-gradient-heading font-semibold text-h4 leading-tight">
-              {price}{" "}
-              {period && (
-                <span className="text-body-sm font-semibold">
-                  {period}
-                </span>
-              )}
-            </span>
-          </div>
-
-          {/* Expiry Meta */}
-          {(expiryInfo || dateRangeInfo) && (
-            <div className="flex items-center gap-3 text-deep-blue-100/70 text-body-xs">
-              {expiryInfo && <span>{expiryInfo}</span>}
-              {expiryInfo && dateRangeInfo && (
-                <span className="text-deep-blue-700">|</span>
-              )}
-              {dateRangeInfo && <span>{dateRangeInfo}</span>}
+          {/* Price & Expiry Meta */}
+          <div className="flex flex-col gap-8">
+            {/* Price */}
+            <div className="flex items-baseline gap-1.5 w-fit">
+              <span className="text-gradient-heading font-semibold text-h4 leading-tight w-fit">
+                {price}{" "}
+                {period && (
+                  <span className="text-body-sm font-semibold">
+                    {period}
+                  </span>
+                )}
+              </span>
             </div>
-          )}
+
+            {/* Expiry Meta */}
+            {(expiryInfo || dateRangeInfo) && (
+              <div className="flex items-center gap-5 text-gray-400 text-body-xs font-normal">
+                {expiryInfo && <span>{expiryInfo}</span>}
+                {expiryInfo && dateRangeInfo && (
+                  <span className="text-gradient-secondary select-none font-semibold">|</span>
+                )}
+                {dateRangeInfo && <span>{dateRangeInfo}</span>}
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Right Section: Action Buttons */}
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3.5 shrink-0 md:self-end">
           <Button
             variant="primary"
-            size="md"
+            size="sm"
             onClick={onActionClick}
+            className="h-11 px-6 rounded-lg text-body-sm font-medium cursor-pointer"
           >
             {actionText || "Perbarui Sekarang"}
           </Button>
 
           <Button
             variant="outline"
-            size="md"
-            leftIcon={secondaryActionIcon || <DefaultPhoneIcon />}
+            size="sm"
+            leftIcon={secondaryActionIcon || <DefaultPhoneIcon className="w-4 h-4" />}
             onClick={onSecondaryActionClick}
+            className="h-11 px-5 rounded-lg text-body-sm font-medium cursor-pointer border border-white/10 bg-deep-blue-900/40 hover:bg-deep-blue-800/60 hover:border-white/20"
           >
             {secondaryActionText}
           </Button>
@@ -166,7 +172,7 @@ export function PricingCard({
   const buttonVariant = isPrimary ? "primary" : "outline";
   const defaultActionText = actionText || "Subscribe";
   const cardVariantClasses = isPrimary
-    ? "border-gradient-primary"
+    ? "border-gradient-primary shadow-lg shadow-rose-950/30"
     : "bg-deep-blue-950 border border-deep-blue-700/60 hover:border-neutral-500";
 
   // 2. Horizontal Layout (Primary / Secondary)
@@ -175,14 +181,14 @@ export function PricingCard({
       <div
         ref={ref}
         className={cn(
-          "flex flex-col md:flex-row gap-12 p-6 rounded-lg select-none transition-all duration-150 w-fit",
+          "flex flex-col sm:flex-row sm:items-center justify-between gap-6 sm:gap-8 p-6 rounded-lg select-none transition-all duration-150 w-full",
           cardVariantClasses,
           className
         )}
         {...props}
       >
         {/* Left Column: Header, Price, Button */}
-        <div className="flex flex-col gap-8 w-fit h-fit">
+        <div className="flex flex-col gap-6 shrink-0">
           <div className="flex flex-col gap-4">
             {/* Header */}
             <div className="flex items-center gap-3">
@@ -211,6 +217,7 @@ export function PricingCard({
             size="sm"
             rightIcon={actionIcon || <DefaultArrowRightIcon />}
             onClick={onActionClick}
+            className="w-fit cursor-pointer"
           >
             {defaultActionText}
           </Button>
@@ -218,14 +225,14 @@ export function PricingCard({
 
         {/* Right Column: Features List */}
         {features.length > 0 && (
-          <div className="flex-1 flex flex-col justify-center">
+          <div className="flex flex-col justify-center shrink-0 min-w-fit">
             {features.map((feature, idx) => (
               <div
                 key={idx}
-                className="flex items-center gap-4 py-3 border-b-gradient-secondary"
+                className="flex items-center gap-3.5 py-2.5 sm:py-3 border-b border-b-gradient-secondary last:border-b-0"
               >
                 <DefaultCheckIcon />
-                <span className="text-pale-red-100 text-body-xs font-normal">
+                <span className="text-pale-red-100 text-body-xs font-normal whitespace-nowrap">
                   {feature}
                 </span>
               </div>
@@ -241,7 +248,7 @@ export function PricingCard({
     <div
       ref={ref}
       className={cn(
-        "flex flex-col gap-12 p-6 min-w-80 rounded-lg select-none w-full transition-all duration-150",
+        "flex flex-col justify-between gap-8 sm:gap-12 p-6 rounded-lg select-none w-full h-full transition-all duration-150",
         cardVariantClasses,
         className
       )}

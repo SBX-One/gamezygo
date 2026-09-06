@@ -6,6 +6,8 @@ export interface FilterModalProps
   isOpen?: boolean;
   /** Mode dialog overlay dengan backdrop atau inline card component (default: false) */
   isDialog?: boolean;
+  /** Tipe tampilan filter: 'dropdown' (default), 'dialog' (modal di tengah), atau 'inline' */
+  variant?: "dropdown" | "dialog" | "inline";
   /** Callback saat tombol close atau backdrop diklik */
   onClose?: () => void;
   /** Callback saat tombol Reset diklik */

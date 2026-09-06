@@ -1,18 +1,9 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
+import type { PaginationProps } from "./Pagination.types";
 
-export interface PaginationProps
-  extends React.HTMLAttributes<HTMLElement> {
-  /** Halaman aktif saat ini (1-indexed) */
-  currentPage: number;
-  /** Total jumlah halaman */
-  totalPages: number;
-  /** Callback saat pengguna memilih halaman baru */
-  onPageChange: (page: number) => void;
-  /** Jumlah sibling page yang ditampilkan di sekitar current page (default: 1) */
-  siblingCount?: number;
-}
+export type { PaginationProps };
 
 const ArrowLeftIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -104,20 +95,22 @@ export function Pagination({
   return (
     <nav
       aria-label="Pagination Navigation"
-      className={cn("flex items-center gap-2 select-none", className)}
+      className={cn(
+        "flex items-center gap-1 sm:gap-2 select-none justify-center max-w-full overflow-x-auto no-scrollbar py-1",
+        className
+      )}
       {...props}
     >
-      {/* Previous Page Button (Secondary md) */}
+      {/* Previous Page Button */}
       <Button
         variant="secondary"
         size="md"
         disabled={currentPage <= 1}
         onClick={() => onPageChange(currentPage - 1)}
         aria-label="Previous Page"
-                 className="p-4 min-w-12 text-label-md font-semibold"
-
+        className="h-9 min-w-9 sm:h-12 sm:min-w-12 p-1 sm:p-4 text-xs sm:text-label-md font-semibold shrink-0"
       >
-        <ArrowLeftIcon />
+        <ArrowLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
       </Button>
 
       {/* Page Numbers */}
@@ -129,8 +122,7 @@ export function Pagination({
               variant="inactive"
               size="md"
               aria-hidden="true"
-                        className="p-4 min-w-12 text-label-md font-semibold"
-
+              className="h-9 min-w-9 sm:h-12 sm:min-w-12 p-1 sm:p-4 text-xs sm:text-label-md font-semibold shrink-0 cursor-default"
             >
               ...
             </Button>
@@ -138,6 +130,13 @@ export function Pagination({
         }
 
         const isCurrent = page === currentPage;
+        const isVisibleOnMobile =
+          totalPages <= 6 ||
+          page === 1 ||
+          page === totalPages ||
+          isCurrent ||
+          (currentPage <= 2 && page === 2) ||
+          (currentPage >= totalPages - 1 && page === totalPages - 1);
 
         return (
           <Button
@@ -146,24 +145,26 @@ export function Pagination({
             size="md"
             onClick={() => onPageChange(page)}
             aria-current={isCurrent ? "page" : undefined}
-            className="p-4 min-w-12 text-label-md font-semibold"
+            className={cn(
+              "h-9 min-w-9 sm:h-12 sm:min-w-12 p-1 sm:p-4 text-xs sm:text-label-md font-semibold shrink-0",
+              !isVisibleOnMobile && "hidden sm:inline-flex"
+            )}
           >
             {page}
           </Button>
         );
       })}
 
-      {/* Next Page Button (Secondary md) */}
+      {/* Next Page Button */}
       <Button
         variant="secondary"
         size="md"
         disabled={currentPage >= totalPages}
         onClick={() => onPageChange(currentPage + 1)}
         aria-label="Next Page"
-                   className="p-4 min-w-12 text-label-md font-semibold"
-
+        className="h-9 min-w-9 sm:h-12 sm:min-w-12 p-1 sm:p-4 text-xs sm:text-label-md font-semibold shrink-0"
       >
-        <ArrowRightIcon />
+        <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5" />
       </Button>
     </nav>
   );

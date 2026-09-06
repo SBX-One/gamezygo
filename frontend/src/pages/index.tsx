@@ -1,720 +1,670 @@
-import * as React from "react";
+﻿import * as React from "react";
+import Head from "next/head";
 import {
-  Accordion,
-  BlogCard,
-  Breadcrumbs,
-  EmptyState,
-  Field,
-  FilterModal,
-  Footer,
-  GameListItem,
-  Header,
-  InputField,
   Navbar,
-  type NavbarVariant,
-  Pagination,
-  Pill,
-  PricingCard,
+  Footer,
+  Header,
+  Button,
   ProductCard,
   SectionHeader,
-  Sidebar,
-  StatCard,
-  Tabs,
-  TestimonialCard,
+  FilterModal,
+  EmptyState,
   Toast,
-  UserRank,
+  BannerCarousel,
+  type BannerSlide,
 } from "@/components/ui";
 
-const CrossIcon = () => (
+// Icon for 500 Server Error
+const WifiOffIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
-    xmlns="http://www.w3.org/2000/svg"
+    width="24"
+    height="24"
     viewBox="0 0 24 24"
     fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-8 h-8"
+    {...props}
   >
-    <path d="M18 6 6 18" />
-    <path d="m6 6 12 12" />
+    <path
+      d="M12 18.5C12.8284 18.5 13.5 17.8284 13.5 17C13.5 16.1716 12.8284 15.5 12 15.5C11.1716 15.5 10.5 16.1716 10.5 17C10.5 17.8284 11.1716 18.5 12 18.5Z"
+      fill="currentColor"
+    />
+    <path
+      d="M8.464 13.464C9.402 12.526 10.674 12 12 12C13.326 12 14.598 12.526 15.536 13.464M4.929 9.929C6.804 8.054 9.348 7 12 7C14.652 7 17.196 8.054 19.071 9.929M1.393 6.393C4.207 3.58 8.022 2 12 2C15.978 2 19.793 3.58 22.607 6.393M2 2L22 22"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 );
 
-const SearchIcon = () => (
+// Close 'x' icon for filter tags
+const CrossIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
-    xmlns="http://www.w3.org/2000/svg"
-    viewBox="0 0 24 24"
+    width="16"
+    height="16"
+    viewBox="0 0 16 16"
     fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-3.5 h-3.5 shrink-0"
+    {...props}
   >
-    <circle cx="11" cy="11" r="8" />
-    <path d="m21 21-4.3-4.3" />
+    <path
+      d="M3.5 3.5L12.5 12.5M12.5 3.5L3.5 12.5"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
   </svg>
 );
 
-export default function Home() {
-  const [activeTab, setActiveTab] = React.useState("tab1");
-  const [activeSidebarItem, setActiveSidebarItem] = React.useState("toko");
-  const [activeNavId, setActiveNavId] = React.useState("home");
-  const [navbarVariant, setNavbarVariant] = React.useState<NavbarVariant>("guest");
-  const [currentPage, setCurrentPage] = React.useState(1);
 
-  const tabItems = [
-    { id: "tab1", label: "Deskripsi Game" },
-    { id: "tab2", label: "Requirements" },
-    { id: "tab3", label: "Lainnya" },
-  ];
+import productsData from "@/json/products.json";
 
-  const accordionText =
-    '"gue gatau ada berapa org dibalik bisnis ini, 1 atau seberapapun org terlibat, gue mengapresiasi sebesar besarnya udah ada jasa kaya gini. in this economy, harga game mahal bgt? dan buat gue yg butuh " test drive " buat game yg harganya mahal itu kayanya ini jadi solusi terbaik...';
+interface ProductItem {
+  id: string;
+  steamAppId?: number;
+  title: string;
+  imageSrc: string;
+  bannerSrc?: string;
+  genres: string[];
+  originalPrice: string;
+  price: string;
+  numericPrice: number;
+  discount: string;
+  platform?: string;
+  isBestSeller?: boolean;
+}
+
+const MINI_FEATURED_GAMES: ProductItem[] = productsData.miniFeatured;
+const TAWARAN_KHUSUS_PRODUCTS: ProductItem[] = productsData.tawaranKhusus;
+const RILIS_TERBARU_PRODUCTS: ProductItem[] = productsData.rilisTerbaru;
+const ALL_STORE_PRODUCTS: ProductItem[] = productsData.semuaProduk;
+
+const PROMO_BANNERS: BannerSlide[] = [
+  {
+    id: "summer-promo-1",
+    title: "Promo Musim Panas",
+    imageSrc: "/assets/png/Container.png",
+    alt: "Promo Musim Panas - Gamezygo",
+    href: "/store?promo=summer",
+  },
+  {
+    id: "summer-promo-2",
+    title: "Promo Musim Panas Spesial",
+    imageSrc: "/assets/png/Container.png",
+    alt: "Promo Musim Panas Spesial - Gamezygo",
+    href: "/store?promo=summer-special",
+  },
+  {
+    id: "summer-promo-3",
+    title: "Promo Musim Panas Flash Deals",
+    imageSrc: "/assets/png/Container.png",
+    alt: "Promo Musim Panas Flash Deals - Gamezygo",
+    href: "/store?promo=summer-flash",
+  },
+];
+
+export default function HomePage() {
+  // Navigation & Search State
+  const [activeNavId, setActiveNavId] = React.useState<string>("home");
+  const [searchQuery, setSearchQuery] = React.useState<string>("");
+  const [isFilterModalOpen, setIsFilterModalOpen] = React.useState<boolean>(false);
+
+  // Interaction Filter State (in the dropdown)
+  const [selectedCategories, setSelectedCategories] = React.useState<string[]>([]);
+  const [selectedGenres, setSelectedGenres] = React.useState<string[]>([]);
+  const [selectedLaunchers, setSelectedLaunchers] = React.useState<string[]>([]);
+  const [priceRange, setPriceRange] = React.useState<[number, number]>([0, 200000]);
+  const [selectedSort, setSelectedSort] = React.useState<string>("Terbaru");
+
+  // Applied Filter State (actively affecting the store catalog)
+  const [appliedGenres, setAppliedGenres] = React.useState<string[]>([]);
+  const [appliedCategories, setAppliedCategories] = React.useState<string[]>([]);
+  const [appliedLaunchers, setAppliedLaunchers] = React.useState<string[]>([]);
+  const [appliedPriceRange, setAppliedPriceRange] = React.useState<[number, number]>([0, 200000]);
+  const [appliedSort, setAppliedSort] = React.useState<string>("Terbaru");
+
+  // Interaction State Simulator for Screenshots 2 & 3
+  const [previewState, setPreviewState] = React.useState<
+    "default" | "error-500" | "searched" | "searched-empty" | "filter-applied" | "filter-empty"
+  >("default");
+
+  // Cart notification toast
+  const [cartToast, setCartToast] = React.useState<string | null>(null);
+
+  // Logged-in Customer User Profile
+  const currentUser = {
+    name: "Dyven Siauw",
+    email: "dyven@gamezygo.com",
+    avatarUrl:
+      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&h=120&q=80",
+  };
+
+  const handleAddToCart = (gameTitle: string) => {
+    setCartToast(gameTitle);
+    setTimeout(() => {
+      setCartToast(null);
+    }, 3500);
+  };
+
+  // Switch to specific preview state
+  const setExactState = (
+    state: "default" | "error-500" | "searched" | "searched-empty" | "filter-applied" | "filter-empty"
+  ) => {
+    setPreviewState(state);
+    if (state === "searched") {
+      setSearchQuery("Grand Thief Auto V");
+      setSelectedGenres([]);
+      setAppliedGenres([]);
+    } else if (state === "searched-empty") {
+      setSearchQuery("GameXYZ123YangTidakAda");
+      setSelectedGenres([]);
+      setAppliedGenres([]);
+    } else if (state === "filter-applied") {
+      setSearchQuery("");
+      const initial = ["Action", "Adventure", "NSFW"];
+      setSelectedGenres(initial);
+      setAppliedGenres(initial);
+    } else if (state === "filter-empty") {
+      setSearchQuery("");
+      const initial = ["Action", "Adventure", "NSFW"];
+      setSelectedGenres(initial);
+      setAppliedGenres(initial);
+    } else {
+      setSearchQuery("");
+      setSelectedGenres([]);
+      setAppliedGenres([]);
+      setAppliedLaunchers([]);
+      setAppliedPriceRange([0, 200000]);
+      setAppliedSort("Terbaru");
+    }
+  };
+
+  // Determine active genres based on interactive state or user applied filters
+  const activeGenres = React.useMemo(() => {
+    if (appliedGenres.length > 0) return appliedGenres;
+    if (previewState === "filter-applied" || previewState === "filter-empty") {
+      return ["Action", "Adventure", "NSFW"];
+    }
+    return selectedGenres;
+  }, [appliedGenres, previewState, selectedGenres]);
+
+  const handleRemoveGenre = (genreToRemove: string) => {
+    const next = activeGenres.filter((g) => g !== genreToRemove);
+    setAppliedGenres(next);
+    setSelectedGenres(next);
+    if (
+      next.length === 0 &&
+      appliedLaunchers.length === 0 &&
+      appliedPriceRange[0] === 0 &&
+      appliedPriceRange[1] === 200000
+    ) {
+      setPreviewState("default");
+    }
+  };
+
+  const handleClearAllFilters = () => {
+    setSelectedGenres([]);
+    setAppliedGenres([]);
+    setSelectedCategories([]);
+    setSelectedLaunchers([]);
+    setAppliedLaunchers([]);
+    setPriceRange([0, 200000]);
+    setAppliedPriceRange([0, 200000]);
+    setSelectedSort("Terbaru");
+    setAppliedSort("Terbaru");
+    setPreviewState("default");
+  };
+
+  // Filtered Products Logic
+  const searchResults = React.useMemo(() => {
+    const query = searchQuery.trim().toLowerCase();
+    if (!query) return [];
+
+    return ALL_STORE_PRODUCTS.filter(
+      (p) =>
+        p.title.toLowerCase().includes(query) ||
+        (query.includes("gta") && p.title.toLowerCase().includes("grand theft auto")) ||
+        (query.includes("grand") && p.title.toLowerCase().includes("grand theft auto"))
+    );
+  }, [searchQuery]);
+
+  const filteredCatalog = React.useMemo(() => {
+    if (previewState === "filter-empty") {
+      return [];
+    }
+
+    let list = [...ALL_STORE_PRODUCTS];
+
+    // 1. Filter by genres
+    if (activeGenres.length > 0) {
+      list = list.filter((product) =>
+        activeGenres.some((g) => product.genres.includes(g))
+      );
+    }
+
+    // 2. Filter by launcher / platform
+    if (appliedLaunchers.length > 0) {
+      list = list.filter((product) =>
+        appliedLaunchers.includes(product.platform || "Steam")
+      );
+    }
+
+    // 3. Filter by price range
+    if (appliedPriceRange[0] > 0 || appliedPriceRange[1] < 200000) {
+      list = list.filter((product) => {
+        const price = product.numericPrice ?? 0;
+        return price >= appliedPriceRange[0] && price <= appliedPriceRange[1];
+      });
+    }
+
+    // 4. Sort
+    if (appliedSort === "Nama (A - Z)") {
+      list = [...list].sort((a, b) => a.title.localeCompare(b.title));
+    }
+
+    return list;
+  }, [activeGenres, appliedLaunchers, appliedPriceRange, appliedSort, previewState]);
+
+  // Is Search Active?
+  const isSearchActive =
+    previewState === "searched" ||
+    previewState === "searched-empty" ||
+    searchQuery.trim().length > 0;
+
+  // Is Filter Active?
+  const isFilterActive =
+    previewState === "filter-applied" ||
+    previewState === "filter-empty" ||
+    activeGenres.length > 0 ||
+    appliedLaunchers.length > 0 ||
+    appliedPriceRange[0] > 0 ||
+    appliedPriceRange[1] < 200000;
 
   return (
-    <main className="bg-deep-blue-950 min-h-screen text-white p-8 flex flex-col gap-10">
-      {/* 0. Navbar Showcase */}
-      <section className="flex flex-col gap-6 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-deep-blue-900/70">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          <h2 className="text-sm font-semibold tracking-wider text-purple-400">
-            ❖ Navbar (4 Varian: Guest, Login, Private, Back)
-          </h2>
-          <div className="flex items-center gap-2 bg-deep-blue-950 p-1 rounded-lg border border-white/10">
-            {(["guest", "login", "private", "back"] as NavbarVariant[]).map((v) => (
-              <button
-                key={v}
-                type="button"
-                onClick={() => setNavbarVariant(v)}
-                className={`px-3 py-1.5 rounded-md text-label-xs font-semibold capitalize transition-colors cursor-pointer ${
-                  navbarVariant === v
-                    ? "bg-white/10 text-white"
-                    : "text-gray-400 hover:text-gray-200"
-                }`}
-              >
-                {v}
-              </button>
-            ))}
+    <div className="min-h-screen bg-deep-blue-950 text-gray-50 flex flex-col antialiased selection:bg-rose-600/30 selection:text-white">
+      <Head>
+        <title>Gamezygo â€” Toko Koleksi Akun Game Original Murah & Instan</title>
+        <meta
+          name="description"
+          content="Beli game PC Steam, Epic Games, dan EA original dengan harga terjangkau, pengiriman instan langsung ke Game Library Anda."
+        />
+      </Head>
+
+      {/* ========================================================
+          1. STICKY NAVBAR (Logged-in Customer View)
+         ======================================================== */}
+      <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-deep-blue-950/90 border-b border-b-gradient-secondary">
+        <Navbar
+          variant="login"
+          activeNavId={activeNavId}
+          onNavItemClick={(item) => setActiveNavId(item.id)}
+          searchValue={searchQuery}
+          searchPlaceholder="Cari di toko"
+          onSearchChange={(val) => {
+            setSearchQuery(val);
+            if (val.trim()) {
+              setPreviewState("default");
+            }
+          }}
+          onSearchClear={() => {
+            setSearchQuery("");
+            setPreviewState("default");
+          }}
+          onFilterClick={() => setIsFilterModalOpen((prev) => !prev)}
+          onCartClick={() => handleAddToCart("Item Cart")}
+          user={currentUser}
+          className="w-full"
+        />
+      </header>
+
+
+      {/* ========================================================
+          MAIN CONTENT CONTAINER
+          Rule: padding dalam content nya adalah 80 (px-20)
+          Rule: untuk hero ada tambahan pt 30 (pt-[30px])
+         ======================================================== */}
+      <main className="flex-1 w-full max-w-360 mx-auto px-4 sm:px-8 lg:px-20 pb-20   flex flex-col gap-11xl">
+        {/* ======================================================
+            CASE A: STATE 500 SERVER ERROR (Screenshot 2: Empty)
+           ====================================================== */}
+        {previewState === "error-500" ? (
+          <div className="py-24 flex items-center justify-center">
+            <EmptyState
+              icon={<WifiOffIcon className="w-8 h-8 text-white" />}
+              title="500: Internal Server Error"
+              description="The page you're looking for doesn't exist or has been moved. Please check the URL or return to the homepage."
+              backLabel="Kembali"
+              searchLabel="Muat"
+              onBack={() => setExactState("default")}
+              onSearch={() => setExactState("default")}
+            />
           </div>
-        </div>
+        ) : isSearchActive ? (
+          /* ======================================================
+              CASE B: SEARCHED STATES (Screenshot 2: Searched / Searched Empty)
+             ====================================================== */
+          <div className="flex flex-col gap-8 pt-8 mt-30 min-h-screen pb-16">
+            <SectionHeader
+              type="outer"
+              title={`Cari "${searchQuery || 'Grand Thief Auto V'}"`}
+              showAction={false}
+            />
 
-        {/* Interactive Navbar */}
-        <div className="w-full">
-          <Navbar
-            variant={navbarVariant}
-            activeNavId={activeNavId}
-            onNavItemClick={(item) => setActiveNavId(item.id)}
-            user={{ name: "Gamer User" }}
-          />
-        </div>
-
-        {/* Static All 4 Variants Preview */}
-        <div className="flex flex-col gap-6 pt-4 border-t border-white/10">
-          <span className="text-label-xs text-gray-400 font-semibold tracking-wider uppercase">
-            All Variants Preview:
-          </span>
-          <div className="flex flex-col gap-6">
-            <Navbar variant="guest" activeNavId="home" />
-            <Navbar variant="login" activeNavId="home" user={{ name: "Gamer User" }} />
-            <Navbar variant="private" user={{ name: "Gamer User" }} />
-            <Navbar variant="back" backTitle="Artikel" />
+            {searchResults.length > 0 && previewState !== "searched-empty" ? (
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                {searchResults.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    title={product.title}
+                    imageSrc={product.imageSrc}
+                    genres={product.genres}
+                    originalPrice={product.originalPrice}
+                    price={product.price}
+                    discount={product.discount}
+                    platform={product.platform}
+                    onActionClick={() => handleAddToCart(product.title)}
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="py-16">
+                <EmptyState
+                  title="Ups!... Hasil tidak ditemukan"
+                  description="Coba cari hal lain!"
+                  backLabel="Kembali"
+                  searchLabel="Search"
+                  onBack={() => {
+                    setSearchQuery("");
+                    setExactState("default");
+                  }}
+                  onSearch={() => {
+                    setSearchQuery("");
+                    setExactState("default");
+                  }}
+                />
+              </div>
+            )}
           </div>
-        </div>
-      </section>
+        ) : isFilterActive ? (
+          /* ======================================================
+              CASE C: FILTER APPLIED / FILTER EMPTY (Screenshot 3)
+             ====================================================== */
+          <div className="flex flex-col gap-8 pt-8 min-h-screen pb-16">
+            {/* Header with Active Filter Badges */}
+            <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between pb-6.5 border-b border-b-gradient-secondary gap-4">
+              <h3 className="text-h3 font-semibold text-gray-50 tracking-normal">
+                Semua Produk
+              </h3>
 
-      {/* 0. Sidebar Showcase */}
-      <section className="flex flex-col gap-4 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-deep-blue-900/70 w-fit">
-        <h2 className="text-sm font-semibold tracking-wider text-purple-400">❖ Sidebar</h2>
-        <Sidebar
-          activeId={activeSidebarItem}
-          onItemClick={(item) => setActiveSidebarItem(item.id)}
-        />
-      </section>
+              <div className="flex flex-wrap items-center gap-2.5">
+                {activeGenres.map((genre) => (
+                  <Button
+                    key={genre}
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    rightIcon={<CrossIcon />}
+                    onClick={() => handleRemoveGenre(genre)}
+                  >
+                    {genre}
+                  </Button>
+                ))}
 
-      {/* 0. Pricing Card Showcase */}
-      <section className="flex flex-col gap-8 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-[#18181F]/70">
-        <h2 className="text-sm font-semibold tracking-wider text-purple-400">❖ Pricing Card</h2>
+                <Button
+                  type="button"
+                  variant="inactive"
+                  size="sm"
+                  onClick={handleClearAllFilters}
+                >
+                  Hapus semua
+                </Button>
+              </div>
+            </div>
 
-        {/* Row 1: Vertical Cards (Primary & Secondary) */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6  w-fit">
-          <PricingCard
-            type="primary"
-            direction="vertical"
-            title="Paket 2"
-            price="IDR 150,000"
-            period="/ Month"
-            features={[
-              "Mainkan Game Lebih Banyak",
-              "Mainkan Game Lebih Banyak",
-              "Mainkan Game Lebih Banyak",
-              "Mainkan Game Lebih Banyak",
-            ]}
-          />
+            {/* Filtered Grid or Filter Empty State */}
+            {filteredCatalog.length > 0 ? (
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                {filteredCatalog.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    title={product.title}
+                    imageSrc={product.imageSrc}
+                    genres={product.genres}
+                    originalPrice={product.originalPrice}
+                    price={product.price}
+                    discount={product.discount}
+                    platform={product.platform}
+                    onActionClick={() => handleAddToCart(product.title)}
+                    className="pb-8xl"
 
-          <PricingCard
-            type="secondary"
-            direction="vertical"
-            title="Paket 2"
-            price="IDR 150,000"
-            period="/ Month"
-            features={[
-              "Mainkan Game Lebih Banyak",
-              "Mainkan Game Lebih Banyak",
-              "Mainkan Game Lebih Banyak",
-              "Mainkan Game Lebih Banyak",
-            ]}
-          />
-        </div>
+                  />
+                ))}
+              </div>
+            ) : (
+              <div className="py-16">
+                <EmptyState
+                  title="Ups!... Hasil tidak ditemukan"
+                  description="Coba cari hal lain!"
+                  backLabel="Kembali"
+                  searchLabel="Search"
+                  onBack={() => {
+                    setSelectedGenres([]);
+                    setExactState("default");
+                  }}
+                  onSearch={() => {
+                    setSelectedGenres([]);
+                    setExactState("default");
+                  }}
+                />
+              </div>
+            )}
+          </div>
+        ) : (
+          /* ======================================================
+              CASE D: DEFAULT HOME PAGE (Screenshot 1)
+             ====================================================== */
+          <>
+            {/* 1. HERO HEADER (Rule: ada tambahan pt 30 -> pt-[30px]) */}
+            <Header
+              pillText="Promo Musim Panas Telah Datang!"
+              title="Rasakan Pengalaman Bermain Dengan Bebas!"
+              subtitle="Ingin Langsung Buka Semua? Beli Premium!"
+              actionLabel="Lihat Premium"
+              actionVariant="primary"
+              className="pt-11xl"
+            />
 
-        {/* Row 2: Horizontal Primary Card */}
-        <div className="">
-          <PricingCard
-            type="primary"
-            direction="horizontal"
-            title="Paket 2"
-            price="IDR 150,000"
-            period="/ Month"
-            features={[
-              "Mainkan Game Lebih Banyak",
-              "Mainkan Game Lebih Banyak",
-              "Mainkan Game Lebih Banyak",
-              "Mainkan Game Lebih Banyak",
-            ]}
-          />
-        </div>
+            {/* 2. PROMO BANNER & MINI FEATURED CARDS SECTION */}
+            <section className="flex flex-col lg:flex-row gap-6 items-stretch">
+              {/* Kolom Kiri: 2 Horizontal Product Cards */}
+              <div className="flex flex-col  gap-6 shrink-0 w-full lg:w-auto justify-between">
+                {MINI_FEATURED_GAMES.map((game) => (
+                  <ProductCard
+                    key={game.id}
+                    orientation="horizontal"
+                    title={game.title}
+                    imageSrc={game.imageSrc}
+                    genres={game.genres}
+                    originalPrice={game.originalPrice}
+                    price={game.price}
+                    discount={game.discount}
+                    platform={game.platform}
+                    isBestSeller={false}
+                    buttonText="Tambah Keranjang"
+                    onActionClick={() => handleAddToCart(game.title)}
+                    className="w-full "
+                  />
+                ))}
+              </div>
 
-        {/* Row 3: Horizontal Secondary Card */}
-        <div className="">
-          <PricingCard
-            type="secondary"
-            direction="horizontal"
-            title="Paket 1"
-            price="IDR 50,000"
-            period="/ Month"
-            features={[
-              "Mainkan Game Lebih Banyak",
-              "Mainkan Game Lebih Banyak",
-              "Mainkan Game Lebih Banyak",
-              "Mainkan Game Lebih Banyak",
-            ]}
-          />
-        </div>
+              {/* Kolom Kanan: Large Summer Promo Banner Carousel */}
+              <BannerCarousel
+                slides={PROMO_BANNERS}
+                className="flex-1 min-w-0"
+              />
+            </section>
 
-        {/* Row 4: Paid Subs Card */}
-        <div className="w-full">
-          <PricingCard
-            type="paid"
-            title="Paket 2"
-            price="IDR 150,000"
-            period="/ Month"
-            expiryInfo="Berakhir dalam 30 hari"
-            dateRangeInfo="22/07/2026 - 22/08/2026"
-            actionText="Perbarui Sekarang"
-            secondaryActionText="Hubungi Admin"
-          />
-        </div>
-      </section>
+            {/* 3. SECTION: TAWARAN KHUSUS! */}
+            <section className="flex flex-col gap-10">
+              <SectionHeader
+                type="outer"
+                title="Tawaran Khusus!"
+                actionLabel="Lihat Semua"
+                onActionClick={() => setExactState("filter-applied")}
+              />
 
-      {/* 1. Header Showcase */}
-      <section className="flex flex-col gap-4 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-[#18181F]/70">
-        <h2 className="text-sm font-semibold tracking-wider text-purple-400">❖ Header</h2>
-        <Header
-          pillText="Promo Musim Panas Telah Datang!"
-          title="Pemilik Koleksi Game Terbesar Saat Ini!"
-          subtitle="Ingin Langsung Buka Semua? Beli Premium!"
-          actionLabel="Lihat Premium"
-        />
-      </section>
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
+                {TAWARAN_KHUSUS_PRODUCTS.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    title={product.title}
+                    imageSrc={product.imageSrc}
+                    genres={product.genres}
+                    originalPrice={product.originalPrice}
+                    price={product.price}
+                    discount={product.discount}
+                    platform={product.platform}
+                    onActionClick={() => handleAddToCart(product.title)}
+                     className="max-lg:pb-8xl"
 
-      {/* 2. Empty State Showcase */}
-      <section className="flex flex-col gap-4 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-[#18181F]/70">
-        <h2 className="text-sm font-semibold tracking-wider text-purple-400">❖ Empty State</h2>
-        <EmptyState
-          title="Ups!... Hasil tidak ditemukan"
-          description="Coba cari hal lain!"
-          backLabel="Kembali"
-          searchLabel="Search"
-        />
-      </section>
+                  />
+                ))}
+              </div>
+            </section>
 
-      {/* 3. Accordion Showcase */}
-      <section className="flex flex-col gap-4 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-[#18181F]/70 ">
-        <h2 className="text-sm font-semibold tracking-wider text-purple-400">❖ Accordion</h2>
-        <div className="flex flex-col gap-3">
-          {/* Interactive Accordion */}
-          <Accordion
-            defaultOpenId="acc2"
-            items={[
-              {
-                id: "acc1",
-                title: "Bagaimana cara kerja Gamezygo?",
-                content: accordionText,
-              },
-              {
-                id: "acc2",
-                title: "Bagaimana cara kerja Gamezygo?",
-                content: accordionText,
-              },
-            ]}
-          />
-        </div>
-      </section>
+            {/* 4. SECTION: RILIS TERBARU! */}
+            <section className="flex flex-col gap-10">
+              <SectionHeader
+                type="outer"
+                title="Rilis Terbaru!"
+                actionLabel="Lihat Semua"
+                onActionClick={() => setExactState("filter-applied")}
+              />
 
-      {/* 2. Pagination Showcase */}
-      <section className="flex flex-col gap-4 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-[#18181F]/70 w-fit">
-        <h2 className="text-sm font-semibold tracking-wider text-purple-400">❖ Pagination</h2>
-        <Pagination
-          currentPage={currentPage}
-          totalPages={25}
-          onPageChange={setCurrentPage}
-        />
-      </section>
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                {RILIS_TERBARU_PRODUCTS.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    title={product.title}
+                    imageSrc={product.imageSrc}
+                    genres={product.genres}
+                    originalPrice={product.originalPrice}
+                    price={product.price}
+                    discount={product.discount}
+                    platform={product.platform}
+                    onActionClick={() => handleAddToCart(product.title)}
+                     className="max-lg:pb-8xl"
+                  />
+                ))}
+              </div>
+            </section>
 
-      {/* 3. User Rank Showcase */}
-      <section className="flex flex-col gap-4 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-[#18181F]/70 ">
-        <h2 className="text-sm font-semibold tracking-wider text-purple-400">❖ User Rank</h2>
-        <UserRank
-          rank={1}
-          name="Dyven Siauw"
-          points="999 pts"
-        />
-      </section>
-      {/* 1. Breadcrumbs Showcase */}
-      <section className="flex flex-col gap-4 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-[#18181F]/70">
-        <h2 className="text-sm font-semibold tracking-wider text-purple-400">❖ Breadcrumbs</h2>
-        <Breadcrumbs
-          items={[
-            { label: "Home", href: "#" },
-            { label: "Toko", href: "#" },
-            { label: "Toko", href: "#" },
-            { label: "Assassin's Creed : Black Flag Resynced" },
-          ]}
-        />
-      </section>
+            {/* 5. SECTION: SEMUA PRODUK */}
+            <section className="flex flex-col gap-10">
+              <SectionHeader
+                type="outer"
+                title="Semua Produk"
+                showAction={false}
+              />
 
-      {/* 2. Tabs Showcase */}
-      <section className="flex flex-col gap-6 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-[#18181F]/70 w-fit">
-        <h2 className="text-sm font-semibold tracking-wider text-purple-400">❖ Tabs</h2>
-        <div className="flex flex-col gap-4">
-          {/* Interactive tabs */}
-          <Tabs
-            items={tabItems}
-            activeId={activeTab}
-            onChange={setActiveTab}
-          />
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                {ALL_STORE_PRODUCTS.map((product) => (
+                  <ProductCard
+                    key={product.id}
+                    title={product.title}
+                    imageSrc={product.imageSrc}
+                    genres={product.genres}
+                    originalPrice={product.originalPrice}
+                    price={product.price}
+                    discount={product.discount}
+                    platform={product.platform}
+                    onActionClick={() => handleAddToCart(product.title)}
+                    className="pb-8xl"
+                  />
+                ))}
+              </div>
+            </section>
+          </>
+        )}
+      </main>
 
-          {/* Preview rows matching Figma */}
-          <Tabs
-            items={tabItems}
-            activeId="tab2"
-          />
-          <Tabs
-            items={tabItems}
-            activeId="tab3"
-          />
-        </div>
-      </section>
+      {/* ========================================================
+          FILTER & SORT DROPDOWN (Screenshot 3: Filter Dropdown)
+         ======================================================== */}
+      <FilterModal
+        isOpen={isFilterModalOpen}
+        variant="dropdown"
+        onClose={() => setIsFilterModalOpen(false)}
+        selectedCategories={selectedCategories}
+        onToggleCategory={(category) => {
+          setSelectedCategories((prev) =>
+            prev.includes(category)
+              ? prev.filter((c) => c !== category)
+              : [...prev, category]
+          );
+        }}
+        selectedGenres={selectedGenres}
+        onToggleGenre={(genre) => {
+          setSelectedGenres((prev) =>
+            prev.includes(genre)
+              ? prev.filter((g) => g !== genre)
+              : [...prev, genre]
+          );
+        }}
+        selectedLaunchers={selectedLaunchers}
+        onToggleLauncher={(launcher) => {
+          setSelectedLaunchers((prev) =>
+            prev.includes(launcher)
+              ? prev.filter((l) => l !== launcher)
+              : [...prev, launcher]
+          );
+        }}
+        priceRange={priceRange}
+        onPriceRangeChange={setPriceRange}
+        selectedSort={selectedSort}
+        onSelectSort={setSelectedSort}
+        onReset={() => {
+          handleClearAllFilters();
+          setIsFilterModalOpen(false);
+        }}
+        onApply={() => {
+          setAppliedGenres(selectedGenres);
+          setAppliedCategories(selectedCategories);
+          setAppliedLaunchers(selectedLaunchers);
+          setAppliedPriceRange(priceRange);
+          setAppliedSort(selectedSort);
+          setIsFilterModalOpen(false);
+          const hasFilters =
+            selectedGenres.length > 0 ||
+            selectedLaunchers.length > 0 ||
+            priceRange[0] > 0 ||
+            priceRange[1] < 200000 ||
+            selectedSort !== "Terbaru";
+          setPreviewState(hasFilters ? "filter-applied" : "default");
+        }}
+      />
 
-      {/* 3. Stat Card Showcase */}
-      <section className="flex flex-col gap-4 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-[#18181F]/70 w-fit">
-        <h2 className="text-sm font-semibold tracking-wider text-purple-400">❖ Stat Card</h2>
-        <StatCard
-          label="Total Payment"
-          value="IDR 350,000"
-        />
-      </section>
-
-      {/* 4. Input Field Component Showcase */}
-      <section className="flex flex-col gap-4 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-[#18181F]/70">
-        <h2 className="text-sm font-semibold tracking-wider text-purple-400">❖ Input Field</h2>
-
-        <InputField
-          size="lg"
-          label="Buka game yang kamu mau di Steam Store, copy URL-nya, lalu paste di sini."
-          placeholder="Cari di toko"
-          errorMessage="*Link steam salah silahkan masukan kembali"
-          leftIcon={<SearchIcon />}
-          rightIcon={<SearchIcon />}
-        />
-      </section>
-
-      {/* 2. Field Component Showcase */}
-      <section className="flex flex-col gap-4 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-[#18181F]/70">
-        <h2 className="text-sm font-semibold tracking-wider text-purple-400">❖ Field</h2>
-
-        <div className="flex flex-col gap-4">
-          {/* 1. Unfilled */}
-          <Field
-            size="lg"
-            forceState="unfilled"
-            placeholder="Cari di toko"
-            leftIcon={<SearchIcon />}
-          />
-
-          {/* 6. Disabled */}
-          <Field
-            size="lg"
-            forceState="disabled"
-            placeholder="Cari di toko"
-            leftIcon={<SearchIcon />}
-            rightIcon={<SearchIcon />}
-          />
-        </div>
-      </section>
-
-      {/* 2. Toast Component Showcase */}
-      <section className="flex flex-col gap-4 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-[#18181F]/70 ">
-        <h2 className="text-sm font-semibold tracking-wider text-purple-400">❖ Toast</h2>
-
-        <div className="flex flex-col gap-3">
-          {/* Default / Secondary */}
-          <Toast
-            variant="default"
-            title="Congratulations!"
-            description="Your OS has been updated to the latest version."
-          />
-
-          {/* Error */}
-          <Toast
-            variant="error"
-            title="Congratulations!"
-            description="Your OS has been updated to the latest version."
-          />
-
-          {/* Success */}
+      {/* ========================================================
+          CART ACTION TOAST FEEDBACK
+         ======================================================== */}
+      {cartToast && (
+        <div className="fixed bottom-6 right-6 z-50 animate-slide-in-right">
           <Toast
             variant="success"
-            title="Congratulations!"
-            description="Your OS has been updated to the latest version."
-          />
-
-          {/* Warning */}
-          <Toast
-            variant="warning"
-            title="Congratulations!"
-            description="Your OS has been updated to the latest version."
+            title="Berhasil Ditambahkan!"
+            description={`${cartToast} telah masuk ke keranjang belanja Anda.`}
           />
         </div>
-      </section>
+      )}
 
-      {/* 2. Pill Component Showcase */}
-      <section className="flex flex-col gap-4 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-[#18181F]/70">
-        <h2 className="text-sm font-semibold tracking-wider text-purple-400">❖ Pill</h2>
-        
-        <div className="grid grid-cols-5 gap-6 items-start w-fit">
-          {/* Primary */}
-          <div className="flex flex-col gap-3">
-            <Pill variant="primary" size="md" leftIcon={<CrossIcon />} rightIcon={<CrossIcon />}>
-              NSFW
-            </Pill>
-            <Pill variant="primary" size="sm" leftIcon={<CrossIcon />} rightIcon={<CrossIcon />}>
-              NSFW
-            </Pill>
-            <Pill variant="primary" size="xs" leftIcon={<CrossIcon />} rightIcon={<CrossIcon />}>
-              NSFW
-            </Pill>
-          </div>
-
-          {/* Error */}
-          <div className="flex flex-col gap-3">
-            <Pill variant="error" size="md" leftIcon={<CrossIcon />} rightIcon={<CrossIcon />}>
-              NSFW
-            </Pill>
-            <Pill variant="error" size="sm" leftIcon={<CrossIcon />} rightIcon={<CrossIcon />}>
-              NSFW
-            </Pill>
-            <Pill variant="error" size="xs" leftIcon={<CrossIcon />} rightIcon={<CrossIcon />}>
-              NSFW
-            </Pill>
-          </div>
-
-          {/* Success */}
-          <div className="flex flex-col gap-3">
-            <Pill variant="success" size="md" leftIcon={<CrossIcon />} rightIcon={<CrossIcon />}>
-              NSFW
-            </Pill>
-            <Pill variant="success" size="sm" leftIcon={<CrossIcon />} rightIcon={<CrossIcon />}>
-              NSFW
-            </Pill>
-            <Pill variant="success" size="xs" leftIcon={<CrossIcon />} rightIcon={<CrossIcon />}>
-              NSFW
-            </Pill>
-          </div>
-
-          {/* Secondary */}
-          <div className="flex flex-col gap-3">
-            <Pill variant="secondary" size="md" leftIcon={<CrossIcon />} rightIcon={<CrossIcon />}>
-              NSFW
-            </Pill>
-            <Pill variant="secondary" size="sm" leftIcon={<CrossIcon />} rightIcon={<CrossIcon />}>
-              NSFW
-            </Pill>
-            <Pill variant="secondary" size="xs" leftIcon={<CrossIcon />} rightIcon={<CrossIcon />}>
-              NSFW
-            </Pill>
-          </div>
-
-          {/* Warning */}
-          <div className="flex flex-col gap-3">
-            <Pill variant="warning" size="md" leftIcon={<CrossIcon />} rightIcon={<CrossIcon />}>
-              NSFW
-            </Pill>
-            <Pill variant="warning" size="sm" leftIcon={<CrossIcon />} rightIcon={<CrossIcon />}>
-              NSFW
-            </Pill>
-            <Pill variant="warning" size="xs" leftIcon={<CrossIcon />} rightIcon={<CrossIcon />}>
-              NSFW
-            </Pill>
-          </div>
-        </div>
-      </section>
-
-      {/* 4. Game List Item Component Showcase */}
-      <section className="flex flex-col gap-6 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-deep-blue-900/70">
-        <h2 className="text-sm font-semibold tracking-wider text-purple-400">
-          ❖ Game List Item (States: Default, Hover, Focus, Pressed, Disabled)
-        </h2>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 ">
-          {/* Interactive */}
-          <div className="flex flex-col gap-2">
-            <span className="text-label-xs text-gray-400 font-semibold">Interactive (Default):</span>
-            <GameListItem
-              title="Grand Theft Auto V"
-              discount="-30%"
-              originalPrice="Rp 439.000,00"
-              price="Rp 219.500"
-            />
-          </div>
-
-          {/* Hover */}
-          <div className="flex flex-col gap-2">
-            <span className="text-label-xs text-gray-400 font-semibold">Hover State:</span>
-            <GameListItem
-              title="Grand Theft Auto V"
-              discount="-30%"
-              originalPrice="Rp 439.000,00"
-              price="Rp 219.500"
-              forceState="hover"
-            />
-          </div>
-
-          {/* Pressed */}
-          <div className="flex flex-col gap-2">
-            <span className="text-label-xs text-gray-400 font-semibold">Pressed State:</span>
-            <GameListItem
-              title="Grand Theft Auto V"
-              discount="-30%"
-              originalPrice="Rp 439.000,00"
-              price="Rp 219.500"
-              forceState="pressed"
-            />
-          </div>
-
-          {/* Focus */}
-          <div className="flex flex-col gap-2">
-            <span className="text-label-xs text-gray-400 font-semibold">Focus State:</span>
-            <GameListItem
-              title="Grand Theft Auto V"
-              discount="-30%"
-              originalPrice="Rp 439.000,00"
-              price="Rp 219.500"
-              forceState="focus"
-            />
-          </div>
-
-          {/* Disabled */}
-          <div className="flex flex-col gap-2">
-            <span className="text-label-xs text-gray-400 font-semibold">Disabled State:</span>
-            <GameListItem
-              title="Grand Theft Auto V"
-              discount="-30%"
-              originalPrice="Rp 439.000,00"
-              price="Rp 219.500"
-              forceState="disabled"
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* 5. Blog Card Component Showcase */}
-      <section className="flex flex-col gap-6 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-deep-blue-900/70">
-        <h2 className="text-sm font-semibold tracking-wider text-purple-400">
-          ❖ Blog Card
-        </h2>
-
-        <div className="w-full md:w-1/2 gap-6">
-          <BlogCard
-            date="1 BULAN LALU"
-            title="Pratinjau langsung Star Wars Zero Company: Attack Astromech, permadeath, dan taktik Rube Goldberg yang mematikan dan memuaskan."
-            category="Review & Rekomendasi"
-            description="Timku yang beranggotakan empat orang tersebar di halaman merah berdebu di daerah terpencil tak bernama di Anaxes, bersembunyi di balik peti baja dan dinding beton yan..."
-          />
-        </div>
-      </section>
-
-      {/* 6. Testimonial Card Component Showcase */}
-      <section className="flex flex-col gap-6 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-deep-blue-900/70">
-        <h2 className="text-sm font-semibold tracking-wider text-purple-400">
-          ❖ Testimonial Card
-        </h2>
-
-        <div className="w-80 sm:w-90">
-          <TestimonialCard
-            rating="5 Star"
-            review='“gue gatau ada berapa org dibalik bisnis ini, 1 atau seberapapun org terlibat, gue mengapresiasi sebesar besarnya udah ada jasa kaya gini. in this economy, harga game mahal bgt? dan buat gue yg butuh " test drive " buat game yg harganya mahal itu kayanya ini jadi solusi terbaik...'
-            userName="Dyven Siauw"
-            gameName="Black Myth Wukong, 2+"
-          />
-        </div>
-      </section>
-
-      {/* 7. Product Card Component Showcase (Vertical & Horizontal x Default, Unavailable, Pre-order) */}
-      <section className="flex flex-col gap-6 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-deep-blue-900/70">
-        <h2 className="text-sm font-semibold tracking-wider text-purple-400">
-          ❖ Product Card (Vertical & Horizontal / Default, Unavailable, Pre-order)
-        </h2>
-
-        {/* 1. Vertical Cards */}
-        <div className="flex flex-col gap-3">
-          <span className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
-            1. Vertical Layout (Default, Unavailable, Pre-order):
-          </span>
-          <div className="flex gap-4 ">
-            {/* Vertical Default */}
-            <ProductCard
-              orientation="vertical"
-              state="default"
-              genres={["Action", "Adventure"]}
-              title="Assassin's Creed Black Flag Resynced"
-              originalPrice="Rp 439.000,00"
-              price="Rp 219.500"
-              discount="-30%"
-            />
-
-            {/* Vertical Unavailable */}
-            <ProductCard
-              orientation="vertical"
-              state="unavailable"
-              genres={["Action", "NSFW"]}
-              title="Assassin's Creed Black Flag Resynced"
-              originalPrice="Rp 439.000,00"
-              price="Rp 219.500"
-              discount="-30%"
-            />
-
-            {/* Vertical Pre-order */}
-            <ProductCard
-              orientation="vertical"
-              state="pre-order"
-              genres={["Action", "NSFW"]}
-              title="Assassin's Creed Black Flag Resynced"
-              originalPrice="Rp 439.000,00"
-              price="Rp 219.500"
-              discount="-30%"
-              releaseDate="Release at 5 July"
-            />
-          </div>
-        </div>
-
-        {/* 2. Horizontal Cards */}
-        <div className="flex flex-col gap-3 pt-4 border-t border-white/10">
-          <span className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
-            2. Horizontal Layout (Default, Unavailable, Pre-order):
-          </span>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {/* Horizontal Default */}
-            <ProductCard
-              orientation="horizontal"
-              state="default"
-              genres={["Action", "NSFW"]}
-              title="Assassin's Creed Black Flag Resynced"
-              originalPrice="Rp 439.000,00"
-              price="Rp 219.500"
-              discount="-30%"
-              isBestSeller={true}
-            />
-
-            {/* Horizontal Unavailable */}
-            <ProductCard
-              orientation="horizontal"
-              state="unavailable"
-              genres={["Action", "NSFW"]}
-              title="Assassin's Creed Black Flag Resynced"
-              originalPrice="Rp 439.000,00"
-              price="Rp 219.500"
-              discount="-30%"
-              isBestSeller={true}
-            />
-
-            {/* Horizontal Pre-order */}
-            <ProductCard
-              orientation="horizontal"
-              state="pre-order"
-              genres={["Action", "NSFW"]}
-              title="Assassin's Creed Black Flag Resynced"
-              originalPrice="Rp 439.000,00"
-              price="Rp 219.500"
-              discount="-30%"
-              releaseDate="Release at 5 July"
-              isBestSeller={true}
-            />
-          </div>
-        </div>
-      </section>
-
-      {/* 8. Section Header Component Showcase (Outer & Nested) */}
-      <section className="flex flex-col gap-8 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-deep-blue-900/70">
-        <h2 className="text-sm font-semibold tracking-wider text-purple-400">
-          ❖ Section Header (Outer & Nested)
-        </h2>
-
-        {/* 1. Outer Variant */}
-        <div className="flex flex-col gap-2">
-          <span className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
-            1. Outer Variant (text-h3 font-semibold, lihat semua ghost sm):
-          </span>
-          <SectionHeader
-            type="outer"
-            title="Tawaran Khusus!"
-            actionLabel="Lihat Semua"
-          />
-        </div>
-
-        {/* 2. Nested Variant */}
-        <div className="flex flex-col gap-2">
-          <span className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
-            2. Nested Variant (left arrow secondary button, gap-6, text-h5 font-semibold):
-          </span>
-          <SectionHeader
-            type="nested"
-            title="Tawaran Khusus!"
-            actionLabel="Lihat Semua"
-          />
-        </div>
-      </section>
-
-      {/* 9. Filter & Sort Modal Component Showcase */}
-      <section className="flex flex-col gap-6 border border-dashed border-purple-500/40 p-6 rounded-2xl bg-deep-blue-900/70">
-        <h2 className="text-sm font-semibold tracking-wider text-purple-400">
-          ❖ Filter & Sort Modal
-        </h2>
-
-        <div className="flex justify-center w-full">
-          <FilterModal
-            title="Filter & Sort"
-            minPrice={0}
-            maxPrice={200000}
-          />
-        </div>
-      </section>
-
-      {/* 10. Footer Component Showcase */}
-      <section className="flex flex-col gap-4 border border-dashed border-purple-500/40 p-0 rounded-2xl overflow-hidden bg-deep-blue-900/70">
-        <div className="p-6 pb-0">
-          <h2 className="text-sm font-semibold tracking-wider text-purple-400">❖ Footer</h2>
-        </div>
-        <Footer />
-      </section>
-    </main>
+      {/* ========================================================
+          FOOTER (Standard Full Width)
+         ======================================================== */}
+      <Footer className="mt-auto border-t border-t-gradient-secondary" />
+    </div>
   );
 }

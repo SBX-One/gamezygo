@@ -15,6 +15,8 @@ export interface HeaderProps
   actionLabel?: React.ReactNode;
   /** Icon untuk tombol aksi utama */
   actionIcon?: React.ReactNode;
+  /** Varian tombol aksi utama (default: secondary) */
+  actionVariant?: "primary" | "secondary" | "outline";
   /** Callback saat tombol aksi diklik */
   onActionClick?: () => void;
   /** React 19 native ref */
@@ -44,6 +46,7 @@ export function Header({
   subtitle = "Ingin Langsung Buka Semua? Beli Premium!",
   actionLabel = "Lihat Premium",
   actionIcon = <FluentPlayIcon />,
+  actionVariant = "secondary",
   onActionClick,
   className,
   ref,
@@ -53,7 +56,7 @@ export function Header({
     <header
       ref={ref}
       className={cn(
-        "flex flex-col items-center justify-center text-center gap-6 py-12 px-4 select-none  mx-auto",
+        "flex flex-col items-center justify-center text-center gap-8 select-none  mx-auto",
         className
       )}
       {...props}
@@ -66,21 +69,21 @@ export function Header({
       )}
 
       {/* 2. Main Large Headline */}
-      <h1 className="text-h1 font-bold text-white tracking-tight  leading-[1.15]">
+      <h1 className="text-h1 font-semibold text-gradient-heading  leading-[1.2] max-w-4/7">
         {title}
       </h1>
 
-      {/* 3. Bottom Row (Subtitle + Secondary md Action Button) */}
-      <div className="flex items-center gap-4 mt-2">
+      {/* 3. Bottom Row (Subtitle + Action Button) */}
+      <div className="flex items-center justify-center gap-3 ">
         {subtitle && (
-          <p className="text-gray-400 text-body-sm font-normal text-right leading-snug">
+          <p className="text-gray-400 text-body-xs font-normal text-left max-w-3/8">
             {subtitle}
           </p>
         )}
 
         {actionLabel && (
           <Button
-            variant="secondary"
+            variant={actionVariant}
             size="md"
             leftIcon={actionIcon}
             onClick={onActionClick}

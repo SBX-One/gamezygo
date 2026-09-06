@@ -84,10 +84,10 @@ export interface ButtonProps
 }
 
 const labelSizeClasses: Record<ButtonSize, string> = {
-  xs: "text-label-xs text-gray-400 ",
-  sm: "text-label-xs text-gray-400 ",
-  md: "text-label-sm text-gray-400 ",
-  lg: "text-label-sm text-gray-400 ",
+  xs: "text-label-xs text-gray-400 leading-[120%]",
+  sm: "text-label-xs text-gray-400 leading-[120%] ",
+  md: "text-label-sm text-gray-400 leading-[120%]",
+  lg: "text-label-sm text-gray-400 leading-[120%]",
 };
 
 const iconSizeClasses: Record<ButtonSize, string> = {
@@ -95,6 +95,13 @@ const iconSizeClasses: Record<ButtonSize, string> = {
   sm: "[&>svg]:w-4 [&>svg]:h-4 shrink-0",
   md: "[&>svg]:w-4.5 [&>svg]:h-4.5 shrink-0",
   lg: "[&>svg]:w-5 [&>svg]:h-5 shrink-0",
+};
+
+const buttonTextSizeClasses: Record<ButtonSize, string> = {
+  xs: "text-label-xs font-medium",
+  sm: "text-label-sm font-medium",
+  md: "text-label-md font-semibold",
+  lg: "text-label-lg font-semibold",
 };
 
 export function Button({
@@ -157,7 +164,12 @@ export function Button({
 
       {/* 3. Main Text / Children Slot */}
       {children && (
-        <span className="button-main-text text-label-md font-semibold  text-white inline-flex items-center gap-4">
+        <span
+          className={cn(
+            "button-main-text text-white inline-flex items-center gap-4",
+            buttonTextSizeClasses[currentSize]
+          )}
+        >
           {children}
         </span>
       )}

@@ -294,10 +294,12 @@ export default function WishlistPage() {
               (Highlight utama dari permintaan user / Screenshot 1, 2, 3)
              ======================================================== */}
           <div className="flex items-center gap-3.5">
-            <div className="w-1.5 h-8 sm:h-9 rounded-full bg-rose-600 shrink-0" />
-            <h1 className="text-2xl sm:text-3xl lg:text-h3 font-bold text-white tracking-tight">
-              Wishlist
-            </h1>
+              <div className="flex flex-col gap-2 border-l-4 border-pale-red-500 pl-8">
+                  <h2 className="text-h2 font-semibold leading-[120%] text-gradient-heading  w-fit">
+                Wishlist
+                  </h2>
+                
+                </div>
           </div>
 
           {/* ========================================================
@@ -494,7 +496,7 @@ export default function WishlistPage() {
                   showActionButton={true}
                   buttonText="Tambah Keranjang"
                   onActionClick={() => handleAddToCart(game.title)}
-                  className="hover:-translate-y-0.5 transition-transform duration-200"
+                  className="hover:-translate-y-0.5 transition-transform duration-200 pb-8xl"
                 />
               ))}
             </div>

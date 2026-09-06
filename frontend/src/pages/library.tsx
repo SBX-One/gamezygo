@@ -1,4 +1,4 @@
-import * as React from "react";
+﻿import * as React from "react";
 import Head from "next/head";
 import { StoreLayout } from "@/components/layout";
 import {
@@ -519,7 +519,7 @@ export default function GameLibraryPage() {
                   platform={game.platform}
                   showPrice={false}
                   showActionButton={false}
-                  className="hover:-translate-y-0.5 transition-transform duration-200"
+                  className="hover:-translate-y-0.5 transition-transform duration-200 pb-8xl"
                 />
               ))}
             </div>

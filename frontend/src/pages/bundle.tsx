@@ -571,7 +571,7 @@ export default function BundlePage() {
         user={currentUser}
         onCartClick={() => handleToast("Membuka keranjang belanja")}
       >
-        <div className="flex flex-col gap-32  w-full">
+        <div className="flex flex-col w-full">
           {/* TOP VIEW-MODE SWITCHER */}
           <div className="flex items-center justify-between p-2 rounded-xl bg-deep-blue-900/60 border border-white/5 backdrop-blur-sm">
             <span className="text-body-xs text-gray-400 font-medium pl-2 hidden sm:inline">
@@ -601,7 +601,7 @@ export default function BundlePage() {
 
           {viewMode === "unsubscribed" ? (
             /* MODE A: BELUM BERLANGGANAN / PLAN SELECTION (Screenshot 2) */
-            <>
+            <div className="flex flex-col gap-32  ">
               {/* SECTION 1: PAKET HEMAT */}
               <section className="flex flex-col gap-12">
                 <div className="flex flex-col gap-2 border-l-4 border-pale-red-500 pl-8">
@@ -764,10 +764,10 @@ export default function BundlePage() {
                   ))}
                 </div>
               </section>
-            </>
+            </div>
           ) : (
             /* MODE B: SUDAH BERLANGGANAN / ACTIVE BUNDLE (Screenshot 3 & 4) */
-            <>
+            <div  className="flex flex-col gap-20">
               {/* TOP: ACTIVE SUBSCRIPTION STATUS CARD */}
               <PricingCard
                 type="paid"
@@ -784,9 +784,10 @@ export default function BundlePage() {
                 }
                 
               />
-
+             <div className=" grid gap-10">
+  
               {/* SECTION HEADER DENGAN SEARCH & FLOATING FILTER DROPDOWN */}
-              <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none">
+              <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none border-b-2 border-b-gradient-secondary pb-6">
                 <div className="min-w-0 flex items-center">
                   {isSearchActive ? (
                     <h3 className="text-h3 font-semibold text-gray-50 tracking-normal truncate">
@@ -971,7 +972,8 @@ export default function BundlePage() {
                   />
                 </div>
               )}
-            </>
+            </div>
+            </div>
           )}
 
           {/* ========================================================

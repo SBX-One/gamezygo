@@ -1,4 +1,4 @@
-﻿import Link from "next/link";
+import Link from "next/link";
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import type { SidebarProps, SidebarSection } from "./Sidebar.types";
@@ -190,7 +190,7 @@ const defaultSidebarSections: SidebarSection[] = [
   {
     id: "explore",
     items: [
-      { id: "request", label: "Request Game", icon: <AddIcon /> },
+      { id: "request", label: "Request Game", icon: <AddIcon />, href: "/request" },
       { id: "wishlist", label: "Wishlist", icon: <BookmarkIcon />, href: "/wishlist" },
       { id: "leaderboard", label: "Leaderboard", icon: <LeaderboardIcon /> },
       { id: "ulasan", label: "Ulasan", icon: <ReviewIcon /> },

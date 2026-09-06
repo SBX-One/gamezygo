@@ -193,7 +193,7 @@ const defaultSidebarSections: SidebarSection[] = [
       { id: "request", label: "Request Game", icon: <AddIcon />, href: "/request" },
       { id: "wishlist", label: "Wishlist", icon: <BookmarkIcon />, href: "/wishlist" },
       { id: "leaderboard", label: "Leaderboard", icon: <LeaderboardIcon />, href: "/leaderboard" },
-      { id: "ulasan", label: "Ulasan", icon: <ReviewIcon /> },
+      { id: "ulasan", label: "Ulasan", icon: <ReviewIcon />, href: "/review" },
     ],
   },
   {

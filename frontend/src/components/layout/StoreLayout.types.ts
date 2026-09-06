@@ -37,10 +37,16 @@ export interface StoreLayoutProps extends React.HTMLAttributes<HTMLDivElement> {
   onSidebarItemClick?: (item: SidebarItem) => void;
   /** Data profil user untuk avatar Navbar */
   user?: NavbarUser;
+  /** Callback saat avatar user diklik */
+  onUserClick?: () => void;
+  /** Sembunyikan navbar di layout jika diperlukan */
+  hideNavbar?: boolean;
   /** Sembunyikan sidebar di layout jika diperlukan */
   hideSidebar?: boolean;
   /** Kustomisasi sections pada Sidebar */
   sidebarSections?: SidebarSection[];
+  /** Kustomisasi className untuk elemen main konten utama */
+  contentClassName?: string;
   /** React 19 native ref */
   ref?: React.Ref<HTMLDivElement>;
 }

@@ -136,7 +136,7 @@ export function BannerCarousel({
           priority={index === 0}
         />
         {/* Subtle bottom vignette to ensure indicators and badges remain prominent */}
-        <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
+        <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
       </div>
     );
 
@@ -163,7 +163,7 @@ export function BannerCarousel({
     <div
       className={cn(
         "relative group overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-deep-blue-900 select-none",
-        "min-h-[260px] sm:min-h-[340px] lg:min-h-0",
+        "min-h-65 sm:min-h-85 lg:min-h-0",
         className
       )}
       onMouseEnter={() => setIsPaused(true)}

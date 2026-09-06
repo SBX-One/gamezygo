@@ -51,7 +51,7 @@ export function StatCard({
     >
       {/* 1. Header (Icon Badge + Label) */}
       <div className="flex items-center gap-3">
-        <div className="rounded-xl bg-deep-blue-800 border border-deep-blue-700 p-3 flex items-center justify-center text-deep-blue-100 shrink-0">
+        <div className="rounded-lg bg-deep-blue-800 border border-deep-blue-700 p-3 flex items-center justify-center text-deep-blue-100 shrink-0">
           {icon || <DefaultPeopleSearchIcon />}
         </div>
         <span className="font-semibold text-gray-50 text-body-lg">
@@ -60,7 +60,7 @@ export function StatCard({
       </div>
 
       {/* 2. Value */}
-      <div className="text-gradient-heading font-semibold text-h4 w-fit">
+      <div className="text-gradient-heading font-semibold text-h4 w-full">
         {value}
       </div>
 

@@ -1,8 +1,9 @@
-﻿import * as React from "react";
+import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Navbar } from "@/components/ui/Navbar";
 import { Sidebar } from "@/components/ui/Sidebar";
 import { Footer } from "@/components/ui/Footer";
+import { useRouter } from "next/router";
 import { useUiStore } from "@/stores/use-ui-store";
 import type { SidebarItem } from "@/components/ui/Sidebar/Sidebar.types";
 import type { StoreLayoutProps } from "./StoreLayout.types";
@@ -65,18 +66,24 @@ export function StoreLayout({
   onNavItemClick,
   onSidebarItemClick,
   user,
+  onUserClick,
+  hideNavbar = false,
   hideSidebar = false,
   sidebarSections,
+  contentClassName,
   className,
   ref,
   style,
   ...props
 }: StoreLayoutProps) {
+  const router = useRouter();
   const { isSidebarOpen, toggleSidebar } = useUiStore();
   const headerRef = React.useRef<HTMLElement>(null);
   const [headerHeight, setHeaderHeight] = React.useState<number>(146);
+  const effectiveHeaderHeight = hideNavbar ? 0 : headerHeight;
 
   React.useEffect(() => {
+    if (hideNavbar) return;
     const updateHeight = () => {
       if (headerRef.current) {
         const h = headerRef.current.offsetHeight;
@@ -97,7 +104,7 @@ export function StoreLayout({
       observer.disconnect();
       window.removeEventListener("resize", updateHeight);
     };
-  }, []);
+  }, [hideNavbar]);
 
   // Close mobile sidebar on route / item click
   const handleSidebarItemClick = (item: SidebarItem) => {
@@ -114,44 +121,47 @@ export function StoreLayout({
       )}
       style={{
         ...style,
-        "--header-height": `${headerHeight}px`,
+        "--header-height": `${effectiveHeaderHeight}px`,
       } as React.CSSProperties}
       {...props}
     >
       {/* ========================================================
           1. STICKY NAVBAR HEADER (Glassmorphic Dark Mode)
          ======================================================== */}
-      <header
-        ref={headerRef}
-        className="sticky top-0 z-40 w-full backdrop-blur-md bg-deep-blue-950/90 border-b border-b-gradient-secondary"
-      >
-        <div className="w-full">
-          <Navbar
-            variant={navbarVariant}
-            navItems={navItems}
-            activeNavId={activeNavId}
-            onNavItemClick={onNavItemClick}
-            searchValue={searchValue}
-            searchPlaceholder={searchPlaceholder}
-            onSearchChange={onSearchChange}
-            onSearchClear={onSearchClear}
-            onSearchSubmit={onSearchSubmit}
-            onFilterClick={onFilterClick}
-            onLoginClick={onLoginClick}
-            onSignUpClick={onSignUpClick}
-            onCartClick={onCartClick}
-            user={user}
-            className="w-full"
-          />
-        </div>
-      </header>
+      {!hideNavbar && (
+        <header
+          ref={headerRef}
+          className="sticky top-0 z-40 w-full backdrop-blur-md bg-deep-blue-950/90 border-b border-b-gradient-secondary"
+        >
+          <div className="w-full">
+            <Navbar
+              variant={navbarVariant}
+              navItems={navItems}
+              activeNavId={activeNavId}
+              onNavItemClick={onNavItemClick}
+              searchValue={searchValue}
+              searchPlaceholder={searchPlaceholder}
+              onSearchChange={onSearchChange}
+              onSearchClear={onSearchClear}
+              onSearchSubmit={onSearchSubmit}
+              onFilterClick={onFilterClick}
+              onLoginClick={onLoginClick}
+              onSignUpClick={onSignUpClick}
+              onCartClick={onCartClick}
+              onUserClick={onUserClick || (() => router.push("/profile"))}
+              user={user}
+              className="w-full"
+            />
+          </div>
+        </header>
+      )}
 
       {/* ========================================================
           2. MOBILE SIDEBAR TOGGLE BAR (< lg Viewport)
          ======================================================== */}
       {!hideSidebar && (
         <div
-          style={{ top: `${headerHeight}px` }}
+          style={{ top: `${effectiveHeaderHeight}px` }}
           className="lg:hidden flex items-center justify-between px-4 py-3 bg-deep-blue-900/60 border-b border-white/5 backdrop-blur-sm sticky z-30"
         >
           <button
@@ -179,13 +189,13 @@ export function StoreLayout({
       {/* ========================================================
           3. MAIN LAYOUT BODY (Desktop Sidebar + Main Content)
          ======================================================== */}
-      <div className="flex-1 w-full max-w-360 mx-auto flex flex-col lg:flex-row">
+      <div className="flex-1 w-full  mx-auto flex flex-col lg:flex-row">
         {/* DESKTOP SIDEBAR (Static/Sticky on lg+) */}
         {!hideSidebar && (
           <aside
             style={{
-              top: `${headerHeight}px`,
-              height: `calc(100vh - ${headerHeight}px)`,
+              top: `${effectiveHeaderHeight}px`,
+              height: `calc(100vh - ${effectiveHeaderHeight}px)`,
             }}
             className="hidden lg:block shrink-0 sticky self-start overflow-y-auto"
           >
@@ -199,7 +209,12 @@ export function StoreLayout({
         )}
 
         {/* MAIN STORE CONTENT */}
-        <main className="flex-1 min-w-0 flex flex-col px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
+        <main
+          className={cn(
+            "flex-1 min-w-0 flex flex-col",
+            contentClassName ?? "px-4 sm:px-6 lg:px-8 py-6 sm:py-8"
+          )}
+        >
           {children}
         </main>
       </div>

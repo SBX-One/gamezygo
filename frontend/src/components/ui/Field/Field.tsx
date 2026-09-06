@@ -62,6 +62,12 @@ const iconSizeClasses: Record<FieldSize, string> = {
   lg: "[&>svg]:w-5 [&>svg]:h-5 shrink-0",
 };
 
+const inputSizeClasses: Record<FieldSize, string> = {
+  sm: "text-body-xs placeholder:text-body-xs",
+  md: "text-body-sm placeholder:text-body-sm",
+  lg: "text-body-md placeholder:text-body-md",
+};
+
 export function Field({
   className,
   containerClassName,
@@ -91,7 +97,7 @@ export function Field({
       {leftIcon && (
         <span
           className={cn(
-            "field-icon field-left-icon flex items-center justify-center text-deep-blue-100 transition-colors duration-150 group-hover:text-gray-50 group-focus-within:text-deep-blue-200 group-active:text-deep-blue-200 shrink-0",
+            "field-icon field-left-icon flex items-center justify-center text-gray-400 transition-colors duration-150 group-hover:text-gray-50 group-focus-within:text-white group-active:text-white shrink-0",
             iconSizeClasses[currentSize]
           )}
         >
@@ -107,8 +113,9 @@ export function Field({
         value={value}
         defaultValue={defaultValue}
         className={cn(
-          "w-full bg-transparent border-0 outline-none text-gray-50 text-body-lg placeholder:text-deep-blue-100/70  transition-colors focus:outline-none disabled:cursor-not-allowed",
-          forceState === "filled" && " text-gray-50"
+          "w-full bg-transparent border-0 outline-none text-gray-50 placeholder:text-gray-400 transition-colors focus:outline-none disabled:cursor-not-allowed",
+          inputSizeClasses[currentSize],
+          forceState === "filled" && "text-gray-50 font-semibold"
         )}
         {...props}
       />
@@ -117,7 +124,7 @@ export function Field({
       {rightIcon && (
         <span
           className={cn(
-            "field-icon field-right-icon flex items-center justify-center text-deep-blue-100 transition-colors duration-150 group-hover:text-gray-50 group-focus-within:text-deep-blue-200 group-active:text-deep-blue-200 shrink-0",
+            "field-icon field-right-icon flex items-center justify-center text-gray-400 transition-colors duration-150 group-hover:text-gray-50 group-focus-within:text-white group-active:text-white shrink-0",
             iconSizeClasses[currentSize]
           )}
         >

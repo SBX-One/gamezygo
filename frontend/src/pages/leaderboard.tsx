@@ -99,16 +99,16 @@ export default function LeaderboardPage() {
           </div>
 <div className="grid gap-6">
           {/* ========================================================
-              2. PERINGKAT ANDA CARD (Pembungkus dengan background #15161D)
+              2. PERINGKAT ANDA CARD (Pembungkus dengan background deep-blue-900)
              ======================================================== */}
-          <section className="w-full rounded-2xl bg-[#15161D] border border-white/10 p-6 sm:p-7 flex flex-col gap-6 shadow-xl">
+          <section className="w-full rounded-2xl bg-deep-blue-900 border border-white/10 p-6 sm:p-7 flex flex-col gap-6 shadow-xl">
             {/* Header: Icon + Title */}
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-surface-secondary-default border border-[#2F2F37] flex items-center justify-center text-gray-300 shadow-sm shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-surface-secondary-default border border-deep-blue-700 flex items-center justify-center text-gray-300 shadow-sm shrink-0">
                 <img
                   src="/assets/svg/fluent_person-add-24-filled.svg"
                   alt="Peringkat"
-                  className="w-4.5 h-4.5 [filter:brightness(0)_invert(0.8)]"
+                  className="w-4.5 h-4.5 filter-[brightness(0)_invert(0.8)]"
                 />
               </div>
               <h2 className="text-body-lg sm:text-h6 font-semibold text-gray-50 tracking-tight">
@@ -116,8 +116,8 @@ export default function LeaderboardPage() {
               </h2>
             </div>
 
-            {/* User Statistics Row (Figma inspection: W 1230 Fill, H 64 Hug, Radius 8, px-5 py-3, Linear 0%: #15161D, 100%: #1B1B1E, Stroke: Border/Secondary/Default) */}
-            <div className="w-full min-h-16 rounded-lg bg-surface-secondary-default border border-[#2F2F37] px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none">
+            {/* User Statistics Row */}
+            <div className="w-full min-h-16 rounded-lg bg-surface-secondary-default border border-deep-blue-700 px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none">
               {/* Left Side: Stats with | Dividers & Username */}
               <div className="flex items-center gap-6 overflow-x-auto no-scrollbar w-full sm:w-auto">
                 {/* Mingguan */}
@@ -125,39 +125,39 @@ export default function LeaderboardPage() {
                   <Pill variant="secondary" size="xs">
                     Mingguan
                   </Pill>
-                  <span className="text-label-md font-semibold text-[#A3A3A3]">
+                  <span className="text-label-md font-semibold text-gray-400">
                     #67
                   </span>
                 </div>
 
                 {/* Divider 1 */}
-                <div className="w-px h-[22px] bg-white/10 shrink-0" />
+                <div className="w-px h-5.5 bg-white/10 shrink-0" />
 
                 {/* Bulanan */}
                 <div className="flex items-center gap-2 shrink-0">
                   <Pill variant="secondary" size="xs">
                     Bulanan
                   </Pill>
-                  <span className="text-label-md font-semibold text-[#A3A3A3]">
+                  <span className="text-label-md font-semibold text-gray-400">
                     #67
                   </span>
                 </div>
 
                 {/* Divider 2 */}
-                <div className="w-px h-[22px] bg-white/10 shrink-0" />
+                <div className="w-px h-5.5 bg-white/10 shrink-0" />
 
                 {/* All-time */}
                 <div className="flex items-center gap-2 shrink-0">
                   <Pill variant="secondary" size="xs">
                     All-time
                   </Pill>
-                  <span className="text-label-md font-semibold text-[#A3A3A3]">
+                  <span className="text-label-md font-semibold text-gray-400">
                     #67
                   </span>
                 </div>
 
                 {/* Divider 3 */}
-                <div className="w-px h-[22px] bg-white/10 shrink-0" />
+                <div className="w-px h-5.5 bg-white/10 shrink-0" />
 
                 {/* Username */}
                 <span className="text-body-md font-semibold text-gray-50 truncate shrink-0">
@@ -202,7 +202,7 @@ export default function LeaderboardPage() {
              ======================================================== */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
             {/* WEEKLY */}
-            <section className="rounded-2xl bg-[#15161D] border border-white/10 p-6 sm:p-7 flex flex-col shadow-xl">
+            <section className="rounded-2xl bg-deep-blue-900 border border-white/10 p-6 sm:p-7 flex flex-col shadow-xl">
               <h3 className="text-h6 sm:text-h6 font-semibold text-gray-50 uppercase mb-10">
                 WEEKLY
               </h3>
@@ -220,7 +220,7 @@ export default function LeaderboardPage() {
             </section>
 
             {/* MONTHLY */}
-            <section className="rounded-2xl bg-[#15161D] border border-white/10 p-6 sm:p-7 flex flex-col shadow-xl">
+            <section className="rounded-2xl bg-deep-blue-900 border border-white/10 p-6 sm:p-7 flex flex-col shadow-xl">
               <h3 className="text-h6 sm:text-h6 font-semibold text-gray-50 uppercase mb-10">
                 MONTHLY
               </h3>
@@ -241,8 +241,8 @@ export default function LeaderboardPage() {
           {/* ========================================================
               4. LIFETIME CARD (Menggunakan UserRank)
              ======================================================== */}
-          <section className="rounded-2xl bg-[#15161D] border border-white/10 p-6 sm:p-7 flex flex-col shadow-xl w-full">
-              <h3 className="text-h6 sm:text-h6 font-semibold text-gray-50 uppercase mb-10">
+          <section className="rounded-2xl bg-deep-blue-900 border border-white/10 p-6 sm:p-7 flex flex-col shadow-xl w-full">
+            <h3 className="text-h6 sm:text-h6 font-semibold text-gray-50 uppercase mb-10">
               LIFETIME
             </h3>
             <div className="flex flex-col gap-2">

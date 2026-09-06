@@ -35,7 +35,7 @@ export function InputField({
       {label && (
         <label
           htmlFor={inputId}
-          className="text-body-sm text-deep-blue-100 font-normal leading-relaxed tracking-normal"
+          className="text-body-xs text-gray-400 font-normal leading-relaxed tracking-normal"
         >
           {label}
         </label>
@@ -60,7 +60,7 @@ export function InputField({
           {errorMessage}
         </p>
       ) : helperText ? (
-        <p className="text-body-xs text-deep-blue-100/70 font-normal leading-tight">
+        <p className="text-body-xs text-gray-400 font-normal leading-tight">
           {helperText}
         </p>
       ) : null}

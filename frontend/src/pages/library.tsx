@@ -394,7 +394,7 @@ export default function GameLibraryPage() {
                     variant="inactive"
                     size="sm"
                     onClick={handleClearAllFilters}
-                    className="cursor-pointer text-gray-400 hover:text-white"
+                    className="cursor-pointer text-gray-400 hover:text-gray-50"
                   >
                     Hapus semua
                   </Button>
@@ -405,7 +405,7 @@ export default function GameLibraryPage() {
                   <span className="text-body-md font-normal text-gray-300">
                     Tampilkan:
                   </span>
-                  <span className="text-body-md font-bold text-white">
+                  <span className="text-body-md font-bold text-gray-50">
                     Semua
                   </span>
                 </div>
@@ -431,7 +431,7 @@ export default function GameLibraryPage() {
                   <button
                     type="button"
                     onClick={() => setSearchQuery("")}
-                    className="text-deep-blue-100 hover:text-white shrink-0 cursor-pointer outline-none"
+                    className="text-deep-blue-100 hover:text-gray-50 shrink-0 cursor-pointer outline-none"
                     aria-label="Hapus pencarian"
                   >
                     <CrossIcon className="w-3.5 h-3.5" />

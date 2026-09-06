@@ -622,11 +622,11 @@ export default function BundlePage() {
                     onMouseLeave={handleMouseLeave}
                     onMouseUp={handleMouseUp}
                     onMouseMove={handleMouseMove}
-                    className="flex xl:grid xl:grid-cols-3 gap-6 pt-2 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar py-2 px-1 -mx-4 px-4 sm:mx-0 sm:px-1 cursor-grab active:cursor-grabbing xl:cursor-default"
+                    className="flex xl:grid xl:grid-cols-3 gap-6 pt-2 overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar py-2 -mx-4 px-4 sm:mx-0 sm:px-1 cursor-grab active:cursor-grabbing xl:cursor-default"
                     role="region"
                     aria-label="Pilihan Paket Hemat Swiper"
                   >
-                    <div className="w-[85vw] max-w-[340px] sm:w-[340px] md:w-[350px] shrink-0 snap-center xl:w-auto xl:max-w-none flex flex-col">
+                    <div className="w-[85vw] max-w-85 sm:w-85 md:w-87.5 shrink-0 snap-center xl:w-auto xl:max-w-none flex flex-col">
                       <PricingCard
                         type="secondary"
                         title="Paket 1"
@@ -647,7 +647,7 @@ export default function BundlePage() {
                       />
                     </div>
 
-                    <div className="w-[85vw] max-w-[340px] sm:w-[340px] md:w-[350px] shrink-0 snap-center xl:w-auto xl:max-w-none flex flex-col">
+                    <div className="w-[85vw] max-w-85 sm:w-85 md:w-87.5 shrink-0 snap-center xl:w-auto xl:max-w-none flex flex-col">
                       <PricingCard
                         type="primary"
                         title="Paket 2"
@@ -668,7 +668,7 @@ export default function BundlePage() {
                       />
                     </div>
 
-                    <div className="w-[85vw] max-w-[340px] sm:w-[340px] md:w-[350px] shrink-0 snap-center xl:w-auto xl:max-w-none flex flex-col">
+                    <div className="w-[85vw] max-w-85 sm:w-85 md:w-87.5 shrink-0 snap-center xl:w-auto xl:max-w-none flex flex-col">
                       <PricingCard
                         type="secondary"
                         title="Paket 3"
@@ -702,7 +702,7 @@ export default function BundlePage() {
                         onClick={() => scrollToSlide(activeSlide - 1)}
                         disabled={activeSlide === 0}
                         aria-label="Paket sebelumnya"
-                        className="w-8 h-8 rounded-full flex items-center justify-center bg-deep-blue-900 border border-white/10 text-white hover:bg-deep-blue-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+                        className="w-8 h-8 rounded-full flex items-center justify-center bg-deep-blue-900 border border-white/10 text-gray-50 hover:bg-deep-blue-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
                       >
                         <ChevronLeftIcon className="w-4 h-4" />
                       </button>
@@ -729,7 +729,7 @@ export default function BundlePage() {
                         onClick={() => scrollToSlide(activeSlide + 1)}
                         disabled={activeSlide === 2}
                         aria-label="Paket berikutnya"
-                        className="w-8 h-8 rounded-full flex items-center justify-center bg-deep-blue-900 border border-white/10 text-white hover:bg-deep-blue-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+                        className="w-8 h-8 rounded-full flex items-center justify-center bg-deep-blue-900 border border-white/10 text-gray-50 hover:bg-deep-blue-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
                       >
                         <ChevronRightIcon className="w-4 h-4" />
                       </button>
@@ -837,7 +837,7 @@ export default function BundlePage() {
                         variant="inactive"
                         size="sm"
                         onClick={handleClearAllFilters}
-                        className="cursor-pointer text-gray-400 hover:text-white"
+                        className="cursor-pointer text-gray-400 hover:text-gray-50"
                       >
                         Hapus semua
                       </Button>
@@ -847,7 +847,7 @@ export default function BundlePage() {
                       <span className="text-body-md font-normal text-gray-300">
                         Tampilkan:
                       </span>
-                      <span className="text-body-md font-bold text-white">
+                      <span className="text-body-md font-bold text-gray-50">
                         Semua
                       </span>
                     </div>
@@ -869,7 +869,7 @@ export default function BundlePage() {
                       <button
                         type="button"
                         onClick={() => setSearchQuery("")}
-                        className="text-deep-blue-100 hover:text-white shrink-0 cursor-pointer outline-none"
+                        className="text-deep-blue-100 hover:text-gray-50 shrink-0 cursor-pointer outline-none"
                         aria-label="Hapus pencarian"
                       >
                         <CrossIcon className="w-3.5 h-3.5" />
@@ -1023,11 +1023,11 @@ export default function BundlePage() {
             <div className="relative z-10 w-fit  mx-auto bg-deep-blue-950 border border-white/10 rounded-2xl p-6 sm:p-8 flex flex-col gap-6 shadow-2xl max-h-[90vh] overflow-y-auto">
               {/* Header Modal */}
               <div className="flex items-center justify-between border-b border-b-gradient-secondary pb-4">
-                <h3 className="text-h4 font-bold text-white">Subscription</h3>
+                <h3 className="text-h4 font-bold text-gray-50">Subscription</h3>
                 <button
                   type="button"
                   onClick={() => setIsSubsModalOpen(false)}
-                  className="text-gray-400 hover:text-white cursor-pointer p-1 rounded-lg"
+                  className="text-gray-400 hover:text-gray-50 cursor-pointer p-1 rounded-lg"
                   aria-label="Tutup modal"
                 >
                   <CrossIcon className="w-4 h-4" />
@@ -1042,7 +1042,7 @@ export default function BundlePage() {
                 <div className="flex items-center justify-between p-4 rounded-xl bg-deep-blue-900 border border-white/5">
                   <div className="flex items-center gap-2.5">
                     <CrownIcon className="text-amber-400 w-5 h-5" />
-                    <span className="font-semibold text-white text-body-md">
+                    <span className="font-semibold text-gray-50 text-body-md">
                       {activeSubPlan}
                     </span>
                   </div>

@@ -266,14 +266,14 @@ export function FilterModal({
     <div
       ref={ref}
       className={cn(
-        "flex flex-col gap-8 p-6 rounded-2xl bg-deep-blue-950 border border-white/5 shadow-2xl text-white select-none w-full",
+        "flex flex-col gap-8 p-6 rounded-2xl bg-deep-blue-950 border border-white/5 shadow-2xl text-gray-50 select-none w-full",
         className
       )}
       {...props}
     >
       {/* 1. Header (Filter & Sort title + close button + separator) */}
       <div className="flex items-center justify-between pb-4 border-b border-white/10">
-        <h4 className="text-body-lg font-semibold text-white tracking-normal">
+        <h4 className="text-body-lg font-semibold text-gray-50 tracking-normal">
           {title}
         </h4>
         {onClose && (
@@ -281,7 +281,7 @@ export function FilterModal({
             type="button"
             onClick={onClose}
             aria-label="Tutup filter"
-            className="text-gray-400 hover:text-white transition-colors cursor-pointer p-1 rounded-md"
+            className="text-gray-400 hover:text-gray-50 transition-colors cursor-pointer p-1 rounded-md"
           >
             <DismissIcon className="w-5 h-5" />
           </button>
@@ -386,7 +386,7 @@ export function FilterModal({
         </span>
         <div className="flex items-center gap-3 w-full">
           {/* Min Price indicator */}
-          <span className="text-body-sm font-semibold text-white shrink-0 min-w-12 text-left">
+          <span className="text-body-sm font-semibold text-gray-50 shrink-0 min-w-12 text-left">
             {formatRupiah(currentMinPrice)}
           </span>
 
@@ -434,7 +434,7 @@ export function FilterModal({
           </div>
 
           {/* Max Price indicator */}
-          <span className="text-body-sm font-semibold text-white shrink-0 min-w-22 text-right">
+          <span className="text-body-sm font-semibold text-gray-50 shrink-0 min-w-22 text-right">
             {formatRupiah(currentMaxPrice)}
           </span>
         </div>

@@ -192,7 +192,7 @@ const defaultSidebarSections: SidebarSection[] = [
     items: [
       { id: "request", label: "Request Game", icon: <AddIcon />, href: "/request" },
       { id: "wishlist", label: "Wishlist", icon: <BookmarkIcon />, href: "/wishlist" },
-      { id: "leaderboard", label: "Leaderboard", icon: <LeaderboardIcon /> },
+      { id: "leaderboard", label: "Leaderboard", icon: <LeaderboardIcon />, href: "/leaderboard" },
       { id: "ulasan", label: "Ulasan", icon: <ReviewIcon /> },
     ],
   },
@@ -250,8 +250,8 @@ export function Sidebar({
                     {/* Icon Slot */}
                     <span
                       className={cn(
-                        "text-deep-blue-100 flex items-center justify-center shrink-0 w-4 h-4 [&>svg]:w-4 [&>svg]:h-4 transition-colors duration-150 group-hover:text-white",
-                        isActive && "text-white"
+                        "text-deep-blue-100 flex items-center justify-center shrink-0 w-4 h-4 [&>svg]:w-4 [&>svg]:h-4 transition-colors duration-150 group-hover:text-gray-50",
+                        isActive && "text-gray-50"
                       )}
                     >
                       {item.icon}
@@ -260,8 +260,8 @@ export function Sidebar({
                     {/* Label Slot */}
                     <span
                       className={cn(
-                        "text-gray-50 text-label-sm font-semibold transition-colors duration-150 group-hover:text-white tracking-normal",
-                        isActive && "text-white font-bold"
+                        "text-gray-50 text-label-sm font-semibold transition-colors duration-150 group-hover:text-gray-50 tracking-normal",
+                        isActive && "text-gray-50 font-bold"
                       )}
                     >
                       {item.label}

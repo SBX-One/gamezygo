@@ -16,7 +16,7 @@ const StarFilledIcon = (props: React.SVGProps<SVGSVGElement>) => (
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    className="w-3.5 h-3.5 fill-current text-white shrink-0"
+    className="w-3.5 h-3.5 fill-current text-gray-50 shrink-0"
     {...props}
   >
     <path
@@ -61,7 +61,7 @@ export function TestimonialCard({
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-linear-to-tr from-amber-900 via-rose-900 to-deep-blue-700 flex items-center justify-center text-label-sm font-bold text-white">
+            <div className="w-full h-full bg-linear-to-tr from-amber-900 via-rose-900 to-deep-blue-700 flex items-center justify-center text-label-sm font-bold text-gray-50">
               {typeof userName === "string" ? userName.charAt(0).toUpperCase() : "U"}
             </div>
           )}

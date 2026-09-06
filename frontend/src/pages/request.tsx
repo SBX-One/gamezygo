@@ -512,7 +512,7 @@ export default function RequestGamePage() {
                         setStoreUrl("");
                         if (inputError) setInputError(null);
                       }}
-                      className="text-gray-400 hover:text-white shrink-0 cursor-pointer p-1"
+                      className="text-gray-400 hover:text-gray-50 shrink-0 cursor-pointer p-1"
                       aria-label="Hapus teks URL"
                     >
                       <CrossIcon />
@@ -542,7 +542,7 @@ export default function RequestGamePage() {
 
           {/* TABS BAR (Grid 3-kolom dengan garis abu jika tidak aktif & merah jika aktif) */}
           <div className="flex items-center justify-end w-full select-none pt-2  border-b border-b-gradient-secondary pb-6">
-            <div className="grid grid-cols-3 w-full sm:w-auto min-w-full sm:min-w-[450px]">
+            <div className="grid grid-cols-3 w-full sm:w-auto min-w-full sm:min-w-112.5">
               {TAB_OPTIONS.map((tab) => {
                 const isActive = activeTab === tab.id && !forceEmptyState;
                 return (
@@ -555,8 +555,8 @@ export default function RequestGamePage() {
                     }}
                     className={`relative pb-3 pt-2 text-center text-label-xs sm:text-label-sm font-medium transition-all duration-150 cursor-pointer px-3 sm:px-5 ${
                       isActive
-                        ? "text-white font-semibold"
-                        : "text-gray-400 hover:text-white"
+                        ? "text-gray-50 font-semibold"
+                        : "text-gray-400 hover:text-gray-50"
                     }`}
                   >
                     <span className="whitespace-nowrap">{tab.label}</span>
@@ -612,7 +612,7 @@ export default function RequestGamePage() {
               {/* Empty Title & Description */}
               <div className="flex flex-col gap-4 my-8">
 
-              <h2 className="text-h4 font-semibold leading-1.2 text-white ">
+              <h2 className="text-h4 font-semibold leading-1.2 text-gray-50 ">
                 Request Game Impianmu
               </h2>
               <p className="text-body-xs text-gray-400   leading-relaxed">

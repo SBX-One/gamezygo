@@ -64,7 +64,7 @@ export function GameListItem({
       {/* 2. Text & Pricing Info */}
       <div className="flex flex-col justify-between flex-1 min-w-0 gap-3">
         {/* Game Title */}
-        <h3 className="text-body-md font-semibold text-white tracking-normal truncate">
+        <h3 className="text-body-md font-semibold text-gray-50 tracking-normal truncate">
           {title}
         </h3>
 

@@ -85,7 +85,7 @@ export function RequestListItem({
       {...props}
     >
       {/* 1. Game Cover Image */}
-      <div className="w-16.5 min-w-16.5 self-stretch rounded-md overflow-hidden bg-deep-blue-950 shrink-0 relative min-h-[76px] sm:min-h-[80px]">
+      <div className="w-16.5 min-w-16.5 self-stretch rounded-md overflow-hidden bg-deep-blue-950 shrink-0 relative min-h-19 sm:min-h-20">
         {imageSrc ? (
           <Image
             src={imageSrc}
@@ -106,7 +106,7 @@ export function RequestListItem({
       <div className="flex flex-col justify-between flex-1 min-w-0 gap-3">
         {/* Top: Game Title & Request Date */}
         <div>
-          <h3 className="font-semibold text-white text-body-md tracking-normal truncate leading-tight">
+          <h3 className="font-semibold text-gray-50 text-body-md tracking-normal truncate leading-tight">
             {title}
           </h3>
           <span className="text-body-xs text-gray-400 font-normal leading-tight mt-0.5 block">

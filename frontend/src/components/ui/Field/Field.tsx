@@ -14,7 +14,7 @@ export type FieldState =
   | "disabled";
 
 export const fieldVariants = cva(
-  "group relative inline-flex w-full items-center justify-between transition-all hover:border-neutral-500 hover:bg-deep-blue-700 duration-150 select-none border border-deep-blue-700 shadow-sm bg-deep-blue-900 text-white",
+  "group relative inline-flex w-full items-center justify-between transition-all hover:border-neutral-500 hover:bg-deep-blue-700 duration-150 select-none border border-deep-blue-700 shadow-sm bg-deep-blue-900 text-gray-50",
   {
     variants: {
       size: {
@@ -25,7 +25,7 @@ export const fieldVariants = cva(
       forceState: {
         default: "",
         unfilled: "",
-        filled: "[&_input]:font-semibold [&_input]:text-white",
+        filled: "[&_input]:font-semibold [&_input]:text-gray-50",
         hover: "",
         focus: "ring-2 ring-white/20 border-neutral-500",
         pressed: "border-neutral-500 [&_.field-icon]:text-deep-blue-200",
@@ -91,7 +91,7 @@ export function Field({
       {leftIcon && (
         <span
           className={cn(
-            "field-icon field-left-icon flex items-center justify-center text-deep-blue-100 transition-colors duration-150 group-hover:text-white group-focus-within:text-deep-blue-200 group-active:text-deep-blue-200 shrink-0",
+            "field-icon field-left-icon flex items-center justify-center text-deep-blue-100 transition-colors duration-150 group-hover:text-gray-50 group-focus-within:text-deep-blue-200 group-active:text-deep-blue-200 shrink-0",
             iconSizeClasses[currentSize]
           )}
         >
@@ -107,8 +107,8 @@ export function Field({
         value={value}
         defaultValue={defaultValue}
         className={cn(
-          "w-full bg-transparent border-0 outline-none text-white text-body-lg placeholder:text-deep-blue-100/70  transition-colors focus:outline-none disabled:cursor-not-allowed",
-          forceState === "filled" && " text-white"
+          "w-full bg-transparent border-0 outline-none text-gray-50 text-body-lg placeholder:text-deep-blue-100/70  transition-colors focus:outline-none disabled:cursor-not-allowed",
+          forceState === "filled" && " text-gray-50"
         )}
         {...props}
       />
@@ -117,7 +117,7 @@ export function Field({
       {rightIcon && (
         <span
           className={cn(
-            "field-icon field-right-icon flex items-center justify-center text-deep-blue-100 transition-colors duration-150 group-hover:text-white group-focus-within:text-deep-blue-200 group-active:text-deep-blue-200 shrink-0",
+            "field-icon field-right-icon flex items-center justify-center text-deep-blue-100 transition-colors duration-150 group-hover:text-gray-50 group-focus-within:text-deep-blue-200 group-active:text-deep-blue-200 shrink-0",
             iconSizeClasses[currentSize]
           )}
         >

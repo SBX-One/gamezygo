@@ -156,9 +156,9 @@ const ArrowLeftIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 const defaultNavItems: NavItem[] = [
-  { id: "home", label: "Home", href: "#", isActive: true },
-  { id: "toko", label: "Toko", href: "#" },
-  { id: "leaderboard", label: "Leaderboard", href: "#" },
+  { id: "home", label: "Home", href: "/", isActive: true },
+  { id: "toko", label: "Toko", href: "/store" },
+  { id: "leaderboard", label: "Leaderboard", href: "/leaderboard" },
   { id: "ulasan", label: "Ulasan", href: "#" },
   { id: "artikel", label: "Artikel", href: "#" },
 ];
@@ -326,7 +326,7 @@ export function Navbar({
                   <button
                     type="button"
                     onClick={handleClear}
-                    className="text-deep-blue-100 hover:text-white shrink-0 cursor-pointer outline-none"
+                    className="text-deep-blue-100 hover:text-gray-50 shrink-0 cursor-pointer outline-none"
                     aria-label="Hapus teks"
                   >
                     <DismissIcon className="w-4 h-4" />
@@ -404,7 +404,7 @@ export function Navbar({
                     ) : user?.avatarFallback ? (
                       user.avatarFallback
                     ) : (
-                      <div className="w-full h-full bg-linear-to-tr from-rose-900 via-indigo-900 to-deep-blue-700 flex items-center justify-center text-label-xs font-bold text-white">
+                      <div className="w-full h-full bg-linear-to-tr from-rose-900 via-indigo-900 to-deep-blue-700 flex items-center justify-center text-label-xs font-bold text-gray-50">
                         {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
                       </div>
                     )}

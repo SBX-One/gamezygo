@@ -74,7 +74,7 @@ const BookmarkOutlineIcon = (props: React.SVGProps<SVGSVGElement>) => (
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    className="w-8 h-8 text-white"
+    className="w-8 h-8 text-gray-50"
     {...props}
   >
     <path
@@ -355,7 +355,7 @@ export default function WishlistPage() {
                       variant="inactive"
                       size="sm"
                       onClick={handleClearAllFilters}
-                      className="cursor-pointer text-gray-400 hover:text-white"
+                      className="cursor-pointer text-gray-400 hover:text-gray-50"
                     >
                       Hapus semua
                     </Button>
@@ -366,7 +366,7 @@ export default function WishlistPage() {
                     <span className="text-body-md font-normal text-gray-300">
                       Tampilkan:
                     </span>
-                    <span className="text-body-md font-bold text-white">
+                    <span className="text-body-md font-bold text-gray-50">
                       Semua
                     </span>
                   </div>
@@ -389,7 +389,7 @@ export default function WishlistPage() {
                     <button
                       type="button"
                       onClick={() => setSearchQuery("")}
-                      className="text-deep-blue-100 hover:text-white shrink-0 cursor-pointer outline-none"
+                      className="text-deep-blue-100 hover:text-gray-50 shrink-0 cursor-pointer outline-none"
                       aria-label="Hapus pencarian"
                     >
                       <CrossIcon className="w-3.5 h-3.5" />
@@ -468,7 +468,7 @@ export default function WishlistPage() {
             /* CASE A: WISHLIST UTAMA KOSONG (Screenshot 2: Empty) */
             <div className="py-24 flex items-center justify-center w-full">
               <EmptyState
-                icon={<BookmarkOutlineIcon className="w-8 h-8 text-white" />}
+                icon={<BookmarkOutlineIcon className="w-8 h-8 text-gray-50" />}
                 title="Belum ada Wishlist"
                 description="Belum ada game impian di sini. Mulai jelajahi katalog dan tambahkan game favoritmu!"
                 backLabel="Kembali"

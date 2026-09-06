@@ -285,7 +285,7 @@ export default function HomePage() {
     appliedPriceRange[1] < 200000;
 
   return (
-    <div className="min-h-screen bg-deep-blue-950 text-gray-50 flex flex-col antialiased selection:bg-rose-600/30 selection:text-white">
+    <div className="min-h-screen bg-deep-blue-950 text-gray-50 flex flex-col antialiased selection:bg-rose-600/30 selection:text-gray-50">
       <Head>
         <title>Gamezygo â€” Toko Koleksi Akun Game Original Murah & Instan</title>
         <meta
@@ -334,7 +334,7 @@ export default function HomePage() {
         {previewState === "error-500" ? (
           <div className="py-24 flex items-center justify-center">
             <EmptyState
-              icon={<WifiOffIcon className="w-8 h-8 text-white" />}
+              icon={<WifiOffIcon className="w-8 h-8 text-gray-50" />}
               title="500: Internal Server Error"
               description="The page you're looking for doesn't exist or has been moved. Please check the URL or return to the homepage."
               backLabel="Kembali"

@@ -54,7 +54,7 @@ export function StatCard({
         <div className="rounded-xl bg-deep-blue-800 border border-deep-blue-700 p-3 flex items-center justify-center text-deep-blue-100 shrink-0">
           {icon || <DefaultPeopleSearchIcon />}
         </div>
-        <span className="font-semibold text-white text-body-lg">
+        <span className="font-semibold text-gray-50 text-body-lg">
           {label}
         </span>
       </div>

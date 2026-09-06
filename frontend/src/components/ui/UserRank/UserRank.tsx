@@ -44,17 +44,17 @@ export function UserRank({
     >
       {/* Left: Rank # + Avatar + Username */}
       <div className="flex items-center gap-6 min-w-0">
-        <span className="text-gray-400 font-semibold text-body-md shrink-0">
+        <span className="text-gray-400 font-semibold text-h6 shrink-0">
           {formattedRank}
         </span>
         {avatar && <div className="shrink-0">{avatar}</div>}
-        <span className="text-white font-semibold text-h6  tracking-tight truncate">
+        <span className="text-gray-50 font-semibold text-label-md tracking-tight truncate">
           {name}
         </span>
       </div>
 
       {/* Right: Points */}
-      <span className="text-white font-semibold text-h6  whitespace-nowrap shrink-0">
+      <span className="text-gray-50 font-semibold text-label-md  whitespace-nowrap shrink-0">
         {formattedPoints}
       </span>
     </div>

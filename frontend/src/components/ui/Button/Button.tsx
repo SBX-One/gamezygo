@@ -26,19 +26,19 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         primary:
-          "bg-[image:var(--gradient-primary-default)] text-white hover:bg-[image:var(--gradient-primary-hover)] hover:[&_.button-main-text]:text-rose-200 active:bg-[image:var(--gradient-primary-pressed)] active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none disabled:shadow-none",
+          "bg-[image:var(--gradient-primary-default)] text-gray-50 hover:bg-[image:var(--gradient-primary-hover)] hover:[&_.button-main-text]:text-rose-200 active:bg-[image:var(--gradient-primary-pressed)] active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none disabled:shadow-none",
         secondary:
-          "bg-[image:var(--gradient-surface-secondary-default)] text-white hover:[&_.button-main-text]:text-deep-blue-400 active:[&_.button-main-text]:text-deep-blue-400 hover:[&_.button-left-icon]:text-deep-blue-100 hover:[&_.button-right-icon]:text-deep-blue-100 active:[&_.button-left-icon]:text-deep-blue-100 active:[&_.button-right-icon]:text-deep-blue-100   hover:bg-[image:var(--gradient-surface-secondary-hover)]  active:bg-[image:var(--gradient-surface-secondary-pressed)] active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none",
+          "bg-[image:var(--gradient-surface-secondary-default)] text-gray-50 hover:[&_.button-main-text]:text-deep-blue-400 active:[&_.button-main-text]:text-deep-blue-400 hover:[&_.button-left-icon]:text-deep-blue-100 hover:[&_.button-right-icon]:text-deep-blue-100 active:[&_.button-left-icon]:text-deep-blue-100 active:[&_.button-right-icon]:text-deep-blue-100   hover:bg-[image:var(--gradient-surface-secondary-hover)]  active:bg-[image:var(--gradient-surface-secondary-pressed)] active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none",
         outline:
-          "border-gradient-outline text-white hover:[&_.button-main-text]:text-deep-blue-400 active:[&_.button-main-text]:text-deep-blue-400 hover:[&_.button-left-icon]:text-deep-blue-100 hover:[&_.button-right-icon]:text-deep-blue-100 active:[&_.button-left-icon]:text-deep-blue-100 active:[&_.button-right-icon]:text-deep-blue-100  active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none",
+          "border-gradient-outline text-gray-50 hover:[&_.button-main-text]:text-deep-blue-400 active:[&_.button-main-text]:text-deep-blue-400 hover:[&_.button-left-icon]:text-deep-blue-100 hover:[&_.button-right-icon]:text-deep-blue-100 active:[&_.button-left-icon]:text-deep-blue-100 active:[&_.button-right-icon]:text-deep-blue-100  active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none",
         ghost:
-          "bg-transparent text-white !rounded-none hover:[&_.button-main-text]:text-deep-blue-400 active:[&_.button-main-text]:text-deep-blue-400 hover:[&_.button-left-icon]:text-deep-blue-100 hover:[&_.button-right-icon]:text-deep-blue-100 active:[&_.button-left-icon]:text-deep-blue-100 active:[&_.button-right-icon]:text-deep-blue-100  active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none",
+          "bg-transparent text-gray-50 !rounded-none hover:[&_.button-main-text]:text-deep-blue-400 active:[&_.button-main-text]:text-deep-blue-400 hover:[&_.button-left-icon]:text-deep-blue-100 hover:[&_.button-right-icon]:text-deep-blue-100 active:[&_.button-left-icon]:text-deep-blue-100 active:[&_.button-right-icon]:text-deep-blue-100  active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none",
         inactive:
-          "border-gradient-inactive text-white hover:[&_.button-left-icon]:text-deep-blue-100 hover:[&_.button-right-icon]:text-deep-blue-100 active:[&_.button-left-icon]:text-deep-blue-100 active:[&_.button-right-icon]:text-deep-blue-100  active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none",
+          "border-gradient-inactive text-gray-50 hover:[&_.button-left-icon]:text-deep-blue-100 hover:[&_.button-right-icon]:text-deep-blue-100 active:[&_.button-left-icon]:text-deep-blue-100 active:[&_.button-right-icon]:text-deep-blue-100  active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none",
         inactiveDashboard:
-          "bg-transparent text-white   hover:[&_.button-left-icon]:text-deep-blue-100 hover:[&_.button-right-icon]:text-deep-blue-100 active:[&_.button-left-icon]:text-deep-blue-100 active:[&_.button-right-icon]:text-deep-blue-100  active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none",
+          "bg-transparent text-gray-50   hover:[&_.button-left-icon]:text-deep-blue-100 hover:[&_.button-right-icon]:text-deep-blue-100 active:[&_.button-left-icon]:text-deep-blue-100 active:[&_.button-right-icon]:text-deep-blue-100  active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none",
         active:
-          "bg-[image:var(--gradient-surface-secondary-default)]  text-white hover:[&_.button-main-text]:text-deep-blue-400 active:[&_.button-main-text]:text-deep-blue-400 hover:[&_.button-left-icon]:text-deep-blue-100 hover:[&_.button-right-icon]:text-deep-blue-100 active:[&_.button-left-icon]:text-deep-blue-100 active:[&_.button-right-icon]:text-deep-blue-100 border-[#2F2F37]  hover:bg-[image:var(--gradient-surface-secondary-hover)] hover:border-neutral-500 active:bg-[image:var(--gradient-surface-secondary-pressed)] active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none",
+          "bg-[image:var(--gradient-surface-secondary-default)]  text-gray-50 hover:[&_.button-main-text]:text-deep-blue-400 active:[&_.button-main-text]:text-deep-blue-400 hover:[&_.button-left-icon]:text-deep-blue-100 hover:[&_.button-right-icon]:text-deep-blue-100 active:[&_.button-left-icon]:text-deep-blue-100 active:[&_.button-right-icon]:text-deep-blue-100 border-[#2F2F37]  hover:bg-[image:var(--gradient-surface-secondary-hover)] hover:border-neutral-500 active:bg-[image:var(--gradient-surface-secondary-pressed)] active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none",
       },
       size: {
         xs: "text-label-xs rounded-lg gap-4 p-1",
@@ -154,7 +154,7 @@ export function Button({
       {leftIcon && (
         <span
           className={cn(
-            "button-left-icon flex items-center justify-center text-white shrink-0 ",
+            "button-left-icon flex items-center justify-center text-gray-50 shrink-0 ",
             iconSizeClasses[currentSize]
           )}
         >
@@ -166,7 +166,7 @@ export function Button({
       {children && (
         <span
           className={cn(
-            "button-main-text text-white inline-flex items-center gap-4",
+            "button-main-text text-gray-50 inline-flex items-center gap-4",
             buttonTextSizeClasses[currentSize]
           )}
         >
@@ -178,7 +178,7 @@ export function Button({
       {rightIcon && (
         <span
           className={cn(
-            "button-right-icon flex items-center justify-center text-white shrink-0",
+            "button-right-icon flex items-center justify-center text-gray-50 shrink-0",
             iconSizeClasses[currentSize]
           )}
         >

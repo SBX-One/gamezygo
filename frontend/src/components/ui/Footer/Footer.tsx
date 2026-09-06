@@ -98,7 +98,7 @@ export function Footer({
     <footer
       ref={ref}
       className={cn(
-        "relative overflow-hidden bg-deep-blue-950 text-white w-full select-none pt-27 px-6 md:px-30 pb-80",
+        "relative overflow-hidden bg-deep-blue-950 text-gray-50 w-full select-none pt-27 px-6 md:px-30 pb-80",
         className
       )}
       {...props}
@@ -154,9 +154,9 @@ export function Footer({
             {brandLogo ? (
               brandLogo
             ) : (
-              <GamezygoEmblem className="w-8 h-4.5 text-gray-50 group-hover:text-white transition-colors" />
+              <GamezygoEmblem className="w-8 h-4.5 text-gray-50 group-hover:text-gray-50 transition-colors" />
             )}
-            <span className="text-h4 font-semibold text-gray-50 group-hover:text-white tracking-tight transition-colors">
+            <span className="text-h4 font-semibold text-gray-50 group-hover:text-gray-50 tracking-tight transition-colors">
               {brandName}
             </span>
           </Link>
@@ -175,7 +175,7 @@ export function Footer({
                     <Link
                       href={link.href}
                       onClick={link.onClick}
-                      className="text-body-md font-normal text-gray-400 hover:text-white transition-colors duration-150 block"
+                      className="text-body-md font-normal text-gray-400 hover:text-gray-50 transition-colors duration-150 block"
                     >
                       {link.label}
                     </Link>
@@ -183,7 +183,7 @@ export function Footer({
                     <button
                       type="button"
                       onClick={link.onClick}
-                      className="text-body-md font-normal text-gray-400 hover:text-white transition-colors duration-150 text-left cursor-pointer"
+                      className="text-body-md font-normal text-gray-400 hover:text-gray-50 transition-colors duration-150 text-left cursor-pointer"
                     >
                       {link.label}
                     </button>

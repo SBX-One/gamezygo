@@ -16,11 +16,11 @@ export const toastVariants = cva(
     variants: {
       variant: {
         default:
-          "bg-deep-blue-900 text-white border border-deep-blue-700 [&_.toast-desc]:text-deep-blue-100 [&_.toast-close]:text-deep-blue-100 hover:[&_.toast-close]:text-white",
+          "bg-deep-blue-900 text-gray-50 border border-deep-blue-700 [&_.toast-desc]:text-deep-blue-100 [&_.toast-close]:text-deep-blue-100 hover:[&_.toast-close]:text-gray-50",
         secondary:
-          "bg-deep-blue-900 text-white border border-deep-blue-700 [&_.toast-desc]:text-deep-blue-100 [&_.toast-close]:text-deep-blue-100 hover:[&_.toast-close]:text-white",
+          "bg-deep-blue-900 text-gray-50 border border-deep-blue-700 [&_.toast-desc]:text-deep-blue-100 [&_.toast-close]:text-deep-blue-100 hover:[&_.toast-close]:text-gray-50",
         primary:
-          "bg-[image:var(--gradient-primary-default)] text-white border border-rose-500/30 [&_.toast-desc]:text-rose-100 [&_.toast-close]:text-white/80 hover:[&_.toast-close]:text-white",
+          "bg-[image:var(--gradient-primary-default)] text-gray-50 border border-rose-500/30 [&_.toast-desc]:text-rose-100 [&_.toast-close]:text-gray-50/80 hover:[&_.toast-close]:text-gray-50",
         error:
           "bg-red-900 text-rose-400 border border-red-800/50 [&_.toast-desc]:text-rose-300 [&_.toast-close]:text-rose-400 hover:[&_.toast-close]:text-rose-200",
         warning:

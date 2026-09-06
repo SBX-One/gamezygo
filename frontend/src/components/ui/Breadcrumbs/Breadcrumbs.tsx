@@ -61,14 +61,14 @@ export function Breadcrumbs({
                 {isCurrent ? (
                   <span
                     aria-current="page"
-                    className="text-white tracking-tight"
+                    className="text-gray-50 tracking-tight"
                   >
                     {item.label}
                   </span>
                 ) : item.href ? (
                   <a
                     href={item.href}
-                    className="text-deep-blue-100 hover:text-white transition-colors duration-150 font-normal"
+                    className="text-deep-blue-100 hover:text-gray-50 transition-colors duration-150 font-normal"
                   >
                     {item.label}
                   </a>

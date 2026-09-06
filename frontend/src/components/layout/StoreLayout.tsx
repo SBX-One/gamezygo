@@ -109,7 +109,7 @@ export function StoreLayout({
     <div
       ref={ref}
       className={cn(
-        "min-h-screen flex flex-col bg-deep-blue-950 text-gray-50 antialiased font-sans selection:bg-rose-600/30 selection:text-white",
+        "min-h-screen flex flex-col bg-deep-blue-950 text-gray-50 antialiased font-sans selection:bg-rose-600/30 selection:text-gray-50",
         className
       )}
       style={{
@@ -168,7 +168,7 @@ export function StoreLayout({
             <button
               type="button"
               onClick={onFilterClick}
-              className="h-11 px-4 flex items-center gap-2 rounded-lg bg-deep-blue-800/80 border border-white/10 hover:bg-deep-blue-700 text-label-sm font-semibold text-deep-blue-100 hover:text-white transition-colors cursor-pointer"
+              className="h-11 px-4 flex items-center gap-2 rounded-lg bg-deep-blue-800/80 border border-white/10 hover:bg-deep-blue-700 text-label-sm font-semibold text-deep-blue-100 hover:text-gray-50 transition-colors cursor-pointer"
             >
               <span>Filter</span>
             </button>
@@ -231,7 +231,7 @@ export function StoreLayout({
               <button
                 type="button"
                 onClick={() => toggleSidebar(false)}
-                className="h-11 w-11 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-gray-50/50"
+                className="h-11 w-11 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-400 hover:text-gray-50 transition-colors cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-gray-50/50"
                 aria-label="Tutup Menu"
               >
                 <CloseIcon />

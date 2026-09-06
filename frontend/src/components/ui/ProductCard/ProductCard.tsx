@@ -15,7 +15,7 @@ const SteamIcon = (props: React.SVGProps<SVGSVGElement>) => (
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
-    className="w-5.5 h-5.5 fill-current text-white shrink-0"
+    className="w-5.5 h-5.5 fill-current text-gray-50 shrink-0"
     {...props}
   >
     <path
@@ -123,7 +123,7 @@ export function ProductCard({
             {originalPrice}
           </span>
         )}
-        <span className="text-body-xs sm:text-body-lg font-semibold leading-[140%] text-white">
+        <span className="text-body-xs sm:text-body-lg font-semibold leading-[140%] text-gray-50">
           {price}
         </span>
       </div>
@@ -193,7 +193,7 @@ export function ProductCard({
             {href ? (
               <Link
                 href={href}
-                className="text-xs sm:text-body-sm font-semibold text-gray-50 hover:text-white line-clamp-2 transition-colors outline-none leading-tight sm:leading-snug"
+                className="text-xs sm:text-body-sm font-semibold text-gray-50 hover:text-gray-50 line-clamp-2 transition-colors outline-none leading-tight sm:leading-snug"
               >
                 {title}
               </Link>
@@ -281,7 +281,7 @@ export function ProductCard({
         {href ? (
           <Link
             href={href}
-            className="text-xs sm:text-body-sm font-semibold text-gray-50 hover:text-white line-clamp-2 transition-colors outline-none leading-tight sm:leading-snug"
+            className="text-xs sm:text-body-sm font-semibold text-gray-50 hover:text-gray-50 line-clamp-2 transition-colors outline-none leading-tight sm:leading-snug"
           >
             {title}
           </Link>

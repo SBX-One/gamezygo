@@ -71,8 +71,8 @@ export function Tabs({
               "relative pb-3 text-label-sm px-6 text-center transition-all duration-150 cursor-pointer focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-white/50",
               fullWidth ? "flex-1" : "shrink-0",
               isActive
-                ? "text-white"
-                : "text-deep-blue-100 hover:text-white font-normal",
+                ? "text-gray-50"
+                : "text-deep-blue-100 hover:text-gray-50 font-normal",
               item.disabled && "opacity-40 cursor-not-allowed pointer-events-none"
             )}
           >

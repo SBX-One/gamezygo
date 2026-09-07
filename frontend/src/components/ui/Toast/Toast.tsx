@@ -11,7 +11,7 @@ export type ToastVariant =
   | "success";
 
 export const toastVariants = cva(
-  "relative flex items-center justify-between gap-4 w-full rounded-lg p-3 transition-all duration-200 select-none shadow-lg ",
+  "relative flex items-center justify-between gap-4 w-full rounded-lg p-3 transition-all duration-200 select-none  ",
   {
     variants: {
       variant: {

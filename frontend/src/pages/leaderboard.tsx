@@ -101,10 +101,10 @@ export default function LeaderboardPage() {
           {/* ========================================================
               2. PERINGKAT ANDA CARD (Pembungkus dengan background deep-blue-900)
              ======================================================== */}
-          <section className="w-full rounded-2xl bg-deep-blue-900 border border-white/10 p-6 sm:p-7 flex flex-col gap-6 shadow-xl">
+          <section className="w-full rounded-2xl bg-deep-blue-900 border border-gradient-secondary p-6 sm:p-7 flex flex-col gap-6 shadow-xl">
             {/* Header: Icon + Title */}
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-surface-secondary-default border border-deep-blue-700 flex items-center justify-center text-gray-300 shadow-sm shrink-0">
+              <div className="w-8 h-8 rounded-lg bg-surface-secondary-default border border-deep-blue-700 flex items-center justify-center text-gray-300  shrink-0">
                 <img
                   src="/assets/svg/fluent_person-add-24-filled.svg"
                   alt="Peringkat"
@@ -166,7 +166,7 @@ export default function LeaderboardPage() {
               </div>
 
               {/* Right Side: Points Badge */}
-              <div className="px-4 py-1.5 rounded-lg border border-white/10 text-label-sm font-semibold text-gray-50 shrink-0 self-end sm:self-auto">
+              <div className="px-4 py-1.5 rounded-lg border border-gradient-secondary text-label-sm font-semibold text-gray-50 shrink-0 self-end sm:self-auto">
                 67 pts
               </div>
             </div>
@@ -202,7 +202,7 @@ export default function LeaderboardPage() {
              ======================================================== */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full">
             {/* WEEKLY */}
-            <section className="rounded-2xl bg-deep-blue-900 border border-white/10 p-6 sm:p-7 flex flex-col shadow-xl">
+            <section className="rounded-2xl bg-deep-blue-900 border border-gradient-secondary p-6 sm:p-7 flex flex-col shadow-xl">
               <h3 className="text-h6 sm:text-h6 font-semibold text-gray-50 uppercase mb-10">
                 WEEKLY
               </h3>
@@ -220,7 +220,7 @@ export default function LeaderboardPage() {
             </section>
 
             {/* MONTHLY */}
-            <section className="rounded-2xl bg-deep-blue-900 border border-white/10 p-6 sm:p-7 flex flex-col shadow-xl">
+            <section className="rounded-2xl bg-deep-blue-900 border border-gradient-secondary p-6 sm:p-7 flex flex-col shadow-xl">
               <h3 className="text-h6 sm:text-h6 font-semibold text-gray-50 uppercase mb-10">
                 MONTHLY
               </h3>
@@ -241,7 +241,7 @@ export default function LeaderboardPage() {
           {/* ========================================================
               4. LIFETIME CARD (Menggunakan UserRank)
              ======================================================== */}
-          <section className="rounded-2xl bg-deep-blue-900 border border-white/10 p-6 sm:p-7 flex flex-col shadow-xl w-full">
+          <section className="rounded-2xl bg-deep-blue-900 border border-gradient-secondary p-6 sm:p-7 flex flex-col shadow-xl w-full">
             <h3 className="text-h6 sm:text-h6 font-semibold text-gray-50 uppercase mb-10">
               LIFETIME
             </h3>

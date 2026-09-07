@@ -702,7 +702,7 @@ export default function BundlePage() {
                         onClick={() => scrollToSlide(activeSlide - 1)}
                         disabled={activeSlide === 0}
                         aria-label="Paket sebelumnya"
-                        className="w-8 h-8 rounded-full flex items-center justify-center bg-deep-blue-900 border border-white/10 text-gray-50 hover:bg-deep-blue-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+                        className="w-8 h-8 rounded-full flex items-center justify-center bg-deep-blue-900 border border-gradient-secondary text-gray-50 hover:bg-deep-blue-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
                       >
                         <ChevronLeftIcon className="w-4 h-4" />
                       </button>
@@ -729,7 +729,7 @@ export default function BundlePage() {
                         onClick={() => scrollToSlide(activeSlide + 1)}
                         disabled={activeSlide === 2}
                         aria-label="Paket berikutnya"
-                        className="w-8 h-8 rounded-full flex items-center justify-center bg-deep-blue-900 border border-white/10 text-gray-50 hover:bg-deep-blue-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
+                        className="w-8 h-8 rounded-full flex items-center justify-center bg-deep-blue-900 border border-gradient-secondary text-gray-50 hover:bg-deep-blue-800 disabled:opacity-30 disabled:cursor-not-allowed transition-all cursor-pointer"
                       >
                         <ChevronRightIcon className="w-4 h-4" />
                       </button>
@@ -856,7 +856,7 @@ export default function BundlePage() {
 
                 {/* SEARCH INPUT + FLOATING FILTER DROPDOWN */}
                 <div className="relative flex items-center gap-3 shrink-0 self-end sm:self-auto">
-                  <div className="relative flex items-center bg-deep-blue-950 border border-white/10 rounded-lg px-3.5 py-2.5 h-10 w-60 sm:w-64 md:w-80 gap-2.5 focus-within:border-deep-blue-100/40 transition-colors">
+                  <div className="relative flex items-center bg-deep-blue-950 border border-gradient-secondary rounded-lg px-3.5 py-2.5 h-10 w-60 sm:w-64 md:w-80 gap-2.5 focus-within:border-deep-blue-100/40 transition-colors">
                     <SearchIcon className="w-4 h-4 text-deep-blue-100 shrink-0" />
                     <input
                       type="text"
@@ -1020,7 +1020,7 @@ export default function BundlePage() {
               className="fixed inset-0"
               onClick={() => setIsSubsModalOpen(false)}
             />
-            <div className="relative z-10 w-fit  mx-auto bg-deep-blue-950 border border-white/10 rounded-2xl p-6 sm:p-8 flex flex-col gap-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+            <div className="relative z-10 w-fit  mx-auto bg-deep-blue-950 border border-gradient-secondary rounded-2xl p-6 sm:p-8 flex flex-col gap-6  max-h-[90vh] overflow-y-auto">
               {/* Header Modal */}
               <div className="flex items-center justify-between border-b border-b-gradient-secondary pb-4">
                 <h3 className="text-h4 font-bold text-gray-50">Subscription</h3>

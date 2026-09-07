@@ -285,13 +285,13 @@ export function FilterModal({
     <div
       ref={ref}
       className={cn(
-        "flex flex-col gap-8 p-6 rounded-2xl bg-deep-blue-950 border border-white/5 shadow-2xl text-gray-50 select-none w-full",
+        "flex flex-col gap-8 p-6 rounded-2xl bg-deep-blue-950 border border-white/5  text-gray-50 select-none w-full",
         className
       )}
       {...props}
     >
       {/* 1. Header (Filter & Sort title + close button + separator) */}
-      <div className="flex items-center justify-between pb-4 border-b border-white/10">
+      <div className="flex items-center justify-between pb-4 border-b border-gradient-secondary">
         <h4 className="text-body-lg font-semibold text-gray-50 tracking-normal">
           {title}
         </h4>
@@ -635,7 +635,7 @@ export function FilterModal({
         className={cn(
           "fixed sm:absolute right-4 sm:right-8 lg:right-20 top-20 sm:top-18 z-50",
           "w-[calc(100vw-32px)] sm:w-115 max-h-[calc(100vh-100px)] overflow-y-auto",
-          "rounded-2xl border border-white/10 shadow-2xl bg-[#0D121F]/98 backdrop-blur-xl",
+          "rounded-2xl border border-gradient-secondary  bg-[#0D121F]/98 backdrop-blur-xl",
           "scrollbar-thin animate-in fade-in slide-in-from-top-2 duration-150",
           className
         )}

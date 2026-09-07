@@ -538,6 +538,23 @@
   border-bottom: 1px solid transparent;
   border-image: var(--gradient-secondary-border) 1;
 }
+@utility border-gradient-secondary {
+  position: relative;
+  border: 1px solid transparent !important;
+
+  &::before {
+    content: "";
+    position: absolute;
+    inset: -1px;
+    border-radius: inherit;
+    padding: 1px;
+    background: var(--gradient-secondary-border);
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+  }
+}
 @utility border-t-gradient-secondary {
   border-top: 1px solid transparent;
   border-image: var(--gradient-secondary-border) 1;

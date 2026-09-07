@@ -164,7 +164,7 @@ export default function BlogDetailPage() {
             <div className="flex items-center gap-3">
               <form
                 onSubmit={handleSearchSubmit}
-                className="relative hidden md:flex items-center bg-deep-blue-950 border border-white/10 rounded-lg px-3.5 py-2.5 h-10 w-64 md:w-80 gap-2.5 focus-within:border-deep-blue-100/40 transition-colors"
+                className="relative hidden md:flex items-center bg-deep-blue-950 border border-gradient-secondary rounded-lg px-3.5 py-2.5 h-10 w-64 md:w-80 gap-2.5 focus-within:border-deep-blue-100/40 transition-colors"
               >
                 <SearchIcon className="w-4 h-4 text-deep-blue-100 shrink-0" />
                 <input
@@ -187,7 +187,7 @@ export default function BlogDetailPage() {
                 <CartIcon className="w-4 h-4 text-deep-blue-100" />
               </Button>
 
-              <div className="w-8 h-8 rounded-full bg-deep-blue-700/80 border border-white/10 overflow-hidden flex items-center justify-center shrink-0 cursor-pointer">
+              <div className="w-8 h-8 rounded-full bg-deep-blue-700/80 border border-gradient-secondary overflow-hidden flex items-center justify-center shrink-0 cursor-pointer">
                 <img
                   src={currentUser.avatarUrl}
                   alt={currentUser.name}
@@ -220,7 +220,7 @@ export default function BlogDetailPage() {
             </div>
 
             {/* B. HERO BANNER COVER IMAGE */}
-            <div className="w-full aspect-21/9 sm:aspect-3/1 max-h-110 rounded-xl sm:rounded-lg overflow-hidden  shadow-2xl bg-deep-blue-900 shrink-0 relative">
+            <div className="w-full aspect-21/9 sm:aspect-3/1 max-h-110 rounded-xl sm:rounded-lg overflow-hidden   bg-deep-blue-900 shrink-0 relative">
               <img
                 src={blog.bannerSrc || blog.imageSrc}
                 alt={blog.title}
@@ -352,7 +352,7 @@ export default function BlogDetailPage() {
                   <div
                     key={`${game.id}-${idx}`}
                     onClick={() => router.push("/bundle")}
-                    className="relative w-48 sm:w-56 md:w-60 shrink-0 aspect-2/3 rounded-2xl overflow-hidden border border-white/10 shadow-2xl transition-all duration-300 group cursor-pointer bg-deep-blue-900 hover:border-white/30 hover:scale-105 hover:z-20 hover:brightness-105"
+                    className="relative w-48 sm:w-56 md:w-60 shrink-0 aspect-2/3 rounded-2xl overflow-hidden border border-gradient-secondary  transition-all duration-300 group cursor-pointer bg-deep-blue-900 hover:border-white/30 hover:scale-105 hover:z-20 hover:brightness-105"
                   >
                     <img
                       src={game.imageSrc}

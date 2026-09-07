@@ -14,7 +14,7 @@ export type FieldState =
   | "disabled";
 
 export const fieldVariants = cva(
-  "group relative inline-flex w-full items-center justify-between transition-all hover:border-neutral-500 hover:bg-deep-blue-700 duration-150 select-none border border-deep-blue-700 shadow-sm bg-deep-blue-900 text-gray-50",
+  "group relative inline-flex w-full items-center justify-between transition-all hover:border-neutral-500 hover:bg-deep-blue-700 duration-150 select-none border border-deep-blue-700  bg-deep-blue-900 text-gray-50",
   {
     variants: {
       size: {

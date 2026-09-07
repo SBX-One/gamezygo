@@ -100,7 +100,7 @@ export function PricingCard({
       <div
         ref={ref}
         className={cn(
-          "flex flex-col md:flex-row justify-between md:items-end gap-6 p-6 sm:p-8 rounded-2xl bg-deep-blue-950 border border-white/10 select-none w-full transition-all duration-150 hover:border-neutral-500",
+          "flex flex-col md:flex-row justify-between md:items-end gap-6 p-6 sm:p-8 rounded-2xl bg-deep-blue-950 border border-gradient-secondary select-none w-full transition-all duration-150 hover:border-neutral-500",
           className
         )}
         {...props}
@@ -159,7 +159,7 @@ export function PricingCard({
             size="sm"
             leftIcon={secondaryActionIcon || <DefaultPhoneIcon className="w-4 h-4" />}
             onClick={onSecondaryActionClick}
-            className="h-11 px-5 rounded-lg text-body-sm font-medium cursor-pointer border border-white/10 bg-deep-blue-900/40 hover:bg-deep-blue-800/60 hover:border-white/20"
+            className="h-11 px-5 rounded-lg text-body-sm font-medium cursor-pointer border border-gradient-secondary bg-deep-blue-900/40 hover:bg-deep-blue-800/60 hover:border-white/20"
           >
             {secondaryActionText}
           </Button>
@@ -172,7 +172,7 @@ export function PricingCard({
   const buttonVariant = isPrimary ? "primary" : "outline";
   const defaultActionText = actionText || "Subscribe";
   const cardVariantClasses = isPrimary
-    ? "border-gradient-primary shadow-lg shadow-rose-950/30"
+    ? "border-gradient-primary  shadow-rose-950/30"
     : "bg-deep-blue-950 border border-deep-blue-700/60 hover:border-neutral-500";
 
   // 2. Horizontal Layout (Primary / Secondary)

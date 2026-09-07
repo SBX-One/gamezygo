@@ -19,7 +19,7 @@ export const pillVariants = cva(
         primary:
           "bg-[image:var(--gradient-primary-default)] text-gray-50",
         secondary:
-          "bg-deep-blue-900 text-gray-400 border border-deep-blue-700 shadow-sm [&_.pill-icon]:text-deep-blue-100",
+          "bg-deep-blue-900 text-gray-400 border border-deep-blue-700  [&_.pill-icon]:text-deep-blue-100",
         error:
           "bg-red-900 text-rose-600",
         warning:

@@ -376,7 +376,7 @@ export default function WishlistPage() {
               {/* Header Kanan: Search Input Box + Tombol Filter + Dropdown Popover */}
               <div className="relative flex items-center gap-3 shrink-0 self-end sm:self-auto">
                 {/* Search Bar Input */}
-                <div className="relative flex items-center bg-deep-blue-950 border border-white/10 rounded-lg px-3.5 py-2.5 h-10 w-60 sm:w-64 md:w-80 gap-2.5 focus-within:border-deep-blue-100/40 transition-colors">
+                <div className="relative flex items-center bg-deep-blue-950 border border-gradient-secondary rounded-lg px-3.5 py-2.5 h-10 w-60 sm:w-64 md:w-80 gap-2.5 focus-within:border-deep-blue-100/40 transition-colors">
                   <SearchIcon className="w-4 h-4 text-deep-blue-100 shrink-0" />
                   <input
                     type="text"

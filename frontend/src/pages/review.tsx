@@ -416,7 +416,7 @@ export default function ReviewPage() {
         {previewState === "error-500" ? (
           <div className="flex flex-col items-center justify-center min-h-[60vh] text-center select-none px-4 py-16">
             {/* Wifi Off Box */}
-            <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white mb-6">
+            <div className="w-14 h-14 rounded-2xl bg-white/5 border border-gradient-secondary flex items-center justify-center text-white mb-6">
               <WifiOffIcon className="w-7 h-7 text-white" />
             </div>
 
@@ -556,7 +556,7 @@ export default function ReviewPage() {
             {/* Modal Dialog Card */}
             <div className="relative z-10 w-full  rounded-2xl bg-deep-blue-900 border border-deep-blue-700/60 p-6 flex flex-col gap-6 select-none animate-scale-up shadow-none">
               {/* Header: Title + Close Icon */}
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <div className="flex items-center justify-between border-b border-gradient-secondary pb-4">
                 <h3 className="text-body-lg font-bold text-white">
                   Review
                 </h3>
@@ -656,7 +656,7 @@ export default function ReviewPage() {
                             <img
                               src={img.url}
                               alt={img.name}
-                              className="w-14 h-8 object-cover rounded-md border border-white/10 shrink-0"
+                              className="w-14 h-8 object-cover rounded-md border border-gradient-secondary shrink-0"
                             />
                             <span className="text-body-sm text-gray-300 font-normal truncate">
                               {img.name}

@@ -81,7 +81,7 @@ export function EmptyState({
       {...props}
     >
       {/* 1. Icon Badge */}
-      <div className="w-16 h-16 rounded-2xl bg-deep-blue-900 border border-deep-blue-700/60 flex items-center justify-center text-gray-50 shadow-lg mb-6">
+      <div className="w-16 h-16 rounded-2xl bg-deep-blue-900 border border-deep-blue-700/60 flex items-center justify-center text-gray-50  mb-6">
         {icon || <FluentSearchIcon className="w-8 h-8 text-gray-50" />}
       </div>
 
@@ -105,7 +105,7 @@ export function EmptyState({
           {backLabel && (
             <Button
               variant="secondary"
-              size="md"
+              size="sm"
               leftIcon={<FluentArrowLeftIcon className="w-4.5 h-4.5" />}
               onClick={onBack}
             >
@@ -116,7 +116,7 @@ export function EmptyState({
           {searchLabel && (
             <Button
               variant="secondary"
-              size="md"
+              size="sm"
               leftIcon={<FluentSearchIcon className="w-4.5 h-4.5" />}
               onClick={onSearch}
             >

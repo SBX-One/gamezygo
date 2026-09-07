@@ -162,7 +162,7 @@ export function BannerCarousel({
   return (
     <div
       className={cn(
-        "relative group overflow-hidden rounded-2xl border border-white/10 shadow-2xl bg-deep-blue-900 select-none",
+        "relative group overflow-hidden rounded-2xl border border-gradient-secondary  bg-deep-blue-900 select-none",
         "min-h-65 sm:min-h-85 lg:min-h-0",
         className
       )}
@@ -192,7 +192,7 @@ export function BannerCarousel({
               prevSlide();
             }}
             aria-label="Slide sebelumnya"
-            className="absolute left-3.5 top-1/2 -translate-y-1/2 z-20 w-9.5 h-9.5 rounded-full bg-slate-900/60 hover:bg-slate-900/85 border border-white/20 backdrop-blur-md text-gray-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer shadow-lg hover:scale-105 active:scale-95"
+            className="absolute left-3.5 top-1/2 -translate-y-1/2 z-20 w-9.5 h-9.5 rounded-full bg-slate-900/60 hover:bg-slate-900/85 border border-white/20 backdrop-blur-md text-gray-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer  hover:scale-105 active:scale-95"
           >
             <ChevronLeftIcon className="w-5 h-5" />
           </button>
@@ -205,7 +205,7 @@ export function BannerCarousel({
               nextSlide();
             }}
             aria-label="Slide berikutnya"
-            className="absolute right-3.5 top-1/2 -translate-y-1/2 z-20 w-9.5 h-9.5 rounded-full bg-slate-900/60 hover:bg-slate-900/85 border border-white/20 backdrop-blur-md text-gray-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer shadow-lg hover:scale-105 active:scale-95"
+            className="absolute right-3.5 top-1/2 -translate-y-1/2 z-20 w-9.5 h-9.5 rounded-full bg-slate-900/60 hover:bg-slate-900/85 border border-white/20 backdrop-blur-md text-gray-50 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-200 cursor-pointer  hover:scale-105 active:scale-95"
           >
             <ChevronRightIcon className="w-5 h-5" />
           </button>

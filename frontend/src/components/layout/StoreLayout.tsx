@@ -147,7 +147,7 @@ export function StoreLayout({
               onFilterClick={onFilterClick}
               onLoginClick={onLoginClick}
               onSignUpClick={onSignUpClick}
-              onCartClick={onCartClick}
+              onCartClick={onCartClick || (() => router.push("/cart"))}
               onUserClick={onUserClick || (() => router.push("/profile"))}
               user={user}
               className="w-full"
@@ -167,7 +167,7 @@ export function StoreLayout({
           <button
             type="button"
             onClick={() => toggleSidebar(true)}
-            className="h-11 px-4 flex items-center gap-2.5 rounded-lg bg-white/5 border border-white/10 hover:bg-white/10 text-gray-100 text-label-sm font-semibold transition-colors duration-150 cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-gray-50/50"
+            className="h-11 px-4 flex items-center gap-2.5 rounded-lg bg-white/5 border border-gradient-secondary hover:bg-white/10 text-gray-100 text-label-sm font-semibold transition-colors duration-150 cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-gray-50/50"
             aria-label="Buka Menu Kategori"
           >
             <MenuIcon className="text-rose-400" />
@@ -178,7 +178,7 @@ export function StoreLayout({
             <button
               type="button"
               onClick={onFilterClick}
-              className="h-11 px-4 flex items-center gap-2 rounded-lg bg-deep-blue-800/80 border border-white/10 hover:bg-deep-blue-700 text-label-sm font-semibold text-deep-blue-100 hover:text-gray-50 transition-colors cursor-pointer"
+              className="h-11 px-4 flex items-center gap-2 rounded-lg bg-deep-blue-800/80 border border-gradient-secondary hover:bg-deep-blue-700 text-label-sm font-semibold text-deep-blue-100 hover:text-gray-50 transition-colors cursor-pointer"
             >
               <span>Filter</span>
             </button>
@@ -211,7 +211,7 @@ export function StoreLayout({
         {/* MAIN STORE CONTENT */}
         <main
           className={cn(
-            "flex-1 min-w-0 flex flex-col",
+            "flex-1 min-w-0 flex flex-col mb-11xl",
             contentClassName ?? "px-4 sm:px-6 lg:px-8 py-6 sm:py-8"
           )}
         >
@@ -237,7 +237,7 @@ export function StoreLayout({
           />
 
           {/* Drawer Panel */}
-          <div className="relative z-10 w-4/5  bg-deep-blue-950 border-r border-white/10 shadow-2xl flex flex-col h-full overflow-y-auto transform transition-transform duration-200 animate-slide-in-left">
+          <div className="relative z-10 w-4/5  bg-deep-blue-950 border-r border-gradient-secondary  flex flex-col h-full overflow-y-auto transform transition-transform duration-200 animate-slide-in-left">
             {/* Drawer Header */}
             <div className="flex items-center justify-between px-6 py-5 border-b border-b-gradient-secondary">
               <span className="text-label-md font-bold text-gradient-heading">

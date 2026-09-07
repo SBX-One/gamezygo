@@ -316,7 +316,7 @@ export default function BlogsPage() {
              ====================================================== */}
           {previewState === "error-500" ? (
             <div className="flex flex-col items-center justify-center min-h-[60vh] text-center select-none px-4 py-16 my-auto">
-              <div className="w-14 h-14 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-white mb-6">
+              <div className="w-14 h-14 rounded-lg bg-white/5 border border-gradient-secondary flex items-center justify-center text-white mb-6">
                 <WifiOffIcon className="w-7 h-7 text-white" />
               </div>
               <h2 className="text-h4 sm:text-h3 font-bold text-white mb-2">
@@ -513,7 +513,7 @@ export default function BlogsPage() {
 
                 {/* Right: Search Input + Floating Filter Dropdown (matching bundle.tsx) */}
                 <div className="relative flex items-center gap-3 shrink-0 self-end sm:self-auto w-full md:w-auto">
-                  <div className="relative flex items-center bg-deep-blue-950 border border-white/10 rounded-lg px-3.5 py-2.5 h-10 w-full md:w-72 gap-2.5 focus-within:border-deep-blue-100/40 transition-colors">
+                  <div className="relative flex items-center bg-deep-blue-950 border border-gradient-secondary rounded-lg px-3.5 py-2.5 h-10 w-full md:w-72 gap-2.5 focus-within:border-deep-blue-100/40 transition-colors">
                     <SearchIcon className="w-4 h-4 text-deep-blue-100 shrink-0" />
                     <input
                       type="text"

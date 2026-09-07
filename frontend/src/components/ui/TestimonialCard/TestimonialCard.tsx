@@ -51,7 +51,7 @@ export function TestimonialCard({
       {/* 1. Header Row: Avatar (w-12 h-12) & 5 Star Pill (primary sm) */}
       <div className="flex items-center justify-between gap-4">
         {/* Avatar */}
-        <div className="w-12 h-12 rounded-full overflow-hidden bg-deep-blue-950 border border-white/10 shrink-0 flex items-center justify-center">
+        <div className="w-12 h-12 rounded-full overflow-hidden bg-deep-blue-950 border border-gradient-secondary shrink-0 flex items-center justify-center">
           {avatarSlot ? (
             avatarSlot
           ) : avatarSrc ? (

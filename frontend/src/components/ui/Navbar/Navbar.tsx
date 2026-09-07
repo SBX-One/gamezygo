@@ -312,7 +312,7 @@ export function Navbar({
             {variant !== "private" && (
               <form
                 onSubmit={handleFormSubmit}
-                className="relative hidden sm:flex items-center bg-deep-blue-950 border border-white/10 rounded-lg px-3.5 py-2.5 h-10 w-64 md:w-80 gap-2.5 focus-within:border-deep-blue-100/40 transition-colors"
+                className="relative hidden sm:flex items-center bg-deep-blue-950 border border-gradient-secondary rounded-lg px-3.5 py-2.5 h-10 w-64 md:w-80 gap-2.5 focus-within:border-deep-blue-100/40 transition-colors"
               >
                 <SearchIcon className="w-4 h-4 text-deep-blue-100 shrink-0" />
                 <input
@@ -394,7 +394,7 @@ export function Navbar({
                   className="flex items-center gap-2 p-1 rounded-lg hover:bg-white/5 cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-gray-50/50"
                   aria-label="Menu Pengguna"
                 >
-                  <div className="w-7 h-7 rounded-full bg-deep-blue-700/80 border border-white/10 overflow-hidden flex items-center justify-center shrink-0">
+                  <div className="w-7 h-7 rounded-full bg-deep-blue-700/80 border border-gradient-secondary overflow-hidden flex items-center justify-center shrink-0">
                     {user?.avatarUrl ? (
                       <img
                         src={user.avatarUrl}

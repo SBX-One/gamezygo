@@ -103,7 +103,7 @@ function TransactionCard({ item, onClick }: TransactionCardProps) {
           onClick?.();
         }
       }}
-      className="w-86 h-22 shrink-0 flex items-center gap-4 p-2 rounded-lg bg-surface-secondary-default border border-white/5 hover:border-white/10 transition-all duration-150 select-none cursor-pointer group"
+      className="w-86 h-22 shrink-0 flex items-center gap-4 p-2 rounded-lg bg-surface-secondary-default border border-white/5 hover:border-gradient-secondary transition-all duration-150 select-none cursor-pointer group"
     >
       {/* 1. Game Cover Image (Figma: H 72px, rounded-md) */}
       <div className="w-16 h-full rounded-md overflow-hidden bg-deep-blue-950 shrink-0 relative border border-white/5">
@@ -371,7 +371,7 @@ export default function ProfilePage() {
         {/* ========================================================
             1. PAGE TITLE & FULL-WIDTH DIVIDER (Full Screen Width)
            ======================================================== */}
-        <div className="w-full border-b border-white/10 pt-6 pb-4 mb-8xl">
+        <div className="w-full border-b border-gradient-secondary pt-6 pb-4 mb-8xl">
           <div className="w-full mx-auto px-4 sm:px-0">
             <h1 className="text-body-lg sm:text-h6 font-bold text-white ">
               Profile
@@ -392,7 +392,7 @@ export default function ProfilePage() {
           <div className="relative -mt-14 sm:-mt-16 w-full rounded-2xl bg-deep-blue-900 border border-white/5 p-5 sm:p-6 flex flex-col sm:flex-row  justify-between gap-4">
             {/* Left Side: Avatar + Details */}
             <div className="flex  gap-4 sm:gap-5">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 border-white/10 shrink-0 bg-deep-blue-800">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 border-gradient-secondary shrink-0 bg-deep-blue-800">
                 <img
                   src={user.avatarUrl}
                   alt={user.name}
@@ -833,8 +833,8 @@ export default function ProfilePage() {
             />
 
             {/* Modal Box */}
-            <div className="relative z-10 w-full max-w-md rounded-2xl bg-deep-blue-900 border border-white/10 p-6 flex flex-col gap-6  animate-scale-up">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
+            <div className="relative z-10 w-full max-w-md rounded-2xl bg-deep-blue-900 border border-gradient-secondary p-6 flex flex-col gap-6  animate-scale-up">
+              <div className="flex items-center justify-between border-b border-gradient-secondary pb-4">
                 <h3 className="text-body-lg font-bold text-white ">
                   Ubah Informasi Profil
                 </h3>
@@ -859,7 +859,7 @@ export default function ProfilePage() {
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   size="md"
-                  containerClassName="bg-deep-blue-900/60 border-white/10"
+                  containerClassName="bg-deep-blue-900/60 border-gradient-secondary"
                 />
 
                 <InputField
@@ -868,10 +868,10 @@ export default function ProfilePage() {
                   value={editAvatarUrl}
                   onChange={(e) => setEditAvatarUrl(e.target.value)}
                   size="md"
-                  containerClassName="bg-deep-blue-900/60 border-white/10"
+                  containerClassName="bg-deep-blue-900/60 border-gradient-secondary"
                 />
 
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
+                <div className="flex items-center justify-end gap-3 pt-4 border-t border-gradient-secondary">
                   <Button
                     type="button"
                     variant="secondary"

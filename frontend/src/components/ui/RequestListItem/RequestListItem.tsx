@@ -78,7 +78,7 @@ export function RequestListItem({
   return (
     <div
       className={cn(
-        "flex items-center gap-4 p-2 rounded-lg bg-surface-secondary-default border border-white/5 hover:border-white/10 transition-all duration-150 select-none w-full",
+        "flex items-center gap-4 p-2 rounded-lg bg-surface-secondary-default border border-white/5 hover:border-gradient-secondary transition-all duration-150 select-none w-full",
         disabled && "opacity-60 pointer-events-none",
         className
       )}

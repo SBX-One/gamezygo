@@ -261,17 +261,18 @@ const INITIAL_REVIEWS: ReviewItem[] = [
 export default function ReviewPage() {
   const router = useRouter();
 
-  // Page preview state ("default" or "error-500")
-  const [previewState, setPreviewState] = React.useState<"default" | "error-500">("default");
-
-  // Sync state with query parameter if present
-  React.useEffect(() => {
-    if (router.query.state === "error-500") {
-      setPreviewState("error-500");
-    } else if (router.query.state === "default") {
-      setPreviewState("default");
-    }
-  }, [router.query.state]);
+  // Page preview state derived from query or local override
+  const [previewStateOverride, setPreviewStateOverride] = React.useState<"default" | "error-500" | null>(null);
+  const queryState =
+    router.query.state === "error-500"
+      ? "error-500"
+      : router.query.state === "default"
+      ? "default"
+      : null;
+  const previewState = previewStateOverride ?? queryState ?? "default";
+  const setPreviewState = (state: "default" | "error-500") => {
+    setPreviewStateOverride(state);
+  };
 
   const [reviews, setReviews] = React.useState<ReviewItem[]>(INITIAL_REVIEWS);
   const [quickFeedback, setQuickFeedback] = React.useState("");

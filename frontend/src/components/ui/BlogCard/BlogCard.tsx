@@ -23,24 +23,30 @@ export function BlogCard({
       ref={ref}
       onClick={onClick}
       className={cn(
-        "flex flex-col gap-8 p-6 rounded-2xl bg-deep-blue-900 select-none transition-all duration-150 border border-white/5",
+        "flex flex-col gap-8 p-6 rounded-lg bg-deep-blue-900 select-none transition-all duration-150 border border-white/5",
         href || onClick ? "cursor-pointer hover:border-white/20 hover:brightness-105" : "",
         className
       )}
       {...props}
     >
-      {/* 1. Cover Image (rounded-2xl) */}
-      <div className="w-full aspect-video rounded-2xl overflow-hidden bg-deep-blue-950 shrink-0">
+      {/* 1. Cover Image (rounded-lg) */}
+      <div className="w-full aspect-video rounded-lg overflow-hidden bg-deep-blue-950 shrink-0">
         {imageSlot ? (
           imageSlot
         ) : imageSrc ? (
           <img
             src={imageSrc}
-            alt={imageAlt || (typeof title === "string" ? title : "Blog cover")}
-            className="w-full h-full object-cover rounded-2xl transition-transform duration-300 hover:scale-105"
+            alt={imageAlt || "Cover artikel"}
+            onError={(e) => {
+              const target = e.currentTarget;
+              target.onerror = null;
+              target.src =
+                "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80";
+            }}
+            className="w-full h-full object-cover rounded-lg transition-transform duration-300 hover:scale-105"
           />
         ) : (
-          <div className="w-full h-full bg-deep-blue-950 flex items-center justify-center text-gray-500 text-body-sm rounded-2xl">
+          <div className="w-full h-full bg-deep-blue-950 flex items-center justify-center text-gray-500 text-body-sm rounded-lg">
             Blog Cover Image
           </div>
         )}

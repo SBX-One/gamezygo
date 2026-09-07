@@ -159,8 +159,8 @@ const defaultNavItems: NavItem[] = [
   { id: "home", label: "Home", href: "/", isActive: true },
   { id: "toko", label: "Toko", href: "/store" },
   { id: "leaderboard", label: "Leaderboard", href: "/leaderboard" },
-  { id: "ulasan", label: "Ulasan", href: "#" },
-  { id: "artikel", label: "Artikel", href: "#" },
+  { id: "ulasan", label: "Ulasan", href: "/review" },
+  { id: "artikel", label: "Artikel", href: "/blogs" },
 ];
 
 export function Navbar({

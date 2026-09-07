@@ -1,4 +1,4 @@
-﻿import * as React from "react";
+import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import type { FilterModalProps } from "./FilterModal.types";
@@ -66,6 +66,10 @@ export function FilterModal({
   genres = DEFAULT_GENRES,
   launchers = DEFAULT_LAUNCHERS,
   sortOptions = DEFAULT_SORT_OPTIONS,
+  showPriceRange = true,
+  statusOptions,
+  platformOptions,
+  gameOptions,
   minPrice = 0,
   maxPrice = 200000,
   priceStep = 5000,
@@ -74,10 +78,16 @@ export function FilterModal({
   selectedCategories: propCategories,
   selectedGenres: propGenres,
   selectedLaunchers: propLaunchers,
+  selectedStatus: propStatus,
+  selectedPlatforms: propPlatforms,
+  selectedGames: propGames,
   selectedSort: propSort,
   onToggleCategory,
   onToggleGenre,
   onToggleLauncher,
+  onToggleStatus,
+  onTogglePlatform,
+  onToggleGame,
   onSelectSort,
   className,
   ref,
@@ -89,6 +99,9 @@ export function FilterModal({
   );
   const [internalGenres, setInternalGenres] = React.useState<string[]>([]);
   const [internalLaunchers, setInternalLaunchers] = React.useState<string[]>([]);
+  const [internalStatus, setInternalStatus] = React.useState<string[]>([]);
+  const [internalPlatforms, setInternalPlatforms] = React.useState<string[]>([]);
+  const [internalGames, setInternalGames] = React.useState<string[]>([]);
   const [internalSort, setInternalSort] = React.useState<string>("Terbaru");
   const [internalPriceRange, setInternalPriceRange] = React.useState<
     [number, number]
@@ -97,6 +110,9 @@ export function FilterModal({
   const activeCategories = propCategories ?? internalCategories;
   const activeGenres = propGenres ?? internalGenres;
   const activeLaunchers = propLaunchers ?? internalLaunchers;
+  const activeStatus = propStatus ?? internalStatus;
+  const activePlatforms = propPlatforms ?? internalPlatforms;
+  const activeGames = propGames ?? internalGames;
   const activeSort = propSort ?? internalSort;
   const [currentMinPrice, currentMaxPrice] =
     propPriceRange ?? internalPriceRange;
@@ -246,6 +262,9 @@ export function FilterModal({
     setInternalCategories([]);
     setInternalGenres([]);
     setInternalLaunchers([]);
+    setInternalStatus([]);
+    setInternalPlatforms([]);
+    setInternalGames([]);
     setInternalSort("Terbaru");
     setInternalPriceRange([minPrice, maxPrice]);
     if (onPriceRangeChange) {
@@ -315,8 +334,40 @@ export function FilterModal({
         </div>
       )}
 
-      {/* 3. Main Genres List */}
-      {genres && genres.length > 0 && (
+      {/* 3. Main Genres List (or Status for Blogs) */}
+      {statusOptions && statusOptions.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
+            STATUS
+          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            {statusOptions.map((status) => {
+              const isSelected = activeStatus.includes(status);
+              return (
+                <Button
+                  key={status}
+                  type="button"
+                  variant={isSelected ? "active" : "inactive"}
+                  size="sm"
+                  onClick={() =>
+                    handleToggle(
+                      status,
+                      activeStatus,
+                      setInternalStatus,
+                      onToggleStatus
+                    )
+                  }
+                >
+                  {status}
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* 3b. Genres List if not using custom status */}
+      {!statusOptions && genres && genres.length > 0 && (
         <div className="flex flex-col gap-3">
           <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
             GENRE
@@ -347,8 +398,37 @@ export function FilterModal({
         </div>
       )}
 
-      {/* 4. Launchers Section */}
-      {launchers && launchers.length > 0 && (
+      {/* 4. Platform Section (Blog Platform or General Launchers) */}
+      {platformOptions && platformOptions.length > 0 ? (
+        <div className="flex flex-col gap-3">
+          <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
+            PLATFORM
+          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            {platformOptions.map((platform) => {
+              const isSelected = activePlatforms.includes(platform);
+              return (
+                <Button
+                  key={platform}
+                  type="button"
+                  variant={isSelected ? "active" : "inactive"}
+                  size="sm"
+                  onClick={() =>
+                    handleToggle(
+                      platform,
+                      activePlatforms,
+                      setInternalPlatforms,
+                      onTogglePlatform
+                    )
+                  }
+                >
+                  {platform}
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+      ) : launchers && launchers.length > 0 ? (
         <div className="flex flex-col gap-3">
           <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
             LAUNCHER
@@ -377,68 +457,102 @@ export function FilterModal({
             })}
           </div>
         </div>
+      ) : null}
+
+      {/* 4b. Game Section */}
+      {gameOptions && gameOptions.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
+            GAME
+          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            {gameOptions.map((game) => {
+              const isSelected = activeGames.includes(game);
+              return (
+                <Button
+                  key={game}
+                  type="button"
+                  variant={isSelected ? "active" : "inactive"}
+                  size="sm"
+                  onClick={() =>
+                    handleToggle(
+                      game,
+                      activeGames,
+                      setInternalGames,
+                      onToggleGame
+                    )
+                  }
+                >
+                  {game}
+                </Button>
+              );
+            })}
+          </div>
+        </div>
       )}
 
-      {/* 5. Interactive Price Range Section (gap-3 between scale / labels and slider) */}
-      <div className="flex flex-col gap-3">
-        <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
-          PRICE RANGE
-        </span>
-        <div className="flex items-center gap-3 w-full">
-          {/* Min Price indicator */}
-          <span className="text-body-sm font-semibold text-gray-50 shrink-0 min-w-12 text-left">
-            {formatRupiah(currentMinPrice)}
+      {/* 5. Interactive Price Range Section */}
+      {showPriceRange && (
+        <div className="flex flex-col gap-3">
+          <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
+            PRICE RANGE
           </span>
+          <div className="flex items-center gap-3 w-full">
+            {/* Min Price indicator */}
+            <span className="text-body-sm font-semibold text-gray-50 shrink-0 min-w-12 text-left">
+              {formatRupiah(currentMinPrice)}
+            </span>
 
-          {/* Interactive Dual Slider Scale & Range Track */}
-          <div
-            ref={trackRef}
-            onClick={handleTrackClick}
-            className="relative flex-1 flex items-center h-6 cursor-pointer touch-none"
-          >
-            {/* Track Rail background */}
-            <div className="w-full h-1.5 rounded-full bg-deep-blue-900 border border-white/5" />
-
-            {/* Active Range Highlight */}
+            {/* Interactive Dual Slider Scale & Range Track */}
             <div
-              className="absolute h-1.5 rounded-full bg-gradient-primary pointer-events-none"
-              style={{
-                left: `${leftPercent}%`,
-                right: `${rightPercent}%`,
-              }}
-            />
+              ref={trackRef}
+              onClick={handleTrackClick}
+              className="relative flex-1 flex items-center h-6 cursor-pointer touch-none"
+            >
+              {/* Track Rail background */}
+              <div className="w-full h-1.5 rounded-full bg-deep-blue-900 border border-white/5" />
 
-            {/* Left Thumb Handle (Drag Min Price) */}
-            <div
-              onPointerDown={handleMinPointerDown}
-              className="absolute -translate-x-1/2 w-4.5 h-4.5 rounded-full bg-gradient-primary shadow-md border-2 border-deep-blue-950 cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
-              style={{ left: `${leftPercent}%` }}
-              role="slider"
-              aria-valuemin={minPrice}
-              aria-valuemax={currentMaxPrice}
-              aria-valuenow={currentMinPrice}
-              aria-label="Harga Minimum"
-            />
+              {/* Active Range Highlight */}
+              <div
+                className="absolute h-1.5 rounded-full bg-gradient-primary pointer-events-none"
+                style={{
+                  left: `${leftPercent}%`,
+                  right: `${rightPercent}%`,
+                }}
+              />
 
-            {/* Right Thumb Handle (Drag Max Price) */}
-            <div
-              onPointerDown={handleMaxPointerDown}
-              className="absolute translate-x-1/2 w-4.5 h-4.5 rounded-full bg-gradient-primary shadow-md border-2 border-deep-blue-950 cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
-              style={{ left: `${100 - rightPercent}%` }}
-              role="slider"
-              aria-valuemin={currentMinPrice}
-              aria-valuemax={maxPrice}
-              aria-valuenow={currentMaxPrice}
-              aria-label="Harga Maksimum"
-            />
+              {/* Left Thumb Handle (Drag Min Price) */}
+              <div
+                onPointerDown={handleMinPointerDown}
+                className="absolute -translate-x-1/2 w-4.5 h-4.5 rounded-full bg-gradient-primary shadow-md border-2 border-deep-blue-950 cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
+                style={{ left: `${leftPercent}%` }}
+                role="slider"
+                aria-valuemin={minPrice}
+                aria-valuemax={currentMaxPrice}
+                aria-valuenow={currentMinPrice}
+                aria-label="Harga Minimum"
+              />
+
+              {/* Right Thumb Handle (Drag Max Price) */}
+              <div
+                onPointerDown={handleMaxPointerDown}
+                className="absolute translate-x-1/2 w-4.5 h-4.5 rounded-full bg-gradient-primary shadow-md border-2 border-deep-blue-950 cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
+                style={{ left: `${100 - rightPercent}%` }}
+                role="slider"
+                aria-valuemin={currentMinPrice}
+                aria-valuemax={maxPrice}
+                aria-valuenow={currentMaxPrice}
+                aria-label="Harga Maksimum"
+              />
+            </div>
+
+            {/* Max Price indicator */}
+            <span className="text-body-sm font-semibold text-gray-50 shrink-0 min-w-22 text-right">
+              {formatRupiah(currentMaxPrice)}
+            </span>
           </div>
-
-          {/* Max Price indicator */}
-          <span className="text-body-sm font-semibold text-gray-50 shrink-0 min-w-22 text-right">
-            {formatRupiah(currentMaxPrice)}
-          </span>
         </div>
-      </div>
+      )}
 
       {/* 6. Sort By Section */}
       {sortOptions && sortOptions.length > 0 && (

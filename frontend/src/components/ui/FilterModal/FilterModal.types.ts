@@ -36,17 +36,31 @@ export interface FilterModalProps
   priceRange?: [number, number];
   /** Callback saat range harga berubah */
   onPriceRangeChange?: (range: [number, number]) => void;
+  /** Kontrol apakah slider range harga ditampilkan (default: true) */
+  showPriceRange?: boolean;
+  /** Daftar opsi status (e.g. Hot Deals, New Release, Coming Soon, Action) */
+  statusOptions?: string[];
+  /** Daftar opsi platform (e.g. Steam, Epic Games, Play Station) */
+  platformOptions?: string[];
+  /** Daftar opsi game (e.g. Elden Ring, Cyberpunk, GTA 6) */
+  gameOptions?: string[];
   /** State pilihan aktif */
   selectedCategories?: string[];
   selectedGenres?: string[];
   selectedLaunchers?: string[];
   selectedSort?: string;
   selectedTags?: string[];
+  selectedStatus?: string[];
+  selectedPlatforms?: string[];
+  selectedGames?: string[];
   onToggleCategory?: (category: string) => void;
   onToggleGenre?: (genre: string) => void;
   onToggleLauncher?: (launcher: string) => void;
   onSelectSort?: (sort: string) => void;
   onToggleTag?: (tag: string) => void;
+  onToggleStatus?: (status: string) => void;
+  onTogglePlatform?: (platform: string) => void;
+  onToggleGame?: (game: string) => void;
   /** React 19 native ref */
   ref?: React.Ref<HTMLDivElement>;
 }

@@ -100,7 +100,7 @@ export function PricingCard({
       <div
         ref={ref}
         className={cn(
-          "flex flex-col md:flex-row justify-between md:items-end gap-6 p-6 sm:p-8 rounded-2xl bg-deep-blue-950 border border-gradient-secondary select-none w-full transition-all duration-150 hover:border-neutral-500",
+          "flex flex-col md:flex-row justify-between md:items-end gap-6 p-6 sm:p-8 rounded-lg bg-deep-blue-950 border border-gradient-secondary select-none w-full transition-all duration-150 hover:border-neutral-500",
           className
         )}
         {...props}
@@ -109,7 +109,7 @@ export function PricingCard({
         <div className="flex flex-col gap-6 sm:gap-7">
           {/* Header */}
           <div className="flex items-center gap-3">
-                        <div className="rounded-xl bg-deep-blue-800 border border-deep-blue-700 p-3 flex items-center justify-center text-deep-blue-100 shrink-0">
+                        <div className="rounded-lg bg-deep-blue-800 border border-deep-blue-700 p-3 flex items-center justify-center text-deep-blue-100 shrink-0">
     {icon || <DefaultPeopleSearchIcon />}
             </div>
                          <span className="font-semibold text-pale-red-100 text-h4">{title}</span>
@@ -192,7 +192,7 @@ export function PricingCard({
           <div className="flex flex-col gap-4">
             {/* Header */}
             <div className="flex items-center gap-3">
-              <div className="rounded-xl bg-deep-blue-800 border border-deep-blue-700 p-3 flex items-center justify-center text-deep-blue-100 shrink-0">
+              <div className="rounded-lg bg-deep-blue-800 border border-deep-blue-700 p-3 flex items-center justify-center text-deep-blue-100 shrink-0">
                 {icon || <DefaultPeopleSearchIcon />}
               </div>
               <span className="font-semibold text-pale-red-100 text-h4">{title}</span>
@@ -256,7 +256,7 @@ export function PricingCard({
     >
       {/* Header (Icon Badge + Title) */}
       <div className="flex items-center gap-3">
-        <div className="rounded-xl bg-deep-blue-800 border border-deep-blue-700 p-3 flex items-center justify-center text-deep-blue-100 shrink-0">
+        <div className="rounded-lg bg-deep-blue-800 border border-deep-blue-700 p-3 flex items-center justify-center text-deep-blue-100 shrink-0">
           {icon || <DefaultPeopleSearchIcon />}
         </div>
         <span className="font-semibold text-pale-red-100 text-h4">{title}</span>

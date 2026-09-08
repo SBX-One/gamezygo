@@ -488,7 +488,7 @@ export default function RequestGamePage() {
               <div className="flex items-center gap-3 w-full">
                 <div
                   className={cn(
-                    "relative flex-1 flex items-center bg-deep-blue-900/80 rounded-xl px-4 py-2.5 h-11 transition-colors border",
+                    "relative flex-1 flex items-center bg-deep-blue-900/80 rounded-lg px-4 py-2.5 h-11 transition-colors border",
                     inputError
                       ? "border-rose-500/60 focus-within:border-rose-500"
                       : "border-transparent focus-within:border-deep-blue-100/40"
@@ -525,7 +525,7 @@ export default function RequestGamePage() {
                   variant="primary"
                   size="sm"
                   isLoading={isSubmitting}
-                  className="h-11 px-6 rounded-xl font-semibold cursor-pointer shrink-0"
+                  className="h-11 px-6 rounded-lg font-semibold cursor-pointer shrink-0"
                 >
                   Kirim
                 </Button>
@@ -605,7 +605,7 @@ export default function RequestGamePage() {
             /* EMPTY STATE (Screenshot 4) */
             <div className="flex flex-col items-center justify-center py-16 sm:py-24 text-center">
               {/* Icon Container */}
-              <div className="w-16 h-16 rounded-2xl bg-deep-blue-900 border border-gray-700 flex items-center justify-center text-gray-300 shadow-xl">
+              <div className="w-16 h-16 rounded-lg bg-deep-blue-900 border border-gray-700 flex items-center justify-center text-gray-300 shadow-xl">
                 <BookEmptyIcon />
               </div>
 

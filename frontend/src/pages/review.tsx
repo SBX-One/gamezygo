@@ -416,7 +416,7 @@ export default function ReviewPage() {
         {previewState === "error-500" ? (
           <div className="flex flex-col items-center justify-center min-h-[60vh] text-center select-none px-4 py-16">
             {/* Wifi Off Box */}
-            <div className="w-14 h-14 rounded-2xl bg-white/5 border border-gradient-secondary flex items-center justify-center text-white mb-6">
+            <div className="w-14 h-14 rounded-lg bg-white/5 border border-gradient-secondary flex items-center justify-center text-white mb-6">
               <WifiOffIcon className="w-7 h-7 text-white" />
             </div>
 
@@ -554,7 +554,7 @@ export default function ReviewPage() {
             />
 
             {/* Modal Dialog Card */}
-            <div className="relative z-10 w-full  rounded-2xl bg-deep-blue-900 border border-deep-blue-700/60 p-6 flex flex-col gap-6 select-none animate-scale-up shadow-none">
+            <div className="relative z-10 w-full  rounded-lg bg-deep-blue-900 border border-deep-blue-700/60 p-6 flex flex-col gap-6 select-none animate-scale-up shadow-none">
               {/* Header: Title + Close Icon */}
               <div className="flex items-center justify-between border-b border-gradient-secondary pb-4">
                 <h3 className="text-body-lg font-bold text-white">
@@ -587,7 +587,7 @@ export default function ReviewPage() {
                           onClick={() => setSelectedRating(star)}
                           onMouseEnter={() => setHoverRating(star)}
                           onMouseLeave={() => setHoverRating(0)}
-                          className={`h-11 rounded-xl flex items-center justify-center cursor-pointer transition-all duration-200 outline-none ${
+                          className={`h-11 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 outline-none ${
                             isActive
                               ? "bg-linear-to-r from-pale-red-500 to-rose-600 border border-rose-500/50 text-white"
                               : "bg-deep-blue-900 border border-deep-blue-700/60 text-gray-400 hover:border-gray-500 hover:text-gray-300"
@@ -615,7 +615,7 @@ export default function ReviewPage() {
                     placeholder="Tambahkan pendapat"
                     value={modalComment}
                     onChange={(e) => setModalComment(e.target.value)}
-                    className="w-full rounded-xl bg-deep-blue-900 border border-deep-blue-700/60 p-4 text-body-sm text-gray-100 placeholder:text-gray-500 focus:outline-none focus:border-neutral-500 transition-colors resize-none leading-relaxed"
+                    className="w-full rounded-lg bg-deep-blue-900 border border-deep-blue-700/60 p-4 text-body-sm text-gray-100 placeholder:text-gray-500 focus:outline-none focus:border-neutral-500 transition-colors resize-none leading-relaxed"
                   />
                 </div>
 
@@ -638,7 +638,7 @@ export default function ReviewPage() {
                   {/* Tambahkan Gambar Trigger */}
                   <div
                     onClick={handlePickImage}
-                    className="w-full rounded-xl bg-deep-blue-900 border border-deep-blue-700/60 px-4 py-3 flex items-center justify-between cursor-pointer hover:border-deep-blue-600 transition-all text-body-sm text-gray-400 hover:text-gray-200"
+                    className="w-full rounded-lg bg-deep-blue-900 border border-deep-blue-700/60 px-4 py-3 flex items-center justify-between cursor-pointer hover:border-deep-blue-600 transition-all text-body-sm text-gray-400 hover:text-gray-200"
                   >
                     <span>Tambahkan gambar</span>
                     <PlusIcon className="w-4.5 h-4.5 text-gray-400" />
@@ -650,7 +650,7 @@ export default function ReviewPage() {
                       {attachedImages.map((img, idx) => (
                         <div
                           key={img.id || idx}
-                          className="w-full rounded-xl bg-deep-blue-900 border border-deep-blue-700/60 px-3 py-2 flex items-center justify-between text-body-sm text-gray-200"
+                          className="w-full rounded-lg bg-deep-blue-900 border border-deep-blue-700/60 px-3 py-2 flex items-center justify-between text-body-sm text-gray-200"
                         >
                           <div className="flex items-center gap-3 truncate">
                             <img
@@ -681,13 +681,13 @@ export default function ReviewPage() {
                   <button
                     type="button"
                     onClick={handleClearAll}
-                    className="px-5 py-2.5 rounded-xl bg-deep-blue-800 hover:bg-deep-blue-700 text-white text-body-sm font-medium transition-colors cursor-pointer border border-white/5 outline-none"
+                    className="px-5 py-2.5 rounded-lg bg-deep-blue-800 hover:bg-deep-blue-700 text-white text-body-sm font-medium transition-colors cursor-pointer border border-white/5 outline-none"
                   >
                     Hapus semua
                   </button>
                   <button
                     type="submit"
-                    className="px-6 py-2.5 rounded-xl bg-linear-to-r from-pale-red-500 to-rose-600 hover:from-pale-red-600 hover:to-rose-700 text-white text-body-sm font-semibold transition-all cursor-pointer border-none outline-none shadow-none"
+                    className="px-6 py-2.5 rounded-lg bg-linear-to-r from-pale-red-500 to-rose-600 hover:from-pale-red-600 hover:to-rose-700 text-white text-body-sm font-semibold transition-all cursor-pointer border-none outline-none shadow-none"
                   >
                     Kirim
                   </button>

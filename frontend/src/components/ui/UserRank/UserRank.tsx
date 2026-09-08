@@ -37,7 +37,7 @@ export function UserRank({
     <div
       ref={ref}
       className={cn(
-        "flex items-center justify-between gap-4 px-6 py-4 rounded-2xl bg-deep-blue-900 border border-deep-blue-700/60  select-none w-full  transition-all duration-150 hover:border-neutral-500",
+        "flex items-center justify-between gap-4 px-6 py-4 rounded-lg bg-deep-blue-900 border border-deep-blue-700/60  select-none w-full  transition-all duration-150 hover:border-neutral-500",
         className
       )}
       {...props}

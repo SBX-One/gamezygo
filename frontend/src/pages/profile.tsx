@@ -382,17 +382,17 @@ export default function ProfilePage() {
         {/* ========================================================
             2. RED COVER BANNER (Full Screen Width)
            ======================================================== */}
-        <div className="w-full rounded-xl h-48 sm:h-80 mt-4 sm:mt-6 bg-linear-to-r from-[#BF3E42] via-[#99282C] to-[#5C1417] relative overflow-hidden" />
+        <div className="w-full rounded-lg h-48 sm:h-80 mt-4 sm:mt-6 bg-linear-to-r from-[#BF3E42] via-[#99282C] to-[#5C1417] relative overflow-hidden" />
 
         {/* ========================================================
             3. MAIN CONTENT CONTAINER (PROFILE CARD + STATS + SECTIONS)
            ======================================================== */}
         <div className="w-full max-w-243.5 mx-auto select-none pb-20 px-4 sm:px-0 flex flex-col gap-5">
           {/* Profile Info Card (Overlapping -mt-14 sm:-mt-16, w-full with NO mx-3/mx-6 so it is 100% sejajar with 3 cards) */}
-          <div className="relative -mt-14 sm:-mt-16 w-full rounded-2xl bg-deep-blue-900 border border-white/5 p-5 sm:p-6 flex flex-col sm:flex-row  justify-between gap-4">
+          <div className="relative -mt-14 sm:-mt-16 w-full rounded-lg bg-deep-blue-900 border border-white/5 p-5 sm:p-6 flex flex-col sm:flex-row  justify-between gap-4">
             {/* Left Side: Avatar + Details */}
             <div className="flex  gap-4 sm:gap-5">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl overflow-hidden border-2 border-gradient-secondary shrink-0 bg-deep-blue-800">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 border-gradient-secondary shrink-0 bg-deep-blue-800">
                 <img
                   src={user.avatarUrl}
                   alt={user.name}
@@ -456,7 +456,7 @@ export default function ProfilePage() {
                   </span>
                 </span>
               }
-              className="bg-deep-blue-900 border border-white/5 rounded-2xl p-6 "
+              className="bg-deep-blue-900 border border-white/5 rounded-lg p-6 "
             />
 
             {/* Card 2: Total Points (Gambar 2: Ticket diagonal icon) */}
@@ -477,7 +477,7 @@ export default function ProfilePage() {
                   </span>
                 </span>
               }
-              className="bg-deep-blue-900 border border-white/5 rounded-2xl p-6 "
+              className="bg-deep-blue-900 border border-white/5 rounded-lg p-6 "
             />
 
             {/* Card 3: Total Games (Gambar 2: Variant belum bisa dapatkan reward) */}
@@ -544,14 +544,14 @@ export default function ProfilePage() {
                   </div>
                 )
               }
-              className="bg-deep-blue-900 border border-white/5 rounded-2xl p-6 "
+              className="bg-deep-blue-900 border border-white/5 rounded-lg p-6 "
             />
           </div>
 
           {/* ========================================================
               4. RANGKING SAAT INI CARD
              ======================================================== */}
-          <section className="w-full rounded-2xl bg-deep-blue-900 border border-white/5 p-6 flex flex-col gap-8 ">
+          <section className="w-full rounded-lg bg-deep-blue-900 border border-white/5 p-6 flex flex-col gap-8 ">
             {/* Header */}
             <div className="flex items-center gap-3">
               <div className="p-3 rounded-lg bg-surface-secondary-default border border-deep-blue-700 flex items-center justify-center text-gray-300  shrink-0">
@@ -599,7 +599,7 @@ export default function ProfilePage() {
           {/* ========================================================
               5. TRANSAKSI TERAKHIR (SWIPEABLE ACCORDION)
              ======================================================== */}
-          <div className="w-full rounded-2xl bg-transparent border border-white/5 p-6 flex flex-col ">
+          <div className="w-full rounded-lg bg-transparent border border-white/5 p-6 flex flex-col ">
             {/* Header Trigger */}
             <button
               type="button"
@@ -664,7 +664,7 @@ export default function ProfilePage() {
           {/* ========================================================
               7. PASSWORD CHANGE FORM (ACCORDION ITEM 3)
              ======================================================== */}
-          <div className="w-full rounded-2xl bg-transparent border border-white/5 p-6 flex flex-col ">
+          <div className="w-full rounded-lg bg-transparent border border-white/5 p-6 flex flex-col ">
             {/* Header Trigger */}
             <button
               type="button"
@@ -833,7 +833,7 @@ export default function ProfilePage() {
             />
 
             {/* Modal Box */}
-            <div className="relative z-10 w-full max-w-md rounded-2xl bg-deep-blue-900 border border-gradient-secondary p-6 flex flex-col gap-6  animate-scale-up">
+            <div className="relative z-10 w-full max-w-md rounded-lg bg-deep-blue-900 border border-gradient-secondary p-6 flex flex-col gap-6  animate-scale-up">
               <div className="flex items-center justify-between border-b border-gradient-secondary pb-4">
                 <h3 className="text-body-lg font-bold text-white ">
                   Ubah Informasi Profil

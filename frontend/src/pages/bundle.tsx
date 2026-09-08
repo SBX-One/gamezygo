@@ -573,7 +573,7 @@ export default function BundlePage() {
       >
         <div className="flex flex-col w-full">
           {/* TOP VIEW-MODE SWITCHER */}
-          <div className="flex items-center justify-between p-2 rounded-xl bg-deep-blue-900/60 border border-white/5 backdrop-blur-sm">
+          <div className="flex items-center justify-between p-2 rounded-lg bg-deep-blue-900/60 border border-white/5 backdrop-blur-sm">
             <span className="text-body-xs text-gray-400 font-medium pl-2 hidden sm:inline">
               Mode Pratinjau Halaman Paket:
             </span>
@@ -1020,7 +1020,7 @@ export default function BundlePage() {
               className="fixed inset-0"
               onClick={() => setIsSubsModalOpen(false)}
             />
-            <div className="relative z-10 w-fit  mx-auto bg-deep-blue-950 border border-gradient-secondary rounded-2xl p-6 sm:p-8 flex flex-col gap-6  max-h-[90vh] overflow-y-auto">
+            <div className="relative z-10 w-fit  mx-auto bg-deep-blue-950 border border-gradient-secondary rounded-lg p-6 sm:p-8 flex flex-col gap-6  max-h-[90vh] overflow-y-auto">
               {/* Header Modal */}
               <div className="flex items-center justify-between border-b border-b-gradient-secondary pb-4">
                 <h3 className="text-h4 font-bold text-gray-50">Subscription</h3>
@@ -1039,7 +1039,7 @@ export default function BundlePage() {
                 <span className="text-body-xs font-semibold uppercase tracking-wider text-gray-400">
                   SUBSCRIPTION
                 </span>
-                <div className="flex items-center justify-between p-4 rounded-xl bg-deep-blue-900 border border-white/5">
+                <div className="flex items-center justify-between p-4 rounded-lg bg-deep-blue-900 border border-white/5">
                   <div className="flex items-center gap-2.5">
                     <CrownIcon className="text-amber-400 w-5 h-5" />
                     <span className="font-semibold text-gray-50 text-body-md">

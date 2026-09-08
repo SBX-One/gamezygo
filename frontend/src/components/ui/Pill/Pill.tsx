@@ -25,7 +25,7 @@ export const pillVariants = cva(
         warning:
           "bg-yellow-900 text-yellow-600",
         success:
-          "bg-green-900 text-green-600",
+          "bg-green-900 text-green-500",
       },
       size: {
         xs: "h-fit w-fit  px-1.5 py-1.5 gap-2 text-label-xs",

@@ -220,7 +220,7 @@ export default function BlogDetailPage() {
             </div>
 
             {/* B. HERO BANNER COVER IMAGE */}
-            <div className="w-full aspect-21/9 sm:aspect-3/1 max-h-110 rounded-xl sm:rounded-lg overflow-hidden   bg-deep-blue-900 shrink-0 relative">
+            <div className="w-full aspect-21/9 sm:aspect-3/1 max-h-110 rounded-lg sm:rounded-lg overflow-hidden   bg-deep-blue-900 shrink-0 relative">
               <img
                 src={blog.bannerSrc || blog.imageSrc}
                 alt={blog.title}
@@ -341,10 +341,10 @@ export default function BlogDetailPage() {
             {/* Infinite Game Cards Carousel - Full width from right edge with bottom shadow */}
             <div className="relative w-full overflow-hidden pt-8 pb-14 mt-12">
               {/* Left subtle vignette mask */}
-              <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-deep-blue-950 to-transparent z-10" />
+              <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-linear-to-r from-deep-blue-950 to-transparent z-10" />
 
               {/* Bottom Shadow Gradient Overlay - Matching Gambar 2 */}
-              <div className="pointer-events-none absolute left-0 right-0 bottom-0 h-32 sm:h-44 bg-gradient-to-t from-deep-blue-950 via-deep-blue-950/80 to-transparent z-10" />
+              <div className="pointer-events-none absolute left-0 right-0 bottom-0 h-32 sm:h-44 bg-linear-to-t from-deep-blue-950 via-deep-blue-950/80 to-transparent z-10" />
 
               {/* Infinite Scrolling Track */}
               <div className="flex gap-6 w-max animate-infinite-carousel hover:[animation-play-state:paused] items-center">
@@ -352,7 +352,7 @@ export default function BlogDetailPage() {
                   <div
                     key={`${game.id}-${idx}`}
                     onClick={() => router.push("/bundle")}
-                    className="relative w-48 sm:w-56 md:w-60 shrink-0 aspect-2/3 rounded-2xl overflow-hidden border border-gradient-secondary  transition-all duration-300 group cursor-pointer bg-deep-blue-900 hover:border-white/30 hover:scale-105 hover:z-20 hover:brightness-105"
+                    className="relative w-48 sm:w-56 md:w-60 shrink-0 aspect-2/3 rounded-lg overflow-hidden border border-gradient-secondary  transition-all duration-300 group cursor-pointer bg-deep-blue-900 hover:border-white/30 hover:scale-105 hover:z-20 hover:brightness-105"
                   >
                     <img
                       src={game.imageSrc}
@@ -367,7 +367,7 @@ export default function BlogDetailPage() {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     {/* Shadow overlay inside each card matching Gambar 2 */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
+                    <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
                   </div>
                 ))}
               </div>

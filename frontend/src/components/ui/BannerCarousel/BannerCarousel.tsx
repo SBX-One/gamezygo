@@ -162,7 +162,7 @@ export function BannerCarousel({
   return (
     <div
       className={cn(
-        "relative group overflow-hidden rounded-2xl border border-gradient-secondary  bg-deep-blue-900 select-none",
+        "relative group overflow-hidden rounded-lg border border-gradient-secondary  bg-deep-blue-900 select-none",
         "min-h-65 sm:min-h-85 lg:min-h-0",
         className
       )}

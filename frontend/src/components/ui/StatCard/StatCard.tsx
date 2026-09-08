@@ -44,7 +44,7 @@ export function StatCard({
     <div
       ref={ref}
       className={cn(
-        "flex flex-col gap-8 p-6 rounded-2xl bg-deep-blue-900  select-none w-full",
+        "flex flex-col gap-8 p-6 rounded-lg bg-deep-blue-900  select-none w-full",
         className
       )}
       {...props}

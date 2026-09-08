@@ -386,7 +386,7 @@ export default function CartPage() {
               </div>
 
               {/* TOTAL BELANJA BOX */}
-              <div className="bg-surface-secondary-default border-gradient-secondary rounded-xl px-4 py-3.5 flex items-center justify-between">
+              <div className="bg-surface-secondary-default border-gradient-secondary rounded-lg px-4 py-3.5 flex items-center justify-between">
                 <span className="text-body-sm font-semibold text-white">
                   Total Belanja
                 </span>

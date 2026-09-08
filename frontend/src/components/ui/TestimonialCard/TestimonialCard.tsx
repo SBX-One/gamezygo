@@ -43,7 +43,7 @@ export function TestimonialCard({
     <div
       ref={ref}
       className={cn(
-        "flex flex-col p-6 rounded-2xl bg-deep-blue-900 border border-white/5 select-none transition-all duration-150 w-full",
+        "flex flex-col p-6 rounded-lg bg-deep-blue-900 border border-white/5 select-none transition-all duration-150 w-full",
         className
       )}
       {...props}

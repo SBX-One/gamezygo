@@ -184,7 +184,7 @@ const defaultSidebarSections: SidebarSection[] = [
       { id: "toko", label: "Toko", icon: <HomeIcon />, href: "/store" },
       { id: "paket", label: "Paket", icon: <CrownIcon />, href: "/bundle" },
       { id: "perpustakaan", label: "Perpustakaan", icon: <GamesIcon />, href: "/library" },
-      { id: "riwayat", label: "Riwayat Pembelian", icon: <ClockIcon /> },
+      { id: "riwayat", label: "Riwayat Pembelian", icon: <ClockIcon />, href: "/history" },
     ],
   },
   {

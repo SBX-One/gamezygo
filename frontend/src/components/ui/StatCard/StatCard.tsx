@@ -60,7 +60,7 @@ export function StatCard({
       </div>
 
       {/* 2. Value */}
-      <div className="text-gradient-heading font-semibold text-h4 w-full">
+      <div className="text-gradient-heading font-semibold text-h4 w-fit">
         {value}
       </div>
 

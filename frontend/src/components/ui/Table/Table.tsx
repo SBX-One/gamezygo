@@ -188,7 +188,7 @@ export function Table<T>({
                         <div
                           key={col.id || colIdx}
                           className={cn(
-                            "relative min-w-0 py-3.5 px-6 text-body-sm text-gray-300 flex items-center self-stretch",
+                            "relative min-w-0 py-3.5 px-6 text-body-sm text-gray-400 flex items-center self-stretch",
                             alignmentClass,
                             col.className
                           )}

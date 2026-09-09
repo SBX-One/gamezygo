@@ -37,7 +37,7 @@ export function OrderHistoryTable({ items, onItemClick, className }: OrderHistor
       header: "Waktu Beli",
       width: "w-[14%]",
       cell: (order) => (
-        <span className="text-gray-300 text-body-sm whitespace-nowrap">{order.purchaseDate}</span>
+        <span className="text-gray-400 text-body-sm whitespace-nowrap">{order.purchaseDate}</span>
       ),
     },
     {
@@ -45,7 +45,7 @@ export function OrderHistoryTable({ items, onItemClick, className }: OrderHistor
       header: "Metode Pembayaran",
       width: "w-[21%]",
       cell: (order) => (
-        <span className="text-gray-300 text-body-sm whitespace-nowrap">{order.paymentMethod}</span>
+        <span className="text-gray-400 text-body-sm whitespace-nowrap">{order.paymentMethod}</span>
       ),
     },
     {
@@ -58,7 +58,6 @@ export function OrderHistoryTable({ items, onItemClick, className }: OrderHistor
             <Pill
               variant="success"
               size="xs"
-              className="px-3.5 py-1 font-medium whitespace-nowrap"
             >
               Berhasil
             </Pill>
@@ -69,7 +68,6 @@ export function OrderHistoryTable({ items, onItemClick, className }: OrderHistor
             <Pill
               variant="warning"
               size="xs"
-              className="px-3.5 py-1 font-medium whitespace-nowrap"
             >
               Pending
             </Pill>
@@ -79,7 +77,6 @@ export function OrderHistoryTable({ items, onItemClick, className }: OrderHistor
           <Pill
             variant="error"
             size="xs"
-            className="px-3.5 py-1 font-medium whitespace-nowrap"
           >
             {order.status}
           </Pill>
@@ -91,7 +88,7 @@ export function OrderHistoryTable({ items, onItemClick, className }: OrderHistor
       header: "Harga",
       width: "w-[14%]",
       cell: (order) => (
-        <span className="text-gray-300 text-body-sm whitespace-nowrap">{order.formattedPrice}</span>
+        <span className="text-gray-400 text-body-sm whitespace-nowrap">{order.formattedPrice}</span>
       ),
     },
     {

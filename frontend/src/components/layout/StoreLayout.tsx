@@ -116,7 +116,7 @@ export function StoreLayout({
     <div
       ref={ref}
       className={cn(
-        "min-h-screen flex flex-col bg-deep-blue-950 text-gray-50 antialiased font-sans selection:bg-rose-600/30 selection:text-gray-50",
+        "min-h-screen flex flex-col bg-deep-blue-950 text-gray-50 antialiased font-sans selection:bg-rose-600/30 selection:text-gray-50 w-full",
         className
       )}
       style={{
@@ -131,7 +131,7 @@ export function StoreLayout({
       {!hideNavbar && (
         <header
           ref={headerRef}
-          className="sticky top-0 z-40 w-full backdrop-blur-md bg-deep-blue-950/90 border-b border-b-gradient-secondary"
+          className="sticky top-0 z-40 w-full max-w-full backdrop-blur-md bg-deep-blue-950/90 border-b border-b-gradient-secondary"
         >
           <div className="w-full">
             <Navbar

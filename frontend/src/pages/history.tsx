@@ -227,7 +227,7 @@ export default function HistoryPage() {
       <StoreLayout
         activeSidebarId="riwayat"
         activeNavId="toko"
-        navbarVariant="guest"
+        navbarVariant="private"
       >
         <div className="w-full flex flex-col gap-12 pb-16">
           {/* =========================================================================

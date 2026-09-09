@@ -104,6 +104,40 @@ const EyeOffIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+const StarFilledIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-3.5 h-3.5 fill-current shrink-0"
+    {...props}
+  >
+    <path
+      d="M10.788 3.10198C11.283 2.09898 12.714 2.09898 13.209 3.10198L15.567 7.87998L20.84 8.64598C21.947 8.80598 22.389 10.168 21.588 10.949L17.772 14.668L18.673 19.918C18.863 21.022 17.705 21.863 16.714 21.342L11.998 18.862L7.28303 21.342C6.29303 21.862 5.13503 21.022 5.32303 19.919L6.22403 14.668L2.40903 10.948C1.60803 10.168 2.05003 8.80698 3.15703 8.64598L8.43003 7.87998L10.788 3.10198Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+const StarRegularIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-3.5 h-3.5 fill-current shrink-0"
+    {...props}
+  >
+    <path
+      d="M10.788 3.10198C11.283 2.09898 12.714 2.09898 13.209 3.10198L15.567 7.87998L20.84 8.64598C21.947 8.80598 22.389 10.168 21.588 10.949L17.772 14.668L18.673 19.918C18.863 21.022 17.705 21.863 16.714 21.342L11.998 18.862L7.28303 21.342C6.29303 21.862 5.13503 21.022 5.32303 19.919L6.22403 14.668L2.40903 10.948C1.60803 10.168 2.05003 8.80698 3.15703 8.64598L8.43003 7.87998L10.788 3.10198ZM11.998 4.03898L9.74003 8.61398C9.64327 8.81029 9.50023 8.98013 9.32323 9.10887C9.14624 9.23761 8.9406 9.32139 8.72403 9.35298L3.67403 10.087L7.32803 13.649C7.64603 13.959 7.79103 14.406 7.71603 14.844L6.85403 19.873L11.37 17.498C11.5638 17.396 11.7795 17.3428 11.9985 17.3428C12.2175 17.3428 12.4332 17.396 12.627 17.498L17.143 19.873L16.281 14.843C16.2442 14.6274 16.2602 14.4061 16.3278 14.1981C16.3954 13.9901 16.5125 13.8017 16.669 13.649L20.323 10.087L15.273 9.35298C15.0565 9.32139 14.8508 9.23761 14.6738 9.10887C14.4968 8.98013 14.3538 8.81029 14.257 8.61398L11.998 4.03898Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
 const CopyIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     width="16"
@@ -377,7 +411,7 @@ export default function GameCredentialPage() {
       return (matchedProduct as { genres?: string[] }).genres!;
     }
     return ["Aksi", "Petualangan", "RPG", "Dunia Terbuka"];
-  }, [steamData?.genres, matchedProduct]);
+  }, [steamData, matchedProduct]);
 
   // Fetch Steam Game Details (including pc_requirements)
   const appId = (matchedProduct as { steamAppId?: number })?.steamAppId || 242050;
@@ -477,8 +511,9 @@ export default function GameCredentialPage() {
         />
       </Head>
 
-      <StoreLayout>
-        <div className="w-full flex flex-col gap-10 lg:gap-14 pb-16">
+      <StoreLayout 
+        navbarVariant="private">
+        <div className="w-full flex flex-col gap-10 lg:gap-11xl pb-16">
           {/* =========================================================================
               B. HERO SECTION (GAME MEDIA & CREDENTIAL CARD)
               ========================================================================= */}
@@ -504,12 +539,12 @@ export default function GameCredentialPage() {
               </div>
 
               {/* Thumbnails Row */}
-              <div className="w-full flex gap-3 overflow-x-auto no-scrollbar pb-1">
+              <div className="w-full flex gap-3 overflow-x-auto no-scrollbar py-2 ">
                 {mediaList.map((thumb, idx) => (
                   <button
                     key={`thumb-${idx}`}
                     onClick={() => setActiveMediaIndex(idx)}
-                    className={`relative w-24 sm:w-28 aspect-16/9 rounded-lg overflow-hidden border transition-all shrink-0 cursor-pointer ${
+                    className={`relative w-24 sm:w-28 aspect-video rounded-lg overflow-hidden border transition-all shrink-0 cursor-pointer ${
                       activeMediaIndex === idx
                         ? "border-rose-500 ring-2 ring-rose-500/40 opacity-100 scale-102"
                         : "border-white/10 opacity-60 hover:opacity-100"
@@ -525,7 +560,7 @@ export default function GameCredentialPage() {
               </div>
 
               {/* Badges Row (Genre, Rating, Launcher) */}
-              <div className="w-full flex items-center justify-between sm:justify-start flex-wrap sm:flex-nowrap gap-3 sm:gap-5 pt-4">
+              <div className="w-full grid grid-cols-3 items-center justify-between sm:justify-start flex-wrap sm:flex-nowrap gap-3 sm:gap-5 pt-4">
                 <div className="flex flex-col gap-1.5 min-w-0 flex-1 sm:flex-none">
                   <span className="text-body-xs text-gray-400">
                     GENRE
@@ -551,32 +586,34 @@ export default function GameCredentialPage() {
                 </div>
 
                 {/* Divider 1: Hidden on mobile, visible on desktop */}
-                <div className="hidden sm:block h-8 w-px bg-surface-secondary-hover shrink-0" />
+                {/* <div className="hidden sm:block h-8 w-px bg-surface-secondary-hover shrink-0" /> */}
+                <div className="flex border-x-gradient-secondary justify-center">
+                <div className="flex flex-col gap-1.5 shrink-0 ">
 
-                <div className="flex flex-col gap-1.5 shrink-0">
                   <span className="text-body-xs text-gray-400">
                     RATING
                   </span>
-                  <div className="flex items-center gap-1.5 sm:gap-2">
+                  <div className="flex items-center gap-3 sm:gap-2">
                     <span className="text-body-sm font-semibold text-white">4.0</span>
-                    <div className="flex items-center text-white text-body-xs sm:text-body-sm tracking-wider">
-                      <span>★</span>
-                      <span>★</span>
-                      <span>★</span>
-                      <span>★</span>
-                      <span className="text-gray-500">☆</span>
+                    <div className="flex items-center gap-1 text-white">
+                      <StarFilledIcon className="w-4 h-4 fill-current text-white shrink-0" />
+                      <StarFilledIcon className="w-4 h-4 fill-current text-white shrink-0" />
+                      <StarFilledIcon className="w-4 h-4 fill-current text-white shrink-0" />
+                      <StarFilledIcon className="w-4 h-4 fill-current text-white shrink-0" />
+                      <StarRegularIcon className="w-4 h-4 fill-current text-gray-500 shrink-0" />
                     </div>
                   </div>
                 </div>
+                </div>
 
                 {/* Divider 2: Hidden on mobile, visible on desktop */}
-                <div className="hidden sm:block h-8 w-px bg-surface-secondary-hover shrink-0" />
+                {/* <div className="hidden sm:block h-8 w-px bg-surface-secondary-hover shrink-0" /> */}
 
                 <div className="flex flex-col gap-1.5 shrink-0">
                   <span className="text-body-xs text-gray-400">
                     LAUNCHER
                   </span>
-                  <span className="text-sm font-bold text-white">
+                  <span className="text-body-sm font-semibold text-gray-50">
                     Steam
                   </span>
                 </div>
@@ -623,7 +660,7 @@ export default function GameCredentialPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full justify-center mt-4 h-11 text-sm font-medium bg-deep-blue-900 border border-white/10 hover:bg-white/5 text-white rounded-lg cursor-pointer transition-colors"
+                className="w-full py-3"
                 onClick={() => {
                   window.open("https://store.steampowered.com/about/", "_blank");
                 }}
@@ -651,7 +688,7 @@ export default function GameCredentialPage() {
                     <Pill
                       variant="warning"
                       size="sm"
-                      className="bg-[#2B1B10] text-[#D97706] border border-[#78350F]/40 font-medium px-4 py-1.5 rounded-full text-label-xs tracking-normal"
+                      className="bg-[#2B1B10] text-amber-600 border border-amber-900/40 font-medium px-4 py-1.5 rounded-full text-label-xs tracking-normal"
                     >
                       Game ini Pre-order Silahkan Tunggu Rilis
                     </Pill>
@@ -756,7 +793,7 @@ export default function GameCredentialPage() {
                 {/* Right-aligned Hubungi Admin Button */}
                 <div className="flex justify-end pt-1">
                   <Button
-                    variant={isPreorder ? "secondary" : "outline"}
+                    variant="outline"
                     size="sm"
                     onClick={() => {
                       window.open(
@@ -786,7 +823,7 @@ export default function GameCredentialPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               {/* Card 1: MINIMUM */}
               <div className="w-full rounded-xl bg-deep-blue-900 border border-white/10 p-6 flex flex-col gap-4">
-                <span className="text-body-xs text-gray-400 uppercase">
+                <span className="text-body-md font-semibold text-gray-50  uppercase">
                   MINIMUM
                 </span>
 
@@ -936,7 +973,7 @@ export default function GameCredentialPage() {
               ========================================================================= */}
           <section className="w-full flex flex-col gap-13 pt-4">
             {/* Testimonial Header with Red Accent Bar */}
-            <div className="border-l-4 border-rose-500 pl-4 flex flex-col gap-8">
+            <div className="border-l-4 border-l-gradient-primary pl-8 pb-6 flex flex-col gap-8">
               <div className="grid gap-3">
               <span className="text-body-sm text-gray-400 uppercase">
                 TESTIMONIAL

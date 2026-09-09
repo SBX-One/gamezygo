@@ -6,6 +6,8 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
     text-rendering: optimizeLegibility;
+    background-color: var(--color-deep-blue-950, #0e0e14);
+    color: var(--color-gray-50, #fafafa);
   }
 }
 
@@ -538,6 +540,12 @@
   border-left-width: 4px;
   border-left-style: solid;
   border-image: var(--gradient-primary-default) 1;
+}
+
+@utility border-x-gradient-secondary {
+  border-left: 1px solid transparent;
+  border-right: 1px solid transparent;
+  border-image: var(--gradient-secondary-border) 1;
 }
 
 @utility border-b-gradient-secondary {

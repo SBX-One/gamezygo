@@ -366,6 +366,7 @@ export default function HomePage() {
                     price={product.price}
                     discount={product.discount}
                     platform={product.platform}
+                    href={`/store/${product.id}`}
                     onActionClick={() => handleAddToCart(product.title)}
                   />
                 ))}
@@ -438,9 +439,9 @@ export default function HomePage() {
                     price={product.price}
                     discount={product.discount}
                     platform={product.platform}
+                    href={`/store/${product.id}`}
                     onActionClick={() => handleAddToCart(product.title)}
                     className="pb-8xl"
-
                   />
                 ))}
               </div>
@@ -495,6 +496,7 @@ export default function HomePage() {
                     platform={game.platform}
                     isBestSeller={false}
                     buttonText="Tambah Keranjang"
+                    href={`/store/${game.id}`}
                     onActionClick={() => handleAddToCart(game.title)}
                     className="w-full "
                   />
@@ -528,9 +530,9 @@ export default function HomePage() {
                     price={product.price}
                     discount={product.discount}
                     platform={product.platform}
+                    href={`/store/${product.id}`}
                     onActionClick={() => handleAddToCart(product.title)}
                      className="max-lg:pb-8xl"
-
                   />
                 ))}
               </div>
@@ -556,6 +558,7 @@ export default function HomePage() {
                     price={product.price}
                     discount={product.discount}
                     platform={product.platform}
+                    href={`/store/${product.id}`}
                     onActionClick={() => handleAddToCart(product.title)}
                      className="max-lg:pb-8xl"
                   />
@@ -582,6 +585,7 @@ export default function HomePage() {
                     price={product.price}
                     discount={product.discount}
                     platform={product.platform}
+                    href={`/store/${product.id}`}
                     onActionClick={() => handleAddToCart(product.title)}
                     className="pb-8xl"
                   />

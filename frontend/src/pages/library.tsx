@@ -1,4 +1,4 @@
-﻿import * as React from "react";
+import * as React from "react";
 import Head from "next/head";
 import { StoreLayout } from "@/components/layout";
 import {
@@ -66,160 +66,232 @@ const CrossIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-interface LibraryGame {
+export interface LibraryGame {
   id: string;
+  steamAppId: number;
   title: string;
   imageSrc: string;
   genres: string[];
   platform?: string;
   launcher?: string;
+  originalPrice?: string;
+  price?: string;
+  discount?: string;
+  isPreorder?: boolean;
+  state?: string;
 }
 
 // 16 Owned Library Games matching Screenshot 1 exactly
-const OWNED_LIBRARY_GAMES: LibraryGame[] = [
+export const OWNED_LIBRARY_GAMES: LibraryGame[] = [
   {
     id: "lib-1",
+    steamAppId: 242050,
     title: "Assassin's Creed Black Flag Resynced",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/242050/library_600x900_2x.jpg",
     genres: ["Action", "Adventure"],
     platform: "Steam",
     launcher: "Steam",
+    originalPrice: "Rp 313.500",
+    price: "Rp 219.500",
+    discount: "-30%",
   },
   {
     id: "lib-2",
+    steamAppId: 1091500,
     title: "007 - First Light",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/library_600x900_2x.jpg",
     genres: ["Action", "Adventure"],
     platform: "Steam",
     launcher: "Steam",
+    originalPrice: "Rp 313.500",
+    price: "Rp 219.500",
+    discount: "-30%",
+    isPreorder: true,
+    state: "pre-order",
   },
   {
     id: "lib-3",
+    steamAppId: 2582560,
     title: "EA SPORTS CF™ 27 Standard Edition",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2582560/library_600x900_2x.jpg",
     genres: ["Action", "Adventure", "Sport-Racing"],
     platform: "EA",
     launcher: "EA",
+    originalPrice: "Rp 759.000",
+    price: "Rp 683.100",
+    discount: "-10%",
   },
   {
     id: "lib-4",
+    steamAppId: 1962700,
     title: "Subnautica 2",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1962700/library_600x900_2x.jpg",
     genres: ["Action", "Adventure"],
     platform: "Steam",
     launcher: "Steam",
+    originalPrice: "Rp 249.000",
+    price: "Rp 211.650",
+    discount: "-15%",
   },
   {
     id: "lib-5",
+    steamAppId: 2195250,
     title: "EA SPORTS FC™ 26 Standard Edition",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2195250/library_600x900_2x.jpg",
     genres: ["Action", "Adventure", "Sport-Racing"],
     platform: "EA",
     launcher: "EA",
+    originalPrice: "Rp 759.000",
+    price: "Rp 607.200",
+    discount: "-20%",
   },
   {
     id: "lib-6",
+    steamAppId: 381210,
     title: "Dead by Daylight",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/381210/library_600x900_2x.jpg",
     genres: ["Action", "Adventure", "Horror"],
     platform: "Steam",
     launcher: "Steam",
+    originalPrice: "Rp 150.000",
+    price: "Rp 75.000",
+    discount: "-50%",
   },
   {
     id: "lib-7",
+    steamAppId: 2215430,
     title: "Phantom Blade",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2215430/library_600x900_2x.jpg",
     genres: ["Action", "Adventure", "RPG"],
     platform: "Steam",
     launcher: "Steam",
+    originalPrice: "Rp 400.000",
+    price: "Rp 320.000",
+    discount: "-20%",
   },
   {
     id: "lib-8",
+    steamAppId: 271590,
     title: "Grand Thief Auto V",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
     genres: ["Action", "Adventure"],
     platform: "Steam",
     launcher: "Steam",
+    originalPrice: "Rp 400.000",
+    price: "Rp 200.000",
+    discount: "-50%",
   },
   {
     id: "lib-9",
+    steamAppId: 1174180,
     title: "Read Dead Redemption II",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/library_600x900_2x.jpg",
     genres: ["Action", "Adventure"],
     platform: "Steam",
     launcher: "Steam",
+    originalPrice: "Rp 640.000",
+    price: "Rp 211.200",
+    discount: "-67%",
   },
   {
     id: "lib-10",
+    steamAppId: 4197610,
     title: "Vanakan",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4197610/caad28198a0aa74f908b0efead31904113c32e3f/hero_capsule_2x.jpg",
     genres: ["Action", "Adventure", "Fantasy"],
     platform: "Steam",
     launcher: "Steam",
+    originalPrice: "Rp 120.000",
+    price: "Rp 96.000",
+    discount: "-20%",
   },
   {
     id: "lib-11",
+    steamAppId: 344850,
     title: "Pharmacy Simulator: Big Pharma",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/344850/library_600x900_2x.jpg",
     genres: ["Action", "Adventure", "Casual"],
     platform: "Steam",
     launcher: "Steam",
+    originalPrice: "Rp 115.000",
+    price: "Rp 57.500",
+    discount: "-50%",
   },
   {
     id: "lib-12",
+    steamAppId: 1245620,
     title: "Learning on Demand Racing",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/library_600x900_2x.jpg",
     genres: ["Action", "Adventure", "Sport-Racing"],
     platform: "Steam",
     launcher: "Steam",
+    originalPrice: "Rp 180.000",
+    price: "Rp 126.000",
+    discount: "-30%",
   },
   {
     id: "lib-13",
+    steamAppId: 686810,
     title: "Hell Let Loose: Vietnam",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/686810/library_600x900_2x.jpg",
     genres: ["Action", "Adventure", "Multiplayer"],
     platform: "Steam",
     launcher: "Steam",
+    originalPrice: "Rp 350.000",
+    price: "Rp 245.000",
+    discount: "-30%",
   },
   {
     id: "lib-14",
+    steamAppId: 203350,
     title: "The Lord of the Rings: War in the North™ - Legacy Edition",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/203350/library_600x900_2x.jpg",
     genres: ["Action", "Adventure", "RPG"],
     platform: "Steam",
     launcher: "Steam",
+    originalPrice: "Rp 135.000",
+    price: "Rp 67.500",
+    discount: "-50%",
   },
   {
     id: "lib-15",
+    steamAppId: 2582560,
     title: "EA SPORTS™ Madden NFL 27",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2582560/library_600x900_2x.jpg",
     genres: ["Action", "Adventure", "Sport-Racing"],
     platform: "EA",
     launcher: "EA",
+    originalPrice: "Rp 759.000",
+    price: "Rp 683.100",
+    discount: "-10%",
   },
   {
     id: "lib-16",
+    steamAppId: 990080,
     title: "Earthworm Jim",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/990080/library_600x900_2x.jpg",
     genres: ["Action", "Adventure", "Casual"],
     platform: "Steam",
     launcher: "Steam",
+    originalPrice: "Rp 90.000",
+    price: "Rp 45.000",
+    discount: "-50%",
   },
 ];
 
@@ -519,7 +591,8 @@ export default function GameLibraryPage() {
                   platform={game.platform}
                   showPrice={false}
                   showActionButton={false}
-                  className="hover:-translate-y-0.5 transition-transform duration-200 pb-8xl"
+                  href={`/credentials/${game.id}`}
+                  className="hover:-translate-y-0.5 transition-transform duration-200 pb-8xl cursor-pointer"
                 />
               ))}
             </div>

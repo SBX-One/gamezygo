@@ -1,5 +1,6 @@
-﻿import * as React from "react";
+import * as React from "react";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { cn } from "@/lib/utils";
 import { Pill } from "@/components/ui/Pill";
 import { Button } from "@/components/ui/Button";
@@ -136,13 +137,29 @@ export function ProductCard({
     </div>
   );
 
+  const router = useRouter();
+
+  const handleContainerClick = (e: React.MouseEvent<HTMLDivElement>) => {
+    const target = e.target as HTMLElement;
+    if (target.closest("button") || target.closest("a")) {
+      props.onClick?.(e);
+      return;
+    }
+    if (href) {
+      router.push(href);
+    }
+    props.onClick?.(e);
+  };
+
   // Horizontal Card Layout
   if (isHorizontal) {
     return (
       <div
         ref={ref}
+        onClick={handleContainerClick}
         className={cn(
           "flex flex-col sm:flex-row gap-4 sm:gap-6 p-3 items-stretch sm:items-center rounded-lg bg-deep-blue-900 border border-white/5 select-none transition-all duration-150 w-full sm:min-w-129.5 max-w-full h-auto sm:h-65 shrink-0",
+          href && "cursor-pointer hover:border-white/20 hover:scale-[1.01]",
           className
         )}
         {...props}
@@ -229,8 +246,10 @@ export function ProductCard({
   return (
     <div
       ref={ref}
+      onClick={handleContainerClick}
       className={cn(
         "flex flex-col justify-between h-full gap-2.5 sm:gap-4 lg:gap-6 w-full bg-transparent select-none transition-all duration-150",
+        href && "cursor-pointer hover:scale-[1.02]",
         className
       )}
       {...props}

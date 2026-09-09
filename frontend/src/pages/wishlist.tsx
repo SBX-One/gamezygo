@@ -294,7 +294,7 @@ export default function WishlistPage() {
               (Highlight utama dari permintaan user / Screenshot 1, 2, 3)
              ======================================================== */}
           <div className="flex items-center gap-3.5">
-              <div className="flex flex-col gap-2 border-l-4 border-pale-red-500 pl-8">
+              <div className="flex flex-col gap-2 border-l-gradient-primary pl-8">
                   <h2 className="text-h2 font-semibold leading-[120%] text-gradient-heading  w-fit">
                 Wishlist
                   </h2>

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { Table, TableBoxChip, type TableColumn } from "@/components/ui/Table";
+import { Table, type TableColumn } from "@/components/ui/Table";
 import { Pill } from "@/components/ui/Pill";
 import type { OrderHistoryItem } from "../types";
 import { Button } from "@/components/ui";

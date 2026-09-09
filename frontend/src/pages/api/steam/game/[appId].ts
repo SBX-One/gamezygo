@@ -37,6 +37,12 @@ interface SteamAppDetailsResponse {
       screenshots?: SteamScreenshot[];
       movies?: SteamMovie[];
       genres?: Array<{ id: string; description: string }>;
+      pc_requirements?:
+        | {
+            minimum?: string;
+            recommended?: string;
+          }
+        | unknown[];
     };
   };
 }
@@ -118,6 +124,13 @@ export default async function handler(
             webm: highlightTrailer.webm?.max || highlightTrailer.webm?.["480"] || "",
           }
         : null,
+      pc_requirements:
+        data.pc_requirements && !Array.isArray(data.pc_requirements)
+          ? {
+              minimum: (data.pc_requirements as { minimum?: string }).minimum || "",
+              recommended: (data.pc_requirements as { recommended?: string }).recommended || "",
+            }
+          : null,
     };
 
     return res.status(200).json(result);

@@ -604,7 +604,7 @@ export default function BundlePage() {
             <div className="flex flex-col gap-32  ">
               {/* SECTION 1: PAKET HEMAT */}
               <section className="flex flex-col gap-12">
-                <div className="flex flex-col gap-2 border-l-4 border-pale-red-500 pl-8">
+                <div className="flex flex-col gap-2 border-l-gradient-primary pl-8">
                   <h2 className="text-h2 font-semibold leading-[120%] text-gradient-heading  w-fit">
                     Paket Hemat
                   </h2>
@@ -741,7 +741,7 @@ export default function BundlePage() {
 
               {/* SECTION 2: PERPUSTAKAAN KATALOG MINI */}
               <section className="flex flex-col gap-8xl pt-4">
-                <div className="flex flex-col gap-2 border-l-4 border-pale-red-500 pl-8 pb-3">
+                <div className="flex flex-col gap-2 border-l-gradient-primary pl-8 pb-3">
                   <h2 className="text-h2 font-semibold leading-[120%] text-gradient-heading w-fit">
                     Perpustakaan
                   </h2>
@@ -980,7 +980,7 @@ export default function BundlePage() {
               SECTION: FREQUENTLY ASKED QUESTION (Ada di kedua mode!)
              ======================================================== */}
           <section className="grid lg:flex-row gap-10 lg:gap-16 pt-12 pb-8 border-t border-white/5">
-            <div className="flex flex-col gap-4 lg:w-1/3 shrink-0 border-l-4 border-pale-red-500 h-fit pl-8 pb-6 w-fit border-roun">
+            <div className="flex flex-col gap-4 lg:w-1/3 shrink-0 border-l-gradient-primary h-fit pl-8 pb-6 w-fit border-roun">
             
               <span className="text-body-sm  text-gray-400">
                 FREQUENTLY ASKED QUESTION

@@ -105,6 +105,9 @@ export function TestimonialCard({
                     <img
                       src={src}
                       alt={alt}
+                      onError={(e) => {
+                        e.currentTarget.style.display = "none";
+                      }}
                       className="w-full h-full object-cover transition-transform duration-200 hover:scale-105"
                     />
                   ) : (

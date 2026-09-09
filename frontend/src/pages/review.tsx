@@ -458,7 +458,7 @@ export default function ReviewPage() {
             {/* ========================================================
                 1. HEADER (Mirip Bundle: Border-L Merah + Input Field)
                ======================================================== */}
-            <section className="flex flex-col gap-8 border-l-4 border-pale-red-500 pl-6 sm:pl-8 relative">
+            <section className="flex flex-col gap-8 border-l-gradient-primary pl-6 sm:pl-8 relative">
               {/* Quick State Toggle for Dev/Preview */}
               <div className="grid gap-4">
               <div className="flex items-center justify-between">

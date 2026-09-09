@@ -30,6 +30,10 @@ export interface SteamGameDetails {
     mp4: string;
     webm: string;
   } | null;
+  pc_requirements?: {
+    minimum?: string;
+    recommended?: string;
+  } | null;
 }
 
 export interface SteamSearchResult {
@@ -72,4 +76,82 @@ export async function searchSteamGames(term: string): Promise<SteamSearchResult[
     console.error("Failed to search Steam games:", err);
     return [];
   }
+}
+
+export interface ParsedSystemRequirements {
+  os: string;
+  cpu: string;
+  ram: string;
+  gpu: string;
+  directx: string;
+  storage: string;
+  soundCard?: string;
+  notes?: string;
+}
+
+/**
+ * Parses Steam Store API raw HTML pc_requirements strings (minimum & recommended)
+ * into clean structured specifications for display cards.
+ */
+export function parseSteamRequirements(
+  htmlString?: string,
+  fallback?: Partial<ParsedSystemRequirements>
+): ParsedSystemRequirements {
+  const result: ParsedSystemRequirements = {
+    os: fallback?.os || "Windows 10 (64-bit)",
+    cpu: fallback?.cpu || "Intel Core i5-2500K / AMD FX-6300",
+    ram: fallback?.ram || "8 GB RAM",
+    gpu: fallback?.gpu || "NVIDIA GeForce GTX 660 / AMD Radeon HD 7870",
+    directx: fallback?.directx || "Versi 11",
+    storage: fallback?.storage || "30 GB Available Space",
+    soundCard: fallback?.soundCard || "DX Compatible",
+    notes: fallback?.notes,
+  };
+
+  if (!htmlString || typeof htmlString !== "string") return result;
+
+  // Normalize HTML line breaks and tags
+  const clean = htmlString
+    .replace(/<br\s*\/?>/gi, "\n")
+    .replace(/<\/li>/gi, "\n")
+    .replace(/<[^>]*>/g, "")
+    .replace(/&amp;/g, "&")
+    .replace(/&lt;/g, "<")
+    .replace(/&gt;/g, ">");
+
+  const lines = clean
+    .split("\n")
+    .map((l) => l.trim())
+    .filter(Boolean);
+
+  for (const line of lines) {
+    const lower = line.toLowerCase();
+    if (lower.startsWith("os") || lower.startsWith("os *:") || lower.includes("os:")) {
+      const val = line.replace(/^(os\s*\*?\s*:?)/i, "").trim();
+      if (val) result.os = val;
+    } else if (lower.startsWith("processor") || lower.includes("processor:")) {
+      const val = line.replace(/^(processor\s*\*?\s*:?)/i, "").trim();
+      if (val) result.cpu = val;
+    } else if (lower.startsWith("memory") || lower.includes("memory:")) {
+      const val = line.replace(/^(memory\s*\*?\s*:?)/i, "").trim();
+      if (val) result.ram = val;
+    } else if (lower.startsWith("graphics") || lower.includes("graphics:")) {
+      const val = line.replace(/^(graphics\s*\*?\s*:?)/i, "").trim();
+      if (val) result.gpu = val;
+    } else if (lower.startsWith("directx") || lower.includes("directx:")) {
+      const val = line.replace(/^(directx\s*\*?\s*:?)/i, "").trim();
+      if (val) result.directx = val;
+    } else if (lower.startsWith("storage") || lower.includes("storage:") || lower.includes("hard drive")) {
+      const val = line.replace(/^(storage\s*\*?\s*:?|hard drive\s*\*?\s*:?)/i, "").trim();
+      if (val) result.storage = val;
+    } else if (lower.startsWith("sound card") || lower.includes("sound card:")) {
+      const val = line.replace(/^(sound card\s*\*?\s*:?)/i, "").trim();
+      if (val) result.soundCard = val;
+    } else if (lower.startsWith("additional notes") || lower.includes("additional notes:")) {
+      const val = line.replace(/^(additional notes\s*\*?\s*:?)/i, "").trim();
+      if (val) result.notes = val;
+    }
+  }
+
+  return result;
 }

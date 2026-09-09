@@ -534,6 +534,12 @@
   background-clip: padding-box, border-box;
 }
 
+@utility border-l-gradient-primary {
+  border-left-width: 4px;
+  border-left-style: solid;
+  border-image: var(--gradient-primary-default) 1;
+}
+
 @utility border-b-gradient-secondary {
   border-bottom: 1px solid transparent;
   border-image: var(--gradient-secondary-border) 1;

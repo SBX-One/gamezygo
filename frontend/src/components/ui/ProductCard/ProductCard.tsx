@@ -195,7 +195,7 @@ export function ProductCard({
 
             {/* Best Seller Pill */}
             {isBestSeller && (
-              <Pill variant="primary" size="xs">
+              <Pill variant="primary" size="xs" className="">
                 {bestSellerLabel}
               </Pill>
             )}
@@ -205,12 +205,12 @@ export function ProductCard({
         {/* Right: Content Column */}
         <div className="flex flex-col justify-between flex-1 self-stretch min-w-0 h-full py-0.5 gap-3">
           {/* Top Block: Title & Genres */}
-          <div className="flex flex-col gap-2.5 sm:gap-5">
+          <div className="flex flex-col gap-2.5 sm:gap-5 pt-5">
             {/* 1. Title Game */}
             {href ? (
               <Link
                 href={href}
-                className="text-xs sm:text-body-sm font-semibold text-gray-50 hover:text-gray-50 line-clamp-2 transition-colors outline-none leading-tight sm:leading-snug"
+                className="text-xs sm:text-h6 font-semibold text-gray-50 hover:text-gray-50 line-clamp-2 transition-colors outline-none leading-tight sm:leading-snug"
               >
                 {title}
               </Link>
@@ -224,7 +224,7 @@ export function ProductCard({
             {genres && genres.length > 0 && (
               <div className="flex items-center gap-1.5 sm:gap-2 flex-wrap">
                 {genres.map((genre, idx) => (
-                  <Pill key={idx} variant="secondary" size="xs">
+                  <Pill key={idx} variant="secondary" size="xs" className="px-3">
                     {genre}
                   </Pill>
                 ))}
@@ -233,7 +233,7 @@ export function ProductCard({
           </div>
 
           {/* Bottom Block: Prices & Action Button */}
-          <div className="flex flex-col gap-2.5 sm:gap-3 mt-auto">
+          <div className="flex flex-col justify-center gap-2.5 sm:gap-3 mt-auto">
             {showPrice && price && renderPrices()}
             {renderActionButton()}
           </div>

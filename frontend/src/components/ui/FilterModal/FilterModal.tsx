@@ -291,7 +291,7 @@ export function FilterModal({
       {...props}
     >
       {/* 1. Header (Filter & Sort title + close button + separator) */}
-      <div className="flex items-center justify-between pb-4 border-b border-gradient-secondary">
+      <div className="flex items-center justify-between pb-4 border-b-gradient-secondary">
         <h4 className="text-body-lg font-semibold text-gray-50 tracking-normal">
           {title}
         </h4>
@@ -507,7 +507,7 @@ export function FilterModal({
             <div
               ref={trackRef}
               onClick={handleTrackClick}
-              className="relative flex-1 flex items-center h-6 cursor-pointer touch-none"
+              className="relative flex-1 flex items-center h-6 cursor-pointer touch-none mx-2"
             >
               {/* Track Rail background */}
               <div className="w-full h-1.5 rounded-full bg-deep-blue-900 border border-white/5" />
@@ -536,7 +536,7 @@ export function FilterModal({
               {/* Right Thumb Handle (Drag Max Price) */}
               <div
                 onPointerDown={handleMaxPointerDown}
-                className="absolute translate-x-1/2 w-4.5 h-4.5 rounded-full bg-gradient-primary shadow-md border-2 border-deep-blue-950 cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
+                className="absolute -translate-x-1/2 w-4.5 h-4.5 rounded-full bg-gradient-primary shadow-md border-2 border-deep-blue-950 cursor-grab active:cursor-grabbing hover:scale-110 transition-transform"
                 style={{ left: `${100 - rightPercent}%` }}
                 role="slider"
                 aria-valuemin={currentMinPrice}
@@ -633,9 +633,9 @@ export function FilterModal({
       {/* Floating Dropdown Card */}
       <div
         className={cn(
-          "fixed sm:absolute right-4 sm:right-8 lg:right-20 top-20 sm:top-18 z-50",
+          "fixed sm:absolute right-4 sm:right-8 lg:right-20 top-20 sm:top-38 z-50",
           "w-[calc(100vw-32px)] sm:w-115 max-h-[calc(100vh-100px)] overflow-y-auto",
-          "rounded-lg border border-gradient-secondary  bg-[#0D121F]/98 backdrop-blur-xl",
+          "rounded-lg  bg-[#0D121F]/98 backdrop-blur-xl",
           "scrollbar-thin animate-in fade-in slide-in-from-top-2 duration-150",
           className
         )}

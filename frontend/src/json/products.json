@@ -79,6 +79,58 @@
       "numericPrice": 219500,
       "discount": "-30%",
       "platform": "Steam"
+    },
+    {
+      "id": "tk-fc-26",
+      "steamAppId": 2195250,
+      "title": "EA SPORTS FC 26",
+      "imageSrc": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2195250/library_600x900_2x.jpg",
+      "bannerSrc": "https://cdn.akamai.steamstatic.com/steam/apps/2195250/header.jpg",
+      "genres": ["Sport-Racing", "Multiplayer"],
+      "originalPrice": "Rp 799.000",
+      "price": "Rp 349.500",
+      "numericPrice": 349500,
+      "discount": "-56%",
+      "platform": "Steam"
+    },
+    {
+      "id": "tk-ghost-tsushima",
+      "steamAppId": 2215430,
+      "title": "Ghost of Tsushima DIRECTOR'S CUT",
+      "imageSrc": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2215430/library_600x900_2x.jpg",
+      "bannerSrc": "https://cdn.akamai.steamstatic.com/steam/apps/2215430/header.jpg",
+      "genres": ["Action", "Adventure"],
+      "originalPrice": "Rp 879.000",
+      "price": "Rp 439.500",
+      "numericPrice": 439500,
+      "discount": "-50%",
+      "platform": "Steam"
+    },
+    {
+      "id": "tk-gta-v",
+      "steamAppId": 271590,
+      "title": "Grand Theft Auto V",
+      "imageSrc": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+      "bannerSrc": "https://cdn.akamai.steamstatic.com/steam/apps/271590/header.jpg",
+      "genres": ["Action", "Adventure"],
+      "originalPrice": "Rp 449.500",
+      "price": "Rp 219.500",
+      "numericPrice": 219500,
+      "discount": "-51%",
+      "platform": "Steam"
+    },
+    {
+      "id": "tk-rdr-2",
+      "steamAppId": 1174180,
+      "title": "Red Dead Redemption 2",
+      "imageSrc": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/library_600x900_2x.jpg",
+      "bannerSrc": "https://cdn.akamai.steamstatic.com/steam/apps/1174180/header.jpg",
+      "genres": ["Action", "Adventure"],
+      "originalPrice": "Rp 640.000",
+      "price": "Rp 219.000",
+      "numericPrice": 219000,
+      "discount": "-65%",
+      "platform": "Steam"
     }
   ],
   "rilisTerbaru": [
@@ -132,6 +184,58 @@
       "price": "Rp 219.500",
       "numericPrice": 219500,
       "discount": "-30%",
+      "platform": "Steam"
+    },
+    {
+      "id": "rt-fc-26",
+      "steamAppId": 2195250,
+      "title": "EA SPORTS FC 26",
+      "imageSrc": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2195250/library_600x900_2x.jpg",
+      "bannerSrc": "https://cdn.akamai.steamstatic.com/steam/apps/2195250/header.jpg",
+      "genres": ["Sport-Racing", "Multiplayer"],
+      "originalPrice": "Rp 799.000",
+      "price": "Rp 349.500",
+      "numericPrice": 349500,
+      "discount": "-56%",
+      "platform": "Steam"
+    },
+    {
+      "id": "rt-ghost-tsushima",
+      "steamAppId": 2215430,
+      "title": "Ghost of Tsushima DIRECTOR'S CUT",
+      "imageSrc": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2215430/library_600x900_2x.jpg",
+      "bannerSrc": "https://cdn.akamai.steamstatic.com/steam/apps/2215430/header.jpg",
+      "genres": ["Action", "Adventure"],
+      "originalPrice": "Rp 879.000",
+      "price": "Rp 439.500",
+      "numericPrice": 439500,
+      "discount": "-50%",
+      "platform": "Steam"
+    },
+    {
+      "id": "rt-gta-v",
+      "steamAppId": 271590,
+      "title": "Grand Theft Auto V",
+      "imageSrc": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+      "bannerSrc": "https://cdn.akamai.steamstatic.com/steam/apps/271590/header.jpg",
+      "genres": ["Action", "Adventure"],
+      "originalPrice": "Rp 449.500",
+      "price": "Rp 219.500",
+      "numericPrice": 219500,
+      "discount": "-51%",
+      "platform": "Steam"
+    },
+    {
+      "id": "rt-dead-by-daylight",
+      "steamAppId": 381210,
+      "title": "Dead by Daylight",
+      "imageSrc": "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/381210/library_600x900_2x.jpg",
+      "bannerSrc": "https://cdn.akamai.steamstatic.com/steam/apps/381210/header.jpg",
+      "genres": ["Horror", "Multiplayer"],
+      "originalPrice": "Rp 249.000",
+      "price": "Rp 99.600",
+      "numericPrice": 99600,
+      "discount": "-60%",
       "platform": "Steam"
     }
   ],

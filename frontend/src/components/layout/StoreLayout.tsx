@@ -116,7 +116,7 @@ export function StoreLayout({
     <div
       ref={ref}
       className={cn(
-        "min-h-screen flex flex-col bg-deep-blue-950 text-gray-50 antialiased font-sans selection:bg-rose-600/30 selection:text-gray-50 w-full",
+        "min-h-screen flex flex-col bg-deep-blue-950 text-gray-50 antialiased font-sans selection:bg-rose-600/30 selection:text-gray-50 w-full overflow-x-hidden",
         className
       )}
       style={{

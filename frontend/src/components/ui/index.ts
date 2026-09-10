@@ -22,6 +22,7 @@ export * from "./GameListItem";
 export * from "./BlogCard";
 export * from "./TestimonialCard";
 export * from "./ProductCard";
+export * from "./ProductCardRow";
 export * from "./SectionHeader";
 export * from "./FilterModal";
 export * from "./BannerCarousel";

@@ -231,7 +231,7 @@ export function Navbar({
       {/* ========================================================
           1. BARIS ATAS: Kiri (Logo W:60 H:32 + Divider + Nav Links) & Kanan (Search + Actions)
          ======================================================== */}
-      <div className="w-full px-6 lg:px-20 py-6 lg:py-11 flex items-center justify-between gap-4">
+      <div className="w-full px-6 lg:px-10 py-6 lg:py-11 flex items-center justify-between gap-4">
         {variant === "back" ? (
           <div className="flex items-center gap-4">
             <Button

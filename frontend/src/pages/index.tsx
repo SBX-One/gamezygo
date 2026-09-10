@@ -1,11 +1,10 @@
-import * as React from "react";
+﻿import * as React from "react";
 import Head from "next/head";
 import {
-  Navbar,
-  Footer,
   Header,
   Button,
   ProductCard,
+  ProductCardRow,
   SectionHeader,
   FilterModal,
   EmptyState,
@@ -13,6 +12,7 @@ import {
   BannerCarousel,
   type BannerSlide,
 } from "@/components/ui";
+import { StoreLayout } from "@/components/layout";
 
 // Icon for 500 Server Error
 const WifiOffIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -285,49 +285,37 @@ export default function HomePage() {
     appliedPriceRange[1] < 200000;
 
   return (
-    <div className="min-h-screen bg-deep-blue-950 text-gray-50 flex flex-col antialiased selection:bg-rose-600/30 selection:text-gray-50">
+    <>
       <Head>
-        <title>Gamezygo â€” Toko Koleksi Akun Game Original Murah & Instan</title>
+        <title>Gamezygo — Toko Koleksi Akun Game Original Murah & Instan</title>
         <meta
           name="description"
           content="Beli game PC Steam, Epic Games, dan EA original dengan harga terjangkau, pengiriman instan langsung ke Game Library Anda."
         />
       </Head>
 
-      {/* ========================================================
-          1. STICKY NAVBAR (Logged-in Customer View)
-         ======================================================== */}
-      <header className="sticky top-0 z-40 w-full backdrop-blur-md bg-deep-blue-950/90 border-b border-b-gradient-secondary">
-        <Navbar
-          variant="login"
-          activeNavId={activeNavId}
-          onNavItemClick={(item) => setActiveNavId(item.id)}
-          searchValue={searchQuery}
-          searchPlaceholder="Cari di toko"
-          onSearchChange={(val) => {
-            setSearchQuery(val);
-            if (val.trim()) {
-              setPreviewState("default");
-            }
-          }}
-          onSearchClear={() => {
-            setSearchQuery("");
+      <StoreLayout
+        navbarVariant="login"
+        hideSidebar={true}
+        activeNavId={activeNavId}
+        onNavItemClick={(item) => setActiveNavId(item.id)}
+        user={currentUser}
+        searchValue={searchQuery}
+        searchPlaceholder="Cari di toko"
+        onSearchChange={(val) => {
+          setSearchQuery(val);
+          if (val.trim()) {
             setPreviewState("default");
-          }}
-          onFilterClick={() => setIsFilterModalOpen((prev) => !prev)}
-          onCartClick={() => handleAddToCart("Item Cart")}
-          user={currentUser}
-          className="w-full"
-        />
-      </header>
-
-
-      {/* ========================================================
-          MAIN CONTENT CONTAINER
-          Rule: padding dalam content nya adalah 80 (px-20)
-          Rule: untuk hero ada tambahan pt 30 (pt-[30px])
-         ======================================================== */}
-      <main className="flex-1 w-full max-w-360 mx-auto px-4 sm:px-8 lg:px-20 pb-20   flex flex-col gap-11xl">
+          }
+        }}
+        onSearchClear={() => {
+          setSearchQuery("");
+          setPreviewState("default");
+        }}
+        onFilterClick={() => setIsFilterModalOpen((prev) => !prev)}
+        onCartClick={() => handleAddToCart("Item Cart")}
+        contentClassName="w-full  mx-auto px-4 sm:px-8 lg:px-10 pb-20 flex flex-col gap-11xl"
+      >
         {/* ======================================================
             CASE A: STATE 500 SERVER ERROR (Screenshot 2: Empty)
            ====================================================== */}
@@ -372,7 +360,7 @@ export default function HomePage() {
                 ))}
               </div>
             ) : (
-              <div className="py-16">
+              <div className="py-10xl">
                 <EmptyState
                   title="Ups!... Hasil tidak ditemukan"
                   description="Coba cari hal lain!"
@@ -446,7 +434,7 @@ export default function HomePage() {
                 ))}
               </div>
             ) : (
-              <div className="py-16">
+              <div className="py-10xl">
                 <EmptyState
                   title="Ups!... Hasil tidak ditemukan"
                   description="Coba cari hal lain!"
@@ -480,9 +468,9 @@ export default function HomePage() {
             />
 
             {/* 2. PROMO BANNER & MINI FEATURED CARDS SECTION */}
-            <section className="flex flex-col lg:flex-row gap-6 items-stretch">
+            <section className=" flex flex-col sm:grid sm:grid-cols-5 gap-6 items-stretch">
               {/* Kolom Kiri: 2 Horizontal Product Cards */}
-              <div className="flex flex-col  gap-6 shrink-0 w-full lg:w-auto justify-between">
+              <div className="sm:col-span-2 flex flex-col gap-6 shrink-0 w-full lg:w-auto justify-between">
                 {MINI_FEATURED_GAMES.map((game) => (
                   <ProductCard
                     key={game.id}
@@ -506,7 +494,7 @@ export default function HomePage() {
               {/* Kolom Kanan: Large Summer Promo Banner Carousel */}
               <BannerCarousel
                 slides={PROMO_BANNERS}
-                className="flex-1 min-w-0"
+                className="flex-1 min-w-0 sm:col-span-3"
               />
             </section>
 
@@ -519,23 +507,10 @@ export default function HomePage() {
                 onActionClick={() => setExactState("filter-applied")}
               />
 
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5">
-                {TAWARAN_KHUSUS_PRODUCTS.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    title={product.title}
-                    imageSrc={product.imageSrc}
-                    genres={product.genres}
-                    originalPrice={product.originalPrice}
-                    price={product.price}
-                    discount={product.discount}
-                    platform={product.platform}
-                    href={`/store/${product.id}`}
-                    onActionClick={() => handleAddToCart(product.title)}
-                     className="max-lg:pb-8xl"
-                  />
-                ))}
-              </div>
+              <ProductCardRow
+                products={TAWARAN_KHUSUS_PRODUCTS}
+                onAddToCart={handleAddToCart}
+              />
             </section>
 
             {/* 4. SECTION: RILIS TERBARU! */}
@@ -547,23 +522,10 @@ export default function HomePage() {
                 onActionClick={() => setExactState("filter-applied")}
               />
 
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-                {RILIS_TERBARU_PRODUCTS.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    title={product.title}
-                    imageSrc={product.imageSrc}
-                    genres={product.genres}
-                    originalPrice={product.originalPrice}
-                    price={product.price}
-                    discount={product.discount}
-                    platform={product.platform}
-                    href={`/store/${product.id}`}
-                    onActionClick={() => handleAddToCart(product.title)}
-                     className="max-lg:pb-8xl"
-                  />
-                ))}
-              </div>
+              <ProductCardRow
+                products={RILIS_TERBARU_PRODUCTS}
+                onAddToCart={handleAddToCart}
+              />
             </section>
 
             {/* 5. SECTION: SEMUA PRODUK */}
@@ -574,7 +536,7 @@ export default function HomePage() {
                 showAction={false}
               />
 
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
                 {ALL_STORE_PRODUCTS.map((product) => (
                   <ProductCard
                     key={product.id}
@@ -594,7 +556,6 @@ export default function HomePage() {
             </section>
           </>
         )}
-      </main>
 
       {/* ========================================================
           FILTER & SORT DROPDOWN (Screenshot 3: Filter Dropdown)
@@ -665,10 +626,7 @@ export default function HomePage() {
         </div>
       )}
 
-      {/* ========================================================
-          FOOTER (Standard Full Width)
-         ======================================================== */}
-      <Footer className="mt-auto border-t border-t-gradient-secondary" />
-    </div>
+      </StoreLayout>
+    </>
   );
 }

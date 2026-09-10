@@ -1007,7 +1007,10 @@ export default function GameStoreDetailPage() {
                 RIGHT COLUMN: DESKTOP ONLY (>= lg breakpoint)
                 Sticky sidebar on desktop matching 100% designer specification
                 ===================================================================== */}
-            <div className="hidden lg:flex w-full lg:sticky lg:top-48 self-start flex-col gap-6 col-span-3 min-w-0">
+            <div 
+              style={{ position: "sticky", top: "150px" }}
+              className="hidden lg:flex w-full self-start flex-col gap-6 col-span-3 min-w-0 z-10"
+            >
               {productInfoAndActions}
             </div>
           </section>

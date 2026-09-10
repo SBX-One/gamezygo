@@ -102,7 +102,7 @@ export function OrderHistoryTable({ items, onItemClick, className }: OrderHistor
   ];
 
   return (
-    <div className={cn("w-full flex flex-col gap-3", className)}>
+    <div className={cn("w-full max-w-full min-w-0 flex flex-col gap-3", className)}>
       <Table className="w-full" columns={columns} data={items} keyExtractor={(o) => o.id} />
     </div>
   );

@@ -116,7 +116,7 @@ export function StoreLayout({
     <div
       ref={ref}
       className={cn(
-        "min-h-screen flex flex-col bg-deep-blue-950 text-gray-50 antialiased font-sans selection:bg-rose-600/30 selection:text-gray-50 w-full overflow-x-hidden",
+        "min-h-screen flex flex-col bg-deep-blue-950 text-gray-50 antialiased font-sans selection:bg-rose-600/30 selection:text-gray-50 w-full",
         className
       )}
       style={{
@@ -189,15 +189,16 @@ export function StoreLayout({
       {/* ========================================================
           3. MAIN LAYOUT BODY (Desktop Sidebar + Main Content)
          ======================================================== */}
-      <div className="flex-1 w-full  mx-auto flex flex-col lg:flex-row">
+      <div className="flex-1 w-full mx-auto flex flex-col lg:flex-row items-start">
         {/* DESKTOP SIDEBAR (Static/Sticky on lg+) */}
         {!hideSidebar && (
           <aside
             style={{
+              position: "sticky",
               top: `${effectiveHeaderHeight}px`,
               height: `calc(100vh - ${effectiveHeaderHeight}px)`,
             }}
-            className="hidden lg:block shrink-0 sticky self-start overflow-y-auto"
+            className="hidden lg:block shrink-0 self-start overflow-y-auto"
           >
             <Sidebar
               sections={sidebarSections}
@@ -211,7 +212,7 @@ export function StoreLayout({
         {/* MAIN STORE CONTENT */}
         <main
           className={cn(
-            "flex-1 min-w-0 flex flex-col mb-11xl",
+            "flex-1 min-w-0 max-w-full flex flex-col mb-11xl",
             contentClassName ?? "px-4 sm:px-6 lg:px-8 py-6 sm:py-8"
           )}
         >

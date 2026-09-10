@@ -62,12 +62,13 @@ export function FilterModal({
   onReset,
   onApply,
   title = "Filter & Sort",
-  categories = DEFAULT_CATEGORIES,
-  genres = DEFAULT_GENRES,
-  launchers = DEFAULT_LAUNCHERS,
+  categories,
+  genres,
+  launchers,
   sortOptions = DEFAULT_SORT_OPTIONS,
   showPriceRange = true,
   statusOptions,
+  paymentOptions,
   platformOptions,
   gameOptions,
   minPrice = 0,
@@ -79,6 +80,7 @@ export function FilterModal({
   selectedGenres: propGenres,
   selectedLaunchers: propLaunchers,
   selectedStatus: propStatus,
+  selectedPayments: propPayments,
   selectedPlatforms: propPlatforms,
   selectedGames: propGames,
   selectedSort: propSort,
@@ -86,6 +88,7 @@ export function FilterModal({
   onToggleGenre,
   onToggleLauncher,
   onToggleStatus,
+  onTogglePayment,
   onTogglePlatform,
   onToggleGame,
   onSelectSort,
@@ -93,6 +96,18 @@ export function FilterModal({
   ref,
   ...props
 }: FilterModalProps) {
+  // Determine if this is a custom specialized filter (like History or Blog)
+  const isCustomFilter = Boolean(
+    statusOptions || paymentOptions || platformOptions || gameOptions
+  );
+
+  const activeCategoriesList =
+    categories ?? (isCustomFilter ? undefined : DEFAULT_CATEGORIES);
+  const activeGenresList =
+    genres ?? (isCustomFilter ? undefined : DEFAULT_GENRES);
+  const activeLaunchersList =
+    launchers ?? (isCustomFilter ? undefined : DEFAULT_LAUNCHERS);
+
   // Internal selection states
   const [internalCategories, setInternalCategories] = React.useState<string[]>(
     []
@@ -100,6 +115,7 @@ export function FilterModal({
   const [internalGenres, setInternalGenres] = React.useState<string[]>([]);
   const [internalLaunchers, setInternalLaunchers] = React.useState<string[]>([]);
   const [internalStatus, setInternalStatus] = React.useState<string[]>([]);
+  const [internalPayments, setInternalPayments] = React.useState<string[]>([]);
   const [internalPlatforms, setInternalPlatforms] = React.useState<string[]>([]);
   const [internalGames, setInternalGames] = React.useState<string[]>([]);
   const [internalSort, setInternalSort] = React.useState<string>("Terbaru");
@@ -111,6 +127,7 @@ export function FilterModal({
   const activeGenres = propGenres ?? internalGenres;
   const activeLaunchers = propLaunchers ?? internalLaunchers;
   const activeStatus = propStatus ?? internalStatus;
+  const activePayments = propPayments ?? internalPayments;
   const activePlatforms = propPlatforms ?? internalPlatforms;
   const activeGames = propGames ?? internalGames;
   const activeSort = propSort ?? internalSort;
@@ -263,6 +280,7 @@ export function FilterModal({
     setInternalGenres([]);
     setInternalLaunchers([]);
     setInternalStatus([]);
+    setInternalPayments([]);
     setInternalPlatforms([]);
     setInternalGames([]);
     setInternalSort("Terbaru");
@@ -285,8 +303,8 @@ export function FilterModal({
     <div
       ref={ref}
       className={cn(
-        "flex flex-col gap-8 p-6 rounded-lg bg-deep-blue-950 border border-white/5  text-gray-50 select-none w-full",
-        className
+        "flex flex-col gap-8 p-6 rounded-lg bg-deep-blue-950 border border-gradient-secondary text-gray-50 select-none w-full",
+        variant === "inline" && className
       )}
       {...props}
     >
@@ -308,39 +326,40 @@ export function FilterModal({
       </div>
 
       {/* 2. Top Category Pills */}
-      {categories && categories.length > 0 && (
+      {activeCategoriesList && activeCategoriesList.length > 0 && (
         <div className="flex flex-wrap items-center gap-2">
-          {categories.map((cat) => {
-              const isSelected = activeCategories.includes(cat);
-              return (
-                <Button
-                  key={cat}
-                  type="button"
-                  variant={isSelected ? "active" : "inactive"}
-                  size="sm"
-                  onClick={() =>
-                    handleToggle(
-                      cat,
-                      activeCategories,
-                      setInternalCategories,
-                      onToggleCategory
-                    )
-                  }
-                >
-                  {cat}
-                </Button>
-              );
-            })}
+          {activeCategoriesList.map((cat) => {
+            const isSelected = activeCategories.includes(cat);
+            return (
+              <Button
+                key={cat}
+                type="button"
+                variant={isSelected ? "active" : "inactive"}
+                size="sm"
+                className="text-gray-400"
+                onClick={() =>
+                  handleToggle(
+                    cat,
+                    activeCategories,
+                    setInternalCategories,
+                    onToggleCategory
+                  )
+                }
+              >
+                {cat}
+              </Button>
+            );
+          })}
         </div>
       )}
 
-      {/* 3. Main Genres List (or Status for Blogs) */}
+      {/* 3. Main Genres List (or Status for Blogs / History) */}
       {statusOptions && statusOptions.length > 0 && (
         <div className="flex flex-col gap-3">
-          <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
+          <span className="text-body-sm text-gray-400  uppercase ">
             STATUS
           </span>
-          <div className="flex flex-wrap items-center gap-2">
+          <div className="flex items-center gap-2 w-full">
             {statusOptions.map((status) => {
               const isSelected = activeStatus.includes(status);
               return (
@@ -349,6 +368,7 @@ export function FilterModal({
                   type="button"
                   variant={isSelected ? "active" : "inactive"}
                   size="sm"
+                  className="flex-1 justify-center text-gray-400"
                   onClick={() =>
                     handleToggle(
                       status,
@@ -367,13 +387,13 @@ export function FilterModal({
       )}
 
       {/* 3b. Genres List if not using custom status */}
-      {!statusOptions && genres && genres.length > 0 && (
+      {!statusOptions && activeGenresList && activeGenresList.length > 0 && (
         <div className="flex flex-col gap-3">
-          <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
+          <span className="text-body-sm text-gray-400  uppercase ">
             GENRE
           </span>
           <div className="flex flex-wrap items-center gap-2">
-            {genres.map((genre, idx) => {
+            {activeGenresList.map((genre, idx) => {
               const isSelected = activeGenres.includes(genre);
               return (
                 <Button
@@ -381,6 +401,7 @@ export function FilterModal({
                   type="button"
                   variant={isSelected ? "active" : "inactive"}
                   size="sm"
+                  className="text-gray-400"
                   onClick={() =>
                     handleToggle(
                       genre,
@@ -401,7 +422,7 @@ export function FilterModal({
       {/* 4. Platform Section (Blog Platform or General Launchers) */}
       {platformOptions && platformOptions.length > 0 ? (
         <div className="flex flex-col gap-3">
-          <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
+          <span className="text-body-sm text-gray-400  uppercase ">
             PLATFORM
           </span>
           <div className="flex flex-wrap items-center gap-2">
@@ -413,6 +434,7 @@ export function FilterModal({
                   type="button"
                   variant={isSelected ? "active" : "inactive"}
                   size="sm"
+                  className="text-gray-400"
                   onClick={() =>
                     handleToggle(
                       platform,
@@ -428,13 +450,13 @@ export function FilterModal({
             })}
           </div>
         </div>
-      ) : launchers && launchers.length > 0 ? (
+      ) : activeLaunchersList && activeLaunchersList.length > 0 ? (
         <div className="flex flex-col gap-3">
-          <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
+          <span className="text-body-sm text-gray-400  uppercase ">
             LAUNCHER
           </span>
           <div className="flex flex-wrap items-center gap-2">
-            {launchers.map((launcher) => {
+            {activeLaunchersList.map((launcher) => {
               const isSelected = activeLaunchers.includes(launcher);
               return (
                 <Button
@@ -442,6 +464,7 @@ export function FilterModal({
                   type="button"
                   variant={isSelected ? "active" : "inactive"}
                   size="sm"
+                  className="text-gray-400"
                   onClick={() =>
                     handleToggle(
                       launcher,
@@ -462,7 +485,7 @@ export function FilterModal({
       {/* 4b. Game Section */}
       {gameOptions && gameOptions.length > 0 && (
         <div className="flex flex-col gap-3">
-          <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
+          <span className="text-body-sm text-gray-400  uppercase ">
             GAME
           </span>
           <div className="flex flex-wrap items-center gap-2">
@@ -474,6 +497,7 @@ export function FilterModal({
                   type="button"
                   variant={isSelected ? "active" : "inactive"}
                   size="sm"
+                  className="text-gray-400"
                   onClick={() =>
                     handleToggle(
                       game,
@@ -491,10 +515,43 @@ export function FilterModal({
         </div>
       )}
 
+      {/* 4c. Payment Method Section (History / Checkout Filter) */}
+      {paymentOptions && paymentOptions.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <span className="text-body-sm text-gray-400  uppercase ">
+            METODE PEMBAYARAN
+          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            {paymentOptions.map((method) => {
+              const isSelected = activePayments.includes(method);
+              return (
+                <Button
+                  key={method}
+                  type="button"
+                  variant={isSelected ? "active" : "inactive"}
+                  size="sm"
+                  className="text-gray-400"
+                  onClick={() =>
+                    handleToggle(
+                      method,
+                      activePayments,
+                      setInternalPayments,
+                      onTogglePayment
+                    )
+                  }
+                >
+                  {method}
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
       {/* 5. Interactive Price Range Section */}
       {showPriceRange && (
         <div className="flex flex-col gap-3">
-          <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
+          <span className="text-body-sm text-gray-400  uppercase ">
             PRICE RANGE
           </span>
           <div className="flex items-center gap-3 w-full">
@@ -557,7 +614,7 @@ export function FilterModal({
       {/* 6. Sort By Section */}
       {sortOptions && sortOptions.length > 0 && (
         <div className="flex flex-col gap-3">
-          <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
+          <span className="text-body-sm text-gray-400  uppercase ">
             SORT BY
           </span>
           <div className="grid grid-cols-2 gap-2">
@@ -569,7 +626,7 @@ export function FilterModal({
                   type="button"
                   variant={isSelected ? "active" : "inactive"}
                   size="sm"
-                  className="w-full justify-center"
+                  className="w-full justify-center text-gray-400"
                   onClick={() => handleSortSelect(opt)}
                 >
                   {opt}

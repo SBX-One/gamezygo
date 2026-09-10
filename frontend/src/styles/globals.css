@@ -8,7 +8,7 @@
     text-rendering: optimizeLegibility;
     background-color: var(--color-deep-blue-950, #0e0e14);
     color: var(--color-gray-50, #fafafa);
-    overflow-x: hidden;
+    overflow-x: clip;
     scrollbar-width: none;
     -ms-overflow-style: none;
   }

@@ -83,10 +83,10 @@ export function Table<T>({
   return (
     <div
       ref={ref}
-      className={cn("w-full flex flex-col gap-3 select-none", className)}
+      className={cn("w-full max-w-full min-w-0 flex flex-col gap-3 select-none", className)}
       {...props}
     >
-      <div className="w-full overflow-x-auto pb-2">
+      <div className="w-full max-w-full overflow-x-auto pb-2 scrollbar-thin">
         <div className="w-fit min-w-full flex flex-col gap-3 border-t-gradient-secondary pt-8">
           {/* =========================================================================
               1. FLOATING HEADER BAR

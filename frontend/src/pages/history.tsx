@@ -7,10 +7,10 @@ import {
   StatCard,
   EmptyState,
   Pill,
+  FilterModal,
 } from "@/components/ui";
 import {
   OrderHistoryTable,
-  OrderHistoryFilter,
   TransactionDetailModal,
   DEFAULT_HISTORY_STATS,
   EMPTY_HISTORY_STATS,
@@ -102,6 +102,15 @@ const BookReceiptIcon = (props: React.SVGProps<SVGSVGElement>) => (
     />
   </svg>
 );
+
+const STATUS_CHOICES: OrderStatus[] = ["Berhasil", "Pending", "Gagal"];
+const PAYMENT_CHOICES = [
+  "BCA Virtual",
+  "BRI Virtual",
+  "QRIS",
+  "BNI Virtual",
+];
+const SORT_CHOICES = ["Terbaru", "Nama (A - Z)"];
 
 const INITIAL_FILTER: HistoryFilterState = {
   status: [],
@@ -229,24 +238,23 @@ export default function HistoryPage() {
         activeNavId="toko"
         navbarVariant="private"
       >
-        <div className="w-full flex flex-col gap-12 pb-16">
+        <div className="w-full max-w-full min-w-0 flex flex-col gap-12 pb-16">
           {/* =========================================================================
               1. PAGE TITLE & SUBTITLE WITH RED ACCENT BAR
               ========================================================================= */}
-        <section className="flex flex-col gap-2 py-3 border-l-gradient-primary pl-6 sm:pl-8">
-            <h1 className="text-h2 font-semibold leading-[120%] text-gradient-heading w-fit">
+          <section className="flex flex-col gap-2 py-3 border-l-gradient-primary pl-6 sm:pl-8 max-w-full">
+            <h1 className="text-h2 font-semibold leading-[120%] text-gradient-heading w-fit max-w-full">
               Riwayat Pesanan
             </h1>
-            <p className="text-body-xs text-gray-400  leading-relaxed">
-            Lihat list game yang sudah anda beli!
+            <p className="text-body-xs text-gray-400 leading-relaxed">
+              Lihat list game yang sudah anda beli!
             </p>
           </section>
-
 
           {/* =========================================================================
               2. STAT CARDS (Total Payment, Total Points, Total Games)
               ========================================================================= */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full max-w-full">
             <StatCard
               label="Total Payment"
               value={currentStats.totalPayment}
@@ -260,7 +268,7 @@ export default function HistoryPage() {
             <StatCard
               label="Total Games"
               value={currentStats.totalGames}
-              className="border border-white/5"
+              className="border border-white/5 md:col-span-2 lg:col-span-1"
             />
           </div>
 
@@ -301,7 +309,7 @@ export default function HistoryPage() {
             /* =========================================================================
                 DEFAULT / FILTERED VIEW (Screenshot 1, 3, 5)
                 ========================================================================= */
-            <div className="relative flex flex-col gap-6">
+            <div className="relative flex flex-col gap-6 w-full max-w-full min-w-0">
               {/* Controls Bar: Active Filter Chips + Filter Button */}
               <div className="flex items-center justify-end flex-wrap gap-3">
                 {/* Active Filter Chips (Screenshot 5) */}
@@ -340,26 +348,57 @@ export default function HistoryPage() {
                   </Button>
                 )}
 
-                {/* Filter Trigger Button */}
-                <Button
-                
-                  variant="secondary"
-                  size="sm"
-                  rightIcon={<FilterIcon />}
-                  onClick={() => setIsFilterOpen((prev) => !prev)}
-                >
-                  Filter
-                </Button>
+                {/* Filter Trigger Button & Anchored Dropdown */}
+                <div className="relative">
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    rightIcon={<FilterIcon />}
+                    onClick={() => setIsFilterOpen((prev) => !prev)}
+                  >
+                    Filter
+                  </Button>
 
-                {/* Filter & Sort Drawer Overlay (Screenshot 3) */}
-                <OrderHistoryFilter
-                  isOpen={isFilterOpen}
-                  onClose={() => setIsFilterOpen(false)}
-                  filterState={filterState}
-                  onFilterChange={setFilterState}
-                  onReset={handleResetFilter}
-                  onApply={handleApplyFilter}
-                />
+                  {/* Filter & Sort Drawer Overlay */}
+                  <FilterModal
+                    isOpen={isFilterOpen}
+                    variant="dropdown"
+                    className="sm:right-0 sm:top-12 lg:right-0 w-[calc(100vw-32px)] sm:w-[440px] md:w-[460px]"
+                    onClose={() => setIsFilterOpen(false)}
+                    statusOptions={STATUS_CHOICES}
+                    selectedStatus={filterState.status}
+                    onToggleStatus={(status) => {
+                      const exists = filterState.status.includes(status as OrderStatus);
+                      const newStatus = exists
+                        ? filterState.status.filter((s) => s !== status)
+                        : [...filterState.status, status as OrderStatus];
+                      setFilterState({ ...filterState, status: newStatus });
+                    }}
+                    paymentOptions={PAYMENT_CHOICES}
+                    selectedPayments={filterState.paymentMethods}
+                    onTogglePayment={(method) => {
+                      const exists = filterState.paymentMethods.includes(method);
+                      const newMethods = exists
+                        ? filterState.paymentMethods.filter((m) => m !== method)
+                        : [...filterState.paymentMethods, method];
+                      setFilterState({ ...filterState, paymentMethods: newMethods });
+                    }}
+                    minPrice={0}
+                    maxPrice={1000000}
+                    priceStep={25000}
+                    priceRange={filterState.priceRange}
+                    onPriceRangeChange={(range) =>
+                      setFilterState({ ...filterState, priceRange: range })
+                    }
+                    sortOptions={SORT_CHOICES}
+                    selectedSort={filterState.sortBy}
+                    onSelectSort={(sort) =>
+                      setFilterState({ ...filterState, sortBy: sort })
+                    }
+                    onReset={handleResetFilter}
+                    onApply={handleApplyFilter}
+                  />
+                </div>
               </div>
 
               {/* Table of Orders */}

@@ -34,7 +34,7 @@ export const buttonVariants = cva(
         ghost:
           "bg-transparent text-gray-50 !rounded-none hover:[&_.button-main-text]:text-deep-blue-400 active:[&_.button-main-text]:text-deep-blue-400 hover:[&_.button-left-icon]:text-deep-blue-100 hover:[&_.button-right-icon]:text-deep-blue-100 active:[&_.button-left-icon]:text-deep-blue-100 active:[&_.button-right-icon]:text-deep-blue-100  active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none",
         inactive:
-          "border-gradient-inactive text-gray-50 hover:[&_.button-left-icon]:text-deep-blue-100 hover:[&_.button-right-icon]:text-deep-blue-100 active:[&_.button-left-icon]:text-deep-blue-100 active:[&_.button-right-icon]:text-deep-blue-100  active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none",
+          "border-gradient-inactive text-gray-400 hover:text-gray-200 hover:[&_.button-left-icon]:text-deep-blue-100 hover:[&_.button-right-icon]:text-deep-blue-100 active:[&_.button-left-icon]:text-deep-blue-100 active:[&_.button-right-icon]:text-deep-blue-100 active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none",
         inactiveDashboard:
           "bg-transparent text-gray-50   hover:[&_.button-left-icon]:text-deep-blue-100 hover:[&_.button-right-icon]:text-deep-blue-100 active:[&_.button-left-icon]:text-deep-blue-100 active:[&_.button-right-icon]:text-deep-blue-100  active:scale-98 focus-visible:ring-2 focus-visible:ring-gray-50 disabled:opacity-50 disabled:pointer-events-none",
         active:
@@ -166,7 +166,7 @@ export function Button({
       {children && (
         <span
           className={cn(
-            "button-main-text text-gray-50 inline-flex items-center gap-4",
+            "button-main-text inline-flex items-center gap-4",
             buttonTextSizeClasses[currentSize]
           )}
         >

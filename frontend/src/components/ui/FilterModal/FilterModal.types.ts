@@ -40,6 +40,8 @@ export interface FilterModalProps
   showPriceRange?: boolean;
   /** Daftar opsi status (e.g. Hot Deals, New Release, Coming Soon, Action) */
   statusOptions?: string[];
+  /** Daftar opsi metode pembayaran (e.g. BCA Virtual, QRIS, BRI Virtual) */
+  paymentOptions?: string[];
   /** Daftar opsi platform (e.g. Steam, Epic Games, Play Station) */
   platformOptions?: string[];
   /** Daftar opsi game (e.g. Elden Ring, Cyberpunk, GTA 6) */
@@ -51,6 +53,7 @@ export interface FilterModalProps
   selectedSort?: string;
   selectedTags?: string[];
   selectedStatus?: string[];
+  selectedPayments?: string[];
   selectedPlatforms?: string[];
   selectedGames?: string[];
   onToggleCategory?: (category: string) => void;
@@ -59,6 +62,7 @@ export interface FilterModalProps
   onSelectSort?: (sort: string) => void;
   onToggleTag?: (tag: string) => void;
   onToggleStatus?: (status: string) => void;
+  onTogglePayment?: (payment: string) => void;
   onTogglePlatform?: (platform: string) => void;
   onToggleGame?: (game: string) => void;
   /** React 19 native ref */

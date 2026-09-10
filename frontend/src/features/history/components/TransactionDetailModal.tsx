@@ -52,6 +52,49 @@ export function TransactionDetailModal({
     setCurrentStatus(order.status);
   }
 
+  // Prevent background scrolling without altering body overflow (keeps sticky navbar and scroll position intact)
+  React.useEffect(() => {
+    if (!isOpen) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      const card = document.getElementById("transaction-detail-modal-card");
+      if (card && card.contains(e.target as Node)) {
+        return; // Allow scrolling inside the modal card
+      }
+      e.preventDefault();
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const card = document.getElementById("transaction-detail-modal-card");
+      if (card && card.contains(e.target as Node)) {
+        return; // Allow touch scrolling inside the modal card
+      }
+      e.preventDefault();
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+      if (["Space", "PageDown", "PageUp", "Home", "End"].includes(e.code)) {
+        const card = document.getElementById("transaction-detail-modal-card");
+        if (!card || !card.contains(e.target as Node)) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   if (!isOpen || !order) return null;
 
   const handleCheckStatus = () => {
@@ -83,20 +126,19 @@ export function TransactionDetailModal({
   const isStep3Active = isBerhasil;
 
   return (
-    <>
-      {/* 1. Backdrop */}
+    /* 1. Backdrop Overlay (Click outside to close) */
+    <div
+      className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 overflow-hidden animate-fade-in touch-none"
+      onClick={onClose}
+    >
+      {/* 2. Modal Card (Stop propagation so clicking inside doesn't close) */}
       <div
-        className="fixed inset-0 z-50 bg-black/70 backdrop-blur-xs flex items-center justify-center p-4 transition-opacity"
-        onClick={onClose}
-      />
-
-      {/* 2. Modal Card */}
-      <div
+        id="transaction-detail-modal-card"
         role="dialog"
         aria-modal="true"
         aria-labelledby="transaction-detail-title"
         className={cn(
-          "fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 z-50 w-full max-w-126 rounded-lg bg-deep-blue-950 border border-white/10 p-6 shadow-2xl flex flex-col gap-8 select-none",
+          "relative w-full max-w-126 my-auto rounded-lg bg-deep-blue-950 border border-white/10 p-6 shadow-2xl flex flex-col gap-8 select-none max-h-[90vh] overflow-y-auto overscroll-contain scrollbar-thin touch-auto",
           className
         )}
         onClick={(e) => e.stopPropagation()}
@@ -264,6 +306,6 @@ export function TransactionDetailModal({
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 }

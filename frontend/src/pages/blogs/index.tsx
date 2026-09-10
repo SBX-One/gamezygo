@@ -354,10 +354,9 @@ export default function BlogsPage() {
               <section className="flex flex-col items-center text-center pt-12   pb-10xl">
                 {/* State Switcher for Dev/Testing */}
                 <div className="flex items-center gap-2 mb-8">
-                  <Pill  variant="secondary">
+                  <Pill variant="secondary">
                     Promo Musim Panas Telah Datang!
                   </Pill>
-        
                 </div>
 
                 {/* Big Title */}
@@ -668,4 +667,3 @@ export default function BlogsPage() {
     </>
   );
 }
-

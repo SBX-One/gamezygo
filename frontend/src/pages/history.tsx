@@ -7,11 +7,11 @@ import {
   StatCard,
   EmptyState,
   Pill,
-  FilterModal,
 } from "@/components/ui";
 import {
   OrderHistoryTable,
   TransactionDetailModal,
+  OrderHistoryFilter,
   DEFAULT_HISTORY_STATS,
   EMPTY_HISTORY_STATS,
   MOCK_HISTORY_ORDERS,
@@ -360,10 +360,8 @@ export default function HistoryPage() {
                   </Button>
 
                   {/* Filter & Sort Drawer Overlay */}
-                  <FilterModal
+                  <OrderHistoryFilter
                     isOpen={isFilterOpen}
-                    variant="dropdown"
-                    className="sm:right-0 sm:top-12 lg:right-0 w-[calc(100vw-32px)] sm:w-[440px] md:w-[460px]"
                     onClose={() => setIsFilterOpen(false)}
                     statusOptions={STATUS_CHOICES}
                     selectedStatus={filterState.status}

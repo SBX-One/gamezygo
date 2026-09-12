@@ -87,7 +87,7 @@ export function ProductCardRow({
          ======================================================== */}
       <div
         className={cn(
-          "pointer-events-none absolute -left-4 top-0 bottom-0 w-16 sm:w-24 bg-gradient-to-r from-deep-blue-950 via-deep-blue-950/80 to-transparent z-20 transition-opacity duration-300",
+          "pointer-events-none absolute -left-4 top-0 bottom-0 w-16 sm:w-24 bg-linear-to-r from-deep-blue-950 via-deep-blue-950/80 to-transparent z-20 transition-opacity duration-300",
           canScrollLeft ? "opacity-100" : "opacity-0"
         )}
         aria-hidden="true"
@@ -98,7 +98,7 @@ export function ProductCardRow({
          ======================================================== */}
       <div
         className={cn(
-          "pointer-events-none absolute -right-4 top-0 bottom-0 w-20 sm:w-32 lg:w-44 bg-gradient-to-l from-deep-blue-950 via-deep-blue-950/85 to-transparent z-20 transition-opacity duration-300",
+          "pointer-events-none absolute -right-4 top-0 bottom-0 w-20 sm:w-32 lg:w-44 bg-linear-to-l from-deep-blue-950 via-deep-blue-950/85 to-transparent z-20 transition-opacity duration-300",
           canScrollRight ? "opacity-100" : "opacity-0"
         )}
         aria-hidden="true"
@@ -110,12 +110,12 @@ export function ProductCardRow({
       <div
         ref={scrollContainerRef}
         onScroll={checkScroll}
-        className="flex gap-3 sm:gap-5 overflow-x-auto overflow-y-hidden no-scrollbar pb-3 pt-1 -mx-1 px-1 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        className="flex gap-3 sm:gap-5 overflow-x-auto overflow-y-hidden no-scrollbar pb-3 pt-1 -mx-1 px-1 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
         {products.map((product) => (
           <div
             key={product.id}
-            className="w-[240px] sm:w-[calc(50%-10px)] lg:w-[calc((100%-45px)/4)] shrink-0 flex flex-col"
+            className="w-60 sm:w-[calc(50%-10px)] lg:w-[calc((100%-45px)/4)] shrink-0 flex flex-col"
           >
             <ProductCard
               title={product.title}

@@ -281,6 +281,46 @@ const BookGuideIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+const ArrowLeftIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-4 h-4 shrink-0"
+    {...props}
+  >
+    <path
+      d="M19 12H5M5 12L12 19M5 12L12 5"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const ArrowRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-4 h-4 shrink-0"
+    {...props}
+  >
+    <path
+      d="M5 12H19M19 12L12 5M19 12L12 19"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 // ============================================================================
 // MOCK TESTIMONIAL DATA
 // ============================================================================
@@ -361,6 +401,22 @@ export default function GameStoreDetailPage() {
   const [showPassword, setShowPassword] = React.useState(false);
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
   const [opinionInput, setOpinionInput] = React.useState("");
+
+  const thumbnailsRef = React.useRef<HTMLDivElement>(null);
+
+  const handlePrevMedia = () => {
+    setActiveMediaIndex((prev) => (prev > 0 ? prev - 1 : mediaList.length - 1));
+    if (thumbnailsRef.current) {
+      thumbnailsRef.current.scrollBy({ left: -140, behavior: "smooth" });
+    }
+  };
+
+  const handleNextMedia = () => {
+    setActiveMediaIndex((prev) => (prev < mediaList.length - 1 ? prev + 1 : 0));
+    if (thumbnailsRef.current) {
+      thumbnailsRef.current.scrollBy({ left: 140, behavior: "smooth" });
+    }
+  };
 
   // Quadrupled items for seamless infinite moving carousel (matching blogs/[id].tsx)
   const infiniteTestimonials = React.useMemo(() => {
@@ -729,11 +785,11 @@ export default function GameStoreDetailPage() {
           {/* =========================================================================
               MAIN GRID: 1 Column on Mobile/Tablet (< lg), 7 Columns on Desktop (>= lg)
               ========================================================================= */}
-          <section className="w-full max-w-full min-w-0 grid grid-cols-1 lg:grid-cols-7 gap-8 lg:gap-12 items-start">
+          <section className="w-full max-w-full min-w-0 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
             {/* =====================================================================
                 LEFT COLUMN (4 cols on Desktop, full width on Mobile/Tablet)
                 ===================================================================== */}
-            <div className="w-full min-w-0 max-w-full flex flex-col gap-30 lg:gap-11xl col-span-1 lg:col-span-4">
+            <div className="w-full min-w-0 max-w-full flex flex-col gap-30 lg:gap-11xl col-span-1 lg:col-span-7">
               {/* Media & Badges Section */}
               <section className="grid gap-6 sm:gap-10 min-w-0 max-w-full">
                 <div className="flex flex-col gap-4 sm:gap-5 min-w-0 max-w-full">
@@ -758,12 +814,29 @@ export default function GameStoreDetailPage() {
                     <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
                   </div>
 
-                  {/* Thumbnails Row (Contained in overflow-hidden with horizontal scroll inside) */}
-                  <div className="w-full min-w-0 max-w-full overflow-hidden">
-                    <div className="w-full flex gap-2.5 sm:gap-3 overflow-x-auto no-scrollbar py-2">
+                  {/* Thumbnails Row with Left and Right Navigation Buttons */}
+                  <div className="w-full min-w-0 max-w-full flex items-center gap-2.5 sm:gap-3">
+                    {/* Previous Button */}
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      className="w-12 sm:w-16 h-13 sm:h-16 p-0 shrink-0 flex items-center justify-center rounded-lg cursor-pointer"
+                      onClick={handlePrevMedia}
+                      aria-label="Media sebelumnya"
+                    >
+                      <ArrowLeftIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-50" />
+                    </Button>
+
+                    {/* Scrollable Thumbnails */}
+                    <div
+                      ref={thumbnailsRef}
+                      className="flex-1 min-w-0 flex gap-2.5 sm:gap-3 overflow-x-auto no-scrollbar py-1 scroll-smooth"
+                    >
                       {mediaList.map((thumb, idx) => (
                         <button
                           key={`thumb-${idx}`}
+                          type="button"
                           onClick={() => setActiveMediaIndex(idx)}
                           className={`relative w-20 sm:w-28 aspect-video rounded-lg overflow-hidden border transition-all shrink-0 cursor-pointer ${
                             activeMediaIndex === idx
@@ -779,13 +852,25 @@ export default function GameStoreDetailPage() {
                         </button>
                       ))}
                     </div>
+
+                    {/* Next Button */}
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      className="w-12 sm:w-16 h-13 sm:h-16 p-0 shrink-0 flex items-center justify-center rounded-lg cursor-pointer"
+                      onClick={handleNextMedia}
+                      aria-label="Media berikutnya"
+                    >
+                      <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-50" />
+                    </Button>
                   </div>
                 </div>
 
                 {/* Badges Row (Genre, Rating, Launcher) */}
-                <div className="w-full min-w-0 max-w-full grid grid-cols-3 items-center justify-between gap-2 sm:gap-5 pt-2 sm:pt-4">
+                <div className="w-full min-w-0 jus max-w-full flex gap-2 sm:gap-5 pt-2 sm:pt-4">
                   <div className="flex flex-col gap-1 sm:gap-1.5 min-w-0 overflow-hidden">
-                    <span className="text-body-xs text-gray-400">
+                    <span className="text-body-sm text-gray-400">
                       GENRE
                     </span>
                     <div className="relative w-full overflow-hidden">
@@ -809,29 +894,29 @@ export default function GameStoreDetailPage() {
                   </div>
 
                   {/* Divider 1: border-x-gradient-secondary wrapper */}
-                  <div className="flex border-x-gradient-secondary justify-center px-1 sm:px-4 min-w-0">
-                    <div className="flex flex-col gap-1 sm:gap-1.5 shrink-0 items-center">
-                      <span className="text-body-xs text-gray-400">
+                  <div className="flex border-x-gradient-secondary px-8 min-w-0">
+                    <div className="flex flex-col gap-1 sm:gap-1.5 shrink-0">
+                      <span className="text-body-sm text-gray-400">
                         RATING
                       </span>
-                      <div className="flex items-center gap-1 sm:gap-2">
-                        <span className="text-body-sm font-semibold text-white">4.0</span>
+                      <div className="flex items-center justify-center gap-1 sm:gap-2">
+                        <span className="text-body-md font-semibold text-white">4.0</span>
                         <div className="flex items-center gap-0.5 sm:gap-1 text-white">
-                          <StarFilledIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current text-white shrink-0" />
-                          <StarFilledIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current text-white shrink-0" />
-                          <StarFilledIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current text-white shrink-0" />
-                          <StarFilledIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current text-white shrink-0" />
-                          <StarRegularIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current text-gray-500 shrink-0" />
+                          <StarFilledIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-white shrink-0" />
+                          <StarFilledIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-white shrink-0" />
+                          <StarFilledIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-white shrink-0" />
+                          <StarFilledIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-white shrink-0" />
+                          <StarRegularIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-gray-500 shrink-0" />
                         </div>
                       </div>
                     </div>
                   </div>
 
                   <div className="flex flex-col gap-1 sm:gap-1.5 shrink-0 items-center sm:items-start pl-1 sm:pl-2 min-w-0">
-                    <span className="text-body-xs text-gray-400">
+                    <span className="text-body-sm text-gray-400">
                       LAUNCHER
                     </span>
-                    <span className="text-body-sm font-semibold text-gray-50">
+                    <span className="text-body-md font-semibold text-gray-50">
                       Steam
                     </span>
                   </div>
@@ -1009,7 +1094,7 @@ export default function GameStoreDetailPage() {
                 ===================================================================== */}
             <div 
               style={{ position: "sticky", top: "150px" }}
-              className="hidden lg:flex w-full self-start flex-col gap-6 col-span-3 min-w-0 z-10"
+              className="hidden lg:flex w-full self-start flex-col gap-6 col-span-5 min-w-0 z-10"
             >
               {productInfoAndActions}
             </div>

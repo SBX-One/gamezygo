@@ -292,15 +292,15 @@ export default function CartPage() {
           <div className="lg:col-span-6 w-full sticky top-28">
             <div className=" rounded-lg border-gradient-secondary p-6 flex flex-col gap-8">
               {/* Card Header */}
-              <div className="flex flex-col gap-4">
+              {/* <div className="flex flex-col gap-4">
                 <h2 className="text-body-lg font-semibold text-white tracking-normal">
                   Detail Transaksi
                 </h2>
                 <div className="w-full border-b-gradient-secondary" />
-              </div>
+              </div> */}
 
               {/* VOUCHER INPUT SECTION */}
-              <div className="flex flex-col gap-3">
+              {/* <div className="flex flex-col gap-3">
                 <label
                   htmlFor="voucher-input"
                   className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider"
@@ -351,10 +351,10 @@ export default function CartPage() {
                     </Button>
                   </div>
                 )}
-              </div>
+              </div> */}
 
               {/* DETAIL PESANAN SECTION */}
-              <div className="flex flex-col gap-3">
+              {/* <div className="flex flex-col gap-3">
                 <span className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
                   DETAIL PESANAN
                 </span>
@@ -383,7 +383,7 @@ export default function CartPage() {
                   <span className="text-gray-400">-</span>
                 </div>
 
-              </div>
+              </div> */}
 
               {/* TOTAL BELANJA BOX */}
               <div className="bg-surface-secondary-default border-gradient-secondary rounded-lg px-4 py-3.5 flex items-center justify-between">

@@ -8,6 +8,8 @@ export interface FilterModalProps
   isDialog?: boolean;
   /** Tipe tampilan filter: 'dropdown' (default), 'dialog' (modal di tengah), atau 'inline' */
   variant?: "dropdown" | "dialog" | "inline";
+  /** Penempatan/konteks filter: 'navbar' (default, z-50 top-20) atau 'content' (z-30 relative top-12) */
+  placement?: "navbar" | "content";
   /** Callback saat tombol close atau backdrop diklik */
   onClose?: () => void;
   /** Callback saat tombol Reset diklik */

@@ -236,7 +236,7 @@ export default function BlogDetailPage() {
             </div>
 
             {/* C. TITLE & METADATA + INTRO PARAGRAPHS (2 Columns) */}
-            <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start mt-10 sm:mt-12 border-l-gradient-primary pl-4 sm:pl-6 my-2">
+            <section className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start mt-10 sm:mt-12 border-l-gradient-primary pb-6 pl-4 sm:pl-6 my-2">
               {/* Left Column (Pill, Heading with Red Border, Date) */}
               <div className="lg:col-span-6 flex flex-col gap-3">
                 <div className="w-fit">
@@ -388,7 +388,7 @@ export default function BlogDetailPage() {
                 onActionClick={() => router.push("/blogs")}
               />
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-8">
+              <div className="grid grid-cols-1 md:grid-cols-2  gap-x-5 gap-y-12 mt-8 ">
                 {relatedBlogs.map((b) => (
                   <BlogCard
                     key={b.id}

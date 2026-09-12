@@ -891,6 +891,7 @@ export default function BundlePage() {
                   <FilterModal
                     isOpen={isFilterModalOpen}
                     variant="dropdown"
+                    placement="content"
                     onClose={() => setIsFilterModalOpen(false)}
                     className="sm:top-12 sm:right-0 lg:right-0"
                     selectedCategories={modalCategories}

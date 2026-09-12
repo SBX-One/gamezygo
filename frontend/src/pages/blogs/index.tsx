@@ -166,7 +166,8 @@ export default function BlogsPage() {
   };
 
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [isFilterModalOpen, setIsFilterModalOpen] = React.useState(false);
+  const [isNavbarFilterOpen, setIsNavbarFilterOpen] = React.useState(false);
+  const [isContentFilterOpen, setIsContentFilterOpen] = React.useState(false);
 
   // Staged Filter States (edited in modal before clicking Apply)
   const [modalCategories, setModalCategories] = React.useState<string[]>([]);
@@ -212,13 +213,24 @@ export default function BlogsPage() {
     setModalSort("Terbaru");
   };
 
-  const handleOpenFilterModal = () => {
+  const handleOpenNavbarFilter = () => {
     setModalCategories(appliedCategories);
     setModalStatus(appliedStatus);
     setModalPlatforms(appliedPlatforms);
     setModalGames(appliedGames);
     setModalSort(appliedSort);
-    setIsFilterModalOpen((prev) => !prev);
+    setIsContentFilterOpen(false);
+    setIsNavbarFilterOpen((prev) => !prev);
+  };
+
+  const handleOpenContentFilter = () => {
+    setModalCategories(appliedCategories);
+    setModalStatus(appliedStatus);
+    setModalPlatforms(appliedPlatforms);
+    setModalGames(appliedGames);
+    setModalSort(appliedSort);
+    setIsNavbarFilterOpen(false);
+    setIsContentFilterOpen((prev) => !prev);
   };
 
   // Filter logic (applies searchQuery and applied filter states)
@@ -307,10 +319,64 @@ export default function BlogsPage() {
           setSearchQuery("");
           setPreviewState("default");
         }}
-        onFilterClick={handleOpenFilterModal}
+        onFilterClick={handleOpenNavbarFilter}
         onCartClick={() => {}}
-        contentClassName="w-full max-w-360 mx-auto px-4 sm:px-8 lg:px-20 pt-12 pb-20 flex flex-col"
+        contentClassName="w-full  mx-auto px-4 sm:px-8 lg:px-10 pt-12 pb-20 flex flex-col"
       >
+        {/* ========================================================
+            NAVBAR FILTER & SORT DROPDOWN (placement="navbar", z-50)
+           ======================================================== */}
+        <FilterModal
+          isOpen={isNavbarFilterOpen}
+          variant="dropdown"
+          placement="navbar"
+          onClose={() => setIsNavbarFilterOpen(false)}
+          title="Filter & Sort"
+          categories={CATEGORIES}
+          selectedCategories={modalCategories}
+          onToggleCategory={(cat) => {
+            setModalCategories((prev) =>
+              prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+            );
+          }}
+          statusOptions={STATUS_OPTIONS}
+          selectedStatus={modalStatus}
+          onToggleStatus={(st) => {
+            setModalStatus((prev) =>
+              prev.includes(st) ? prev.filter((s) => s !== st) : [...prev, st]
+            );
+          }}
+          platformOptions={PLATFORM_OPTIONS}
+          selectedPlatforms={modalPlatforms}
+          onTogglePlatform={(pl) => {
+            setModalPlatforms((prev) =>
+              prev.includes(pl) ? prev.filter((p) => p !== pl) : [...prev, pl]
+            );
+          }}
+          gameOptions={GAME_OPTIONS}
+          selectedGames={modalGames}
+          onToggleGame={(gm) => {
+            setModalGames((prev) =>
+              prev.includes(gm) ? prev.filter((g) => g !== gm) : [...prev, gm]
+            );
+          }}
+          sortOptions={SORT_OPTIONS}
+          selectedSort={modalSort}
+          onSelectSort={setModalSort}
+          showPriceRange={false}
+          onReset={() => {
+            handleClearAllFilters();
+            setIsNavbarFilterOpen(false);
+          }}
+          onApply={() => {
+            setAppliedCategories(modalCategories);
+            setAppliedStatus(modalStatus);
+            setAppliedPlatforms(modalPlatforms);
+            setAppliedGames(modalGames);
+            setAppliedSort(modalSort);
+            setIsNavbarFilterOpen(false);
+          }}
+        />
           {/* ======================================================
               CASE A: 500 SERVER ERROR
              ====================================================== */}
@@ -351,7 +417,7 @@ export default function BlogsPage() {
                ====================================================== */
             <div className="flex flex-col w-full">
               {/* HERO SECTION */}
-              <section className="flex flex-col items-center text-center pt-12   pb-10xl">
+              <section className="flex flex-col items-center text-center pt-12   py-10xl">
                 {/* State Switcher for Dev/Testing */}
                 <div className="flex items-center gap-2 mb-8">
                   <Pill variant="secondary">
@@ -360,7 +426,7 @@ export default function BlogsPage() {
                 </div>
 
                 {/* Big Title */}
-                <h1 className="text-h3 sm:text-h2 lg:text-h1 font-semibold text-gradient-heading ">
+                <h1 className="text-h3 sm:text-h2 lg:text-h1 font-semibold text-gradient-heading w-fit ">
                   Cerita Terkini Dari
                   <br />
                   Gamezygo!
@@ -368,7 +434,7 @@ export default function BlogsPage() {
               </section>
 
               {/* FILTER & SEARCH BAR WITH BORDER-B-GRADIENT-SECONDARY */}
-              <section className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-b-gradient-secondary pb-6 mb-10">
+              <section className="w-full flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-b-gradient-secondary pb-6 mb-12">
                 {/* Left: Category Buttons or Applied Filter Badges (matching bundle.tsx concept) */}
                 <div className="flex flex-wrap items-center gap-2.5">
                   <span className="text-body-sm font-medium text-gray-400 mr-1">
@@ -539,7 +605,7 @@ export default function BlogsPage() {
                     variant="secondary"
                     size="sm"
                     className="w-10 h-10 p-0 flex items-center justify-center shrink-0 cursor-pointer"
-                    onClick={handleOpenFilterModal}
+                    onClick={handleOpenContentFilter}
                     aria-label="Buka Filter & Sort"
                     title="Filter & Sort"
                   >
@@ -548,9 +614,10 @@ export default function BlogsPage() {
 
                   {/* Floating FilterModal Dropdown (Positioned relative to trigger container) */}
                   <FilterModal
-                    isOpen={isFilterModalOpen}
+                    isOpen={isContentFilterOpen}
                     variant="dropdown"
-                    onClose={() => setIsFilterModalOpen(false)}
+                    placement="content"
+                    onClose={() => setIsContentFilterOpen(false)}
                     className="sm:top-12 sm:right-0 lg:right-0"
                     title="Filter & Sort"
                     categories={CATEGORIES}
@@ -595,7 +662,7 @@ export default function BlogsPage() {
                     showPriceRange={false}
                     onReset={() => {
                       handleClearAllFilters();
-                      setIsFilterModalOpen(false);
+                      setIsContentFilterOpen(false);
                     }}
                     onApply={() => {
                       setAppliedCategories(modalCategories);
@@ -603,7 +670,7 @@ export default function BlogsPage() {
                       setAppliedPlatforms(modalPlatforms);
                       setAppliedGames(modalGames);
                       setAppliedSort(modalSort);
-                      setIsFilterModalOpen(false);
+                      setIsContentFilterOpen(false);
                     }}
                   />
                 </div>
@@ -636,7 +703,7 @@ export default function BlogsPage() {
                     CASE D: BLOG GRID
                    ====================================================== */
                 <>
-                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full mb-12">
+                  <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-5 gap-y-12 w-full mb-12">
                     {filteredBlogs.map((blog) => (
                       <BlogCard
                         key={blog.id}
@@ -646,7 +713,7 @@ export default function BlogsPage() {
                         title={blog.title}
                         category={blog.category}
                         description={blog.description}
-                        className="shadow-none h-full"
+                        className="shadow-none h-full "
                       />
                     ))}
                   </div>

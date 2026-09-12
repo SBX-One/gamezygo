@@ -58,6 +58,7 @@ export function FilterModal({
   isOpen = true,
   isDialog = false,
   variant = "dropdown",
+  placement = "navbar",
   onClose,
   onReset,
   onApply,
@@ -622,21 +623,27 @@ export function FilterModal({
   }
 
   // Default: Dropdown Popover matching Image 3
+  const isNavbar = placement === "navbar";
+
   return (
     <>
       {/* Invisible overlay for click-outside to close */}
       <div
-        className="fixed inset-0 z-40 bg-transparent"
+        className={cn(
+          "fixed inset-0 bg-transparent",
+          isNavbar ? "z-40" : "z-25"
+        )}
         onClick={onClose}
       />
 
       {/* Floating Dropdown Card */}
       <div
         className={cn(
-          "fixed sm:absolute right-4 sm:right-8 lg:right-20 top-20 sm:top-38 z-50",
-          "w-[calc(100vw-32px)] sm:w-115 max-h-[calc(100vh-100px)] overflow-y-auto",
-          "rounded-lg  bg-[#0D121F]/98 backdrop-blur-xl",
+          "rounded-lg bg-[#0D121F]/98 backdrop-blur-xl",
           "scrollbar-thin animate-in fade-in slide-in-from-top-2 duration-150",
+          isNavbar
+            ? "fixed right-4 sm:right-6 lg:right-20 top-20 sm:top-24 lef z-50 w-[calc(100vw-32px)] sm:w-115 max-h-[calc(100vh-120px)] overflow-y-auto"
+            : "absolute right-0 top-12 z-30 w-[calc(100vw-32px)] sm:w-115 max-h-[calc(100vh-120px)] overflow-y-auto",
           className
         )}
       >

@@ -103,7 +103,7 @@ export function RequestListItem({
       </div>
 
       {/* 2. Text Details & Bottom Row */}
-      <div className="flex flex-col justify-between flex-1 min-w-0 gap-3">
+      <div className="flex flex-col justify-between flex-1 min-w-0 gap-3 py-2">
         {/* Top: Game Title & Request Date */}
         <div>
           <h3 className="font-semibold text-gray-50 text-body-md tracking-normal truncate leading-tight">

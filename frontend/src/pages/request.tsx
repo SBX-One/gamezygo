@@ -553,7 +553,7 @@ export default function RequestGamePage() {
                       setActiveTab(tab.id);
                       setForceEmptyState(false);
                     }}
-                    className={`relative pb-3 pt-2 text-center text-label-xs sm:text-label-sm font-medium transition-all duration-150 cursor-pointer px-3 sm:px-5 ${
+                    className={`relative pb-3 pt-2 sm:text-center text-label-xs sm:text-label-sm font-medium transition-all duration-150 cursor-pointer  sm:px-5 ${
                       isActive
                         ? "text-gray-50 font-semibold"
                         : "text-gray-400 hover:text-gray-50"

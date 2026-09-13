@@ -858,7 +858,7 @@ export default function BundlePage() {
 
                 {/* 3-COL SCROLLABLE GRID OF GAME LIST ITEMS WITH BOTTOM FADE SHADOW */}
                 <div className="relative">
-                  <div className="max-h-[370px] overflow-y-auto pr-1 pb-10">
+                  <div className="max-h-92.5 overflow-y-auto pr-1 pb-10">
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
                       {MINI_CATALOG_GAMES.map((game, idx) => (
                         <GameListItem
@@ -873,7 +873,7 @@ export default function BundlePage() {
                     </div>
                   </div>
                   {/* Bottom fade shadow indicator to show more scrollable items */}
-                  <div className="pointer-events-none absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-deep-blue-950 via-deep-blue-950/80 to-transparent" />
+                  <div className="pointer-events-none absolute bottom-0 inset-x-0 h-28 bg-linear-to-t from-deep-blue-950 via-deep-blue-950/80 to-transparent" />
                 </div>
               </section>
             </div>

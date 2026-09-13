@@ -146,20 +146,19 @@ function TransactionCard({ item, onClick }: TransactionCardProps) {
  */
 interface SwipeableTrackProps {
   children: React.ReactNode;
+  itemCount?: number;
 }
 
-function SwipeableTrack({ children }: SwipeableTrackProps) {
+function SwipeableTrack({ children, itemCount = 0 }: SwipeableTrackProps) {
   const containerRef = React.useRef<HTMLDivElement>(null);
   const isDown = React.useRef(false);
   const startX = React.useRef(0);
   const scrollLeft = React.useRef(0);
-  const [canScrollLeft, setCanScrollLeft] = React.useState(false);
   const [canScrollRight, setCanScrollRight] = React.useState(true);
 
   const checkScroll = React.useCallback(() => {
     if (!containerRef.current) return;
     const { scrollLeft: sLeft, scrollWidth, clientWidth } = containerRef.current;
-    setCanScrollLeft(sLeft > 10);
     setCanScrollRight(sLeft < scrollWidth - clientWidth - 10);
   }, []);
 
@@ -206,54 +205,10 @@ function SwipeableTrack({ children }: SwipeableTrackProps) {
     checkScroll();
   };
 
-  const scrollByAmount = (amount: number) => {
-    if (!containerRef.current) return;
-    containerRef.current.classList.add("scroll-smooth");
-    containerRef.current.scrollBy({ left: amount, behavior: "smooth" });
-  };
+  const showShadow = itemCount > 3 && canScrollRight;
 
   return (
-    <div className="relative w-full group/swiper">
-      {/* Tombol Panah Geser Kiri (Desktop) */}
-      {canScrollLeft && (
-        <button
-          type="button"
-          onClick={() => scrollByAmount(-360)}
-          aria-label="Geser ke kiri"
-          className="absolute -left-3.5 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-[#181923]/95 border border-white/20 text-white flex items-center justify-center  hover:bg-rose-900/80 hover:border-white/40 transition-all cursor-pointer backdrop-blur-md"
-        >
-          <svg
-            className="w-4.5 h-4.5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-          >
-            <path d="M15 18l-6-6 6-6" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-      )}
-
-      {/* Tombol Panah Geser Kanan (Desktop) */}
-      {canScrollRight && (
-        <button
-          type="button"
-          onClick={() => scrollByAmount(360)}
-          aria-label="Geser ke kanan"
-          className="absolute -right-3.5 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-[#181923]/95 border border-white/20 text-white flex items-center justify-center  hover:bg-rose-900/80 hover:border-white/40 transition-all cursor-pointer backdrop-blur-md"
-        >
-          <svg
-            className="w-4.5 h-4.5"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="2.5"
-          >
-            <path d="M9 18l6-6-6-6" strokeLinecap="round" strokeLinejoin="round" />
-          </svg>
-        </button>
-      )}
-
+    <div className="relative w-full overflow-hidden">
       {/* Swipeable Track */}
       <div
         ref={containerRef}
@@ -266,6 +221,11 @@ function SwipeableTrack({ children }: SwipeableTrackProps) {
       >
         {children}
       </div>
+
+      {/* Right fade shadow indicator jika items > 3 */}
+      {showShadow && (
+        <div className="pointer-events-none absolute right-0 inset-y-0 w-28 sm:w-36 bg-linear-to-l from-deep-blue-950 via-deep-blue-950/80 to-transparent rounded-r-lg z-10 transition-opacity duration-300" />
+      )}
     </div>
   );
 }
@@ -292,6 +252,9 @@ export default function ProfilePage() {
   const [rewardVoucherCode] = React.useState("H3718H-67");
 
   // Accordion Expand/Collapse States
+  const [isPhoneOpen, setIsPhoneOpen] = React.useState(true);
+  const [phoneNumber, setPhoneNumber] = React.useState("+62123456789");
+  const phoneInputRef = React.useRef<HTMLInputElement>(null);
   const [isRecentTransOpen, setIsRecentTransOpen] = React.useState(true);
   const [isPasswordOpen, setIsPasswordOpen] = React.useState(true);
 
@@ -371,7 +334,7 @@ export default function ProfilePage() {
         {/* ========================================================
             1. PAGE TITLE & FULL-WIDTH DIVIDER (Full Screen Width)
            ======================================================== */}
-        <div className="w-full border-b border-gradient-secondary pt-6 pb-4 mb-8xl">
+        <div className="w-full  border-b-gradient-secondary pt-6 pb-4 mb-8xl">
           <div className="w-full mx-auto px-4 sm:px-0">
             <h1 className="text-body-lg sm:text-h6 font-bold text-white ">
               Profile
@@ -451,9 +414,7 @@ export default function ProfilePage() {
               value={
                 <span className="text-white text-h4 font-semibold inline-flex items-baseline gap-1.5">
                   67{" "}
-                  <span className="text-body-md font-normal text-gray-200">
                     transactions
-                  </span>
                 </span>
               }
               className="bg-deep-blue-900 border border-white/5 rounded-lg p-6 "
@@ -472,9 +433,7 @@ export default function ProfilePage() {
               value={
                 <span className="text-white text-h4 font-semibold inline-flex items-baseline gap-1.5">
                   677{" "}
-                  <span className="text-body-md font-normal text-gray-200">
                     pts
-                  </span>
                 </span>
               }
               className="bg-deep-blue-900 border border-white/5 rounded-lg p-6 "
@@ -494,32 +453,34 @@ export default function ProfilePage() {
                 !hasReward ? (
                   /* Variant: Belum bisa mendapatkan reward (Sesuai Gambar 2) */
                   <div className="flex items-center justify-between w-full">
-                    <p className="text-label-xs text-gray-400 leading-tight">
+                    <p className="text-body-xs text-gray-400">
                       Raih 100 poin dan
                       <br />
                       dapatkan voucher diskon!
                     </p>
-                    <div className="flex items-center gap-1.5 shrink-0">
+                    <div className="flex items-center gap-3 shrink-0">
                       <span className="text-body-md font-semibold text-gray-400">
-                        —
+                        -
                       </span>
-                      <button
+                      <Button
                         type="button"
+                        variant="secondary"
+                        size="xs"
                         onClick={() =>
                           handleToast(
                             "Kumpulkan minimal 100 poin untuk membuka kode voucher diskon!"
                           )
                         }
-                        className="p-1 rounded hover:bg-white/10 text-gray-500 hover:text-gray-300 transition-colors cursor-pointer outline-none"
+                        className="w-8 h-8 !p-0 rounded-lg flex items-center justify-center shrink-0 border border-deep-blue-700 cursor-pointer"
                         title="Voucher belum tersedia (butuh 100 poin)"
                         aria-label="Voucher belum tersedia"
                       >
                         <img
                           src="/assets/svg/fluent_copy-24-regular.svg"
                           alt="Copy"
-                          className="w-4.5 h-4.5 filter-[brightness(0)_invert(0.5)]"
+                          className="w-4.5 h-4.5 filter-[brightness(0)_invert(0.8)]"
                         />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ) : (
@@ -528,19 +489,21 @@ export default function ProfilePage() {
                     <span className="text-white text-h5 font-bold ">
                       {rewardVoucherCode}
                     </span>
-                    <button
+                    <Button
                       type="button"
+                      variant="secondary"
+                      size="xs"
                       onClick={() => handleCopy(rewardVoucherCode)}
-                      className="p-1 rounded hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer outline-none"
+                      className="w-8 h-8 !p-0 rounded-lg flex items-center justify-center shrink-0 border border-deep-blue-700 cursor-pointer"
                       title="Salin ID Games"
                       aria-label="Salin ID Games"
                     >
                       <img
                         src="/assets/svg/fluent_copy-24-regular.svg"
                         alt="Copy"
-                        className="w-4.5 h-4.5 filter-[brightness(0)_invert(0.7)]"
+                        className="w-4.5 h-4.5 filter-[brightness(0)_invert(0.8)]"
                       />
-                    </button>
+                    </Button>
                   </div>
                 )
               }
@@ -569,16 +532,16 @@ export default function ProfilePage() {
             {/* Ranking Items with Subtle Horizontal Dividers */}
             <div className="flex flex-col gap-5">
               {/* Row 1: Mingguan */}
-              <div className="flex items-center justify-between py-1">
+              <div className="flex items-center justify-between ">
                 <Pill variant="secondary" size="xs" className="px-2">
                   Mingguan
                 </Pill>
                 <span className="text-label-md font-semibold text-white">#67</span>
               </div>
-              <div className="w-full h-px bg-border-secondary-default" />
+              <div className="w-full h-px bg-border-secondary-default " />
 
               {/* Row 2: Bulanan */}
-              <div className="flex items-center justify-between py-1">
+              <div className="flex items-center justify-between ">
                 <Pill variant="secondary" size="xs" className="px-2">
                   Bulanan
                 </Pill>
@@ -587,7 +550,7 @@ export default function ProfilePage() {
               <div className="w-full h-px bg-border-secondary-default" />
 
               {/* Row 3: All-time */}
-              <div className="flex items-center justify-between py-1">
+              <div className="flex items-center justify-between ">
                 <Pill variant="secondary" size="xs" className="px-2">
                   All-time
                 </Pill>
@@ -597,7 +560,93 @@ export default function ProfilePage() {
           </section>
 
           {/* ========================================================
-              5. TRANSAKSI TERAKHIR (SWIPEABLE ACCORDION)
+              5. NOMOR TELEPON (ACCORDION)
+             ======================================================== */}
+          <div className="w-full rounded-lg bg-transparent border border-white/5 p-6 flex flex-col">
+            {/* Header Trigger */}
+            <button
+              type="button"
+              onClick={() => setIsPhoneOpen(!isPhoneOpen)}
+              className="w-full flex items-center justify-between text-left cursor-pointer outline-none select-none"
+              aria-expanded={isPhoneOpen}
+            >
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-surface-secondary-default border border-deep-blue-700 flex items-center justify-center text-gray-300 shrink-0">
+                  <img
+                    src="/assets/svg/mynaui_telephone.svg"
+                    alt="Nomor Telepon"
+                    className="w-4.5 h-4.5 filter-[brightness(0)_invert(0.8)]"
+                  />
+                </div>
+                <h3 className="text-body-lg sm:text-h6 font-bold text-white">
+                  Nomor Telepon
+                </h3>
+              </div>
+              <span className="text-gray-400 p-1 rounded hover:bg-white/5 transition-colors">
+                {isPhoneOpen ? (
+                  <svg
+                    className="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M5 12h14" />
+                  </svg>
+                ) : (
+                  <svg
+                    className="w-5 h-5"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="currentColor"
+                    strokeWidth="2"
+                  >
+                    <path d="M5 12h14" />
+                    <path d="M12 5v14" />
+                  </svg>
+                )}
+              </span>
+            </button>
+
+            {/* Expandable Phone Content */}
+            {isPhoneOpen && (
+              <div className="pt-6 w-full">
+                <InputField
+                  placeholder="Nomor Telepon"
+                  type="tel"
+                  value={phoneNumber}
+                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter") {
+                      phoneInputRef.current?.blur();
+                      handleToast("Nomor telepon berhasil disimpan!");
+                    }
+                  }}
+                  size="md"
+                  inputRef={phoneInputRef}
+                  rightIcon={
+                    <button
+                      type="button"
+                      onClick={() => {
+                        phoneInputRef.current?.focus();
+                        handleToast("Silakan ubah nomor telepon Anda");
+                      }}
+                      className="text-gray-400 hover:text-white cursor-pointer outline-none transition-colors"
+                      aria-label="Ubah Nomor Telepon"
+                    >
+                      <img
+                        src="/assets/svg/fluent_edit-24-regular.svg"
+                        alt="Ubah Nomor Telepon"
+                        className="w-4.5 h-4.5 filter-[brightness(0)_invert(0.8)]"
+                      />
+                    </button>
+                  }
+                />
+              </div>
+            )}
+          </div>
+          {/* ========================================================
+              6. TRANSAKSI TERAKHIR (SWIPEABLE ACCORDION)
              ======================================================== */}
           <div className="w-full rounded-lg bg-transparent border border-white/5 p-6 flex flex-col ">
             {/* Header Trigger */}
@@ -648,7 +697,7 @@ export default function ProfilePage() {
             {/* Expandable Swipeable Game Track */}
             {isRecentTransOpen && (
               <div className="w-full pt-6">
-                <SwipeableTrack>
+                <SwipeableTrack itemCount={RECENT_TRANSACTIONS.length}>
                   {RECENT_TRANSACTIONS.map((game) => (
                     <TransactionCard
                       key={game.id}

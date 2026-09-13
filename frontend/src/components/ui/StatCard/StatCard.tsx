@@ -10,6 +10,8 @@ export interface StatCardProps extends React.HTMLAttributes<HTMLDivElement> {
   value: React.ReactNode;
   /** Deskripsi atau info tambahan di bagian bawah */
   description?: React.ReactNode;
+  /** Custom class untuk wrapper value */
+  valueClassName?: string;
   /** React 19 native ref */
   ref?: React.Ref<HTMLDivElement>;
 }
@@ -36,6 +38,7 @@ export function StatCard({
   label,
   value,
   description,
+  valueClassName,
   className,
   ref,
   ...props
@@ -60,7 +63,7 @@ export function StatCard({
       </div>
 
       {/* 2. Value */}
-      <div className="text-gradient-heading font-semibold text-h4 w-fit">
+      <div className={cn("text-gradient-heading font-semibold text-h4 w-full", valueClassName)}>
         {value}
       </div>
 

@@ -12,7 +12,7 @@ import {
   Toast,
 } from "@/components/ui";
 
-// Crown Icon
+// Crown Icon (Existing standard system icon)
 const CrownIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     width="24"
@@ -24,7 +24,7 @@ const CrownIcon = (props: React.SVGProps<SVGSVGElement>) => (
     {...props}
   >
     <path
-      d="M3 18.75C3 18.3358 3.33579 18 3.75 18H20.25C20.6642 18 21 18.3358 21 18.75C21 19.1642 20.6642 19.5 20.25 19.5H3.75C3.33579 19.5 3 19.1642 3 18.75ZM4.331 6.582C4.161 6.072 3.513 5.922 3.14 6.295C2.767 6.668 2.917 7.316 3.427 7.486L5.342 8.125L7.265 15H16.735L18.658 8.125L20.573 7.486C21.083 7.316 21.233 6.668 20.86 6.295C20.487 5.922 19.839 6.072 19.669 6.582L17.5 13.089L13.784 7.515C13.565 7.186 13.081 7.159 12.825 7.46L12 8.43L11.175 7.46C10.919 7.159 10.435 7.186 10.216 7.515L6.5 13.089L4.331 6.582Z"
+      d="M12.0002 17C12.5306 17 13.0393 16.7893 13.4144 16.4142C13.7895 16.0391 14.0002 15.5304 14.0002 15C14.0002 14.4695 13.7895 13.9608 13.4144 13.5858C13.0393 13.2107 12.5306 13 12.0002 13C11.4698 13 10.9611 13.2107 10.586 13.5858C10.2109 13.9608 10.0002 14.4695 10.0002 15C10.0002 15.5304 10.2109 16.0391 10.586 16.4142C10.9611 16.7893 11.4698 17 12.0002 17ZM14.0002 4.99997C14.0002 5.52997 13.7942 6.01197 13.4572 6.36997L16.0812 9.64997C16.1169 9.69473 16.1668 9.7259 16.2227 9.73828C16.2785 9.75066 16.337 9.74349 16.3882 9.71797L19.0382 8.39197C18.9809 8.10185 18.9886 7.80264 19.0606 7.51583C19.1327 7.22902 19.2673 6.9617 19.4548 6.73305C19.6424 6.50441 19.8782 6.3201 20.1454 6.19336C20.4126 6.06661 20.7045 6.00057 21.0002 5.99997C21.4919 6.00007 21.9663 6.18128 22.3328 6.509C22.6994 6.83671 22.9324 7.28796 22.9873 7.77657C23.0422 8.26517 22.9152 8.75688 22.6306 9.15779C22.3459 9.5587 21.9236 9.84072 21.4442 9.94997L19.6402 19.573C19.5649 19.9741 19.3517 20.3362 19.0377 20.5968C18.7236 20.8574 18.3283 21 17.9202 21H6.0802C5.6721 21 5.27682 20.8574 4.96274 20.5968C4.64866 20.3362 4.43553 19.9741 4.3602 19.573L2.5562 9.94997C2.17279 9.86251 1.82367 9.66396 1.5525 9.37915C1.28132 9.09433 1.10014 8.73589 1.03159 8.34865C0.963047 7.96141 1.01019 7.56255 1.16712 7.20196C1.32405 6.84137 1.5838 6.53504 1.9139 6.32129C2.24399 6.10753 2.62978 5.99584 3.02302 6.00017C3.41626 6.00451 3.79949 6.12468 4.12479 6.34565C4.4501 6.56663 4.70304 6.87861 4.85198 7.24257C5.00093 7.60654 5.03926 8.00633 4.9622 8.39197L7.6122 9.71797C7.66343 9.74349 7.72186 9.75066 7.77773 9.73828C7.83361 9.7259 7.88354 9.69473 7.9192 9.64997L10.5432 6.36997C10.3197 6.13226 10.1577 5.84346 10.0714 5.52877C9.98511 5.21408 9.97713 4.88305 10.0482 4.56457C10.1192 4.24609 10.267 3.94982 10.4789 3.70161C10.6907 3.45339 10.96 3.26078 11.2634 3.14056C11.5667 3.02034 11.8949 2.97617 12.2192 3.01191C12.5436 3.04764 12.8542 3.16219 13.1241 3.34556C13.394 3.52894 13.615 3.77557 13.7677 4.06394C13.9204 4.35231 14.0002 4.67366 14.0002 4.99997ZM12.0002 6.99997H11.9602L9.0902 10.587C8.8401 10.8994 8.49048 11.1167 8.09961 11.2025C7.70874 11.2884 7.30024 11.2378 6.9422 11.059L4.1272 9.65197L4.0372 9.71097L5.8342 19.296C5.84494 19.3533 5.87542 19.4051 5.92035 19.4424C5.96528 19.4797 6.02183 19.5 6.0802 19.5H17.9202C17.9786 19.5 18.0351 19.4797 18.0801 19.4424C18.125 19.4051 18.1555 19.3533 18.1662 19.296L19.9632 9.71097L19.8732 9.65197L17.0582 11.059C16.7001 11.238 16.2913 11.2888 15.9002 11.2029C15.5092 11.117 15.1594 10.8996 14.9092 10.587L12.0402 6.99997H12.0002Z"
       fill="currentColor"
     />
   </svg>
@@ -265,6 +265,33 @@ const MINI_CATALOG_GAMES = [
     originalPrice: "Rp 439.000,00",
     price: "Rp 219.500",
   },
+  {
+    id: "mc-10",
+    title: "Grand Theft Auto V",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+    tier: "Tier 1",
+    originalPrice: "Rp 439.000,00",
+    price: "Rp 219.500",
+  },
+  {
+    id: "mc-11",
+    title: "Grand Theft Auto V",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+    tier: "Tier 1",
+    originalPrice: "Rp 439.000,00",
+    price: "Rp 219.500",
+  },
+  {
+    id: "mc-12",
+    title: "Grand Theft Auto V",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+    tier: "Tier 1",
+    originalPrice: "Rp 439.000,00",
+    price: "Rp 219.500",
+  },
 ];
 
 const BUNDLE_GAMES = [
@@ -405,6 +432,86 @@ export default function BundlePage() {
   // Subscription Modal State (Image 1)
   const [isSubsModalOpen, setIsSubsModalOpen] = React.useState<boolean>(false);
   const [activeSubPlan, setActiveSubPlan] = React.useState<string>("Paket 2");
+  const subsModalRef = React.useRef<HTMLDivElement | null>(null);
+
+  // Prevent background scroll without breaking sticky navbar (no body overflow: hidden)
+  React.useEffect(() => {
+    if (!isSubsModalOpen) return;
+
+    const handleWheel = (e: WheelEvent) => {
+      const container = subsModalRef.current;
+      if (!container) {
+        e.preventDefault();
+        return;
+      }
+
+      // Check if the scroll target is inside the modal container
+      if (!container.contains(e.target as Node)) {
+        e.preventDefault();
+        return;
+      }
+
+      // If the modal container is scrollable, allow scrolling within boundaries but prevent chaining
+      const isScrollable = container.scrollHeight > container.clientHeight;
+      if (!isScrollable) {
+        e.preventDefault();
+        return;
+      }
+
+      const atTop = container.scrollTop <= 0 && e.deltaY < 0;
+      const atBottom =
+        container.scrollTop + container.clientHeight >= container.scrollHeight - 1 &&
+        e.deltaY > 0;
+
+      if (atTop || atBottom) {
+        e.preventDefault();
+      }
+    };
+
+    const handleTouchMove = (e: TouchEvent) => {
+      const container = subsModalRef.current;
+      if (!container) {
+        e.preventDefault();
+        return;
+      }
+
+      // If touch is on backdrop or outside modal content, prevent background scrolling
+      if (!container.contains(e.target as Node) || e.target === container) {
+        e.preventDefault();
+        return;
+      }
+
+      // If container cannot scroll, prevent touch drag
+      if (container.scrollHeight <= container.clientHeight) {
+        e.preventDefault();
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsSubsModalOpen(false);
+        return;
+      }
+
+      // Prevent background scrolling keys like Space, ArrowUp, ArrowDown, PageUp, PageDown
+      if (["ArrowUp", "ArrowDown", "PageUp", "PageDown", "Space"].includes(e.key)) {
+        const container = subsModalRef.current;
+        if (!container || !container.contains(document.activeElement)) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    window.addEventListener("wheel", handleWheel, { passive: false });
+    window.addEventListener("touchmove", handleTouchMove, { passive: false });
+    window.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      window.removeEventListener("wheel", handleWheel);
+      window.removeEventListener("touchmove", handleTouchMove);
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isSubsModalOpen]);
 
   // Tablet & Mobile Swiper State for Paket Hemat
   const [activeSlide, setActiveSlide] = React.useState<number>(0);
@@ -518,9 +625,10 @@ export default function BundlePage() {
 
   const isSearchActive = searchQuery.trim().length > 0;
   const isFilterActive =
-    appliedGenres.length > 0 ||
     appliedCategories.length > 0 ||
-    appliedLaunchers.length > 0;
+    appliedGenres.length > 0 ||
+    appliedLaunchers.length > 0 ||
+    appliedSort !== "Terbaru";
 
   const filteredGames = React.useMemo(() => {
     let list = [...BUNDLE_GAMES];
@@ -614,7 +722,7 @@ export default function BundlePage() {
                 </div>
 
                 {/* 3 PRICING CARDS ROW (SWIPER ON TABLET & MOBILE, 3-COL GRID ON XL) */}
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-5">
                   <div
                     ref={swiperRef}
                     onScroll={handleSwiperScroll}
@@ -691,10 +799,8 @@ export default function BundlePage() {
                   </div>
 
                   {/* SWIPER CONTROLS & INDICATOR (TABLET & MOBILE ONLY: < xl) */}
-                  <div className="flex xl:hidden items-center justify-between pt-1 px-2">
-                    <span className="text-body-xs text-gray-400 font-medium">
-                      Geser untuk pilihan paket ({activeSlide + 1}/3)
-                    </span>
+                  <div className="flex xl:hidden items-center justify-center pt-1 px-2">
+               
 
                     <div className="flex items-center gap-3">
                       <button
@@ -750,18 +856,24 @@ export default function BundlePage() {
                   </p>
                 </div>
 
-                {/* 3x3 GRID OF GAME LIST ITEMS */}
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
-                  {MINI_CATALOG_GAMES.map((game, idx) => (
-                    <GameListItem
-                      key={idx}
-                      title={game.title}
-                      imageSrc={game.imageSrc}
-                      discount={game.tier}
-                      originalPrice={game.originalPrice}
-                      price={game.price}
-                    />
-                  ))}
+                {/* 3-COL SCROLLABLE GRID OF GAME LIST ITEMS WITH BOTTOM FADE SHADOW */}
+                <div className="relative">
+                  <div className="max-h-[370px] overflow-y-auto pr-1 pb-10">
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 pt-2">
+                      {MINI_CATALOG_GAMES.map((game, idx) => (
+                        <GameListItem
+                          key={game.id || idx}
+                          title={game.title}
+                          imageSrc={game.imageSrc}
+                          discount={game.tier}
+                          originalPrice={game.originalPrice}
+                          price={game.price}
+                        />
+                      ))}
+                    </div>
+                  </div>
+                  {/* Bottom fade shadow indicator to show more scrollable items */}
+                  <div className="pointer-events-none absolute bottom-0 inset-x-0 h-28 bg-gradient-to-t from-deep-blue-950 via-deep-blue-950/80 to-transparent" />
                 </div>
               </section>
             </div>
@@ -798,6 +910,23 @@ export default function BundlePage() {
                       <span className="text-body-md font-semibold text-gray-300 mr-1">
                         Tampilkan:
                       </span>
+                      {appliedCategories.map((cat) => (
+                        <Button
+                          key={cat}
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          rightIcon={<CrossIcon />}
+                          onClick={() =>
+                            setAppliedCategories((prev) =>
+                              prev.filter((c) => c !== cat)
+                            )
+                          }
+                          className="cursor-pointer"
+                        >
+                          {cat}
+                        </Button>
+                      ))}
                       {appliedGenres.map((genre) => (
                         <Button
                           key={genre}
@@ -832,6 +961,18 @@ export default function BundlePage() {
                           {launcher}
                         </Button>
                       ))}
+                      {appliedSort !== "Terbaru" && (
+                        <Button
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          rightIcon={<CrossIcon />}
+                          onClick={() => setAppliedSort("Terbaru")}
+                          className="cursor-pointer"
+                        >
+                          Sort: {appliedSort}
+                        </Button>
+                      )}
                       <Button
                         type="button"
                         variant="inactive"
@@ -980,8 +1121,8 @@ export default function BundlePage() {
           {/* ========================================================
               SECTION: FREQUENTLY ASKED QUESTION (Ada di kedua mode!)
              ======================================================== */}
-          <section className="grid lg:flex-row gap-10 lg:gap-16 pt-12 pb-8 border-t border-white/5">
-            <div className="flex flex-col gap-4 lg:w-1/3 shrink-0 border-l-gradient-primary h-fit pl-8 pb-6 w-fit border-roun">
+          <section className="grid lg:flex-row gap-10 lg:gap-16 pt-10xl mt-10xl pb-8 border-t border-white/5">
+            <div className="flex flex-col gap-4  shrink-0 border-l-gradient-primary h-fit pl-8 pb-6 w-fit border-roun">
             
               <span className="text-body-sm  text-gray-400">
                 FREQUENTLY ASKED QUESTION
@@ -1016,15 +1157,18 @@ export default function BundlePage() {
             SUBSCRIPTION MODAL DIALOG (Screenshot 1 & 2: Modal)
            ======================================================== */}
         {isSubsModalOpen && (
-          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-fade-in">
+          <div
+            ref={subsModalRef}
+            className="fixed inset-0 z-50 overflow-y-auto overscroll-contain bg-black/75 backdrop-blur-xs animate-fade-in flex min-h-full items-center justify-center p-4 sm:p-6"
+          >
             <div
-              className="fixed inset-0"
+              className="fixed inset-0 -z-10"
               onClick={() => setIsSubsModalOpen(false)}
             />
-            <div className="relative z-10 w-fit  mx-auto bg-deep-blue-950 border border-gradient-secondary rounded-lg p-6 sm:p-8 flex flex-col gap-6  max-h-[90vh] overflow-y-auto">
+            <div className="relative z-10 w-3/7 mx-auto bg-deep-blue-950 border-gradient-secondary rounded-lg p-6 sm:p-8 flex flex-col gap-6 my-auto">
               {/* Header Modal */}
               <div className="flex items-center justify-between border-b border-b-gradient-secondary pb-4">
-                <h3 className="text-h4 font-bold text-gray-50">Subscription</h3>
+                <h3 className="text-h6 font-bold text-gray-50">Subscription</h3>
                 <button
                   type="button"
                   onClick={() => setIsSubsModalOpen(false)}
@@ -1037,17 +1181,17 @@ export default function BundlePage() {
 
               {/* Status Subscription Aktif */}
               <div className="flex flex-col gap-2">
-                <span className="text-body-xs font-semibold uppercase tracking-wider text-gray-400">
+                <span className="text-body-sm uppercase text-gray-400">
                   SUBSCRIPTION
                 </span>
-                <div className="flex items-center justify-between p-4 rounded-lg bg-deep-blue-900 border border-white/5">
-                  <div className="flex items-center gap-2.5">
-                    <CrownIcon className="text-amber-400 w-5 h-5" />
+                <div className="flex items-center justify-between p-3 rounded-lg bg-deep-blue-900 border border-gradient-secondary">
+                  <div className="flex items-center gap-3">
+                    <CrownIcon className="text-gray-400 w-5 h-5 shrink-0" />
                     <span className="font-semibold text-gray-50 text-body-md">
                       {activeSubPlan}
                     </span>
                   </div>
-                  <span className="text-body-sm font-semibold text-rose-400">
+                  <span className="font-semibold text-gray-50 text-body-md">
                     30 hari
                   </span>
                 </div>

@@ -173,7 +173,7 @@ export function PricingCard({
   const defaultActionText = actionText || "Subscribe";
   const cardVariantClasses = isPrimary
     ? "border-gradient-primary  shadow-rose-950/30"
-    : "bg-deep-blue-950 border border-deep-blue-700/60 hover:border-neutral-500";
+    : "bg-deep-blue-950 border-gradient-secondary hover:border-neutral-500";
 
   // 2. Horizontal Layout (Primary / Secondary)
   if (direction === "horizontal") {

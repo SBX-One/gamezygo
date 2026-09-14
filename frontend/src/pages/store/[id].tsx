@@ -19,6 +19,8 @@ import {
 import productsData from "@/json/products.json";
 import { OWNED_LIBRARY_GAMES } from "@/pages/library";
 import { useCartStore } from "@/stores/use-cart-store";
+import { useProductDetail } from "@/hooks/use-products";
+import { formatRupiah, formatDiscount } from "@/utils/formatters";
 
 // ============================================================================
 // SVG ICONS
@@ -389,6 +391,11 @@ const TESTIMONIALS_DATA = [
 export default function GameStoreDetailPage() {
   const router = useRouter();
   const { id } = router.query;
+  const slug = typeof id === "string" ? id : "";
+
+  // API Data Hook
+  const { data: productApiRes } = useProductDetail(slug);
+  const apiProduct = productApiRes?.data;
 
   // Cart store integration
   const { addItem, toggleCart } = useCartStore();
@@ -397,8 +404,6 @@ export default function GameStoreDetailPage() {
   const [isWishlisted, setIsWishlisted] = React.useState(false);
   const [steamData, setSteamData] = React.useState<SteamGameDetails | null>(null);
   const [activeMediaIndex, setActiveMediaIndex] = React.useState(0);
-  const [showUsername, setShowUsername] = React.useState(false);
-  const [showPassword, setShowPassword] = React.useState(false);
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
   const [opinionInput, setOpinionInput] = React.useState("");
 
@@ -499,8 +504,11 @@ export default function GameStoreDetailPage() {
     return Boolean(prod?.isPreorder || prod?.state === "pre-order" || prod?.status === "pre-order");
   }, [router.query.preorder, router.query.state, matchedProduct]);
 
-  // Resolved genres list (supporting multiple genres with slider)
+  // Dynamic Genres list
   const gameGenres = React.useMemo(() => {
+    if (apiProduct?.product_genre_categories && apiProduct.product_genre_categories.length > 0) {
+      return apiProduct.product_genre_categories.map((c) => c.name);
+    }
     if (steamData?.genres && steamData.genres.length > 0) {
       return steamData.genres;
     }
@@ -511,7 +519,7 @@ export default function GameStoreDetailPage() {
       return (matchedProduct as { genres?: string[] }).genres!;
     }
     return ["Aksi", "Petualangan", "RPG", "Dunia Terbuka"];
-  }, [steamData, matchedProduct]);
+  }, [apiProduct, steamData, matchedProduct]);
 
   // Fetch Steam Game Details (including pc_requirements)
   const appId = (matchedProduct as { steamAppId?: number })?.steamAppId || 242050;
@@ -565,46 +573,40 @@ export default function GameStoreDetailPage() {
       return steamData.screenshots.slice(0, 5).map((s) => s.full || s.thumbnail);
     }
     const banner =
+      apiProduct?.thumbnail ||
       (matchedProduct as { bannerSrc?: string })?.bannerSrc ||
       `https://cdn.akamai.steamstatic.com/steam/apps/${appId}/header.jpg`;
-    return [
-      banner,
+    const cover =
+      apiProduct?.thumbnail ||
       (matchedProduct as { imageSrc?: string })?.imageSrc ||
-        `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${appId}/library_600x900_2x.jpg`,
-    ];
-  }, [steamData, matchedProduct, appId]);
+      `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${appId}/library_600x900_2x.jpg`;
+    return [banner, cover];
+  }, [steamData?.screenshots, apiProduct?.thumbnail, matchedProduct, appId]);
 
   // Dynamic Game Title & Description
   const gameTitle =
+    apiProduct?.name ||
     steamData?.name ||
     (matchedProduct as { title?: string })?.title ||
     "Assassin's Creed : Black Flag Resynced";
 
   const gameDescription =
+    apiProduct?.description ||
     (matchedProduct as { description?: string })?.description ||
     steamData?.description ||
     "“gue gatau ada berapa org dibalik bisnis ini, 1 atau seberapapun org terlibat, gue mengapresiasi sebesar besarnya udah ada jasa kaya gini. in this economy.”";
 
-  const originalPrice =
-    (matchedProduct as { originalPrice?: string })?.originalPrice || "Rp 439.000,00";
-  const price = (matchedProduct as { price?: string })?.price || "Rp 219.500";
-  const discount = (matchedProduct as { discount?: string })?.discount || "-30%";
+  const originalPrice = apiProduct
+    ? formatRupiah(apiProduct.price)
+    : (matchedProduct as { originalPrice?: string })?.originalPrice || "Rp 439.000,00";
 
-  // Account Credentials for the specific game
-  const accountUsername = `shared_steam_${String(
-    (matchedProduct as { title?: string })?.title || id || "ac4"
-  )
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "")
-    .slice(0, 8)}_01`;
-  const accountPassword = "GamezygoPassword2026!";
+  const price = apiProduct
+    ? formatRupiah(apiProduct.price_discount || apiProduct.price)
+    : (matchedProduct as { price?: string })?.price || "Rp 219.500";
 
-  // Copy helper
-  const handleCopy = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    setToastMessage(`${label} berhasil disalin ke clipboard!`);
-    setTimeout(() => setToastMessage(null), 3000);
-  };
+  const discount = apiProduct
+    ? formatDiscount(apiProduct.discount)
+    : (matchedProduct as { discount?: string })?.discount || "-30%";
 
   // Buy Now Handler
   const handleBuyNow = () => {
@@ -900,7 +902,9 @@ export default function GameStoreDetailPage() {
                         RATING
                       </span>
                       <div className="flex items-center justify-center gap-1 sm:gap-2">
-                        <span className="text-body-md font-semibold text-white">4.0</span>
+                        <span className="text-body-md font-semibold text-white">
+                          {apiProduct?.rating ? apiProduct.rating.toFixed(1) : "4.8"}
+                        </span>
                         <div className="flex items-center gap-0.5 sm:gap-1 text-white">
                           <StarFilledIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-white shrink-0" />
                           <StarFilledIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-white shrink-0" />
@@ -917,7 +921,7 @@ export default function GameStoreDetailPage() {
                       LAUNCHER
                     </span>
                     <span className="text-body-md font-semibold text-gray-50">
-                      Steam
+                      {apiProduct?.product_launcher_category?.name || "Steam"}
                     </span>
                   </div>
                 </div>

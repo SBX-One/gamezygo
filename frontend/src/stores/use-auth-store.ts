@@ -24,6 +24,8 @@ export interface AuthState {
 export interface AuthActions {
   login: (credentials: { email: string }) => Promise<void>;
   logout: () => void;
+  setToken: (token: string | null) => void;
+  setUser: (user: User | null) => void;
   updateUser: (user: Partial<User>) => void;
   clearError: () => void;
 }
@@ -77,12 +79,26 @@ export const useAuthStore = create<AuthStore>()(
         },
 
         logout: () => {
-          // TODO: Optionally notify the backend (POST /api/v1/auth/logout) to invalidate the JWT
           set({
             user: null,
             token: null,
             role: "guest",
             isAuthenticated: false,
+          });
+        },
+
+        setToken: (token) => {
+          set({
+            token,
+            isAuthenticated: Boolean(token),
+          });
+        },
+
+        setUser: (user) => {
+          set({
+            user,
+            role: user ? (user.role === "admin" ? "admin" : "user") : "guest",
+            isAuthenticated: Boolean(user),
           });
         },
 

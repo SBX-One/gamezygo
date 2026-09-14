@@ -142,9 +142,14 @@ import {
   GAME_OPTIONS,
   SORT_OPTIONS,
 } from "@/features/catalog/blogs.data";
+import { useBlogs } from "@/hooks/use-blogs";
+import { formatDate } from "@/utils/formatters";
 
 export default function BlogsPage() {
   const router = useRouter();
+
+  // API Blogs Hook
+  const { data: blogsApiRes } = useBlogs();
 
   // Preview state derived from query or local override
   const [previewStateOverride, setPreviewStateOverride] = React.useState<
@@ -237,6 +242,35 @@ export default function BlogsPage() {
   const filteredBlogs = React.useMemo(() => {
     if (previewState === "filter-empty") return [];
 
+    if (blogsApiRes?.data && blogsApiRes.data.length > 0) {
+      let apiList = blogsApiRes.data.map((b) => ({
+        id: String(b.id),
+        title: b.title,
+        slug: b.slug,
+        imageSrc: b.banner_file_url,
+        description: b.sort_description,
+        category: b.category?.name || "Gaming",
+        date: formatDate(b.published_at),
+        fullDate: formatDate(b.published_at),
+        status: b.status,
+      }));
+
+      if (searchQuery.trim()) {
+        const q = searchQuery.toLowerCase();
+        apiList = apiList.filter(
+          (b) =>
+            b.title.toLowerCase().includes(q) ||
+            b.description.toLowerCase().includes(q)
+        );
+      }
+
+      if (appliedCategories.length > 0) {
+        apiList = apiList.filter((b) => appliedCategories.includes(b.category));
+      }
+
+      return apiList;
+    }
+
     let result = [...BLOGS_DATA];
 
     // Search query filter
@@ -280,13 +314,14 @@ export default function BlogsPage() {
 
     return result;
   }, [
-    appliedCategories,
-    appliedGames,
-    appliedPlatforms,
-    appliedSort,
-    appliedStatus,
-    previewState,
     searchQuery,
+    appliedCategories,
+    appliedStatus,
+    appliedPlatforms,
+    appliedGames,
+    appliedSort,
+    previewState,
+    blogsApiRes,
   ]);
 
   const hasEmptyResults = filteredBlogs.length === 0;

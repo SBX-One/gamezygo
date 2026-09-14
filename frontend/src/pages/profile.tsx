@@ -8,6 +8,7 @@ import {
   InputField,
   Toast,
 } from "@/components/ui";
+import { useUserProfile, useUpdateProfile } from "@/hooks/use-profile";
 
 interface TransactionGame {
   id: string;
@@ -242,10 +243,28 @@ export default function ProfilePage() {
       "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=200&h=200&q=80",
   });
 
+  // TanStack Query: User Profile API
+  const { data: profileApiRes } = useUserProfile();
+  const updateProfileMutation = useUpdateProfile();
+
   // Modal Ubah Profil
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
   const [editName, setEditName] = React.useState(user.name);
   const [editAvatarUrl, setEditAvatarUrl] = React.useState(user.avatarUrl);
+
+  React.useEffect(() => {
+    if (profileApiRes?.data) {
+      setUser((prev) => ({
+        ...prev,
+        name: profileApiRes.data.name || prev.name,
+        email: profileApiRes.data.email || prev.email,
+        avatarUrl: profileApiRes.data.avatar_url || prev.avatarUrl,
+        joinedDate: profileApiRes.data.joined_date || prev.joinedDate,
+      }));
+      setEditName(profileApiRes.data.name || "");
+      setEditAvatarUrl(profileApiRes.data.avatar_url || "");
+    }
+  }, [profileApiRes]);
 
   // State Reward Voucher (false = variant belum bisa dapatkan reward [Gambar 2], true = sudah ada reward)
   const [hasReward] = React.useState(false);
@@ -300,14 +319,20 @@ export default function ProfilePage() {
 
   const handleProfileSave = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!editName.trim()) {
+    const trimmedName = editName.trim();
+    if (!trimmedName) {
       handleToast("Nama tidak boleh kosong!");
       return;
     }
+    const trimmedAvatar = editAvatarUrl.trim();
+    updateProfileMutation.mutate({
+      name: trimmedName,
+      avatar_url: trimmedAvatar || undefined,
+    });
     setUser((prev) => ({
       ...prev,
-      name: editName.trim(),
-      avatarUrl: editAvatarUrl.trim() || prev.avatarUrl,
+      name: trimmedName,
+      avatarUrl: trimmedAvatar || prev.avatarUrl,
     }));
     setIsEditModalOpen(false);
     handleToast("Profil berhasil diperbarui!");

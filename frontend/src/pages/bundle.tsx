@@ -11,6 +11,12 @@ import {
   GameListItem,
   Toast,
 } from "@/components/ui";
+import {
+  useSubscriptionPlans,
+  useUserSubscription,
+  useSubscriptionProducts,
+} from "@/hooks/use-subscriptions";
+import { formatRupiah } from "@/utils/formatters";
 
 // Crown Icon (Existing standard system icon)
 const CrownIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -426,8 +432,24 @@ const BUNDLE_GAMES = [
 ];
 
 export default function BundlePage() {
+  // TanStack Query: Subscriptions API
+  const { data: subscriptionPlansRes } = useSubscriptionPlans();
+  const { data: userSubRes } = useUserSubscription();
+  const { data: subsProductsRes } = useSubscriptionProducts();
+
   // Mode switcher: "subscribed" (Image 3 & 4) vs "unsubscribed" (Image 2)
   const [viewMode, setViewMode] = React.useState<"subscribed" | "unsubscribed">("subscribed");
+
+  // Sync active subscription from API if available
+  React.useEffect(() => {
+    if (userSubRes?.data) {
+      if (userSubRes.data.status === "active") {
+        setViewMode("subscribed");
+      } else if (userSubRes.data.status === "expired") {
+        setViewMode("unsubscribed");
+      }
+    }
+  }, [userSubRes]);
 
   // Subscription Modal State (Image 1)
   const [isSubsModalOpen, setIsSubsModalOpen] = React.useState<boolean>(false);

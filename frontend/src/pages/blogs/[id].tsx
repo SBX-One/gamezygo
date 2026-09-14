@@ -14,6 +14,8 @@ import {
   PROMO_GAMES,
   getBlogById,
 } from "@/features/catalog/blogs.data";
+import { useBlogDetail } from "@/hooks/use-blogs";
+import { formatDate } from "@/utils/formatters";
 
 // Fluent Back Arrow Icon
 const ArrowLeftIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -97,12 +99,65 @@ const FluentPlayIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+interface ResolvedBlogDetail {
+  id: string;
+  title: string;
+  slug?: string;
+  category: string;
+  date: string;
+  fullDate?: string;
+  bannerSrc?: string;
+  imageSrc: string;
+  description: string;
+  content?: string;
+  author?: string;
+  guideTitle?: string;
+  guideEntries?: Array<{
+    name: string;
+    keyMove?: string;
+    paragraphs: string[];
+  }>;
+  intro1?: string;
+  intro2?: string;
+}
+
 export default function BlogDetailPage() {
   const router = useRouter();
   const { id } = router.query;
+  const slug = typeof id === "string" ? id : "";
 
-  // Resolve current blog detail or fallback gracefully to blog-2 (Marvel Tokon)
-  const blog = React.useMemo(() => getBlogById(id), [id]);
+  // API Blog Detail Hook
+  const { data: blogApiRes } = useBlogDetail(slug);
+  const apiBlog = blogApiRes?.data;
+
+  // Resolve current blog detail with API priority or fallback gracefully
+  const fallbackBlog = React.useMemo(() => getBlogById(id), [id]);
+
+  const blog: ResolvedBlogDetail = React.useMemo(() => {
+    if (apiBlog) {
+      return {
+        id: String(apiBlog.id),
+        title: apiBlog.title,
+        slug: apiBlog.slug,
+        category: apiBlog.category?.name || "Gaming",
+        date: formatDate(apiBlog.published_at),
+        fullDate: formatDate(apiBlog.published_at),
+        bannerSrc: apiBlog.banner_file_url,
+        imageSrc: apiBlog.banner_file_url,
+        description: apiBlog.sort_description,
+        content: apiBlog.content,
+        author: apiBlog.author?.name || "Admin",
+        guideTitle: apiBlog.title,
+        guideEntries: fallbackBlog.guideEntries,
+        intro1: apiBlog.sort_description,
+        intro2: undefined,
+      };
+    }
+    return {
+      ...fallbackBlog,
+      content: undefined,
+    };
+  }, [apiBlog, fallbackBlog]);
 
   // Related 4 blogs for "Berita Gamezygo" section (matching Image 1: blog-1, blog-2, blog-3, blog-4)
   const relatedBlogs = React.useMemo(() => {
@@ -271,9 +326,13 @@ export default function BlogDetailPage() {
                 {blog.guideTitle || "The Marvel Tokon Roster Guide"}
               </h2>
 
-              {/* Per Image 4: Exactly 48px (gap-12) between each numbered guide entry */}
+              {/* Guide / Content entries */}
               <div className="flex flex-col gap-12">
-                {blog.guideEntries && blog.guideEntries.length > 0 ? (
+                {blog.content ? (
+                  <div className="prose prose-invert max-w-none text-body-sm sm:text-body-md text-gray-300 leading-relaxed font-normal whitespace-pre-line">
+                    {blog.content}
+                  </div>
+                ) : blog.guideEntries && blog.guideEntries.length > 0 ? (
                   blog.guideEntries.map((entry, idx) => (
                     <div key={idx} className="flex flex-col gap-3">
                       <h3 className="text-body-lg sm:text-h6 font-semibold text-gray-50">

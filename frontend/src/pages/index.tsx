@@ -1,4 +1,4 @@
-﻿import * as React from "react";
+import * as React from "react";
 import Head from "next/head";
 import {
   Header,
@@ -62,6 +62,13 @@ const CrossIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 
 import productsData from "@/json/products.json";
+import { useAnnouncements } from "@/hooks/use-common";
+import { useCustomSections, useProducts } from "@/hooks/use-products";
+import {
+  mapProductToCardItem,
+  mapAnnouncementToSlide,
+  mapSectionProducts,
+} from "@/utils/adapters";
 
 interface ProductItem {
   id: string;
@@ -108,6 +115,11 @@ const PROMO_BANNERS: BannerSlide[] = [
 ];
 
 export default function HomePage() {
+  // React Query API Data Hooks
+  const { data: announcementsData } = useAnnouncements();
+  const { data: sectionsData } = useCustomSections();
+  const { data: productsApiData } = useProducts();
+
   // Navigation & Search State
   const [activeNavId, setActiveNavId] = React.useState<string>("home");
   const [searchQuery, setSearchQuery] = React.useState<string>("");
@@ -219,8 +231,28 @@ export default function HomePage() {
     setPreviewState("default");
   };
 
+  // Dynamic Banners from Backend (fallback to local if API empty)
+  const heroBanners = React.useMemo(() => {
+    if (announcementsData?.data && announcementsData.data.length > 0) {
+      return announcementsData.data.map(mapAnnouncementToSlide);
+    }
+    return PROMO_BANNERS;
+  }, [announcementsData]);
+
+  // Dynamic Custom Sections from Backend
+  const customSections = React.useMemo(() => {
+    if (sectionsData?.data && sectionsData.data.length > 0) {
+      return sectionsData.data;
+    }
+    return null;
+  }, [sectionsData]);
+
   // Filtered Products Logic
   const searchResults = React.useMemo(() => {
+    if (productsApiData?.data && productsApiData.data.length > 0 && searchQuery.trim()) {
+      return productsApiData.data.map(mapProductToCardItem);
+    }
+
     const query = searchQuery.trim().toLowerCase();
     if (!query) return [];
 
@@ -230,11 +262,15 @@ export default function HomePage() {
         (query.includes("gta") && p.title.toLowerCase().includes("grand theft auto")) ||
         (query.includes("grand") && p.title.toLowerCase().includes("grand theft auto"))
     );
-  }, [searchQuery]);
+  }, [searchQuery, productsApiData]);
 
   const filteredCatalog = React.useMemo(() => {
     if (previewState === "filter-empty") {
       return [];
+    }
+
+    if (productsApiData?.data && productsApiData.data.length > 0 && activeGenres.length > 0) {
+      return productsApiData.data.map(mapProductToCardItem);
     }
 
     let list = [...ALL_STORE_PRODUCTS];
@@ -267,7 +303,14 @@ export default function HomePage() {
     }
 
     return list;
-  }, [activeGenres, appliedLaunchers, appliedPriceRange, appliedSort, previewState]);
+  }, [activeGenres, appliedLaunchers, appliedPriceRange, appliedSort, previewState, productsApiData]);
+
+  const storeCatalogProducts = React.useMemo(() => {
+    if (productsApiData?.data && productsApiData.data.length > 0) {
+      return productsApiData.data.map(mapProductToCardItem);
+    }
+    return ALL_STORE_PRODUCTS;
+  }, [productsApiData]);
 
   // Is Search Active?
   const isSearchActive =
@@ -493,40 +536,58 @@ export default function HomePage() {
 
               {/* Kolom Kanan: Large Summer Promo Banner Carousel */}
               <BannerCarousel
-                slides={PROMO_BANNERS}
+                slides={heroBanners}
                 className="flex-1 min-w-0 sm:col-span-3"
               />
             </section>
 
-            {/* 3. SECTION: TAWARAN KHUSUS! */}
-            <section className="flex flex-col gap-10">
-              <SectionHeader
-                type="outer"
-                title="Tawaran Khusus!"
-                actionLabel="Lihat Semua"
-                onActionClick={() => setExactState("filter-applied")}
-              />
+            {/* 3. SECTIONS: DYNAMIC CUSTOM SECTIONS OR FALLBACK */}
+            {customSections && customSections.length > 0 ? (
+              customSections.map((sec) => (
+                <section key={sec.id} className="flex flex-col gap-10">
+                  <SectionHeader
+                    type="outer"
+                    title={sec.title}
+                    actionLabel="Lihat Semua"
+                    onActionClick={() => setExactState("filter-applied")}
+                  />
+                  <ProductCardRow
+                    products={mapSectionProducts(sec)}
+                    onAddToCart={handleAddToCart}
+                  />
+                </section>
+              ))
+            ) : (
+              <>
+                {/* Fallback TAWARAN KHUSUS! */}
+                <section className="flex flex-col gap-10">
+                  <SectionHeader
+                    type="outer"
+                    title="Tawaran Khusus!"
+                    actionLabel="Lihat Semua"
+                    onActionClick={() => setExactState("filter-applied")}
+                  />
+                  <ProductCardRow
+                    products={TAWARAN_KHUSUS_PRODUCTS}
+                    onAddToCart={handleAddToCart}
+                  />
+                </section>
 
-              <ProductCardRow
-                products={TAWARAN_KHUSUS_PRODUCTS}
-                onAddToCart={handleAddToCart}
-              />
-            </section>
-
-            {/* 4. SECTION: RILIS TERBARU! */}
-            <section className="flex flex-col gap-10">
-              <SectionHeader
-                type="outer"
-                title="Rilis Terbaru!"
-                actionLabel="Lihat Semua"
-                onActionClick={() => setExactState("filter-applied")}
-              />
-
-              <ProductCardRow
-                products={RILIS_TERBARU_PRODUCTS}
-                onAddToCart={handleAddToCart}
-              />
-            </section>
+                {/* Fallback RILIS TERBARU! */}
+                <section className="flex flex-col gap-10">
+                  <SectionHeader
+                    type="outer"
+                    title="Rilis Terbaru!"
+                    actionLabel="Lihat Semua"
+                    onActionClick={() => setExactState("filter-applied")}
+                  />
+                  <ProductCardRow
+                    products={RILIS_TERBARU_PRODUCTS}
+                    onAddToCart={handleAddToCart}
+                  />
+                </section>
+              </>
+            )}
 
             {/* 5. SECTION: SEMUA PRODUK */}
             <section className="flex flex-col gap-10">
@@ -537,7 +598,7 @@ export default function HomePage() {
               />
 
               <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-                {ALL_STORE_PRODUCTS.map((product) => (
+                {storeCatalogProducts.map((product) => (
                   <ProductCard
                     key={product.id}
                     title={product.title}

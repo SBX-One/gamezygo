@@ -1,12 +1,16 @@
+export * from "./api";
+
 export interface User {
-  id: string;
+  id: string | number;
   email: string;
   name: string;
-  role: "admin" | "customer";
+  role: "admin" | "customer" | "user" | "guest";
+  avatarUrl?: string;
+  joinedDate?: string;
 }
 
 export interface Product {
-  id: string;
+  id: string | number;
   title: string;
   slug: string;
   price: number;
@@ -18,3 +22,4 @@ export interface CartItem {
   quantity: number;
   product?: Product;
 }
+

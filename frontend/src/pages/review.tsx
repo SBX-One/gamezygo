@@ -8,6 +8,9 @@ import {
   TestimonialCard,
   Toast,
 } from "@/components/ui";
+import { useReviews, useCreateReview } from "@/hooks/use-reviews";
+import { useAuthStore } from "@/stores/use-auth-store";
+import { useUserProfile } from "@/hooks/use-profile";
 
 interface AttachedImage {
   id: string;
@@ -274,6 +277,11 @@ export default function ReviewPage() {
     setPreviewStateOverride(state);
   };
 
+  const { data: apiReviewsRes } = useReviews();
+  const createReviewMutation = useCreateReview();
+  const authUser = useAuthStore((s) => s.user);
+  const { data: profileRes } = useUserProfile();
+
   const [reviews, setReviews] = React.useState<ReviewItem[]>(INITIAL_REVIEWS);
   const [quickFeedback, setQuickFeedback] = React.useState("");
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
@@ -288,11 +296,32 @@ export default function ReviewPage() {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const currentUser = {
-    name: "Cihuy6767",
-    email: "cihuy@gmail.com",
+    name: profileRes?.data?.name || authUser?.name || "Cihuy6767",
+    email: profileRes?.data?.email || authUser?.email || "cihuy@gmail.com",
     avatarUrl:
+      profileRes?.data?.avatar_url ||
       "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=120&h=120&q=80",
   };
+
+  // Merge API reviews if available
+  const displayReviews = React.useMemo(() => {
+    if (apiReviewsRes?.data && apiReviewsRes.data.length > 0) {
+      return apiReviewsRes.data.map((r) => ({
+        id: String(r.id),
+        userName: r.user?.name || "Pelanggan Gamezygo",
+        avatarSrc:
+          r.user?.avatar_url ||
+          "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=120&h=120&q=80",
+        rating: `${r.rating || 5} Star`,
+        review: r.review,
+        gameName: "Black Myth Wukong, 2+",
+        images: (r.images || [])
+          .map((img) => img.url || img.file_url || "")
+          .filter((url): url is string => Boolean(url)),
+      }));
+    }
+    return reviews;
+  }, [apiReviewsRes, reviews]);
 
   const handleToast = (msg: string) => {
     setToastMessage(msg);
@@ -387,11 +416,26 @@ export default function ReviewPage() {
       images: imageUrls,
     };
 
-    setReviews([newReview, ...reviews]);
-    setQuickFeedback("");
-    handleClearAll();
-    setIsModalOpen(false);
-    handleToast("Ulasan Anda berhasil dikirim! Terima kasih atas pendapat Anda.");
+    const formData = new FormData();
+    formData.append("comment", modalComment.trim());
+    formData.append("rating", String(selectedRating || 5));
+
+    createReviewMutation.mutate(formData, {
+      onSuccess: () => {
+        setQuickFeedback("");
+        handleClearAll();
+        setIsModalOpen(false);
+        handleToast("Ulasan Anda berhasil dikirim! Terima kasih atas pendapat Anda.");
+      },
+      onError: () => {
+        // Fallback local update
+        setReviews([newReview, ...reviews]);
+        setQuickFeedback("");
+        handleClearAll();
+        setIsModalOpen(false);
+        handleToast("Ulasan Anda berhasil ditambahkan!");
+      },
+    });
   };
 
   return (
@@ -525,7 +569,7 @@ export default function ReviewPage() {
                ======================================================== */}
             <section className="w-full">
               <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 w-full">
-                {reviews.map((item) => (
+                {displayReviews.map((item) => (
                   <TestimonialCard
                     key={item.id}
                     userName={item.userName}

@@ -11,6 +11,7 @@ import {
   RequestListItem,
   type RequestCardVariant,
 } from "@/components/ui";
+import { useGameRequests, useCreateGameRequest } from "@/hooks/use-requests";
 
 // Helper to extract Steam App ID from various Steam URL patterns
 function extractSteamAppId(url: string): number | null {
@@ -309,6 +310,11 @@ export default function RequestGamePage() {
   // Pagination State
   const [currentPage, setCurrentPage] = React.useState<number>(1);
 
+  // TanStack Query: Game Requests API
+  const scope = activeTab === "my-requests" ? "mine" : "all";
+  const { data: requestsApiRes } = useGameRequests({ scope, page: currentPage });
+  const createRequestMutation = useCreateGameRequest();
+
   // Toast Feedback State
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
 
@@ -384,6 +390,15 @@ export default function RequestGamePage() {
         requestCount: 1,
       };
 
+      try {
+        await createRequestMutation.mutateAsync({
+          name: gameData.name,
+          steam_url: trimmedUrl,
+        });
+      } catch {
+        // Continue with local update
+      }
+
       setMyRequests((prev) => [newRequest, ...prev]);
       setStoreUrl("");
       setInputError(null);
@@ -431,11 +446,22 @@ export default function RequestGamePage() {
   // Determine current display list based on active tab
   const currentItems = React.useMemo(() => {
     if (forceEmptyState) return [];
+    if (requestsApiRes?.data && requestsApiRes.data.length > 0) {
+      return requestsApiRes.data.map((r) => ({
+        id: String(r.id),
+        title: r.name,
+        imageSrc:
+          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+        requestDate: new Date(r.created_at || Date.now()).toLocaleDateString("id-ID"),
+        requestCount: r.request_count || 1,
+        isUpvoted: false,
+      }));
+    }
     if (activeTab === "my-requests") return myRequests;
     if (activeTab === "community") return communityRequests;
     if (activeTab === "added") return addedRequests;
     return [];
-  }, [activeTab, forceEmptyState, myRequests, communityRequests, addedRequests]);
+  }, [activeTab, forceEmptyState, requestsApiRes, myRequests, communityRequests, addedRequests]);
 
   const currentVariant: RequestCardVariant = React.useMemo(() => {
     if (activeTab === "my-requests") return "my-request";

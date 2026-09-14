@@ -8,6 +8,8 @@ import {
   EmptyState,
   Toast,
 } from "@/components/ui";
+import { useWishlist, useRemoveFromWishlist } from "@/hooks/use-wishlist";
+import { useAddToCart } from "@/hooks/use-cart";
 
 // Search Icon
 const SearchIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -86,6 +88,7 @@ const BookmarkOutlineIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 interface WishlistGame {
   id: string;
+  productId?: number;
   title: string;
   imageSrc: string;
   genres: string[];
@@ -97,6 +100,7 @@ interface WishlistGame {
 const INITIAL_WISHLIST_GAMES: WishlistGame[] = [
   {
     id: "wish-1",
+    productId: 1,
     title: "Assassin's Creed Black Flag Resynced",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/242050/library_600x900_2x.jpg",
@@ -106,6 +110,7 @@ const INITIAL_WISHLIST_GAMES: WishlistGame[] = [
   },
   {
     id: "wish-2",
+    productId: 2,
     title: "007 - First Light",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/library_600x900_2x.jpg",
@@ -115,6 +120,7 @@ const INITIAL_WISHLIST_GAMES: WishlistGame[] = [
   },
   {
     id: "wish-3",
+    productId: 3,
     title: "Subnautica 2",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1962700/library_600x900_2x.jpg",
@@ -124,6 +130,7 @@ const INITIAL_WISHLIST_GAMES: WishlistGame[] = [
   },
   {
     id: "wish-4",
+    productId: 4,
     title: "Read Dead Redemption II",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/library_600x900_2x.jpg",
@@ -133,6 +140,7 @@ const INITIAL_WISHLIST_GAMES: WishlistGame[] = [
   },
   {
     id: "wish-5",
+    productId: 5,
     title: "Hell Let Loose: Vietnam",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/686810/library_600x900_2x.jpg",
@@ -142,15 +150,17 @@ const INITIAL_WISHLIST_GAMES: WishlistGame[] = [
   },
   {
     id: "wish-6",
-    title: "EA SPORTS™ Madden NFL 27",
+    productId: 6,
+    title: "Need For Speed Unbound",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2582560/library_600x900_2x.jpg",
-    genres: ["Action", "Adventure"],
-    platform: "EA",
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1846380/library_600x900_2x.jpg",
+    genres: ["Sport-Racing"],
+    platform: "Steam",
     launcher: "EA",
   },
   {
     id: "wish-7",
+    productId: 7,
     title: "Earthworm Jim",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/990080/library_600x900_2x.jpg",
@@ -161,10 +171,27 @@ const INITIAL_WISHLIST_GAMES: WishlistGame[] = [
 ];
 
 export default function WishlistPage() {
-  // Wishlist items list (can be manipulated to test empty state)
-  const [wishlistGames, setWishlistGames] = React.useState<WishlistGame[]>(
+  // Wishlist API integration with graceful fallback
+  const { data: wishlistApiRes } = useWishlist();
+  const addToCartMutation = useAddToCart();
+  const [localWishlistGames, setLocalWishlistGames] = React.useState<WishlistGame[]>(
     INITIAL_WISHLIST_GAMES
   );
+
+  const wishlistGames = React.useMemo(() => {
+    if (wishlistApiRes?.data && wishlistApiRes.data.length > 0) {
+      return wishlistApiRes.data.map((item) => ({
+        id: String(item.id),
+        productId: item.product?.id,
+        title: item.product?.name || "Game",
+        imageSrc: item.product?.thumbnail || "",
+        genres: ["Action", "Adventure"],
+        platform: "Steam",
+        launcher: "Steam",
+      }));
+    }
+    return localWishlistGames;
+  }, [wishlistApiRes, localWishlistGames]);
 
   // Search State
   const [searchQuery, setSearchQuery] = React.useState<string>("");
@@ -196,8 +223,11 @@ export default function WishlistPage() {
       "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&h=120&q=80",
   };
 
-  const handleAddToCart = (gameTitle: string) => {
-    setToastMessage(`${gameTitle} berhasil ditambahkan ke keranjang belanja!`);
+  const handleAddToCart = (game: WishlistGame) => {
+    if (game.productId) {
+      addToCartMutation.mutate(game.productId);
+    }
+    setToastMessage(`${game.title} berhasil ditambahkan ke keranjang belanja!`);
     setTimeout(() => {
       setToastMessage(null);
     }, 3000);
@@ -475,7 +505,7 @@ export default function WishlistPage() {
                 backLabel="Kembali"
                 searchLabel="Search"
                 onBack={() => {
-                  setWishlistGames(INITIAL_WISHLIST_GAMES);
+                  setLocalWishlistGames(INITIAL_WISHLIST_GAMES);
                 }}
                 onSearch={() => {
                   window.location.href = "/store";
@@ -496,7 +526,7 @@ export default function WishlistPage() {
                   showPrice={false}
                   showActionButton={true}
                   buttonText="Tambah Keranjang"
-                  onActionClick={() => handleAddToCart(game.title)}
+                  onActionClick={() => handleAddToCart(game)}
                   className="hover:-translate-y-0.5 transition-transform duration-200 pb-8xl"
                 />
               ))}

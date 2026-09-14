@@ -18,6 +18,7 @@ import {
 } from "@/services/steam";
 import productsData from "@/json/products.json";
 import { OWNED_LIBRARY_GAMES } from "@/pages/library";
+import { useGameCredentials } from "@/hooks/use-library";
 
 // ============================================================================
 // SVG ICONS
@@ -492,14 +493,21 @@ export default function GameCredentialPage() {
     steamData?.description ||
     "“gue gatau ada berapa org dibalik bisnis ini, 1 atau seberapapun org terlibat, gue mengapresiasi sebesar besarnya udah ada jasa kaya gini. in this economy.”";
 
-  // Account Credentials for the specific game
-  const accountUsername = `shared_steam_${String(
+  // Fetch credentials from API (GET /api/v1/user/products/:slug/credentials)
+  const productSlug = typeof id === "string" ? id : "";
+  const { data: credentialsRes } = useGameCredentials(productSlug);
+
+  // Account Credentials for the specific game (with graceful fallback)
+  const fallbackUsername = `shared_steam_${String(
     (matchedProduct as { title?: string })?.title || id || "ac4"
   )
     .toLowerCase()
     .replace(/[^a-z0-9]/g, "")
     .slice(0, 8)}_01`;
-  const accountPassword = "GamezygoPassword2026!";
+  const fallbackPassword = "GamezygoPassword2026!";
+
+  const accountUsername = credentialsRes?.data?.username || fallbackUsername;
+  const accountPassword = credentialsRes?.data?.password || fallbackPassword;
 
   return (
     <>

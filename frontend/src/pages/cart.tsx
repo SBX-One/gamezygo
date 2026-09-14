@@ -3,6 +3,8 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { StoreLayout } from "@/components/layout";
 import { Button, EmptyState, Toast, Item } from "@/components/ui";
+import { useCart, useRemoveFromCart } from "@/hooks/use-cart";
+import { formatRupiah, formatDiscount } from "@/utils/formatters";
 
 /**
  * Arrow Right Icon for Checkout button
@@ -112,8 +114,28 @@ const formatCurrency = (amount: number): string => {
 export default function CartPage() {
   const router = useRouter();
 
-  // Cart items state
-  const [cartItems, setCartItems] = React.useState<CartItemData[]>(INITIAL_CART_ITEMS);
+  // Server-side Cart API Hook
+  const { data: cartApiRes } = useCart();
+  const removeCartMutation = useRemoveFromCart();
+
+  // Local state fallback
+  const [localCartItems, setLocalCartItems] = React.useState<CartItemData[]>(INITIAL_CART_ITEMS);
+
+  // Computed Cart Items (API priority or local fallback)
+  const cartItems: CartItemData[] = React.useMemo(() => {
+    if (cartApiRes?.data?.items) {
+      return cartApiRes.data.items.map((item) => ({
+        id: String(item.id),
+        title: item.name,
+        imageSrc: item.thumbnail,
+        discount: formatDiscount(item.discount),
+        originalPrice: item.price,
+        originalPriceFormatted: formatRupiah(item.price),
+        price: item.discount_price || item.price,
+      }));
+    }
+    return localCartItems;
+  }, [cartApiRes, localCartItems]);
 
   // Voucher input & applied states
   const [voucherInput, setVoucherInput] = React.useState("");
@@ -142,13 +164,24 @@ export default function CartPage() {
 
   // Remove individual item
   const handleRemoveItem = (id: string, title: string) => {
-    setCartItems((prev) => prev.filter((item) => item.id !== id));
-    showToast("success", "Item Dihapus", `${title} berhasil dihapus dari keranjang.`);
+    if (cartApiRes?.data) {
+      removeCartMutation.mutate(id, {
+        onSuccess: () => {
+          showToast("success", "Item Dihapus", `${title} berhasil dihapus dari keranjang.`);
+        },
+        onError: () => {
+          showToast("error", "Gagal Menghapus", `Gagal menghapus ${title} dari keranjang.`);
+        },
+      });
+    } else {
+      setLocalCartItems((prev) => prev.filter((item) => item.id !== id));
+      showToast("success", "Item Dihapus", `${title} berhasil dihapus dari keranjang.`);
+    }
   };
 
   // Clear all items (switches to Empty State in Screenshot 2)
   const handleClearAll = () => {
-    setCartItems([]);
+    setLocalCartItems([]);
     setAppliedVoucher(null);
     setDiscountPercent(0);
     setVoucherInput("");

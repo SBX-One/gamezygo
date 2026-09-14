@@ -8,6 +8,8 @@ import {
   EmptyState,
   Pagination,
 } from "@/components/ui";
+import { useUserLibrary } from "@/hooks/use-library";
+import { formatRupiah } from "@/utils/formatters";
 
 // Search Icon
 const SearchIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -315,9 +317,17 @@ export default function GameLibraryPage() {
   const [appliedLaunchers, setAppliedLaunchers] = React.useState<string[]>([]);
   const [appliedSort, setAppliedSort] = React.useState<string>("Terbaru");
 
-  // Pagination State (25 total pages as per mockup)
+  // Pagination State
   const [currentPage, setCurrentPage] = React.useState<number>(1);
-  const totalPages = 25;
+
+  // TanStack Query: Fetch user game library from backend API
+  const { data: libraryApiRes } = useUserLibrary({
+    search: searchQuery || undefined,
+    genre_categories: appliedGenres.length > 0 ? appliedGenres : undefined,
+    page: currentPage,
+  });
+
+  const totalPages = libraryApiRes?.meta?.last_page || 25;
 
   // Logged-in Customer User Profile (for Private Navbar)
   const currentUser = {
@@ -358,8 +368,27 @@ export default function GameLibraryPage() {
     appliedCategories.length > 0 ||
     appliedLaunchers.length > 0;
 
+  // Base Library Games (from API with fallback to mock data)
+  const baseGames = React.useMemo(() => {
+    if (libraryApiRes?.data && libraryApiRes.data.length > 0) {
+      return libraryApiRes.data.map((item) => ({
+        id: item.slug,
+        steamAppId: item.id,
+        title: item.name,
+        imageSrc: item.thumbnail,
+        genres: item.categories?.map((c) => c.name) || [],
+        platform: "Steam",
+        launcher: "Steam",
+        originalPrice: item.price ? formatRupiah(item.price) : undefined,
+        price: formatRupiah(item.discount_price > 0 ? item.discount_price : item.price),
+        discount: item.discount > 0 ? `-${item.discount}%` : undefined,
+      }));
+    }
+    return OWNED_LIBRARY_GAMES;
+  }, [libraryApiRes]);
+
   const filteredGames = React.useMemo(() => {
-    let list = [...OWNED_LIBRARY_GAMES];
+    let list = [...baseGames];
 
     // 1. Search Query Matching (Supports tolerant searches e.g. "Grand Thief Auto", "GTA")
     if (isSearchActive) {

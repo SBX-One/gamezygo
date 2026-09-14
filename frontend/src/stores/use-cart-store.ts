@@ -20,6 +20,8 @@ export interface CartState {
   isLoading: boolean;
   error: string | null;
   orderId: string | null;
+  orderNumber: string | null;
+  gatewayReference: string | null;
   snapToken: string | null;
 }
 
@@ -30,6 +32,8 @@ export interface CartActions {
   clearCart: () => void;
   setVoucherCode: (code: string | null) => Promise<void>;
   toggleCart: (isOpen?: boolean) => void;
+  setOrderDetails: (orderNumber: string, orderId?: string) => void;
+  setGatewayReference: (reference: string | null) => void;
   checkout: () => Promise<{ orderId: string; snapToken: string; grandTotal: number }>;
   clearError: () => void;
 }
@@ -47,7 +51,20 @@ export const useCartStore = create<CartStore>()(
         isLoading: false,
         error: null,
         orderId: null,
+        orderNumber: null,
+        gatewayReference: null,
         snapToken: null,
+
+        setOrderDetails: (orderNumber, orderId) => {
+          set({
+            orderNumber,
+            ...(orderId ? { orderId } : {}),
+          });
+        },
+
+        setGatewayReference: (reference) => {
+          set({ gatewayReference: reference });
+        },
 
         addItem: (productId, quantity = 1) => {
           const { cartItems } = get();

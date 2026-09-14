@@ -2,6 +2,7 @@ import * as React from "react";
 import Head from "next/head";
 import { StoreLayout } from "@/components/layout";
 import { Header, Button, UserRank, Toast, Pill } from "@/components/ui";
+import { useLeaderboard, useUserLeaderboardRank } from "@/hooks/use-leaderboard";
 
 interface LeaderboardUser {
   rank: number;
@@ -45,6 +46,51 @@ const LIFETIME_LEADERBOARD: LeaderboardUser[] = [
 
 export default function LeaderboardPage() {
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
+
+  // TanStack Query: Leaderboard API
+  const { data: weeklyApiRes } = useLeaderboard("weekly");
+  const { data: monthlyApiRes } = useLeaderboard("monthly");
+  const { data: allTimeApiRes } = useLeaderboard("all-time");
+  const { data: userRankApiRes } = useUserLeaderboardRank();
+
+  const weeklyList = React.useMemo(() => {
+    if (weeklyApiRes?.data && weeklyApiRes.data.length > 0) {
+      return weeklyApiRes.data.map((u) => ({
+        rank: u.rank,
+        name: u.name,
+        points: u.point,
+      }));
+    }
+    return WEEKLY_LEADERBOARD;
+  }, [weeklyApiRes]);
+
+  const monthlyList = React.useMemo(() => {
+    if (monthlyApiRes?.data && monthlyApiRes.data.length > 0) {
+      return monthlyApiRes.data.map((u) => ({
+        rank: u.rank,
+        name: u.name,
+        points: u.point,
+      }));
+    }
+    return MONTHLY_LEADERBOARD;
+  }, [monthlyApiRes]);
+
+  const lifetimeList = React.useMemo(() => {
+    if (allTimeApiRes?.data && allTimeApiRes.data.length > 0) {
+      return allTimeApiRes.data.map((u) => ({
+        rank: u.rank,
+        name: u.name,
+        points: u.point,
+      }));
+    }
+    return LIFETIME_LEADERBOARD;
+  }, [allTimeApiRes]);
+
+  const userRankBadge = userRankApiRes?.data?.rank ? `#${userRankApiRes.data.rank}` : "#67";
+  const userPointsBadge =
+    userRankApiRes?.data?.point !== undefined
+      ? `${userRankApiRes.data.point} pts`
+      : "67 pts";
 
   const currentUser = {
     name: "Cihuy6767",
@@ -126,7 +172,7 @@ export default function LeaderboardPage() {
                     Mingguan
                   </Pill>
                   <span className="text-label-md font-semibold text-gray-400">
-                    #67
+                    {userRankBadge}
                   </span>
                 </div>
 
@@ -139,7 +185,7 @@ export default function LeaderboardPage() {
                     Bulanan
                   </Pill>
                   <span className="text-label-md font-semibold text-gray-400">
-                    #67
+                    {userRankBadge}
                   </span>
                 </div>
 
@@ -152,7 +198,7 @@ export default function LeaderboardPage() {
                     All-time
                   </Pill>
                   <span className="text-label-md font-semibold text-gray-400">
-                    #67
+                    {userRankBadge}
                   </span>
                 </div>
 
@@ -167,7 +213,7 @@ export default function LeaderboardPage() {
 
               {/* Right Side: Points Badge */}
               <div className="px-4 py-1.5 rounded-lg border border-gradient-secondary text-label-sm font-semibold text-gray-50 shrink-0 self-end sm:self-auto">
-                67 pts
+                {userPointsBadge}
               </div>
             </div>
 
@@ -178,20 +224,13 @@ export default function LeaderboardPage() {
               </p>
               <div className="flex items-center gap-3">
                 <Button
+                  type="button"
                   variant="primary"
                   size="sm"
-                  onClick={() =>
-                    handleToast("Klaim hadiah berhasil! Voucher telah ditambahkan ke akun Anda.")
-                  }
+                  onClick={() => handleToast("Voucher berhasil diklaim!")}
+                  className="px-6 py-2 cursor-pointer"
                 >
-                  Ambil Hadiah
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  onClick={() => handleToast("Membuka pengaturan akun...")}
-                >
-                  Pengaturan
+                  Klaim Hadiah
                 </Button>
               </div>
             </div>
@@ -207,7 +246,7 @@ export default function LeaderboardPage() {
                 WEEKLY
               </h3>
               <div className="flex flex-col gap-2">
-                {WEEKLY_LEADERBOARD.map((item, idx) => (
+                {weeklyList.map((item, idx) => (
                   <UserRank
                     key={`weekly-${idx}-${item.name}`}
                     rank={item.rank}
@@ -225,7 +264,7 @@ export default function LeaderboardPage() {
                 MONTHLY
               </h3>
               <div className="flex flex-col gap-2">
-                {MONTHLY_LEADERBOARD.map((item, idx) => (
+                {monthlyList.map((item, idx) => (
                   <UserRank
                     key={`monthly-${idx}-${item.name}`}
                     rank={item.rank}
@@ -246,7 +285,7 @@ export default function LeaderboardPage() {
               LIFETIME
             </h3>
             <div className="flex flex-col gap-2">
-              {LIFETIME_LEADERBOARD.map((item, idx) => (
+              {lifetimeList.map((item, idx) => (
                 <UserRank
                   key={`lifetime-${idx}-${item.name}`}
                   rank={item.rank}

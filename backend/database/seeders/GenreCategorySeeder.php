@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\GenreCategory;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
@@ -12,8 +13,26 @@ class GenreCategorySeeder extends Seeder
      */
     public function run(): void
     {
-        for ($batch = 0; $batch < 100; $batch++) {
-            GenreCategory::factory()->count(50)->create();
+        $genres = [
+            'Action',
+            'RPG',
+            'Strategy',
+            'Adventure',
+            'Simulation',
+            'Sports',
+            'Racing',
+            'FPS',
+            'Open World',
+            'Horror',
+            'Fighting',
+            'Survival',
+        ];
+
+        foreach ($genres as $genre) {
+            GenreCategory::firstOrCreate(
+                ['slug' => str()->slug($genre)],
+                ['name' => $genre]
+            );
         }
     }
 }

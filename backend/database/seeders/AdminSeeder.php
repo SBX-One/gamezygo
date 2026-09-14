@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\Admin;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class AdminSeeder extends Seeder
 {
@@ -13,8 +14,14 @@ class AdminSeeder extends Seeder
      */
     public function run(): void
     {
-        for ($batch = 0; $batch < 100; $batch++) {
-            Admin::factory()->count(50)->create();
-        }
+        Admin::firstOrCreate(
+            ['email' => 'admin@gamezygo.com'],
+            [
+                'name'     => 'Super Admin',
+                'password' => Hash::make('password'),
+            ]
+        );
+
+        Admin::factory()->count(4)->create();
     }
 }

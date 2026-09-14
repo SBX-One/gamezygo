@@ -17,9 +17,11 @@ class ProductLauncherCategoryFactory extends Factory
      */
     public function definition(): array
     {
+        $name = fake()->unique()->words(2, true);
+
         return [
-            'name' => fake()->name(),
-            'slug' => fake()->slug(),
+            'name' => ucfirst($name),
+            'slug' => str()->slug($name),
         ];
     }
 }

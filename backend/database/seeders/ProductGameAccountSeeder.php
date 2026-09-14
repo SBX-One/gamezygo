@@ -12,8 +12,6 @@ class ProductGameAccountSeeder extends Seeder
      */
     public function run(): void
     {
-        for ($batch = 0; $batch < 100; $batch++) {
-            ProductGameAccount::factory()->count(100)->create();
-        }
+        // Automatically created during ProductSeeder via ProductFactory afterCreating hook
     }
 }

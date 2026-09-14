@@ -13,8 +13,6 @@ class OrderItemSeeder extends Seeder
      */
     public function run(): void
     {
-        for ($batch = 0; $batch < 100; $batch++) {
-            OrderItem::factory()->count(100)->create();
-        }
+        OrderItem::factory()->count(50)->create();
     }
 }

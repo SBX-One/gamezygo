@@ -28,6 +28,7 @@ class VoucherUserSeeder extends Seeder
                 'updated_at' => now(),
             ];
         }
+
         DB::table('voucher_users')->insert($data);
     }
 }

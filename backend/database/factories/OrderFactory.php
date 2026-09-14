@@ -12,17 +12,23 @@ class OrderFactory extends Factory
     public function definition(): array
     {
         static $sequence = 1;
+        static $userIds;
+        static $voucherIds;
+
+        $userIds ??= User::pluck('id');
+        $voucherIds ??= Voucher::pluck('id');
+
         $dateString = now()->format('Ymd');
         $orderCode  = 'ORD-' . $dateString . '-' . str_pad((string) $sequence++, 5, '0', STR_PAD_LEFT);
 
-        $hasVoucher     = fake()->boolean(40);
-        $voucherId      = $hasVoucher ? Voucher::pluck('id')->random() : null;
+        $hasVoucher     = $voucherIds->isNotEmpty() && fake()->boolean(40);
+        $voucherId      = $hasVoucher ? $voucherIds->random() : null;
         $subtotalPrice  = fake()->numberBetween(50000, 500000);
         $discountAmount = $hasVoucher ? fake()->numberBetween(5000, 50000) : 0;
         $totalPrice     = max(0, $subtotalPrice - $discountAmount);
 
         return [
-            'user_id'         => User::pluck('id')->random(),
+            'user_id'         => $userIds->isNotEmpty() ? $userIds->random() : User::factory(),
             'order_code'      => $orderCode,
             'voucher_id'      => $voucherId,
             'subtotal_price'  => $subtotalPrice,

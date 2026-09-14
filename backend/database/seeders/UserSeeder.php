@@ -5,6 +5,7 @@ namespace Database\Seeders;
 use App\Models\User;
 use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class UserSeeder extends Seeder
 {
@@ -13,8 +14,19 @@ class UserSeeder extends Seeder
      */
     public function run(): void
     {
-        for ($batch = 0; $batch < 100; $batch++) {
-            User::factory()->count(100)->create();
-        }
+        User::firstOrCreate(
+            ['email' => 'user@gamezygo.com'],
+            [
+                'name'              => 'Test User',
+                'email_verified_at' => now(),
+                'password'          => Hash::make('password'),
+                'phone'             => '081234567890',
+                'status'            => 'active',
+                'total_points'      => 500,
+                'total_transaction' => 10,
+            ]
+        );
+
+        User::factory()->count(49)->create();
     }
 }

@@ -19,10 +19,17 @@ class OrderItemFactory extends Factory
      */
     public function definition(): array
     {
-        $product = Product::inRandomOrder()->first();
+        static $products;
+        static $orders;
+
+        $products ??= Product::all();
+        $orders ??= Order::all();
+
+        $product = $products->isNotEmpty() ? $products->random() : null;
+        $orderId = $orders->isNotEmpty() ? $orders->random()->id : Order::factory();
 
         return [
-            'order_id'         => Order::inRandomOrder()->first()?->id ?? Order::factory(),
+            'order_id'         => $orderId,
             'purchasable_type' => Product::class,
             'purchasable_id'   => $product?->id ?? Product::factory(),
             'price'            => $product?->price ?? fake()->numberBetween(10000, 100000),

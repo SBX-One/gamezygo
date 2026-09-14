@@ -13,8 +13,6 @@ class ProductSpecificationRequirementSeeder extends Seeder
      */
     public function run(): void
     {
-        for ($batch = 0; $batch < 100; $batch++) {
-            ProductSpecificationRequirement::factory()->count(50)->create();
-        }
+        // Automatically created during ProductSeeder via ProductFactory afterCreating hook
     }
 }

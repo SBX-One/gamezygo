@@ -13,10 +13,6 @@ class ProductSeeder extends Seeder
      */
     public function run(): void
     {
-        for ($batch = 0; $batch < 100; $batch++) {
-            Product::factory()
-                ->count(50)
-                ->create();
-        }   
+        Product::factory()->count(50)->create();
     }
 }

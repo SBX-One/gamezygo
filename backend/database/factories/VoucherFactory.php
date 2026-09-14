@@ -21,7 +21,7 @@ class VoucherFactory extends Factory
     {
         return [
             'name'                 => 'Voucher ' . fake()->name(),
-            'code'                 => fake()->unique()->code(),
+            'code'                 => fake()->unique()->bothify('VOUCHER-????-####'),
             'discount_type'        => fake()->randomElement(['percentage', 'fixed']),  
             'discount_amount'      => fake()->numberBetween(1, 100),
             'max_discount'         => fake()->numberBetween(1, 1000),
@@ -34,23 +34,27 @@ class VoucherFactory extends Factory
             'total_usage'          => fake()->numberBetween(1, 1000),
             'started_at'           => fake()->dateTimeBetween('-1 year', 'now'),
             'expired_at'           => fake()->dateTimeBetween('now', '+1 year'),
-            'status'               => fake()->randomElement(['draft', 'active', 'expired']),
+            'is_active'            => fake()->randomElement([true, false]),
         ];
     }
 
     public function configure(): static
     {
         return $this->afterCreating(function (Voucher $voucher) {
-            if ($voucher->product_scope === 'specific_products') {
-                $voucher->products()->attach(
-                    Product::query()->inRandomOrder()->limit(5)->pluck('id')
-                );
+            static $productIds;
+            static $userIds;
+
+            $productIds ??= Product::pluck('id');
+            $userIds ??= User::pluck('id');
+
+            if ($voucher->product_scope === 'specific_products' && $productIds->isNotEmpty()) {
+                $limit = min(5, $productIds->count());
+                $voucher->products()->attach($productIds->random($limit));
             }
 
-            if ($voucher->target_type === 'specific_users') {
-                $voucher->users()->attach(
-                    User::query()->inRandomOrder()->limit(5)->pluck('id')
-                );
+            if ($voucher->target_type === 'specific_users' && $userIds->isNotEmpty()) {
+                $limit = min(5, $userIds->count());
+                $voucher->users()->attach($userIds->random($limit));
             }
         });
     }

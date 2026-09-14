@@ -3,6 +3,7 @@
 namespace Database\Factories;
 
 use App\Models\SubscriptionPlan;
+use App\Models\SubscriptionPlanFeature;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**

@@ -15,8 +15,8 @@ class UserOwnedGameSeeder extends Seeder
      */
     public function run(): void
     {
-        $userIds = User::pluck('id');
-        $productIds = Product::pluck('id');
+        $userIds = User::query()->pluck('id');
+        $productIds = Product::query()->pluck('id');
 
         $data = [];
 

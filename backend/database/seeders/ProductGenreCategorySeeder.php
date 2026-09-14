@@ -11,8 +11,8 @@ class ProductGenreCategorySeeder extends Seeder
 {
     public function run(): void
     {
-        $productIds = Product::pluck('id');
-        $genreCategoryIds = GenreCategory::pluck('id');
+        $productIds = Product::query()->pluck('id');
+        $genreCategoryIds = GenreCategory::query()->pluck('id');
 
         $data = [];
 

@@ -14,6 +14,7 @@ import {
   useCreatePayment,
   usePaymentStatus,
 } from "@/hooks/use-orders";
+import { subscribePaymentSSE } from "@/services/orders.service";
 import { useCartStore } from "@/stores/use-cart-store";
 
 /**
@@ -246,9 +247,9 @@ export default function CheckoutPage() {
     }, 3500);
   };
 
-  // Watch payment status updates from Polling
+  // Watch payment status updates via Realtime SSE & Polling Fallback
   React.useEffect(() => {
-    if (paymentStatusRes?.data?.status === "paid") {
+    const handleSuccess = () => {
       setQrisModalData(null);
       setActiveReference(null);
       clearCart();
@@ -260,8 +261,27 @@ export default function CheckoutPage() {
       setTimeout(() => {
         router.push("/library");
       }, 1500);
+    };
+
+    // 1. If polling reports paid
+    if (paymentStatusRes?.data?.status === "paid" || paymentStatusRes?.data?.status === "completed") {
+      handleSuccess();
+      return;
     }
-  }, [paymentStatusRes, clearCart, router]);
+
+    // 2. If activeReference is set, listen to SSE stream
+    if (activeReference) {
+      const unsubscribe = subscribePaymentSSE(activeReference, (orderDetail) => {
+        if (orderDetail?.status === "paid" || orderDetail?.status === "completed") {
+          handleSuccess();
+        }
+      });
+
+      return () => {
+        unsubscribe();
+      };
+    }
+  }, [paymentStatusRes, activeReference, clearCart, router]);
 
   // Calculations
   const subtotal = checkoutItems.reduce((acc, item) => acc + item.price, 0);
@@ -358,10 +378,15 @@ export default function CheckoutPage() {
 
     if (!targetOrderId) {
       const primaryProductId = checkoutItems[0]?.productId || 1;
+      const itemsPayload = checkoutItems.map((item) => ({
+        product_id: item.productId || 1,
+        item_type: "product",
+      }));
       try {
         const orderRes = await createOrderMutation.mutateAsync({
           item_type: "product",
           product_id: primaryProductId,
+          items: itemsPayload,
         });
 
         if (orderRes?.data) {

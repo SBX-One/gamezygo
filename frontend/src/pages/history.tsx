@@ -19,6 +19,8 @@ import {
   type HistoryFilterState,
   type OrderStatus,
 } from "@/features/history";
+import { useUserOrders } from "@/hooks/use-orders";
+import { formatRupiah } from "@/utils/formatters";
 
 // Funnel / Filter Icon
 const FilterIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -153,13 +155,48 @@ export default function HistoryPage() {
     setIsDetailModalOpen(true);
   };
 
-  // Filter values
   const [filterState, setFilterState] = React.useState<HistoryFilterState>(INITIAL_FILTER);
   const [appliedFilter, setAppliedFilter] = React.useState<HistoryFilterState>(INITIAL_FILTER);
 
+  // TanStack Query: Fetch user orders from API
+  const { data: userOrdersRes } = useUserOrders();
+
+  // Map API data if available
+  const apiOrders: OrderHistoryItem[] = React.useMemo(() => {
+    if (!userOrdersRes?.data) return [];
+    const items = Array.isArray(userOrdersRes.data)
+      ? userOrdersRes.data
+      : (userOrdersRes.data as unknown as { data?: unknown[] }).data || [];
+
+    if (!Array.isArray(items) || items.length === 0) return [];
+
+    return items.map((o: any) => {
+      const priceVal = Number(o.total_price || o.grand_total || 0);
+      return {
+        id: String(o.id || o.order_number),
+        transactionId: o.order_number || `ORD-${o.id}`,
+        gameTitle: o.items?.[0]?.product?.title || o.item_name || "Gamezygo Product",
+        purchaseDate: new Date(o.created_at || Date.now()).toLocaleDateString("id-ID", {
+          day: "numeric",
+          month: "short",
+          year: "numeric",
+        }),
+        price: priceVal,
+        formattedPrice: formatRupiah(priceVal),
+        paymentMethod: o.payment_method?.toUpperCase() || "QRIS",
+        status: (o.status === "completed" || o.status === "success"
+          ? "Berhasil"
+          : o.status === "pending"
+          ? "Pending"
+          : "Gagal") as OrderStatus,
+      };
+    });
+  }, [userOrdersRes]);
+
   // Compute filtered items
   const filteredItems = React.useMemo(() => {
-    let list: OrderHistoryItem[] = [...MOCK_HISTORY_ORDERS];
+    const baseList = apiOrders.length > 0 ? apiOrders : MOCK_HISTORY_ORDERS;
+    let list: OrderHistoryItem[] = [...baseList];
 
     // Filter by Status
     if (appliedFilter.status.length > 0) {

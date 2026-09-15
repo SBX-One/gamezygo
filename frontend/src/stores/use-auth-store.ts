@@ -15,6 +15,7 @@ import { MOCK_USER, MOCK_TOKEN } from "@/lib/mock/data";
 export interface AuthState {
   user: User | null;
   token: string | null;
+  refreshToken: string | null;
   role: "guest" | "user" | "admin";
   isAuthenticated: boolean;
   isLoading: boolean;
@@ -25,6 +26,7 @@ export interface AuthActions {
   login: (credentials: { email: string }) => Promise<void>;
   logout: () => void;
   setToken: (token: string | null) => void;
+  setRefreshToken: (refreshToken: string | null) => void;
   setUser: (user: User | null) => void;
   updateUser: (user: Partial<User>) => void;
   clearError: () => void;
@@ -38,6 +40,7 @@ export const useAuthStore = create<AuthStore>()(
       (set) => ({
         user: null,
         token: null,
+        refreshToken: null,
         role: "guest",
         isAuthenticated: false,
         isLoading: false,
@@ -82,6 +85,7 @@ export const useAuthStore = create<AuthStore>()(
           set({
             user: null,
             token: null,
+            refreshToken: null,
             role: "guest",
             isAuthenticated: false,
           });
@@ -91,6 +95,12 @@ export const useAuthStore = create<AuthStore>()(
           set({
             token,
             isAuthenticated: Boolean(token),
+          });
+        },
+
+        setRefreshToken: (refreshToken) => {
+          set({
+            refreshToken,
           });
         },
 

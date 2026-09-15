@@ -1,15 +1,44 @@
 import { apiGet, apiPost, apiDelete } from "@/lib/api-client";
 import type {
   ApiResponse,
+  ApiPaginatedResponse,
   OrderResponse,
   OrderDetailResponse,
   VoucherApplyResponse,
   PaymentResponse,
 } from "@/types";
 
-export interface CreateOrderPayload {
+export interface OrderItemPayload {
   item_type: "product" | string;
   product_id: number;
+}
+
+export interface CreateOrderPayload {
+  item_type?: "product" | string;
+  product_id?: number;
+  items?: OrderItemPayload[];
+}
+
+export interface UserOrderQueryParams {
+  page?: number;
+  status?: string;
+  search?: string;
+}
+
+/**
+ * Fetch all user orders with pagination & filters
+ * Endpoint: GET /api/v1/user/orders
+ */
+export async function fetchUserOrders(
+  params?: UserOrderQueryParams
+): Promise<ApiResponse<OrderDetailResponse[]> | ApiPaginatedResponse<OrderDetailResponse>> {
+  const queryParts: string[] = [];
+  if (params?.page) queryParts.push(`page=${params.page}`);
+  if (params?.status) queryParts.push(`status=${encodeURIComponent(params.status)}`);
+  if (params?.search) queryParts.push(`search=${encodeURIComponent(params.search)}`);
+  const qs = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
+
+  return apiGet<ApiResponse<OrderDetailResponse[]>>(`/user/orders${qs}`);
 }
 
 /**
@@ -86,3 +115,49 @@ export async function fetchPaymentStatus(
     `/user/orders/payments/${reference}`
   );
 }
+
+/**
+ * Subscribe to realtime payment status updates via Server-Sent Events (SSE)
+ * Endpoint: GET /api/v1/user/orders/payments/:reference/stream
+ */
+export function subscribePaymentSSE(
+  reference: string,
+  onMessage: (data: OrderDetailResponse) => void,
+  onError?: (err: Event) => void
+): () => void {
+  if (typeof window === "undefined" || !("EventSource" in window)) {
+    return () => {};
+  }
+
+  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
+  const url = `${baseUrl}/user/orders/payments/${reference}/stream`;
+
+  try {
+    const eventSource = new EventSource(url);
+
+    eventSource.onmessage = (event) => {
+      try {
+        const parsed = JSON.parse(event.data);
+        if (parsed?.data) {
+          onMessage(parsed.data);
+        } else if (parsed?.status) {
+          onMessage(parsed);
+        }
+      } catch (err) {
+        console.error("Failed to parse SSE payment data:", err);
+      }
+    };
+
+    eventSource.onerror = (err) => {
+      onError?.(err);
+    };
+
+    return () => {
+      eventSource.close();
+    };
+  } catch (err) {
+    console.error("SSE not supported or failed to initialize:", err);
+    return () => {};
+  }
+}
+

@@ -2,19 +2,33 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   createOrder,
   fetchOrderDetail,
+  fetchUserOrders,
   applyVoucher,
   removeVoucher,
   createPayment,
   fetchPaymentStatus,
   type CreateOrderPayload,
+  type UserOrderQueryParams,
 } from "@/services/orders.service";
 
 export const ORDER_KEYS = {
   all: ["orders"] as const,
+  list: (params?: UserOrderQueryParams) =>
+    [...ORDER_KEYS.all, "list", params] as const,
   detail: (orderId: string) => [...ORDER_KEYS.all, "detail", orderId] as const,
   paymentStatus: (reference: string) =>
     [...ORDER_KEYS.all, "payment", reference] as const,
 };
+
+/**
+ * Hook to fetch user orders list
+ */
+export function useUserOrders(params?: UserOrderQueryParams) {
+  return useQuery({
+    queryKey: ORDER_KEYS.list(params),
+    queryFn: () => fetchUserOrders(params),
+  });
+}
 
 /**
  * Hook to create a new order

@@ -11,7 +11,12 @@ import {
   RequestListItem,
   type RequestCardVariant,
 } from "@/components/ui";
-import { useGameRequests, useCreateGameRequest } from "@/hooks/use-requests";
+import {
+  useGameRequests,
+  useCreateGameRequest,
+  useVoteGameRequest,
+  useUnvoteGameRequest,
+} from "@/hooks/use-requests";
 
 // Helper to extract Steam App ID from various Steam URL patterns
 function extractSteamAppId(url: string): number | null {
@@ -314,6 +319,8 @@ export default function RequestGamePage() {
   const scope = activeTab === "my-requests" ? "mine" : "all";
   const { data: requestsApiRes } = useGameRequests({ scope, page: currentPage });
   const createRequestMutation = useCreateGameRequest();
+  const voteMutation = useVoteGameRequest();
+  const unvoteMutation = useUnvoteGameRequest();
 
   // Toast Feedback State
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
@@ -419,7 +426,19 @@ export default function RequestGamePage() {
       setMyRequests((prev) => prev.filter((item) => item.id !== id));
       handleToast("Request game berhasil dibatalkan.");
     } else if (activeTab === "community") {
-      // Toggle Upvote
+      // Toggle Upvote / Unvote
+      const targetItem = communityRequests.find((item) => item.id === id);
+      const isCurrentlyUpvoted = Boolean(targetItem?.isUpvoted);
+      const numericId = parseInt(id.replace(/\D/g, ""), 10);
+
+      if (numericId && !isNaN(numericId)) {
+        if (isCurrentlyUpvoted) {
+          unvoteMutation.mutate(numericId);
+        } else {
+          voteMutation.mutate(numericId);
+        }
+      }
+
       setCommunityRequests((prev) =>
         prev.map((item) => {
           if (item.id === id) {
@@ -435,7 +454,11 @@ export default function RequestGamePage() {
           return item;
         })
       );
-      handleToast("Dukungan vote berhasil diperbarui!");
+      handleToast(
+        isCurrentlyUpvoted
+          ? "Dukungan vote berhasil dibatalkan."
+          : "Dukungan vote berhasil ditambahkan!"
+      );
     } else if (activeTab === "added") {
       // View in store
       handleToast("Membuka halaman game di Toko Gamezygo...");

@@ -37,19 +37,94 @@ apiClient.interceptors.request.use(
   }
 );
 
-// Response Interceptor: Handle global errors (e.g. 401, 403)
+let isRefreshing = false;
+let failedQueue: Array<{
+  resolve: (value?: unknown) => void;
+  reject: (reason?: unknown) => void;
+}> = [];
+
+const processQueue = (error: unknown, token: string | null = null) => {
+  failedQueue.forEach((prom) => {
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+};
+
+// Response Interceptor: Handle global errors (401 with Silent Refresh)
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
     return response;
   },
-  (error) => {
-    if (error.response) {
-      const { status } = error.response;
-      if (status === 401) {
-        // Token expired or invalid, reset auth state
-        useAuthStore.getState().logout();
+  async (error) => {
+    const originalRequest = error.config;
+
+    if (error.response?.status === 401 && !originalRequest?._retry) {
+      const { refreshToken, setToken, logout } = useAuthStore.getState();
+
+      // If already on the refresh endpoint or no refresh token, logout
+      if (!refreshToken || originalRequest?.url?.includes("/auth/refresh")) {
+        logout();
+        return Promise.reject(error);
+      }
+
+      if (isRefreshing) {
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        })
+          .then((newToken) => {
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            }
+            return apiClient(originalRequest);
+          })
+          .catch((err) => Promise.reject(err));
+      }
+
+      originalRequest._retry = true;
+      isRefreshing = true;
+
+      try {
+        const refreshResponse = await axios.post(
+          `${API_BASE_URL}/auth/refresh`,
+          { refresh_token: refreshToken },
+          {
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${refreshToken}`,
+            },
+          }
+        );
+
+        const newToken =
+          refreshResponse.data?.data?.token ||
+          refreshResponse.data?.token ||
+          refreshResponse.data?.data?.access_token;
+
+        if (newToken) {
+          setToken(newToken);
+          processQueue(null, newToken);
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${newToken}`;
+          }
+          return apiClient(originalRequest);
+        } else {
+          processQueue(new Error("No new token returned"), null);
+          logout();
+          return Promise.reject(error);
+        }
+      } catch (refreshErr) {
+        processQueue(refreshErr, null);
+        logout();
+        return Promise.reject(refreshErr);
+      } finally {
+        isRefreshing = false;
       }
     }
+
     return Promise.reject(error);
   }
 );

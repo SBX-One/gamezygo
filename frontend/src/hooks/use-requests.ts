@@ -3,6 +3,8 @@ import {
   fetchGameRequests,
   createGameRequest,
   deleteGameRequest,
+  voteGameRequest,
+  unvoteGameRequest,
   type GameRequestQueryParams,
   type CreateGameRequestPayload,
 } from "@/services/requests.service";
@@ -50,3 +52,32 @@ export function useDeleteGameRequest() {
     },
   });
 }
+
+/**
+ * Hook to upvote a game request
+ */
+export function useVoteGameRequest() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (requestId: number) => voteGameRequest(requestId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: REQUEST_KEYS.all });
+    },
+  });
+}
+
+/**
+ * Hook to cancel upvote / unvote a game request
+ */
+export function useUnvoteGameRequest() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (requestId: number) => unvoteGameRequest(requestId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: REQUEST_KEYS.all });
+    },
+  });
+}
+

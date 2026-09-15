@@ -62,3 +62,23 @@ export async function deleteGameRequest(
 ): Promise<ApiResponse<null>> {
   return apiDelete<ApiResponse<null>>(`/user/game-requests/${requestId}`);
 }
+
+/**
+ * Upvote a game request
+ * Endpoint: POST /api/v1/user/game-requests/:id/vote
+ */
+export async function voteGameRequest(
+  requestId: number
+): Promise<ApiResponse<null>> {
+  return apiPost<ApiResponse<null>>(`/user/game-requests/${requestId}/vote`);
+}
+
+/**
+ * Cancel upvote / Unvote a game request
+ * Endpoint: DELETE /api/v1/user/game-requests/:id/vote
+ */
+export async function unvoteGameRequest(
+  requestId: number
+): Promise<ApiResponse<null>> {
+  return apiDelete<ApiResponse<null>>(`/user/game-requests/${requestId}/vote`);
+}

@@ -26,9 +26,13 @@ export interface ProductCardRowProps extends React.HTMLAttributes<HTMLDivElement
    */
   onAddToCart?: (title: string) => void;
   /**
-   * Item threshold to enable horizontal scroll and fade shadows (default: 4)
+   * Item threshold to enable horizontal scroll and fade shadows (default: 4 for vertical, 2 for horizontal)
    */
   threshold?: number;
+  /**
+   * Card orientation: 'vertical' | 'horizontal' (default: 'vertical')
+   */
+  orientation?: "vertical" | "horizontal";
   /**
    * Optional custom card class name
    */

@@ -6,7 +6,8 @@ import type { ProductCardRowProps } from "./ProductCardRow.types";
 export function ProductCardRow({
   products,
   onAddToCart,
-  threshold = 4,
+  threshold,
+  orientation = "vertical",
   cardClassName,
   className,
   ref,
@@ -16,7 +17,9 @@ export function ProductCardRow({
   const [canScrollLeft, setCanScrollLeft] = React.useState(false);
   const [canScrollRight, setCanScrollRight] = React.useState(false);
 
-  const hasOverflow = products.length > threshold;
+  const isHorizontal = orientation === "horizontal";
+  const effectiveThreshold = threshold ?? (isHorizontal ? 2 : 4);
+  const hasOverflow = products.length > effectiveThreshold;
 
   // Check scroll position to dynamically show/hide gradient shadows
   const checkScroll = React.useCallback(() => {
@@ -52,7 +55,9 @@ export function ProductCardRow({
       <div
         ref={ref}
         className={cn(
-          "grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5",
+          isHorizontal
+            ? "grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6"
+            : "grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5",
           className
         )}
         {...props}
@@ -60,6 +65,7 @@ export function ProductCardRow({
         {products.map((product) => (
           <ProductCard
             key={product.id}
+            orientation={orientation}
             title={product.title}
             imageSrc={product.imageSrc}
             genres={product.genres}
@@ -67,9 +73,11 @@ export function ProductCardRow({
             price={product.price}
             discount={product.discount}
             platform={product.platform}
+            isBestSeller={product.isBestSeller ?? false}
+            buttonText="Tambah Keranjang"
             href={`/store/${product.id}`}
             onActionClick={() => onAddToCart?.(product.title)}
-            className={cn("max-lg:pb-8xl", cardClassName)}
+            className={cn(isHorizontal ? "w-full" : "max-lg:pb-8xl", cardClassName)}
           />
         ))}
       </div>
@@ -94,7 +102,7 @@ export function ProductCardRow({
       />
 
       {/* ========================================================
-          2. RIGHT GRADIENT SHADOW (Affordance for >4 items)
+          2. RIGHT GRADIENT SHADOW (Affordance for more items)
          ======================================================== */}
       <div
         className={cn(
@@ -110,14 +118,20 @@ export function ProductCardRow({
       <div
         ref={scrollContainerRef}
         onScroll={checkScroll}
-        className="flex gap-3 sm:gap-5 overflow-x-auto overflow-y-hidden no-scrollbar pb-3 pt-1 -mx-1 px-1 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+        className="flex gap-4 sm:gap-6 overflow-x-auto overflow-y-hidden no-scrollbar pb-3 pt-1 -mx-1 px-1 scrollbar-none [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
       >
         {products.map((product) => (
           <div
             key={product.id}
-            className="w-60 sm:w-[calc(50%-10px)] lg:w-[calc((100%-45px)/4)] shrink-0 flex flex-col"
+            className={cn(
+              "shrink-0 flex flex-col",
+              isHorizontal
+                ? "w-[320px] sm:w-[420px] lg:w-[480px] max-w-full"
+                : "w-60 sm:w-[calc(50%-10px)] lg:w-[calc((100%-45px)/4)]"
+            )}
           >
             <ProductCard
+              orientation={orientation}
               title={product.title}
               imageSrc={product.imageSrc}
               genres={product.genres}
@@ -125,9 +139,11 @@ export function ProductCardRow({
               price={product.price}
               discount={product.discount}
               platform={product.platform}
+              isBestSeller={product.isBestSeller ?? false}
+              buttonText="Tambah Keranjang"
               href={`/store/${product.id}`}
               onActionClick={() => onAddToCart?.(product.title)}
-              className={cn("h-full max-lg:pb-8xl", cardClassName)}
+              className={cn("h-full", isHorizontal ? "sm:min-w-0" : "max-lg:pb-8xl", cardClassName)}
             />
           </div>
         ))}

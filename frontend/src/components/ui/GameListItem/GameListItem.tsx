@@ -73,9 +73,13 @@ export function GameListItem({
           {/* Discount Pill */}
           <div>
             {discount ? (
-              <Pill variant="secondary" size="xs" className="">
-                {discount}
-              </Pill>
+              React.isValidElement(discount) ? (
+                discount
+              ) : (
+                <Pill variant="primary" size="xs" className="font-bold px-2 py-0.5">
+                  {discount}
+                </Pill>
+              )
             ) : null}
           </div>
 
@@ -86,7 +90,7 @@ export function GameListItem({
                 {originalPrice}
               </span>
             )}
-            <span className="text-body-sm font-semibold text-pale-red-100">
+            <span className="text-body-sm font-semibold text-gray-50">
               {price}
             </span>
           </div>

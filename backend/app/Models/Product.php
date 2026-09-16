@@ -38,11 +38,6 @@ class Product extends Model
         return $this->belongsTo(ProductLauncherCategory::class, 'product_launcher_category_id');
     }
 
-    public function productLauncherCategories(): BelongsTo
-    {
-        return $this->productLauncherCategory();
-    }
-
     public function productInstruction(): BelongsTo
     {
         return $this->belongsTo(ProductInstruction::class, 'product_instruction_id');
@@ -98,5 +93,18 @@ class Product extends Model
         return $this->belongsToMany(CustomSection::class, 'custom_section_products')
             ->withPivot('order_number')
             ->withTimestamps();
+    }
+
+    public function files(): MorphMany
+    {
+        return $this->morphMany(File::class, 'related');
+    }
+
+    public function getDiscountAttribute(): int
+    {
+        if ($this->price > 0 && $this->discount_price > 0 && $this->discount_price < $this->price) {
+            return (int) round((($this->price - $this->discount_price) / $this->price) * 100);
+        }
+        return 0;
     }
 }

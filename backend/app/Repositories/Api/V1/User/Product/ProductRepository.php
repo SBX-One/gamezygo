@@ -1,0 +1,104 @@
+<?php
+
+namespace App\Repositories\Api\V1\User\Product;
+
+use App\Models\Product;
+use App\Repositories\Contracts\Api\V1\User\Product\ProductRepositoryInterface;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Str;
+
+class ProductRepository implements ProductRepositoryInterface
+{
+    /**
+     * Get paginated list of guest products based on filters.
+     *
+     * @param array<string, mixed> $filters
+     * @param int $perPage
+     * @return LengthAwarePaginator
+     */
+    public function getGuestProducts(array $filters, int $perPage = 16): LengthAwarePaginator
+    {
+        $search     = $filters['search'] ?? null;
+        $category   = $filters['category'] ?? null;
+        $launcher   = $filters['launcher'] ?? null;
+        $priceRange = $filters['price_range'] ?? null;
+        $filter     = $filters['filter'] ?? null;
+        $sortBy     = $filters['sort_by'] ?? null;
+
+        return Product::query()
+            ->with(['genreCategories', 'productLauncherCategory'])
+            ->when($search, function ($query) use ($search) {
+                $query->where('name', 'like', '%' . $search . '%');
+            })
+            ->when($category, function ($query) use ($category) {
+                $query->whereHas('genreCategories', function ($query) use ($category) {
+                    $query->where('genre_categories.slug', Str::slug($category));
+                });
+            })
+            ->when($launcher, function ($query) use ($launcher) {
+                $query->whereHas('productLauncherCategory', function ($query) use ($launcher) {
+                    $query->where('slug', Str::slug($launcher))
+                        ->orWhere('name', 'like', '%' . $launcher . '%');
+                });
+            })
+            ->when($priceRange, function ($query) use ($priceRange) {
+                $parts = explode('-', $priceRange);
+                if (count($parts) === 2) {
+                    $query->whereBetween('price', [(int) $parts[0], (int) $parts[1]]);
+                }
+            })
+            ->when($filter, function ($query) use ($filter) {
+                match ($filter) {
+                    'hot_deal' => $query
+                        ->whereNotNull('discount_price')
+                        ->where('discount_price', '>', 0),
+
+                    'best_seller' => $query
+                        ->withCount('orderItems')
+                        ->orderByDesc('order_items_count'),
+
+                    'new_release' => $query
+                        ->where('status', 'listing')
+                        ->orderByDesc('created_at'),
+
+                    'coming_soon' => $query
+                        ->where('status', 'pre-order'),
+
+                    default => null,
+                };
+            })
+            ->when($sortBy, function ($query) use ($sortBy) {
+                match ($sortBy) {
+                    'price_asc'  => $query->orderBy('price'),
+                    'price_desc' => $query->orderByDesc('price'),
+                    'newest'     => $query->orderByDesc('created_at'),
+                    default      => $query->latest(),
+                };
+            }, function ($query) {
+                $query->latest();
+            })
+            ->paginate($perPage);
+    }
+
+    /**
+     * Find a product by its slug with all detailed relations.
+     *
+     * @param string $slug
+     * @return Product|null
+     */
+    public function findBySlug(string $slug): ?Product
+    {
+        return Product::query()
+            ->where('slug', $slug)
+            ->with([
+                'genreCategories',
+                'productLauncherCategory',
+                'specificationRequirements',
+                'productInstruction',
+            ])
+            ->withAvg(['reviews' => function ($query) {
+                $query->where('status', 'approved');
+            }], 'rating')
+            ->first();
+    }
+}

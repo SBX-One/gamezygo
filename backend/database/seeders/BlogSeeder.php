@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\Blog;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\BlogCategory;
 use Illuminate\Database\Seeder;
 
 class BlogSeeder extends Seeder
@@ -13,6 +13,13 @@ class BlogSeeder extends Seeder
      */
     public function run(): void
     {
-        Blog::factory()->count(20)->create();
+        if (BlogCategory::count() === 0) {
+            $this->call(BlogCategorySeeder::class);
+        }
+
+        Blog::factory()->count(20)->create([
+            'status'       => 'published',
+            'published_at' => now(),
+        ]);
     }
 }

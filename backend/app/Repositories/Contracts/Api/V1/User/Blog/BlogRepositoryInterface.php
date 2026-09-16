@@ -3,17 +3,18 @@
 namespace App\Repositories\Contracts\Api\V1\User\Blog;
 
 use App\Models\Blog;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 interface BlogRepositoryInterface
 {
     /**
-     * Get published blogs with category and optional filters.
+     * Get paginated published blogs with category and optional filters.
      *
      * @param array<string, mixed> $filters
-     * @return Collection
+     * @param int $perPage
+     * @return LengthAwarePaginator
      */
-    public function getPublishedBlogs(array $filters = []): Collection;
+    public function getPublishedBlogs(array $filters = [], int $perPage = 10): LengthAwarePaginator;
 
     /**
      * Find a published blog by its slug with category and author.

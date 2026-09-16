@@ -23,7 +23,9 @@ class BlogController extends Controller
             'categories',
         ]);
 
-        $blogs = $this->blogService->getPublishedBlogs($filters);
+        $perPage = (int) $request->get('per_page', 10);
+
+        $blogs = $this->blogService->getPublishedBlogs($filters, $perPage);
 
         return new BlogCollection($blogs);
     }

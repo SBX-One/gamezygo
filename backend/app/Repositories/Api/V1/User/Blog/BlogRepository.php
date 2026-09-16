@@ -4,46 +4,48 @@ namespace App\Repositories\Api\V1\User\Blog;
 
 use App\Models\Blog;
 use App\Repositories\Contracts\Api\V1\User\Blog\BlogRepositoryInterface;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
 
 class BlogRepository implements BlogRepositoryInterface
 {
     /**
-     * Get published blogs with category and optional filters.
+     * Get paginated published blogs with category and optional filters.
      *
      * @param array<string, mixed> $filters
-     * @return Collection
+     * @param int $perPage
+     * @return LengthAwarePaginator
      */
-    public function getPublishedBlogs(array $filters = []): Collection
+    public function getPublishedBlogs(array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
-        $search     = $filters['search'] ?? null;
-        $categories = $filters['categories'] ?? null;
+        $search        = isset($filters['search']) ? trim((string) $filters['search']) : null;
+        $rawCategories = $filters['categories'] ?? null;
+
+        $categoryList = [];
+        if (is_array($rawCategories)) {
+            $categoryList = array_filter($rawCategories, fn ($cat) => !empty(trim((string) $cat)));
+        } elseif (is_string($rawCategories) && trim($rawCategories) !== '') {
+            $categoryList = array_filter(explode(',', $rawCategories), fn ($cat) => !empty(trim($cat)));
+        }
 
         return Blog::query()
             ->where('status', 'published')
             ->with('category')
-            ->when($search, function ($query) use ($search) {
+            ->when(!empty($search), function ($query) use ($search) {
                 $query->where(function ($q) use ($search) {
                     $q->where('title', 'like', '%' . $search . '%')
                         ->orWhere('short_description', 'like', '%' . $search . '%');
                 });
             })
-            ->when($categories, function ($query) use ($categories) {
-                $categoryList = is_array($categories)
-                    ? $categories
-                    : array_filter(explode(',', (string) $categories));
+            ->when(!empty($categoryList), function ($query) use ($categoryList) {
+                $categorySlugs = array_map(fn ($cat) => Str::slug($cat), $categoryList);
 
-                if (!empty($categoryList)) {
-                    $categorySlugs = array_map(fn ($cat) => Str::slug($cat), $categoryList);
-
-                    $query->whereHas('category', function ($q) use ($categorySlugs) {
-                        $q->whereIn('slug', $categorySlugs);
-                    });
-                }
+                $query->whereHas('category', function ($q) use ($categorySlugs) {
+                    $q->whereIn('slug', $categorySlugs);
+                });
             })
             ->orderByDesc('published_at')
-            ->get();
+            ->paginate($perPage);
     }
 
     /**

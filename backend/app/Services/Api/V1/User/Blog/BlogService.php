@@ -4,7 +4,7 @@ namespace App\Services\Api\V1\User\Blog;
 
 use App\Models\Blog;
 use App\Repositories\Contracts\Api\V1\User\Blog\BlogRepositoryInterface;
-use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class BlogService
@@ -15,14 +15,15 @@ class BlogService
     }
 
     /**
-     * Fetch published blogs with category and optional filters.
+     * Fetch paginated published blogs with category and optional filters.
      *
      * @param array<string, mixed> $filters
-     * @return Collection
+     * @param int $perPage
+     * @return LengthAwarePaginator
      */
-    public function getPublishedBlogs(array $filters = []): Collection
+    public function getPublishedBlogs(array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
-        return $this->blogRepository->getPublishedBlogs($filters);
+        return $this->blogRepository->getPublishedBlogs($filters, $perPage);
     }
 
     /**

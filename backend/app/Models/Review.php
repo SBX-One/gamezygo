@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 
 #[Fillable([
     'user_id',
@@ -33,5 +34,10 @@ class Review extends Model
     public function replies(): HasMany
     {
         return $this->hasMany(ReviewReply::class);
+    }
+
+    public function images(): MorphMany
+    {
+        return $this->morphMany(File::class, 'related');
     }
 }

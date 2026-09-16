@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\User\Blog\BlogController;
 use App\Http\Controllers\Api\V1\User\CustomSection\CustomSectionController;
 use App\Http\Controllers\Api\V1\User\Product\ProductController;
+use App\Http\Controllers\Api\V1\User\Review\ReviewController;
 use App\Http\Controllers\Api\V1\User\SubscriptionPlan\SubscriptionPlanController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -45,6 +46,14 @@ Route::prefix('user')
                     ->group(function () {
                         Route::get('/', 'index')->name('index');
                         Route::get('/{blog:slug}', 'show')->name('show');
+                    });
+
+                // Reviews guest endpoint
+                Route::controller(ReviewController::class)
+                    ->prefix('/reviews')
+                    ->name('reviews.')
+                    ->group(function () {
+                        Route::get('/', 'index')->name('index');
                     });
             });
     });

@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Repositories\Contracts\Api\V1\User\CustomSection\CustomSectionRepositoryInterface;
+use App\Repositories\Api\V1\User\CustomSection\CustomSectionRepository;
 use App\Repositories\Contracts\Api\V1\User\Product\ProductRepositoryInterface;
 use App\Repositories\Api\V1\User\Product\ProductRepository;
 use Illuminate\Support\ServiceProvider;
@@ -14,6 +16,7 @@ class RepositoryServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
+        $this->app->bind(CustomSectionRepositoryInterface::class, CustomSectionRepository::class);
     }
 
     /**

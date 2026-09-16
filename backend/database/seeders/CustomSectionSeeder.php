@@ -3,7 +3,7 @@
 namespace Database\Seeders;
 
 use App\Models\CustomSection;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
+use App\Models\Product;
 use Illuminate\Database\Seeder;
 
 class CustomSectionSeeder extends Seeder
@@ -13,6 +13,66 @@ class CustomSectionSeeder extends Seeder
      */
     public function run(): void
     {
-        CustomSection::factory()->count(5)->create();
+        $products = Product::pluck('id');
+
+        if ($products->isEmpty()) {
+            return;
+        }
+
+        // 1. Manual Section (Tawaran Khusus)
+        $manualSection = CustomSection::updateOrCreate(
+            ['slug' => 'tawaran-khusus'],
+            [
+                'title'        => 'Tawaran Khusus!',
+                'display_type' => 'manual',
+                'auto_rule'    => null,
+                'order_number' => 1,
+                'is_active'    => true,
+            ]
+        );
+
+        $selectedProducts = $products->random(min(5, $products->count()));
+        $syncData = [];
+        $order = 1;
+        foreach ($selectedProducts as $productId) {
+            $syncData[$productId] = ['order_number' => $order++];
+        }
+        $manualSection->products()->sync($syncData);
+
+        // 2. Auto Section - Best Seller
+        CustomSection::updateOrCreate(
+            ['slug' => 'game-terlaris-dan-populer'],
+            [
+                'title'        => 'Game Terlaris & Populer',
+                'display_type' => 'auto',
+                'auto_rule'    => 'best_seller',
+                'order_number' => 2,
+                'is_active'    => true,
+            ]
+        );
+
+        // 3. Auto Section - Newest
+        CustomSection::updateOrCreate(
+            ['slug' => 'rilis-terbaru'],
+            [
+                'title'        => 'Rilis Terbaru',
+                'display_type' => 'auto',
+                'auto_rule'    => 'newest',
+                'order_number' => 3,
+                'is_active'    => true,
+            ]
+        );
+
+        // 4. Auto Section - Discounted
+        CustomSection::updateOrCreate(
+            ['slug' => 'diskon-spesial-minggu-ini'],
+            [
+                'title'        => 'Diskon Spesial Minggu Ini',
+                'display_type' => 'auto',
+                'auto_rule'    => 'discounted',
+                'order_number' => 4,
+                'is_active'    => true,
+            ]
+        );
     }
 }

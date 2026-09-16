@@ -45,4 +45,19 @@ class BlogRepository implements BlogRepositoryInterface
             ->orderByDesc('published_at')
             ->get();
     }
+
+    /**
+     * Find a published blog by its slug with category and author.
+     *
+     * @param string $slug
+     * @return Blog|null
+     */
+    public function findBySlug(string $slug): ?Blog
+    {
+        return Blog::query()
+            ->where('slug', $slug)
+            ->where('status', 'published')
+            ->with(['category', 'author'])
+            ->first();
+    }
 }

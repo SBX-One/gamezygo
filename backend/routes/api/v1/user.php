@@ -44,6 +44,7 @@ Route::prefix('user')
                     ->name('blogs.')
                     ->group(function () {
                         Route::get('/', 'index')->name('index');
+                        Route::get('/{blog:slug}', 'show')->name('show');
                     });
             });
     });

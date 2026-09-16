@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Repositories\Contracts\Api\V1\User\Announcement\AnnouncementRepositoryInterface;
+use App\Repositories\Api\V1\User\Announcement\AnnouncementRepository;
 use App\Repositories\Contracts\Api\V1\User\Blog\BlogRepositoryInterface;
 use App\Repositories\Api\V1\User\Blog\BlogRepository;
 use App\Repositories\Contracts\Api\V1\User\CustomSection\CustomSectionRepositoryInterface;
@@ -32,6 +34,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(ReviewRepositoryInterface::class, ReviewRepository::class);
         $this->app->bind(LeaderboardRepositoryInterface::class, LeaderboardRepository::class);
         $this->app->bind(FaqRepositoryInterface::class, FaqRepository::class);
+        $this->app->bind(AnnouncementRepositoryInterface::class, AnnouncementRepository::class);
     }
 
     /**

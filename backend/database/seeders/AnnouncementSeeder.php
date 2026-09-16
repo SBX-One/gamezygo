@@ -3,7 +3,6 @@
 namespace Database\Seeders;
 
 use App\Models\Announcement;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class AnnouncementSeeder extends Seeder
@@ -13,6 +12,26 @@ class AnnouncementSeeder extends Seeder
      */
     public function run(): void
     {
-        Announcement::factory()->count(5)->create();
+        $announcements = [
+            [
+                'banner_file_url' => 'https://example.com/announcements/banner-1.jpg',
+                'link'            => 'https://example.com/promo/summer-sale',
+                'is_published'    => true,
+                'sort_order'      => 1,
+            ],
+            [
+                'banner_file_url' => 'https://example.com/announcements/banner-2.jpg',
+                'link'            => 'https://example.com/games',
+                'is_published'    => true,
+                'sort_order'      => 2,
+            ],
+        ];
+
+        foreach ($announcements as $announcementData) {
+            Announcement::updateOrCreate(
+                ['banner_file_url' => $announcementData['banner_file_url']],
+                $announcementData
+            );
+        }
     }
 }

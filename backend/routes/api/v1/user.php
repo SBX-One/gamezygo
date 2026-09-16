@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\User\Announcement\AnnouncementController;
 use App\Http\Controllers\Api\V1\User\Blog\BlogController;
 use App\Http\Controllers\Api\V1\User\CustomSection\CustomSectionController;
 use App\Http\Controllers\Api\V1\User\Faq\FaqController;
@@ -70,6 +71,14 @@ Route::prefix('user')
                 Route::controller(FaqController::class)
                     ->prefix('/faqs')
                     ->name('faqs.')
+                    ->group(function () {
+                        Route::get('/', 'index')->name('index');
+                    });
+
+                // Announcements guest endpoint
+                Route::controller(AnnouncementController::class)
+                    ->prefix('/announcements')
+                    ->name('announcements.')
                     ->group(function () {
                         Route::get('/', 'index')->name('index');
                     });

@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\User\Blog\BlogController;
 use App\Http\Controllers\Api\V1\User\CustomSection\CustomSectionController;
+use App\Http\Controllers\Api\V1\User\Faq\FaqController;
 use App\Http\Controllers\Api\V1\User\Leaderboard\LeaderboardController;
 use App\Http\Controllers\Api\V1\User\Product\ProductController;
 use App\Http\Controllers\Api\V1\User\Review\ReviewController;
@@ -61,6 +62,14 @@ Route::prefix('user')
                 Route::controller(LeaderboardController::class)
                     ->prefix('/leaderboards')
                     ->name('leaderboards.')
+                    ->group(function () {
+                        Route::get('/', 'index')->name('index');
+                    });
+
+                // FAQs guest endpoint
+                Route::controller(FaqController::class)
+                    ->prefix('/faqs')
+                    ->name('faqs.')
                     ->group(function () {
                         Route::get('/', 'index')->name('index');
                     });

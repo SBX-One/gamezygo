@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\User\Blog\BlogController;
 use App\Http\Controllers\Api\V1\User\CustomSection\CustomSectionController;
 use App\Http\Controllers\Api\V1\User\Product\ProductController;
 use App\Http\Controllers\Api\V1\User\SubscriptionPlan\SubscriptionPlanController;
@@ -33,6 +34,14 @@ Route::prefix('user')
                 Route::controller(SubscriptionPlanController::class)
                     ->prefix('/subscriptions')
                     ->name('subscriptions.')
+                    ->group(function () {
+                        Route::get('/', 'index')->name('index');
+                    });
+
+                // Blogs guest endpoint
+                Route::controller(BlogController::class)
+                    ->prefix('/blogs')
+                    ->name('blogs.')
                     ->group(function () {
                         Route::get('/', 'index')->name('index');
                     });

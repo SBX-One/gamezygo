@@ -30,7 +30,7 @@ export function BlogCard({
       {...props}
     >
       {/* 1. Cover Image (rounded-lg) */}
-      <div className="w-full aspect-video rounded-lg overflow-hidden bg-deep-blue-950 shrink-0">
+      <div className="w-full h-full max-h-67.5 aspect-video rounded-lg overflow-hidden bg-deep-blue-950 shrink-0">
         {imageSlot ? (
           imageSlot
         ) : imageSrc ? (
@@ -43,7 +43,7 @@ export function BlogCard({
               target.src =
                 "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=800&q=80";
             }}
-            className="w-full h-full object-cover rounded-lg transition-transform duration-300 hover:scale-105"
+            className="w-full h-full max-h-67.5 object-cover rounded-lg transition-transform duration-300 hover:scale-105"
           />
         ) : (
           <div className="w-full h-full bg-deep-blue-950 flex items-center justify-center text-gray-500 text-body-sm rounded-lg">

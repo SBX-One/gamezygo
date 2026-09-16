@@ -120,6 +120,12 @@ export default function StorePage() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const authUser = useAuthStore((s) => s.user);
 
+  const [isMounted, setIsMounted] = React.useState(false);
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+  const isUserLoggedIn = isMounted && isAuthenticated;
+
   // React Query API Data Hooks
   const { data: announcementsData } = useAnnouncements();
   const { data: sectionsData } = useCustomSections();
@@ -366,7 +372,7 @@ export default function StorePage() {
         }}
         onFilterClick={() => setIsFilterModalOpen((prev) => !prev)}
         onCartClick={() => handleAddToCart("Item Cart")}
-        contentClassName="w-full  mx-auto px-4 sm:px-8 lg:px-10 pb-20 flex flex-col gap-11xl"
+        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 pb-20 flex flex-col gap-11xl"
       >
         {/* ======================================================
             CASE A: STATE 500 SERVER ERROR (Screenshot 2: Empty)
@@ -519,27 +525,35 @@ export default function StorePage() {
               className="pt-11xl"
             />
 
-            {/* 2. PROMO BANNER CAROUSEL */}
-            <section className="w-full">
+            {/* 2. PROMO BANNER & MINI FEATURED CARDS SECTION */}
+            <section className="flex flex-col xl:grid xl:grid-cols-5 gap-6 items-stretch">
+              {/* Promo Banner Carousel: Di atas pada layar kecil/zoom (order-1), di kanan pada layar lebar (xl:order-2) */}
               <BannerCarousel
                 slides={heroBanners}
-                className="w-full h-52 sm:h-72 lg:h-80 rounded-2xl overflow-hidden shadow-2xl"
+                className="order-1 xl:order-2 flex-1 min-w-0 xl:col-span-3 h-64 sm:h-80 md:h-96 xl:h-135"
               />
-            </section>
 
-            {/* 2.1 GAME PILIHAN HANYA UNTUK ANDA (HORIZONTAL ROW SWIPEABLE) */}
-            <section className="flex flex-col gap-6">
-              <SectionHeader
-                type="outer"
-                title="Game Pilihan Hanya Untuk Anda!"
-                actionLabel="Lihat Semua"
-                onActionClick={() => setExactState("filter-applied")}
-              />
-              <ProductCardRow
-                orientation="horizontal"
-                products={MINI_FEATURED_GAMES}
-                onAddToCart={handleAddToCart}
-              />
+              {/* 2 Horizontal Product Cards: Di bawah pada layar kecil/zoom (order-2), di kiri pada layar lebar (xl:order-1) */}
+              <div className="order-2 xl:order-1 xl:col-span-2 grid grid-cols-1 md:grid-cols-2 xl:flex xl:flex-col gap-6 shrink-0 w-full justify-between">
+                {MINI_FEATURED_GAMES.slice(0, 2).map((game) => (
+                  <ProductCard
+                    key={game.id}
+                    orientation="horizontal"
+                    title={game.title}
+                    imageSrc={game.imageSrc}
+                    genres={game.genres}
+                    originalPrice={game.originalPrice}
+                    price={game.price}
+                    discount={game.discount}
+                    platform={game.platform}
+                    isBestSeller={false}
+                    buttonText="Tambah Keranjang"
+                    href={`/store/${game.id}`}
+                    onActionClick={() => handleAddToCart(game.title)}
+                    className="w-full sm:min-w-0"
+                  />
+                ))}
+              </div>
             </section>
 
             {/* 3. SECTIONS: DYNAMIC CUSTOM SECTIONS OR FALLBACK */}
@@ -554,6 +568,13 @@ export default function StorePage() {
                   />
                   <ProductCardRow
                     products={mapSectionProducts(sec)}
+                    visibleCount={
+                      isUserLoggedIn
+                        ? 4
+                        : sec.slug === "rilis-terbaru" || sec.title?.toLowerCase().includes("terbaru")
+                        ? 5
+                        : 4
+                    }
                     onAddToCart={handleAddToCart}
                   />
                 </section>
@@ -584,6 +605,7 @@ export default function StorePage() {
                   />
                   <ProductCardRow
                     products={RILIS_TERBARU_PRODUCTS}
+                    visibleCount={isUserLoggedIn ? 4 : 5}
                     onAddToCart={handleAddToCart}
                   />
                 </section>

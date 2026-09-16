@@ -1,6 +1,8 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 
+import { formatPoints } from "@/utils/formatters";
+
 export interface UserRankProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Posisi peringkat (misal: 1 atau '#1') */
   rank: number | string;
@@ -28,7 +30,7 @@ export function UserRank({
 
   const formattedPoints =
     typeof points === "number"
-      ? `${points.toLocaleString()} pts`
+      ? formatPoints(points)
       : points.includes("pts")
       ? points
       : `${points} pts`;

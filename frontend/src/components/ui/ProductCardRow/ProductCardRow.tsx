@@ -7,8 +7,10 @@ export function ProductCardRow({
   products,
   onAddToCart,
   threshold,
+  visibleCount,
   orientation = "vertical",
   cardClassName,
+  itemClassName,
   className,
   ref,
   ...props
@@ -18,7 +20,7 @@ export function ProductCardRow({
   const [canScrollRight, setCanScrollRight] = React.useState(false);
 
   const isHorizontal = orientation === "horizontal";
-  const effectiveThreshold = threshold ?? (isHorizontal ? 2 : 4);
+  const effectiveThreshold = threshold ?? (visibleCount ?? (isHorizontal ? 2 : 4));
   const hasOverflow = products.length > effectiveThreshold;
 
   // Check scroll position to dynamically show/hide gradient shadows
@@ -57,7 +59,9 @@ export function ProductCardRow({
         className={cn(
           isHorizontal
             ? "grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-6"
-            : "grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5",
+            : visibleCount === 5
+              ? "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3 sm:gap-5"
+              : "grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-5",
           className
         )}
         {...props}
@@ -106,7 +110,8 @@ export function ProductCardRow({
          ======================================================== */}
       <div
         className={cn(
-          "pointer-events-none absolute -right-4 top-0 bottom-0 w-20 sm:w-32 lg:w-44 bg-linear-to-l from-deep-blue-950 via-deep-blue-950/85 to-transparent z-20 transition-opacity duration-300",
+          "pointer-events-none absolute -right-4 top-0 bottom-0 bg-linear-to-l from-deep-blue-950 via-deep-blue-950/85 to-transparent z-20 transition-opacity duration-300",
+          visibleCount === 5 ? "w-16 sm:w-24 lg:w-32" : "w-20 sm:w-32 lg:w-44",
           canScrollRight ? "opacity-100" : "opacity-0"
         )}
         aria-hidden="true"
@@ -127,7 +132,10 @@ export function ProductCardRow({
               "shrink-0 flex flex-col",
               isHorizontal
                 ? "w-[320px] sm:w-[420px] lg:w-[480px] max-w-full"
-                : "w-60 sm:w-[calc(50%-10px)] lg:w-[calc((100%-45px)/4)]"
+                : visibleCount === 5
+                  ? "w-52 sm:w-[calc(50%-12px)] md:w-[calc((100%-48px)/3)] lg:w-[calc((100%-96px)/5)]"
+                  : "w-60 sm:w-[calc(50%-10px)] lg:w-[calc((100%-45px)/4)]",
+              itemClassName
             )}
           >
             <ProductCard

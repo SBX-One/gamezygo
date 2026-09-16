@@ -11,6 +11,7 @@ import {
   GameListItem,
   Tabs,
   SectionHeader,
+  Header,
   UserRank,
   TestimonialCard,
   Accordion,
@@ -117,6 +118,45 @@ const ArrowUpIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+const PhoneIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-4 h-4 shrink-0"
+    {...props}
+  >
+    <path
+      d="M15.5995 14.522C13.2045 17.042 7.09554 10.988 9.49954 8.45799C10.9675 6.91299 9.30954 5.14799 8.39154 3.84899C6.66854 1.41399 2.88754 4.77599 3.00154 6.91499C3.36454 13.661 10.6615 21.655 17.7275 20.957C19.9375 20.739 22.4775 16.747 19.9425 15.288C18.6745 14.558 16.9335 13.118 15.5995 14.521"
+      stroke="currentColor"
+      strokeWidth="1.5"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <path
+      d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 // Fallback Banner slides
 const FALLBACK_BANNERS: BannerSlide[] = [
   {
@@ -153,37 +193,37 @@ const FALLBACK_BANNERS: BannerSlide[] = [
   },
 ];
 
-// Fallback FAQ Items
+// Fallback FAQ Items (from bundle.tsx)
 const DEFAULT_FAQS = [
   {
     id: "faq-1",
-    title: "Bagaimana cara kerja pembelian akun game di Gamezygo?",
+    title: "Bagaimana cara kerja Gamezygo?",
     content:
-      "Setelah pembayaran berhasil diverifikasi otomatis, kredensial akun (username, password, dan token Steam Guard) akan langsung tersedia di menu Game Library Anda. Anda tinggal login ke launcher resmi (Steam/Epic) dan langsung mengunduh game.",
+      "Gamezygo menyediakan akses ke perpustakaan game terbaik melalui akun Steam Sharing terverifikasi dan bergaransi resmi seumur hidup. Setelah berlangganan paket, Anda langsung dapat mengunduh dan memainkan semua game di katalog paket tanpa antrean.",
   },
   {
     id: "faq-2",
-    title: "Apakah akun game di Gamezygo aman dan memiliki garansi?",
+    title: "Ini langganan atau beli putus?",
     content:
-      "Ya, 100% aman dan bergaransi resmi anti-revoke. Semua akun game Gamezygo dibeli secara sah langsung dari publisher/store resmi tanpa modifikasi ilegal.",
+      "Untuk Paket Hemat adalah sistem langganan bulanan di mana Anda bebas memainkan seluruh judul game selama masa aktif paket. Kami juga menyediakan opsi pembelian game satuan jika Anda ingin memiliki game secara permanen.",
   },
   {
     id: "faq-3",
-    title: "Bagaimana jika akun meminta kode verifikasi Steam Guard saat login?",
+    title: "Apa itu kode Steam Guard dan kenapa dibutuhkan?",
     content:
-      "Sistem kami dilengkapi dengan auto-authenticator. Anda dapat menyalin kode 2FA Steam Guard langsung dari kartu kredensial game di halaman detail kredensial Anda dalam hitungan detik.",
+      "Steam Guard adalah sistem keamanan akun dari Steam. Saat Anda login ke akun game, sistem bot otomatis Gamezygo akan langsung memberikan kode keamanan secara instan dalam hitungan detik tanpa harus chat admin.",
   },
   {
     id: "faq-4",
-    title: "Metode pembayaran apa saja yang didukung?",
+    title: "Bisa main game online multiplayer?",
     content:
-      "Kami mendukung QRIS (BCA, Mandiri, GoPay, OVO, Dana, ShopeePay, LinkAja), Virtual Account bank nasional (BCA, BRI, BNI, Mandiri), dan transfer bank otomatis 24 jam.",
+      "Paket langganan Steam Sharing difokuskan untuk pengalaman mode single-player, career, dan story campaign dengan performa stabil. Game tertentu mendukung remote play atau co-op lokal.",
   },
   {
     id: "faq-5",
-    title: "Apakah game bisa dimainkan secara offline?",
+    title: "Gimana kalau akses saya bermasalah?",
     content:
-      "Tentu saja! Untuk game single-player, setelah proses instalasi selesai Anda dapat mengaktifkan mode offline pada Steam untuk pengalaman bermain yang bebas gangguan.",
+      "Tim customer service Gamezygo siaga 24/7. Anda cukup mengklik tombol 'Hubungi Admin' dan kami akan segera membantu memperbarui akses akun atau mereset sesi permainan Anda.",
   },
 ];
 
@@ -191,6 +231,70 @@ const DEFAULT_FAQS = [
 const MINI_FEATURED_PRODUCTS: ProductCardRowItem[] = productsData.miniFeatured;
 const TAWARAN_KHUSUS_PRODUCTS: ProductCardRowItem[] = productsData.tawaranKhusus;
 const RILIS_TERBARU_PRODUCTS: ProductCardRowItem[] = productsData.rilisTerbaru;
+
+// 4-Step Guide (Mulai Main Dengan 4 Langkah)
+const HOW_TO_PLAY_STEPS = [
+  {
+    step: "Langkah 1",
+    title: "Cari Game",
+    description: "Cari game yang kamu mau dari katalog kami.",
+    icon: "/assets/svg/fluent_people-search-24-filled.svg",
+  },
+  {
+    step: "Langkah 2",
+    title: "Daftar & Bayar",
+    description: "Buat akun dan selesaikan pembayaran",
+    icon: "/assets/svg/fluent_person-add-24-filled.svg",
+  },
+  {
+    step: "Langkah 3",
+    title: "Dapat Akses Login",
+    description: "Terima username, password & kode guard Steam secara instan.",
+    icon: "/assets/svg/fluent_key-multiple-24-filled.svg",
+  },
+  {
+    step: "Langkah 4",
+    title: "Main Offline",
+    description: "Login, download, masuk offline mode, dan nikmati.",
+    icon: "/assets/svg/fluent_games-24-filled.svg",
+  },
+];
+
+// Community Groups (Bergabung dengan komunitas Gamezygo!)
+const COMMUNITY_GROUPS = [
+  {
+    id: "cg-1",
+    title: "Komunitas GTA | Gamezygo",
+    platform: "Whatsapp",
+    coverImage:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+    link: "https://chat.whatsapp.com",
+  },
+  {
+    id: "cg-2",
+    title: "Komunitas EAFC | Gamezygo",
+    platform: "Whatsapp",
+    coverImage:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2195250/library_600x900_2x.jpg",
+    link: "https://chat.whatsapp.com",
+  },
+  {
+    id: "cg-3",
+    title: "Komunitas RDR II | Gamezygo",
+    platform: "Whatsapp",
+    coverImage:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/library_600x900_2x.jpg",
+    link: "https://chat.whatsapp.com",
+  },
+  {
+    id: "cg-4",
+    title: "Komunitas DBD | Gamezygo",
+    platform: "Whatsapp",
+    coverImage:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/381210/library_600x900_2x.jpg",
+    link: "https://chat.whatsapp.com",
+  },
+];
 
 export default function LandingPage() {
   const router = useRouter();
@@ -200,8 +304,15 @@ export default function LandingPage() {
   const authUser = useAuthStore((s) => s.user);
   const addToCart = useCartStore((s) => s.addItem);
 
+  const [isMounted, setIsMounted] = React.useState(false);
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
+  const isUserLoggedIn = isMounted && isAuthenticated;
+
   // Toast State
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
+  const [opinionInput, setOpinionInput] = React.useState("");
 
   const showToast = (msg: string) => {
     setToastMessage(msg);
@@ -552,33 +663,48 @@ export default function LandingPage() {
     return trendingList;
   }, [popularTab]);
 
-  // 7. Leaderboard (Weekly & Monthly)
+  // 7. Leaderboard (Monthly & Weekly)
   const { data: weeklyLbRes } = useLeaderboard("weekly");
   const { data: monthlyLbRes } = useLeaderboard("monthly");
 
-  const weeklyRanks = React.useMemo(() => {
-    if (weeklyLbRes?.data && weeklyLbRes.data.length > 0) {
-      return weeklyLbRes.data.slice(0, 4);
-    }
-    return [
-      { id: 1, rank: 1, name: "SultanGamer99", point: 18450 },
-      { id: 2, rank: 2, name: "Dyven_Pro", point: 14200 },
-      { id: 3, rank: 3, name: "RezaKolektor", point: 11800 },
-      { id: 4, rank: 4, name: "Ardi_Steam", point: 9400 },
-    ];
-  }, [weeklyLbRes]);
+  const getUserRankClass = (idx: number) =>
+    idx === 0
+      ? "bg-surface-secondary-default border border-[#2F2F37] rounded-lg px-6 py-3.5 shadow-none hover:border-[#2F2F37] [&_.text-h6]:text-body-md [&_.text-h6]:font-semibold"
+      : "bg-transparent border border-transparent rounded-lg px-6 py-3.5 shadow-none hover:bg-white/[0.02] hover:border-transparent [&_.text-h6]:text-body-md [&_.text-h6]:font-semibold";
 
   const monthlyRanks = React.useMemo(() => {
     if (monthlyLbRes?.data && monthlyLbRes.data.length > 0) {
-      return monthlyLbRes.data.slice(0, 4);
+      return monthlyLbRes.data.slice(0, 4).map((u) => ({
+        id: u.rank,
+        rank: u.rank,
+        name: u.name,
+        point: u.point,
+      }));
     }
     return [
-      { id: 11, rank: 1, name: "KolektorSejati", point: 54200 },
-      { id: 12, rank: 2, name: "SultanGamer99", point: 49800 },
-      { id: 13, rank: 3, name: "IndoGamerVault", point: 41200 },
-      { id: 14, rank: 4, name: "Budi_Gamezygo", point: 35600 },
+      { id: 1, rank: 1, name: "NgurahffTzy_00", point: 999 },
+      { id: 2, rank: 2, name: "RendyGaming_67", point: 999 },
+      { id: 3, rank: 3, name: "Operguabolanya009", point: 999 },
+      { id: 4, rank: 4, name: "Rendy Mahardika", point: 999 },
     ];
   }, [monthlyLbRes]);
+
+  const weeklyRanks = React.useMemo(() => {
+    if (weeklyLbRes?.data && weeklyLbRes.data.length > 0) {
+      return weeklyLbRes.data.slice(0, 4).map((u) => ({
+        id: u.rank,
+        rank: u.rank,
+        name: u.name,
+        point: u.point,
+      }));
+    }
+    return [
+      { id: 1, rank: 1, name: "Mighty_god_killer505", point: 999 },
+      { id: 2, rank: 2, name: "Dewa Kipas", point: 999 },
+      { id: 3, rank: 3, name: "Herisiapa66", point: 999 },
+      { id: 4, rank: 4, name: "Rendy Mahardika", point: 999 },
+    ];
+  }, [weeklyLbRes]);
 
   // 8. Testimonials (3 Customers)
   const { data: reviewsRes } = useReviews();
@@ -598,49 +724,75 @@ export default function LandingPage() {
     }
     return [
       {
-        id: "t1",
-        userName: "Dyven Siauw",
+        id: "t-1",
+        userName: "Cihuyy6767",
+        gameName: "Black Myth Wukong, 2+",
         avatarSrc:
           "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&h=120&q=80",
         rating: "5 Star",
         review:
-          '“Gue gatau ada berapa org dibalik bisnis ini, gue mengapresiasi sebesar-besarnya. In this economy harga game mahal bgt, dan buat gue yg butuh test drive game mahal ini jadi solusi terbaik!”',
-        gameName: "Black Myth Wukong, GTA V",
+          '“gue gatau ada berapa org dibalik bisnis ini, 1 atau seberapapun org terlibat, gue mengapresiasi sebesar besarnya udah ada jasa kaya gini. in this economy, harga game mahal bgt? dan buat gue yg butuh " test drive " buat game yg harganya mahal itu kayanya ini jadi solusi terbaik...”',
         images: [
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2358720/header.jpg",
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/header.jpg",
+          "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=320&h=180&q=80",
+          "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=320&h=180&q=80",
+          "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=320&h=180&q=80",
         ],
       },
       {
-        id: "t2",
-        userName: "Rangga Pratama",
+        id: "t-2",
+        userName: "Rendy Pratama",
+        gameName: "Assassin's Creed Black Flag",
         avatarSrc:
           "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=120&h=120&q=80",
         rating: "5 Star",
         review:
-          '“Proses checkout super cepat pake QRIS, pas bayar kredensial Steam Guard langsung muncul otomatis di library. Ga nyampe 2 menit udah bisa download!”',
-        gameName: "Space Marine 2, Tekken 8",
+          "“Proses instan banget, begitu selesai bayar langsung muncul username sama passwordnya. Akun lancar jaya tinggal switch Steam ke offline mode trus tamatin story-nya tanpa gangguan. Recommended seller!”",
         images: [
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2183900/header.jpg",
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1778820/header.jpg",
+          "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=320&h=180&q=80",
+          "https://images.unsplash.com/photo-1552824722-ddab1374e622?auto=format&fit=crop&w=320&h=180&q=80",
         ],
       },
       {
-        id: "t3",
-        userName: "Fikri Maulana",
+        id: "t-3",
+        userName: "Bima_Gaming99",
+        gameName: "Elden Ring: Shadow of the Erdtree",
+        avatarSrc:
+          "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=120&h=120&q=80",
+        rating: "5 Star",
+        review:
+          "“Awalnya ragu beli shared account, pas dicoba ternyata gampang banget tutorialnya. Adminnya juga responsif pas ditanya cara aktivasi offline. Hemat ratusan ribu buat main game AAA impian!”",
+        images: [
+          "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=320&h=180&q=80",
+          "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?auto=format&fit=crop&w=320&h=180&q=80",
+          "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=320&h=180&q=80",
+        ],
+      },
+      {
+        id: "t-4",
+        userName: "Aldo_Kurnia",
+        gameName: "Cyberpunk 2077: Phantom Liberty",
         avatarSrc:
           "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&h=120&q=80",
         rating: "5 Star",
         review:
-          '“Awalnya ragu, tapi ternyata akun beneran aman dan lancar di mode offline. Udah beli 4 game disini buat nemenin liburan akhir pekan. Recommended seller!”',
-        gameName: "Silent Hill 2, Cyberpunk 2077",
+          "“Gamezygo penyelamat dompet mahasiswa! Spek game detail banget ditampilin jadi sebelum beli tau kuat apa ngga PC gue. Sukses terus Gamezygo!”",
         images: [
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2124490/header.jpg",
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/header.jpg",
+          "https://images.unsplash.com/photo-1612287233216-52c6f1f8b65c?auto=format&fit=crop&w=320&h=180&q=80",
+          "https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=320&h=180&q=80",
         ],
       },
     ];
   }, [reviewsRes]);
+
+  // Quadrupled items for seamless infinite moving carousel (matching credentials/[id].tsx)
+  const infiniteTestimonials = React.useMemo(() => {
+    return [
+      ...testimonialItems,
+      ...testimonialItems,
+      ...testimonialItems,
+      ...testimonialItems,
+    ];
+  }, [testimonialItems]);
 
   // 9. FAQs
   const { data: faqsRes } = useFaqs();
@@ -803,16 +955,16 @@ export default function LandingPage() {
         onLoginClick={() => router.push("/login")}
         onSignUpClick={() => router.push("/login?tab=signup")}
         onCartClick={() => router.push("/cart")}
-        contentClassName="w-full  mx-auto px-4 sm:px-8 lg:px-10 pb-20 flex flex-col gap-11xl"
+        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 py-10 sm:py-16 lg:py-20 flex flex-col gap-16 sm:gap-24 lg:gap-11xl"
       >
         {/* ========================================================
             1. HERO CAROUSEL BANNER (PROMO UTAMA / MUSIM PANAS)
            ======================================================== */}
-        <section className="w-full">
+        <section className="w-full flex flex-col gap-12">
           <BannerCarousel
             slides={bannerSlides}
             autoPlayInterval={6000}
-            className="w-full h-52 sm:h-72 lg:h-80 rounded-2xl overflow-hidden shadow-2xl"
+            className="w-full h-52 sm:h-72 lg:h-105 rounded-lg overflow-hidden shadow-2xl "
           />
         </section>
 
@@ -845,9 +997,9 @@ export default function LandingPage() {
            ======================================================== */}
         <section className="w-full flex flex-col gap-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-800 pb-0">
-            <h2 className="text-h3 sm:text-h2 font-extrabold text-white tracking-tight pb-3">
+            <p className="text-h3 font-semibold text-gradient-heading  pb-8">
               Deretan Game Terpopuler!
-            </h2>
+            </p>
             <div className="shrink-0 -mb-px">
               <Tabs
                 items={[
@@ -899,6 +1051,13 @@ export default function LandingPage() {
               />
               <ProductCardRow
                 products={mapSectionProducts(sec)}
+                visibleCount={
+                  isUserLoggedIn
+                    ? 4
+                    : sec.slug === "rilis-terbaru" || sec.title?.toLowerCase().includes("terbaru")
+                    ? 5
+                    : 4
+                }
                 onAddToCart={(title) => {
                   const item = mapSectionProducts(sec).find((p) => p.title === title);
                   handleAddToCart({
@@ -943,6 +1102,7 @@ export default function LandingPage() {
               />
               <ProductCardRow
                 products={RILIS_TERBARU_PRODUCTS}
+                visibleCount={isUserLoggedIn ? 4 : 5}
                 onAddToCart={(title) => {
                   const item = RILIS_TERBARU_PRODUCTS.find((p) => p.title === title);
                   handleAddToCart({
@@ -957,216 +1117,300 @@ export default function LandingPage() {
         )}
 
         {/* ========================================================
-            6. SOLUSI & KEUNGGULAN GAMEZYGO: 4 Feature Boxes
+            6. PANDUAN BERMAIN: 4 LANGKAH (Mulai Main Dengan 4 Langkah)
            ======================================================== */}
-        <section className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center py-6">
-          <div className="lg:col-span-5 flex flex-col gap-3 border-l-4 border-rose-500 pl-6">
-            <span className="text-label-xs font-bold uppercase tracking-wider text-rose-400">
-              MENGAPA MEMILIH KAMI
-            </span>
-            <h2 className="text-h3 sm:text-h2 font-extrabold text-white leading-tight">
-              Solusi Terbaik untuk Koleksi Game Original Anda
-            </h2>
-            <p className="text-body-sm text-gray-300 leading-relaxed mt-2">
-              Gamezygo hadir menghadirkan akses bermain game PC original dengan harga paling hemat,
-              keamanan terjamin, dan pengiriman otomatis instan.
-            </p>
-            <div className="pt-4">
+        <section className="w-full flex flex-col gap-8 py-6">
+          {/* Header Bar */}
+          <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 w-full">
+            <div className="border-l-gradient-primary pl-8 pb-2 flex flex-col gap-1.5">
+              <span className="text-gray-400 text-label-xs sm:text-body-sm tracking-wider uppercase font-medium">
+                MULAI MAIN DENGAN 4 LANGKAH
+              </span>
+              <h2 className="text-h3 sm:text-h2 font-semibold text-gradient-heading leading-[120%]">
+                Bingung Gimana <br /> Cara Mainnya?
+              </h2>
+            </div>
+
+            <div className="flex items-center gap-4 shrink-0 sm:self-end">
+              <span className="text-right text-gray-400 text-body-xs font-normal hidden sm:inline">
+                Masih bingung? <br /> Lihat di youtube!
+              </span>
               <Button
-                variant="primary"
+                type="button"
+                variant="secondary"
                 size="md"
-                className="cursor-pointer"
-                onClick={() => router.push("/store")}
+                leftIcon={
+                  <svg
+                    width="20"
+                    height="20"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-4 h-4"
+                  >
+                    <path
+                      d="M5 5.27403C5 3.56703 6.826 2.48203 8.325 3.29703L20.687 10.024C22.253 10.876 22.253 13.124 20.687 13.976L8.325 20.702C6.826 21.518 5 20.432 5 18.726V5.27403Z"
+                      fill="currentColor"
+                    />
+                  </svg>
+                }
+                onClick={() => window.open("https://youtube.com", "_blank")}
+                className="cursor-pointer font-semibold px-5"
               >
-                Mulai Belanja Sekarang
+                Tonton Video
               </Button>
             </div>
           </div>
 
-          <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="p-6 rounded-xl bg-deep-blue-900/60 border border-white/5 backdrop-blur-md flex flex-col gap-3 hover:border-white/20 transition-all">
-              <div className="w-12 h-12 rounded-lg bg-rose-500/10 text-rose-400 flex items-center justify-center">
-                <ShieldIcon className="w-6 h-6" />
-              </div>
-              <h3 className="text-body-md font-bold text-gray-50">100% Akun Original & Legal</h3>
-              <p className="text-body-xs text-gray-400 leading-relaxed">
-                Akun resmi terdaftar langsung di Steam, Epic Games, dan EA tanpa modifikasi ilegal.
-              </p>
+          {/* Outer Container Card Wrapping 4 Steps */}
+          <div className="w-full rounded-lg border border-white/10 bg-deep-blue-950/40 p-6 sm:p-10 lg:p-12 relative overflow-hidden">
+            {/* Background connecting track */}
+            <svg
+              className="pointer-events-none absolute inset-0 w-full h-full hidden md:block"
+              viewBox="0 0 100 100"
+              preserveAspectRatio="none"
+              fill="none"
+            >
+              <defs>
+                <linearGradient
+                  id="stepConnectorGradient"
+                  x1="0"
+                  y1="0"
+                  x2="0"
+                  y2="100"
+                  gradientUnits="userSpaceOnUse"
+                >
+                  <stop offset="0%" stopColor="#2F2F37" />
+                  <stop offset="100%" stopColor="#272744" />
+                </linearGradient>
+              </defs>
+
+              {/* Step 1 to Step 2 connector (Garis dari A ke B) */}
+              <path
+                d="M 45 29.5 H 55"
+                stroke="url(#stepConnectorGradient)"
+                strokeWidth="2"
+                vectorEffect="non-scaling-stroke"
+                strokeLinecap="round"
+              />
+              {/* Step 2 to Step 3 Stepped Connector with Rounded Corners */}
+              <path
+                d="M 75 44 L 75 47 Q 75 50 72.5 50 L 27.5 50 Q 25 50 25 53 L 25 56"
+                stroke="url(#stepConnectorGradient)"
+                strokeWidth="2"
+                vectorEffect="non-scaling-stroke"
+                strokeLinecap="round"
+              />
+            </svg>
+
+            {/* 2x2 Steps Grid */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 lg:gap-10 relative z-10 w-full overflow-hidden">
+              {HOW_TO_PLAY_STEPS.map((step) => (
+                <div
+                  key={step.step}
+                  className="rounded-xl h-auto min-h-52 bg-deep-blue-900 border border-white/10 p-4 sm:p-5 flex flex-col gap-3 sm:gap-4 relative transition-all duration-200 hover:border-white/20"
+                >
+                  {/* Top: Icon + Langkah N */}
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-10 rounded-lg bg-surface-secondary-default border border-white/10 flex items-center justify-center text-gray-300 shrink-0">
+                      <img
+                        src={step.icon}
+                        alt={step.step}
+                        className="w-5 h-5 filter-[brightness(0)_invert(0.85)]"
+                      />
+                    </div>
+                    <span className="text-body-sm font-semibold text-gray-400">
+                      {step.step}
+                    </span>
+                  </div>
+
+                  {/* Middle: Title */}
+                  <h3 className="text-h5 font-bold text-gray-50">
+                    {step.title}
+                  </h3>
+
+                  {/* Bottom: Description */}
+                  <p className="text-body-sm text-gray-400 leading-relaxed">
+                    {step.description}
+                  </p>
+                                  <div className="pointer-events-none absolute z-10 -bottom-2 inset-x-0 h-36 bg-linear-to-t from-deep-blue-950 via-deep-blue-950/85 to-transparent rounded-b-lg" />
+
+                </div>
+              ))}
+              {/* Bottom Fade Shadow */}
+            </div>
             </div>
 
-            <div className="p-6 rounded-xl bg-deep-blue-900/60 border border-white/5 backdrop-blur-md flex flex-col gap-3 hover:border-white/20 transition-all">
-              <div className="w-12 h-12 rounded-lg bg-indigo-500/10 text-indigo-400 flex items-center justify-center">
-                <BoltIcon className="w-6 h-6" />
-              </div>
-              <h3 className="text-body-md font-bold text-gray-50">Pengiriman Kredensial Instan</h3>
-              <p className="text-body-xs text-gray-400 leading-relaxed">
-                Username, password, dan token Steam Guard otomatis masuk ke Vault Library Anda dalam hitungan detik.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl bg-deep-blue-900/60 border border-white/5 backdrop-blur-md flex flex-col gap-3 hover:border-white/20 transition-all">
-              <div className="w-12 h-12 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
-                <TagIcon className="w-6 h-6" />
-              </div>
-              <h3 className="text-body-md font-bold text-gray-50">Hemat Biaya Hingga 80%</h3>
-              <p className="text-body-xs text-gray-400 leading-relaxed">
-                Solusi ekonomis untuk test drive game AAA impian Anda dengan biaya jauh lebih hemat dibanding store resmi.
-              </p>
-            </div>
-
-            <div className="p-6 rounded-xl bg-deep-blue-900/60 border border-white/5 backdrop-blur-md flex flex-col gap-3 hover:border-white/20 transition-all">
-              <div className="w-12 h-12 rounded-lg bg-amber-500/10 text-amber-400 flex items-center justify-center">
-                <HeadsetIcon className="w-6 h-6" />
-              </div>
-              <h3 className="text-body-md font-bold text-gray-50">Garansi Penuh & Support 24/7</h3>
-              <p className="text-body-xs text-gray-400 leading-relaxed">
-                Tim teknis Gamezygo siap memandu proses login dan mengatasi kendala teknis kapan pun dibutuhkan.
-              </p>
-            </div>
-          </div>
         </section>
 
         {/* ========================================================
-            7. LEADERBOARD PREVIEW: 2 Columns + Fade Shadow
+            7. LEADERBOARD PREVIEW: Header + 2 Columns Table + Fade Shadow
            ======================================================== */}
-        <section className="w-full flex flex-col items-center gap-8 text-center">
-          <div className="flex flex-col items-center gap-2 ">
-            <Pill variant="primary" size="md" className="font-bold">
-              TOP GAMER COMMUNITY
-            </Pill>
-            <h2 className="text-h3 sm:text-h2 font-extrabold text-white">
-              Tantang Rekan Gamer Kamu & Raih Posisi Teratas
-            </h2>
-            <p className="text-body-sm text-gray-400">
-              Kumpulkan poin dari setiap transaksi dan jadilah nomor satu di leaderboard Gamezygo!
-            </p>
+        <section className="w-full flex flex-col items-center gap-12 text-center">
+          <div className="flex justify-center w-full">
+            <Header
+              pillText="LEADERBOARD"
+              pillVariant="plain"
+              title="Lihat Siapa Pemilik Koleksi Game Terbesar Saat Ini!"
+              subtitle="Ingin Langsung Buka Semua? Beli Premium!"
+              actionLabel="Lihat Premium"
+              actionVariant="secondary"
+              onActionClick={() => router.push("/leaderboard")}
+            />
           </div>
+<div className="w-full border-t-gradient-secondary my-2" />
 
           <div className="w-full relative">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full text-left">
-              {/* Kolom Kiri: Mingguan */}
-              <div className="flex flex-col gap-3 p-6 rounded-xl bg-deep-blue-900/40 border border-white/5 backdrop-blur-md">
-                <h4 className="text-label-md font-bold text-gray-200 border-b border-white/5 pb-3">
-                  LEADERBOARD MINGGU INI
-                </h4>
-                <div className="flex flex-col gap-2.5">
-                  {weeklyRanks.map((user) => (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full text-left">
+              {/* MONTHLY (LEADERBOARD BULAN JULI :) */}
+              <section className="rounded-lg bg-deep-blue-900 border border-gradient-secondary p-6 sm:p-7 flex flex-col">
+                <h3 className="text-h6 sm:text-h6 font-semibold text-gray-50 uppercase mb-8">
+                  LEADERBOARD BULAN JULI :
+                </h3>
+                <div className="flex flex-col gap-2">
+                  {monthlyRanks.map((user, idx) => (
                     <UserRank
-                      key={user.id}
+                      key={`monthly-${user.id || idx}-${user.name}`}
                       rank={user.rank}
                       name={user.name}
                       points={user.point}
+                      className={getUserRankClass(idx)}
                     />
                   ))}
                 </div>
-              </div>
+              </section>
 
-              {/* Kolom Kanan: Bulanan */}
-              <div className="flex flex-col gap-3 p-6 rounded-xl bg-deep-blue-900/40 border border-white/5 backdrop-blur-md">
-                <h4 className="text-label-md font-bold text-gray-200 border-b border-white/5 pb-3">
-                  LEADERBOARD BULAN INI
-                </h4>
-                <div className="flex flex-col gap-2.5">
-                  {monthlyRanks.map((user) => (
+              {/* WEEKLY (LEADERBOARD MINGGU INI:) */}
+              <section className="rounded-lg bg-deep-blue-900 border border-gradient-secondary p-6 sm:p-7 flex flex-col">
+                <h3 className="text-h6 sm:text-h6 font-semibold text-gray-50 uppercase mb-8">
+                  LEADERBOARD MINGGU INI:
+                </h3>
+                <div className="flex flex-col gap-2">
+                  {weeklyRanks.map((user, idx) => (
                     <UserRank
-                      key={user.id}
+                      key={`weekly-${user.id || idx}-${user.name}`}
                       rank={user.rank}
                       name={user.name}
                       points={user.point}
+                      className={getUserRankClass(idx)}
                     />
                   ))}
                 </div>
-              </div>
+              </section>
             </div>
 
             {/* Bottom Fade Shadow */}
-            <div className="pointer-events-none absolute bottom-0 inset-x-0 h-32 bg-gradient-to-t from-deep-blue-950 via-deep-blue-950/85 to-transparent rounded-b-xl" />
-          </div>
-
-          <div className="relative z-10 -mt-4">
-            <Button
-              variant="secondary"
-              size="md"
-              className="cursor-pointer font-bold px-8 shadow-xl"
-              onClick={() => router.push("/leaderboard")}
-            >
-              Lihat Semua Leaderboard
-            </Button>
+            <div className="pointer-events-none absolute z-50 -bottom-1 sad inset-x-0 h-36 bg-linear-to-t from-deep-blue-950 via-deep-blue-950/85 to-transparent rounded-b-xl" />
           </div>
         </section>
 
         {/* ========================================================
-            8. TESTIMONIAL PELANGGAN: 3 Testimonial Cards
+            8. TESTIMONIAL PELANGGAN: Header + Infinite Moving Carousel
            ======================================================== */}
-        <section className="w-full flex flex-col items-center gap-8 text-center">
-          <div className="flex flex-col items-center gap-2 ">
-            <span className="text-label-xs font-bold uppercase tracking-wider text-rose-400">
-              TESTIMONIAL PELANGGAN
-            </span>
-            <h2 className="text-h3 sm:text-h2 font-extrabold text-white">
-              Dengarkan Pendapat Gamer Setelah Beli di Gamezygo
-            </h2>
-            <p className="text-body-sm text-gray-400">
-              Pengalaman nyata dari ribuan gamer yang sudah bergabung dan menikmati layanan kami.
-            </p>
-          </div>
+        <section className="w-full flex flex-col items-center gap-6">
+          <Header
+            pillText="TESTIMONIAL"
+            pillVariant="plain"
+            title={
+              <>
+                Dengarkan Pendapat Gamer Setelah Beli di Gamezygo!
+              </>
+            }
+          >
+            {/* "Beri Pendapat" Input Bar */}
+            <div className="relative w-full  lg:max-w-1/2 mx-auto">
+              <div className="w-full flex items-center bg-deep-blue-900 border border-white/10 rounded-xl px-4 py-3 gap-3 focus-within:border-white/30 transition-all">
+                <span className="text-gray-400 text-body-sm font-semibold">@</span>
+                <input
+                  type="text"
+                  value={opinionInput}
+                  onChange={(e) => setOpinionInput(e.target.value)}
+                  placeholder="Beri pendapat"
+                  className="w-full bg-transparent text-body-sm text-gray-100 placeholder:text-gray-500 focus:outline-none"
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && opinionInput.trim()) {
+                      showToast("Terima kasih atas pendapat Anda!");
+                      setOpinionInput("");
+                    }
+                  }}
+                />
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (opinionInput.trim()) {
+                      showToast("Terima kasih atas pendapat Anda!");
+                      setOpinionInput("");
+                    }
+                  }}
+                  className="text-gray-400 hover:text-white transition-colors cursor-pointer p-1"
+                >
+                  <SendIcon />
+                </button>
+              </div>
+            </div>
+          </Header>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 w-full text-left">
-            {testimonialItems.map((item) => (
-              <TestimonialCard
-                key={item.id}
-                userName={item.userName}
-                avatarSrc={item.avatarSrc}
-                rating={item.rating}
-                review={item.review}
-                gameName={item.gameName}
-                images={item.images}
-                className="h-full bg-deep-blue-900/60 border border-white/5 backdrop-blur-md"
-              />
-            ))}
-          </div>
+          {/* Divider Line */}
+          <div className="w-full border-t-gradient-secondary my-2" />
 
-          <div>
-            <Button
-              variant="secondary"
-              size="sm"
-              className="cursor-pointer"
-              onClick={() => router.push("/review")}
-            >
-              Lihat Semua Ulasan
-            </Button>
+          {/* Infinite Moving Testimonial Cards Carousel (matching credentials/[id].tsx) */}
+          <div className="relative w-full overflow-hidden pt-2 sm:pt-4 pb-6 sm:pb-8">
+            {/* Vignette gradient masks on sides */}
+            <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-deep-blue-950 to-transparent z-10 hidden sm:block" />
+            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-deep-blue-950 to-transparent z-10 hidden sm:block" />
+
+            {/* Moving Track */}
+            <div className="flex gap-6 w-max animate-infinite-carousel hover:[animation-play-state:paused] items-stretch py-2">
+              {infiniteTestimonials.map((t, idx) => (
+                <div
+                  key={`${t.id}-${idx}`}
+                  className="w-80 sm:w-96 shrink-0 transition-transform duration-300 hover:scale-[1.01]"
+                >
+                  <TestimonialCard
+                    avatarSrc={t.avatarSrc}
+                    userName={t.userName}
+                    gameName={t.gameName}
+                    rating={t.rating}
+                    review={t.review}
+                    images={t.images}
+                    className="h-full bg-deep-blue-900 border border-white/10 flex flex-col justify-between"
+                  />
+                </div>
+              ))}
+            </div>
           </div>
         </section>
 
         {/* ========================================================
             9. FAQ (PERTANYAAN UMUM): Left Title + Right Accordion
            ======================================================== */}
-        <section className="w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-start py-6">
-          <div className="lg:col-span-5 flex flex-col gap-3 border-l-4 border-rose-500 pl-6">
-            <span className="text-label-xs font-bold uppercase tracking-wider text-rose-400">
-              BANTUAN & PERTANYAAN
+        <section className="w-full flex flex-col lg:grid lg:grid-cols-7 gap-10 lg:gap-16 items-start py-6">
+          <div className="flex flex-col w-full lg:col-span-3 gap-4 shrink-0 border-l-gradient-primary h-fit pl-6 sm:pl-8 pb-6">
+            <span className="text-body-sm text-gray-400">
+              FREQUENTLY ASKED QUESTION
             </span>
-            <h2 className="text-h3 sm:text-h2 font-extrabold text-white leading-tight">
-              Pertanyaan yang Sering Diajukan (FAQ)
+            <h2 className="text-h3 sm:text-h2 font-semibold leading-[120%] text-gradient-heading w-fit">
+              Pertanyaan yang <br /> Sering Ditanyakan!
             </h2>
-            <p className="text-body-sm text-gray-300 leading-relaxed mt-2">
-              Punya pertanyaan seputar akun game, garansi, atau cara login? Temukan jawabannya di sini
-              atau hubungi tim support kami.
-            </p>
-            <div className="pt-4">
+            <div className="flex gap-3 w-full justify-between items-center mt-8">
+              <span className="text-body-xs text-gray-400">
+                Masih memiliki <br />pertanyaan?
+              </span>
               <Button
+                type="button"
                 variant="secondary"
-                size="md"
-                className="cursor-pointer"
-                onClick={() => router.push("/review")}
+                size="sm"
+                rightIcon={<PhoneIcon className="w-4 h-4" />}
+                onClick={() => showToast("Menghubungi admin via Telegram...")}
+                className="cursor-pointer px-6"
               >
-                Hubungi Customer Support
+                Hubungi Kami
               </Button>
             </div>
           </div>
 
-          <div className="lg:col-span-7">
-            <Accordion items={faqItems} defaultOpenId="faq-1" allowMultiple={false} />
+          <div className="flex-1 min-w-0 w-full lg:col-span-4">
+            <Accordion items={faqItems} defaultOpenId="faq-1" allowMultiple={false} isLanding={true} />
           </div>
         </section>
 
@@ -1196,67 +1440,107 @@ export default function LandingPage() {
         </section>
 
         {/* ========================================================
-            11. REQUEST GAME FAVORITMU: CTA + 2x2 Grid
+            11. KOMUNITAS GAMEZYGO: Header + Community Cards Container
            ======================================================== */}
-        <section className="w-full flex flex-col items-center gap-8 text-center p-8 sm:p-12 rounded-2xl bg-gradient-to-b from-deep-blue-900/60 to-deep-blue-950 border border-white/10 backdrop-blur-md">
-          <div className="flex flex-col items-center gap-2 ">
-            <span className="text-label-xs font-bold uppercase tracking-wider text-rose-400">
-              REQUEST GAME IMPIAN
-            </span>
-            <h2 className="text-h3 sm:text-h2 font-extrabold text-white">
-              Game yang Kamu Cari Belum Tersedia di Store?
-            </h2>
-            <p className="text-body-sm text-gray-300">
-              Kirimkan link Steam game impianmu, ajak komunitas voting bersama, dan tim kami akan
-              segera menghadirkannya ke katalog store!
-            </p>
-            <div className="pt-2">
-              <Button
-                variant="primary"
-                size="md"
-                className="cursor-pointer font-bold px-8 shadow-xl"
-                onClick={() => router.push("/request")}
-              >
-                Ajukan Request Game Sekarang
-              </Button>
-            </div>
-          </div>
+        <section className="w-full flex flex-col items-center gap-8 text-center">
+          {/* Header */}
+          <Header
+            pillText="LEADERBOARD"
+            pillVariant="plain"
+            title={
+              <>
+                Bergabung dengan  komunitas Gamezygo!
+              </>
+            }
+            subtitle="Ingin Mencari Teman Satu Hobi? Gabung Komunitas!"
+            actionLabel="Gabung Sekarang"
+            actionVariant="secondary"
+            onActionClick={() => showToast("Membuka grup komunitas...")}
+          />
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full text-left ">
-            {requestCards.map((req) => (
-              <div
-                key={req.id}
-                className="flex items-center gap-4 p-4 rounded-xl bg-white/5 border border-white/10 hover:border-white/20 transition-all"
-              >
-                <div className="w-16 h-20 rounded-lg overflow-hidden bg-deep-blue-950 shrink-0">
-                  <img
-                    src={req.cover_image}
-                    alt={req.name}
-                    className="w-full h-full object-cover"
-                  />
+          {/* Divider Line */}
+          <div className="w-full border-t-gradient-secondary my-2" />
+
+          {/* Outer Card Wrapper */}
+          <div className="w-full rounded-lg  border border-white/10 bg-deep-blue-900 p-6 sm:p-8 flex flex-col gap-6 text-left">
+            {/* Wrapper Header Bar */}
+            <div className="flex items-center justify-between pb-4 border-b border-white/5">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-surface-secondary-default border border-white/10 flex items-center justify-center text-gray-200 shrink-0">
+                  <svg
+                    width="20"
+                    height="12"
+                    viewBox="0 0 45 24"
+                    fill="none"
+                    xmlns="http://www.w3.org/2000/svg"
+                    className="w-4 h-2.5"
+                  >
+                    <path
+                      d="M0 24L17.7974 0H45L40.8762 4.18018H21.1978L8.46463 20.9009H16.3505L24.8875 12.6126L16.3505 14.7027L20.1849 9.22523H35.0161L22.4277 24H0Z"
+                      fill="currentColor"
+                    />
+                    <path
+                      d="M27.492 19.6757L24.0916 24H29.5177L33.4244 19.6757H27.492Z"
+                      fill="currentColor"
+                    />
+                  </svg>
                 </div>
-                <div className="flex-1 min-w-0 flex flex-col gap-1.5">
-                  <span className="text-body-sm font-bold text-gray-100 truncate">
-                    {req.name}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <Pill variant="secondary" size="sm" className="font-semibold text-gray-300">
-                      {req.request_count} Request
-                    </Pill>
-                    <span className="text-label-xs text-rose-400 font-medium">Dalam Voting</span>
-                  </div>
+                <div className="flex items-center gap-1.5 text-body-md">
+                  <span className="font-bold text-gray-100">Gamezygo</span>
+                  <span className="text-gray-400 font-normal">/ Komunitas</span>
                 </div>
-                <Button
-                  variant="secondary"
-                  size="sm"
-                  className="shrink-0 cursor-pointer"
-                  onClick={() => router.push("/request")}
-                >
-                  <ArrowUpIcon className="mr-1 text-rose-400" />
-                  Vote
-                </Button>
               </div>
-            ))}
+
+              <span className="text-body-sm text-gray-400 font-medium">
+                50 Grup
+              </span>
+            </div>
+
+            {/* 2x2 Grid of Community Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+              {COMMUNITY_GROUPS.map((group) => (
+                <ProductCard
+                  key={group.id}
+                  orientation="horizontal"
+                  title={group.title}
+                  imageSrc={group.coverImage}
+                  genres={[group.platform]}
+                  platform=""
+                  isBestSeller={false}
+                  showPrice={false}
+                  buttonText="Bergabung Sekarang"
+                  onActionClick={() => {
+                    showToast(`Bergabung dengan ${group.title}...`);
+                    window.open(group.link, "_blank");
+                  }}
+                  className="w-full sm:min-w-0"
+                />
+              ))}
+            </div>
+
+            {/* Bottom: Muat Lebih Banyak */}
+            <div className="flex justify-center w-full pt-4">
+              <button
+                type="button"
+                className="flex items-center gap-2 text-body-sm font-semibold text-gray-300 hover:text-white transition-colors cursor-pointer"
+                onClick={() => showToast("Memuat grup komunitas lainnya...")}
+              >
+                <span>Muat Lebih Banyak</span>
+                <svg
+                  width="16"
+                  height="16"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  stroke="currentColor"
+                  strokeWidth="2"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  className="w-4 h-4 text-gray-400 animate-spin"
+                >
+                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
+                </svg>
+              </button>
+            </div>
           </div>
         </section>
 

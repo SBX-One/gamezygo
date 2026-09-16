@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useRouter } from "next/router";
 import { cn } from "@/lib/utils";
 
 export interface AccordionItemData {
@@ -24,6 +25,8 @@ export interface AccordionProps
   onChange?: (id: string | null) => void;
   /** Memungkinkan banyak item terbuka secara bersamaan */
   allowMultiple?: boolean;
+  /** Styling khusus landing page (p-6 dan rounded-2xl) */
+  isLanding?: boolean;
 }
 
 const PlusIcon = () => (
@@ -63,6 +66,7 @@ export interface AccordionItemProps
   isOpen?: boolean;
   onToggle?: () => void;
   disabled?: boolean;
+  isLanding?: boolean;
   children: React.ReactNode;
 }
 
@@ -71,14 +75,22 @@ export function AccordionItem({
   isOpen = false,
   onToggle,
   disabled = false,
+  isLanding,
   className,
   children,
   ...props
 }: AccordionItemProps) {
+  const router = useRouter();
+  const isLandingPage =
+    isLanding ??
+    (typeof router?.pathname === "string" &&
+      (router.pathname === "/" || router.asPath === "/"));
+
   return (
     <div
       className={cn(
-        "rounded-lg border-gradient-outline bg-(--gradient-surface-secondary-default) transition-all duration-200 select-none overflow-hidden active:border-0  ",
+        isLandingPage ? "rounded-2xl" : "rounded-lg",
+        "border-gradient-outline bg-(--gradient-surface-secondary-default) transition-all duration-200 select-none overflow-hidden active:border-0",
         "focus-within:ring-2 focus-within:ring-white/40",
         disabled && "opacity-50 pointer-events-none",
         className
@@ -92,11 +104,12 @@ export function AccordionItem({
         onClick={onToggle}
         aria-expanded={isOpen}
         className={cn(
-          "w-full flex items-center justify-between gap-4 p-4 text-left cursor-pointer transition-colors duration-150 outline-none focus:outline-none focus-visible:outline-none",
+          "w-full flex items-center justify-between gap-4 text-left cursor-pointer transition-colors duration-150 outline-none focus:outline-none focus-visible:outline-none",
+          isLandingPage ? "p-6" : "p-4",
           className
         )}
       >
-        <span className="accordion-title text-gray-50 font-semibold text-body-md ">
+        <span className="accordion-title text-gray-50 font-semibold text-body-md">
           {title}
         </span>
         <span className="accordion-icon text-deep-blue-100 flex items-center justify-center shrink-0">
@@ -106,7 +119,12 @@ export function AccordionItem({
 
       {/* Expandable Content */}
       {isOpen && (
-        <div className="px-4 pb-4 pt-1 text-gray-400 text-body-sm ">
+        <div
+          className={cn(
+            "pt-1 text-gray-400 text-body-sm",
+            isLandingPage ? "px-6 pb-6" : "px-4 pb-4"
+          )}
+        >
           {children}
         </div>
       )}
@@ -120,10 +138,17 @@ export function Accordion({
   openId,
   onChange,
   allowMultiple = false,
+  isLanding,
   className,
   children,
   ...props
 }: AccordionProps) {
+  const router = useRouter();
+  const isLandingPage =
+    isLanding ??
+    (typeof router?.pathname === "string" &&
+      (router.pathname === "/" || router.asPath === "/"));
+
   const [openIds, setOpenIds] = React.useState<string[]>(
     defaultOpenId ? [defaultOpenId] : []
   );
@@ -153,6 +178,7 @@ export function Accordion({
             title={item.title}
             isOpen={currentOpenIds.includes(item.id)}
             disabled={item.disabled}
+            isLanding={isLandingPage}
             onToggle={() => handleToggle(item.id)}
           >
             {item.content}

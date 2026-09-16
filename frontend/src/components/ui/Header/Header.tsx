@@ -1,12 +1,14 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { Pill } from "@/components/ui/Pill";
+import { Pill, type PillVariant } from "@/components/ui/Pill";
 import { Button } from "@/components/ui/Button";
 
 export interface HeaderProps
   extends Omit<React.HTMLAttributes<HTMLElement>, "title"> {
   /** Teks atau konten untuk badge Pill di atas */
   pillText?: React.ReactNode;
+  /** Varian pill badge (default: secondary). Gunakan "plain" untuk teks polos tanpa kapsul pill */
+  pillVariant?: PillVariant | "plain";
   /** Judul utama hero header */
   title?: React.ReactNode;
   /** Teks deskripsi atau subtitle kecil di sebelah kiri tombol */
@@ -42,6 +44,7 @@ const FluentPlayIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export function Header({
   pillText = "Promo Musim Panas Telah Datang!",
+  pillVariant = "secondary",
   title = "Pemilik Koleksi Game Terbesar Saat Ini!",
   subtitle = "Ingin Langsung Buka Semua? Beli Premium!",
   actionLabel = "Lihat Premium",
@@ -49,6 +52,7 @@ export function Header({
   actionVariant = "secondary",
   onActionClick,
   className,
+  children,
   ref,
   ...props
 }: HeaderProps) {
@@ -61,37 +65,48 @@ export function Header({
       )}
       {...props}
     >
-      {/* 1. Top Pill Badge (Medium Secondary) */}
-      {pillText && (
-        <Pill variant="secondary" size="md">
-          {pillText}
-        </Pill>
-      )}
+      {/* 1. Top Pill Badge (Medium Secondary) or Plain Text */}
+      {pillText &&
+        (pillVariant === "plain" ? (
+          <span className="text-gray-400 text-body-sm  uppercase">
+            {pillText}
+          </span>
+        ) : (
+          <Pill variant={pillVariant} size="md">
+            {pillText}
+          </Pill>
+        ))}
 
       {/* 2. Main Large Headline */}
-      <h1 className="text-h1 font-semibold text-gradient-heading  leading-[1.2] max-w-4/7">
+      <h1 className="text-h1 font-semibold text-gradient-heading max-w-4/7">
         {title}
       </h1>
 
-      {/* 3. Bottom Row (Subtitle + Action Button) */}
-      <div className="flex items-center justify-center gap-3 ">
-        {subtitle && (
-          <p className="text-gray-400 text-body-xs font-normal text-left max-w-3/8">
-            {subtitle}
-          </p>
-        )}
+      {/* 3. Bottom Row: Custom Children OR (Subtitle + Action Button) */}
+      {children ? (
+        children
+      ) : (
+        (subtitle || actionLabel) && (
+          <div className="flex items-center justify-center gap-3 ">
+            {subtitle && (
+              <p className="text-gray-400 text-body-xs font-normal text-left max-w-3/8">
+                {subtitle}
+              </p>
+            )}
 
-        {actionLabel && (
-          <Button
-            variant={actionVariant}
-            size="md"
-            leftIcon={actionIcon}
-            onClick={onActionClick}
-          >
-            {actionLabel}
-          </Button>
-        )}
-      </div>
+            {actionLabel && (
+              <Button
+                variant={actionVariant}
+                size="md"
+                leftIcon={actionIcon}
+                onClick={onActionClick}
+              >
+                {actionLabel}
+              </Button>
+            )}
+          </div>
+        )
+      )}
     </header>
   );
 }

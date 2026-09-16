@@ -34,9 +34,17 @@ export interface ProductCardRowProps extends React.HTMLAttributes<HTMLDivElement
    */
   orientation?: "vertical" | "horizontal";
   /**
+   * Number of visible cards on desktop (default: 4 for vertical, 2 for horizontal)
+   */
+  visibleCount?: number;
+  /**
    * Optional custom card class name
    */
   cardClassName?: string;
+  /**
+   * Optional custom item wrapper class name
+   */
+  itemClassName?: string;
   /**
    * Custom ref
    */

@@ -19,7 +19,6 @@ class CustomSectionSeeder extends Seeder
             return;
         }
 
-        // 1. Manual Section (Tawaran Khusus)
         $manualSection = CustomSection::updateOrCreate(
             ['slug' => 'tawaran-khusus'],
             [
@@ -39,7 +38,6 @@ class CustomSectionSeeder extends Seeder
         }
         $manualSection->products()->sync($syncData);
 
-        // 2. Auto Section - Best Seller
         CustomSection::updateOrCreate(
             ['slug' => 'game-terlaris-dan-populer'],
             [
@@ -51,7 +49,6 @@ class CustomSectionSeeder extends Seeder
             ]
         );
 
-        // 3. Auto Section - Newest
         CustomSection::updateOrCreate(
             ['slug' => 'rilis-terbaru'],
             [
@@ -63,7 +60,6 @@ class CustomSectionSeeder extends Seeder
             ]
         );
 
-        // 4. Auto Section - Discounted
         CustomSection::updateOrCreate(
             ['slug' => 'diskon-spesial-minggu-ini'],
             [

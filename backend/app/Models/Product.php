@@ -43,11 +43,6 @@ class Product extends Model
         return $this->belongsTo(ProductInstruction::class, 'product_instruction_id');
     }
 
-    public function productInstructions(): BelongsTo
-    {
-        return $this->productInstruction();
-    }
-
     public function specificationRequirements(): HasMany
     {
         return $this->hasMany(ProductSpecificationRequirement::class);

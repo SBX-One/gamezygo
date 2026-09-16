@@ -6,6 +6,8 @@ use App\Repositories\Contracts\Api\V1\User\CustomSection\CustomSectionRepository
 use App\Repositories\Api\V1\User\CustomSection\CustomSectionRepository;
 use App\Repositories\Contracts\Api\V1\User\Product\ProductRepositoryInterface;
 use App\Repositories\Api\V1\User\Product\ProductRepository;
+use App\Repositories\Contracts\Api\V1\User\SubscriptionPlan\SubscriptionPlanRepositoryInterface;
+use App\Repositories\Api\V1\User\SubscriptionPlan\SubscriptionPlanRepository;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -17,6 +19,7 @@ class RepositoryServiceProvider extends ServiceProvider
     {
         $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
         $this->app->bind(CustomSectionRepositoryInterface::class, CustomSectionRepository::class);
+        $this->app->bind(SubscriptionPlanRepositoryInterface::class, SubscriptionPlanRepository::class);
     }
 
     /**

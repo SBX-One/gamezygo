@@ -69,6 +69,7 @@ export function ProductCardRow({
         {products.map((product) => (
           <ProductCard
             key={product.id}
+            data-product-card="true"
             orientation={orientation}
             title={product.title}
             imageSrc={product.imageSrc}
@@ -128,6 +129,7 @@ export function ProductCardRow({
         {products.map((product) => (
           <div
             key={product.id}
+            data-product-card="true"
             className={cn(
               "shrink-0 flex flex-col",
               isHorizontal

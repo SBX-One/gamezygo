@@ -17,7 +17,9 @@ import {
   Accordion,
   BlogCard,
   Toast,
+  CinematicLoader,
 } from "@/components/ui";
+import { useLandingAnimations } from "@/hooks/use-landing-animations";
 import { StoreLayout } from "@/components/layout";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useCartStore } from "@/stores/use-cart-store";
@@ -304,11 +306,20 @@ export default function LandingPage() {
   const authUser = useAuthStore((s) => s.user);
   const addToCart = useCartStore((s) => s.addItem);
 
-  const [isMounted, setIsMounted] = React.useState(false);
-  React.useEffect(() => {
-    setIsMounted(true);
-  }, []);
+  const isMounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
   const isUserLoggedIn = isMounted && isAuthenticated;
+
+  // Opening sequence completion state and section-by-section scroll animations
+  const [isOpeningComplete, setIsOpeningComplete] = React.useState(false);
+  useLandingAnimations({ enabled: isOpeningComplete });
+
+  const handleOpeningComplete = React.useCallback(() => {
+    setIsOpeningComplete(true);
+  }, []);
 
   // Toast State
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
@@ -932,6 +943,9 @@ export default function LandingPage() {
 
   return (
     <>
+      {/* Cinematic Opening Sequence */}
+      <CinematicLoader onComplete={handleOpeningComplete} />
+
       <Head>
         <title>Gamezygo — Platform Koleksi Akun Game Original & Instan Terlengkap</title>
         <meta
@@ -960,47 +974,53 @@ export default function LandingPage() {
         {/* ========================================================
             1. HERO CAROUSEL BANNER (PROMO UTAMA / MUSIM PANAS)
            ======================================================== */}
-        <section className="w-full flex flex-col gap-12">
-          <BannerCarousel
-            slides={bannerSlides}
-            autoPlayInterval={6000}
-            className="w-full h-52 sm:h-72 lg:h-105 rounded-lg overflow-hidden shadow-2xl "
-          />
+        <section data-animate-section="hero" className="w-full flex flex-col gap-12">
+          <div data-animate="hero-banner">
+            <BannerCarousel
+              slides={bannerSlides}
+              autoPlayInterval={6000}
+              className="w-full h-52 sm:h-72 lg:h-105 rounded-lg overflow-hidden shadow-2xl "
+            />
+          </div>
 
         {/* ========================================================
             2. GAME PILIHAN HANYA UNTUK ANDA (HORIZONTAL ROW SWIPEABLE)
            ======================================================== */}
-        <section className="w-full flex flex-col gap-6">
-          <SectionHeader
-            type="outer"
-            title="Game Pilihan Hanya Untuk Anda!"
-            actionLabel="Lihat Semua"
-            onActionClick={() => router.push("/store")}
-          />
-          <ProductCardRow
-            orientation="horizontal"
-            products={MINI_FEATURED_PRODUCTS}
-            onAddToCart={(title) => {
-              const item = MINI_FEATURED_PRODUCTS.find((p) => p.title === title);
-              handleAddToCart({
-                id: item?.id || 1,
-                title: item?.title || title,
-                imageSrc: item?.imageSrc,
-              });
-            }}
-          />
+        <section data-animate-section="game-pilihan" className="w-full flex flex-col gap-6">
+          <div data-animate="header">
+            <SectionHeader
+              type="outer"
+              title="Game Pilihan Hanya Untuk Anda!"
+              actionLabel="Lihat Semua"
+              onActionClick={() => router.push("/store")}
+            />
+          </div>
+          <div data-animate="cards-track">
+            <ProductCardRow
+              orientation="horizontal"
+              products={MINI_FEATURED_PRODUCTS}
+              onAddToCart={(title) => {
+                const item = MINI_FEATURED_PRODUCTS.find((p) => p.title === title);
+                handleAddToCart({
+                  id: item?.id || 1,
+                  title: item?.title || title,
+                  imageSrc: item?.imageSrc,
+                });
+              }}
+            />
+          </div>
         </section>
       </section>
 
         {/* ========================================================
             3. DERETAN GAME TERPOPULER (Tabs + 3-Col GameListItem Grid + Fade Shadow)
            ======================================================== */}
-        <section className="w-full flex flex-col gap-6">
+        <section data-animate-section="popular-games" className="w-full flex flex-col gap-6">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-gray-800 pb-0">
-            <p className="text-h3 font-semibold text-gradient-heading  pb-8">
+            <p data-animate="title" className="text-h3 font-semibold text-gradient-heading  pb-8">
               Deretan Game Terpopuler!
             </p>
-            <div className="shrink-0 -mb-px">
+            <div data-animate="tabs" className="shrink-0 -mb-px">
               <Tabs
                 items={[
                   { id: "trending", label: "Trending" },
@@ -1015,7 +1035,7 @@ export default function LandingPage() {
           </div>
 
           <div className="relative w-full overflow-hidden">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
+            <div data-animate="grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
               {popularGames.map((game) => (
                 <GameListItem
                   key={game.id}
@@ -1041,77 +1061,95 @@ export default function LandingPage() {
             4 & 5. DYNAMIC CUSTOM SECTIONS OR FALLBACK (TAWARAN KHUSUS & RILISAN TERBARU)
            ======================================================== */}
         {customSections && customSections.length > 0 ? (
-          customSections.map((sec) => (
-            <section key={sec.id} className="w-full flex flex-col gap-6">
-              <SectionHeader
-                type="outer"
-                title={sec.title}
-                actionLabel="Lihat Semua"
-                onActionClick={() => router.push(`/store?section=${sec.slug}`)}
-              />
-              <ProductCardRow
-                products={mapSectionProducts(sec)}
-                visibleCount={
-                  isUserLoggedIn
-                    ? 4
-                    : sec.slug === "rilis-terbaru" || sec.title?.toLowerCase().includes("terbaru")
-                    ? 5
-                    : 4
-                }
-                onAddToCart={(title) => {
-                  const item = mapSectionProducts(sec).find((p) => p.title === title);
-                  handleAddToCart({
-                    id: item?.id || 1,
-                    title: item?.title || title,
-                    imageSrc: item?.imageSrc,
-                  });
-                }}
-              />
+          customSections.map((sec, idx) => (
+            <section
+              key={sec.id}
+              data-animate-section={
+                idx === 0 ? "tawaran-khusus" : idx === 1 ? "rilis-terbaru" : `custom-sec-${idx}`
+              }
+              className="w-full flex flex-col gap-6"
+            >
+              <div data-animate="header">
+                <SectionHeader
+                  type="outer"
+                  title={sec.title}
+                  actionLabel="Lihat Semua"
+                  onActionClick={() => router.push(`/store?section=${sec.slug}`)}
+                />
+              </div>
+              <div data-animate="cards-track">
+                <ProductCardRow
+                  products={mapSectionProducts(sec)}
+                  visibleCount={
+                    isUserLoggedIn
+                      ? 4
+                      : sec.slug === "rilis-terbaru" || sec.title?.toLowerCase().includes("terbaru")
+                      ? 5
+                      : 4
+                  }
+                  onAddToCart={(title) => {
+                    const item = mapSectionProducts(sec).find((p) => p.title === title);
+                    handleAddToCart({
+                      id: item?.id || 1,
+                      title: item?.title || title,
+                      imageSrc: item?.imageSrc,
+                    });
+                  }}
+                />
+              </div>
             </section>
           ))
         ) : (
           <>
             {/* 4. TAWARAN KHUSUS */}
-            <section className="w-full flex flex-col gap-6">
-              <SectionHeader
-                type="outer"
-                title="Tawaran Khusus!"
-                actionLabel="Lihat Semua"
-                onActionClick={() => router.push("/store")}
-              />
-              <ProductCardRow
-                products={TAWARAN_KHUSUS_PRODUCTS}
-                onAddToCart={(title) => {
-                  const item = TAWARAN_KHUSUS_PRODUCTS.find((p) => p.title === title);
-                  handleAddToCart({
-                    id: item?.id || 1,
-                    title: item?.title || title,
-                    imageSrc: item?.imageSrc,
-                  });
-                }}
-              />
+            <section data-animate-section="tawaran-khusus" className="w-full flex flex-col gap-6">
+              <div data-animate="header">
+                <SectionHeader
+                  type="outer"
+                  title="Tawaran Khusus!"
+                  actionLabel="Lihat Semua"
+                  onActionClick={() => router.push("/store")}
+                />
+              </div>
+              <div data-animate="cards-track">
+                <ProductCardRow
+                  products={TAWARAN_KHUSUS_PRODUCTS}
+                  onAddToCart={(title) => {
+                    const item = TAWARAN_KHUSUS_PRODUCTS.find((p) => p.title === title);
+                    handleAddToCart({
+                      id: item?.id || 1,
+                      title: item?.title || title,
+                      imageSrc: item?.imageSrc,
+                    });
+                  }}
+                />
+              </div>
             </section>
 
             {/* 5. RILISAN TERBARU */}
-            <section className="w-full flex flex-col gap-6">
-              <SectionHeader
-                type="outer"
-                title="Rilisan Terbaru!"
-                actionLabel="Lihat Semua"
-                onActionClick={() => router.push("/store")}
-              />
-              <ProductCardRow
-                products={RILIS_TERBARU_PRODUCTS}
-                visibleCount={isUserLoggedIn ? 4 : 5}
-                onAddToCart={(title) => {
-                  const item = RILIS_TERBARU_PRODUCTS.find((p) => p.title === title);
-                  handleAddToCart({
-                    id: item?.id || 1,
-                    title: item?.title || title,
-                    imageSrc: item?.imageSrc,
-                  });
-                }}
-              />
+            <section data-animate-section="rilis-terbaru" className="w-full flex flex-col gap-6">
+              <div data-animate="header">
+                <SectionHeader
+                  type="outer"
+                  title="Rilisan Terbaru!"
+                  actionLabel="Lihat Semua"
+                  onActionClick={() => router.push("/store")}
+                />
+              </div>
+              <div data-animate="cards-track">
+                <ProductCardRow
+                  products={RILIS_TERBARU_PRODUCTS}
+                  visibleCount={isUserLoggedIn ? 4 : 5}
+                  onAddToCart={(title) => {
+                    const item = RILIS_TERBARU_PRODUCTS.find((p) => p.title === title);
+                    handleAddToCart({
+                      id: item?.id || 1,
+                      title: item?.title || title,
+                      imageSrc: item?.imageSrc,
+                    });
+                  }}
+                />
+              </div>
             </section>
           </>
         )}
@@ -1119,10 +1157,10 @@ export default function LandingPage() {
         {/* ========================================================
             6. PANDUAN BERMAIN: 4 LANGKAH (Mulai Main Dengan 4 Langkah)
            ======================================================== */}
-        <section className="w-full flex flex-col gap-8 py-6">
+        <section data-animate-section="how-to-play" className="w-full flex flex-col gap-8 py-6">
           {/* Header Bar */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 w-full">
-            <div className="border-l-gradient-primary pl-8 pb-2 flex flex-col gap-1.5">
+            <div data-animate="title-area" className="border-l-gradient-primary pl-8 pb-2 flex flex-col gap-1.5">
               <span className="text-gray-400 text-label-xs sm:text-body-sm  uppercase font-medium">
                 MULAI MAIN DENGAN 4 LANGKAH
               </span>
@@ -1131,7 +1169,7 @@ export default function LandingPage() {
               </h2>
             </div>
 
-            <div className="flex items-center gap-4 shrink-0 sm:self-end">
+            <div data-animate="button-area" className="flex items-center gap-4 shrink-0 sm:self-end">
               <span className="text-right text-gray-400 text-body-xs font-normal hidden sm:inline">
                 Masih bingung? <br /> Lihat di youtube!
               </span>
@@ -1163,9 +1201,9 @@ export default function LandingPage() {
           </div>
 
           {/* Outer Container Card Wrapping 4 Steps */}
-          <div className="w-full rounded-lg border border-white/10 bg-deep-blue-950/40 p-6 sm:p-10 lg:p-12 relative overflow-hidden">
+          <div data-animate="outer-card" className="w-full rounded-lg border border-white/10 bg-deep-blue-950/40 p-6 sm:p-10 lg:p-12 relative overflow-hidden">
             {/* Background connecting track */}
-            <svg
+            <svg data-animate="svg-track"
               className="pointer-events-none absolute inset-0 w-full h-full hidden md:block"
               viewBox="0 0 100 100"
               preserveAspectRatio="none"
@@ -1208,6 +1246,7 @@ export default function LandingPage() {
               {HOW_TO_PLAY_STEPS.map((step) => (
                 <div
                   key={step.step}
+                  data-animate="step-item"
                   className="rounded-xl h-auto min-h-52 bg-deep-blue-900 border border-white/10 p-4 sm:p-5 flex flex-col gap-3 sm:gap-4 relative transition-all duration-200 hover:border-white/20"
                 >
                   {/* Top: Icon + Langkah N */}
@@ -1233,21 +1272,18 @@ export default function LandingPage() {
                   <p className="text-body-sm text-gray-400 leading-relaxed">
                     {step.description}
                   </p>
-                                  <div className="pointer-events-none absolute z-10 -bottom-2 inset-x-0 h-36 bg-linear-to-t from-deep-blue-950 via-deep-blue-950/85 to-transparent rounded-b-lg" />
-
+                  <div className="pointer-events-none absolute z-10 -bottom-2 inset-x-0 h-36 bg-linear-to-t from-deep-blue-950 via-deep-blue-950/85 to-transparent rounded-b-lg" />
                 </div>
               ))}
-              {/* Bottom Fade Shadow */}
             </div>
-            </div>
-
+          </div>
         </section>
 
         {/* ========================================================
             7. LEADERBOARD PREVIEW: Header + 2 Columns Table + Fade Shadow
            ======================================================== */}
-        <section className="w-full flex flex-col items-center gap-12 text-center">
-          <div className="flex justify-center w-full">
+        <section data-animate-section="leaderboard" className="w-full flex flex-col items-center gap-12 text-center">
+          <div data-animate="header" className="flex justify-center w-full">
             <Header
               pillText="LEADERBOARD"
               pillVariant="plain"
@@ -1256,116 +1292,124 @@ export default function LandingPage() {
               actionLabel="Lihat Premium"
               actionVariant="secondary"
               onActionClick={() => router.push("/leaderboard")}
-            className="max-w-5/8"
+              className="max-w-5/8"
             />
           </div>
-<div className="w-full border-t-gradient-secondary my-2" />
+          <div data-animate="divider" className="w-full border-t-gradient-secondary my-2" />
 
           <div className="w-full relative">
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 w-full text-left">
               {/* MONTHLY (LEADERBOARD BULAN JULI :) */}
-              <section className="rounded-lg bg-deep-blue-900 border border-gradient-secondary p-6 sm:p-7 flex flex-col">
+              <section data-animate="monthly-column" className="rounded-lg bg-deep-blue-900 border border-gradient-secondary p-6 sm:p-7 flex flex-col">
                 <h3 className="text-h6 sm:text-h6 font-semibold text-gray-50 uppercase mb-8">
                   LEADERBOARD BULAN JULI :
                 </h3>
                 <div className="flex flex-col gap-2">
                   {monthlyRanks.map((user, idx) => (
-                    <UserRank
-                      key={`monthly-${user.id || idx}-${user.name}`}
-                      rank={user.rank}
-                      name={user.name}
-                      points={user.point}
-                      className={getUserRankClass(idx)}
-                    />
+                    <div key={`monthly-${user.id || idx}-${user.name}`} data-animate="rank-item">
+                      <UserRank
+                        rank={user.rank}
+                        name={user.name}
+                        points={user.point}
+                        className={getUserRankClass(idx)}
+                      />
+                    </div>
                   ))}
                 </div>
               </section>
 
               {/* WEEKLY (LEADERBOARD MINGGU INI:) */}
-              <section className="rounded-lg bg-deep-blue-900 border border-gradient-secondary p-6 sm:p-7 flex flex-col">
+              <section data-animate="weekly-column" className="rounded-lg bg-deep-blue-900 border border-gradient-secondary p-6 sm:p-7 flex flex-col">
                 <h3 className="text-h6 sm:text-h6 font-semibold text-gray-50 uppercase mb-8">
                   LEADERBOARD MINGGU INI:
                 </h3>
                 <div className="flex flex-col gap-2">
                   {weeklyRanks.map((user, idx) => (
-                    <UserRank
-                      key={`weekly-${user.id || idx}-${user.name}`}
-                      rank={user.rank}
-                      name={user.name}
-                      points={user.point}
-                      className={getUserRankClass(idx)}
-                    />
+                    <div key={`weekly-${user.id || idx}-${user.name}`} data-animate="rank-item">
+                      <UserRank
+                        rank={user.rank}
+                        name={user.name}
+                        points={user.point}
+                        className={getUserRankClass(idx)}
+                      />
+                    </div>
                   ))}
                 </div>
               </section>
             </div>
 
             {/* Bottom Fade Shadow */}
-            <div className="pointer-events-none absolute z-50 -bottom-1 sad inset-x-0 h-36 bg-linear-to-t from-deep-blue-950 via-deep-blue-950/85 to-transparent rounded-b-xl" />
+            <div className="pointer-events-none absolute z-20 -bottom-1 sad inset-x-0 h-36 bg-linear-to-t from-deep-blue-950 via-deep-blue-950/85 to-transparent rounded-b-xl" />
           </div>
         </section>
 
         {/* ========================================================
             8. TESTIMONIAL PELANGGAN: Header + Infinite Moving Carousel
            ======================================================== */}
-        <section className="w-full flex flex-col items-center gap-6">
-          <Header
-            pillText="TESTIMONIAL"
-            pillVariant="plain"
-            title={
-              <>
-                Dengarkan Pendapat Gamer Setelah Beli di Gamezygo!
-              </>
-            }
-            className="max-w-5/8"
-          >
-            {/* "Beri Pendapat" Input Bar */}
-            <div className="relative w-full  lg:max-w-1/2 mx-auto">
-              <div className="w-full flex items-center bg-deep-blue-900 border border-white/10 rounded-xl px-4 py-3 gap-3 focus-within:border-white/30 transition-all">
-                <span className="text-gray-400 text-body-sm font-semibold">@</span>
-                <input
-                  type="text"
-                  value={opinionInput}
-                  onChange={(e) => setOpinionInput(e.target.value)}
-                  placeholder="Beri pendapat"
-                  className="w-full bg-transparent text-body-sm text-gray-100 placeholder:text-gray-500 focus:outline-none"
-                  onKeyDown={(e) => {
-                    if (e.key === "Enter" && opinionInput.trim()) {
-                      showToast("Terima kasih atas pendapat Anda!");
-                      setOpinionInput("");
-                    }
-                  }}
-                />
-                <button
-                  type="button"
-                  onClick={() => {
-                    if (opinionInput.trim()) {
-                      showToast("Terima kasih atas pendapat Anda!");
-                      setOpinionInput("");
-                    }
-                  }}
-                  className="text-gray-400 hover:text-white transition-colors cursor-pointer p-1"
-                >
-                  <SendIcon />
-                </button>
+        <section data-animate-section="testimonials" className="w-full flex flex-col items-center gap-6">
+          <div data-animate="header" className="w-full flex flex-col items-center">
+            <Header
+              pillText="TESTIMONIAL"
+              pillVariant="plain"
+              title={
+                <>
+                  Dengarkan Pendapat Gamer Setelah Beli di Gamezygo!
+                </>
+              }
+              className="max-w-5/8"
+            >
+              {/* "Beri Pendapat" Input Bar */}
+              <div data-animate="opinion-bar" className="relative w-full  lg:max-w-1/2 mx-auto">
+                <div className="w-full flex items-center bg-deep-blue-900 border border-white/10 rounded-xl px-4 py-3 gap-3 focus-within:border-white/30 transition-all">
+                  <span className="text-gray-400 text-body-sm font-semibold">@</span>
+                  <input
+                    type="text"
+                    value={opinionInput}
+                    onChange={(e) => setOpinionInput(e.target.value)}
+                    placeholder="Beri pendapat"
+                    className="w-full bg-transparent text-body-sm text-gray-100 placeholder:text-gray-500 focus:outline-none"
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" && opinionInput.trim()) {
+                        showToast("Terima kasih atas pendapat Anda!");
+                        setOpinionInput("");
+                      }
+                    }}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (opinionInput.trim()) {
+                        showToast("Terima kasih atas pendapat Anda!");
+                        setOpinionInput("");
+                      }
+                    }}
+                    className="text-gray-400 hover:text-white transition-colors cursor-pointer p-1"
+                  >
+                    <SendIcon />
+                  </button>
+                </div>
               </div>
-            </div>
-          </Header>
+            </Header>
+          </div>
 
           {/* Divider Line */}
-          <div className="w-full border-t-gradient-secondary my-2" />
+          <div data-animate="divider" className="w-full border-t-gradient-secondary my-2" />
 
           {/* Infinite Moving Testimonial Cards Carousel (matching credentials/[id].tsx) */}
-          <div className="relative w-full overflow-hidden pt-2 sm:pt-4 pb-6 sm:pb-8">
+          <div data-animate="carousel" className="relative w-full overflow-hidden pt-2 sm:pt-4 pb-6 sm:pb-8">
             {/* Vignette gradient masks on sides */}
             <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-deep-blue-950 to-transparent z-10 hidden sm:block" />
             <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-deep-blue-950 to-transparent z-10 hidden sm:block" />
 
             {/* Moving Track */}
-            <div className="flex gap-6 w-max animate-infinite-carousel hover:[animation-play-state:paused] items-stretch py-2">
+            <div
+              data-animate="testimonial-track"
+              className="flex gap-6 w-max animate-infinite-carousel [animation-play-state:paused] hover:![animation-play-state:paused] items-stretch py-2"
+            >
               {infiniteTestimonials.map((t, idx) => (
                 <div
                   key={`${t.id}-${idx}`}
+                  data-animate="testimonial-card"
                   className="w-80 sm:w-96 shrink-0 transition-transform duration-300 hover:scale-[1.01]"
                 >
                   <TestimonialCard
@@ -1386,8 +1430,8 @@ export default function LandingPage() {
         {/* ========================================================
             9. FAQ (PERTANYAAN UMUM): Left Title + Right Accordion
            ======================================================== */}
-        <section className="w-full flex flex-col lg:grid lg:grid-cols-7 gap-10 lg:gap-16 items-start py-6">
-          <div className="flex flex-col w-fit  lg:col-span-3 gap-4 shrink-0 border-l-gradient-primary h-fit pl-6 sm:pl-8 pb-6">
+        <section data-animate-section="faq" className="w-full flex flex-col lg:grid lg:grid-cols-7 gap-10 lg:gap-16 items-start py-6">
+          <div data-animate="left-column" className="flex flex-col w-fit  lg:col-span-3 gap-4 shrink-0 border-l-gradient-primary h-fit pl-6 sm:pl-8 pb-6">
             <span className="text-body-sm text-gray-400">
               FREQUENTLY ASKED QUESTION
             </span>
@@ -1411,7 +1455,7 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="flex-1 min-w-0 w-full lg:col-span-4">
+          <div data-animate="right-column" className="flex-1 min-w-0 w-full lg:col-span-4">
             <Accordion items={faqItems} defaultOpenId="faq-1" allowMultiple={false} isLanding={true} />
           </div>
         </section>
@@ -1419,14 +1463,16 @@ export default function LandingPage() {
         {/* ========================================================
             10. BERITA GAMEZYGO: 2x2 Blog Cards Grid
            ======================================================== */}
-        <section className="w-full flex flex-col gap-6">
-          <SectionHeader
-            type="outer"
-            title="Berita Gamezygo"
-            actionLabel="Lihat Semua Artikel"
-            onActionClick={() => router.push("/blogs")}
-          />
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+        <section data-animate-section="blogs" className="w-full flex flex-col gap-6">
+          <div data-animate="header">
+            <SectionHeader
+              type="outer"
+              title="Berita Gamezygo"
+              actionLabel="Lihat Semua Artikel"
+              onActionClick={() => router.push("/blogs")}
+            />
+          </div>
+          <div data-animate="blog-grid" className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
             {blogList.map((blog) => (
               <BlogCard
                 key={blog.id}
@@ -1444,29 +1490,31 @@ export default function LandingPage() {
         {/* ========================================================
             11. KOMUNITAS GAMEZYGO: Header + Community Cards Container
            ======================================================== */}
-        <section className="w-full flex flex-col items-center gap-8 text-center">
+        <section data-animate-section="community" className="w-full flex flex-col items-center gap-8 text-center">
           {/* Header */}
-          <Header
-            pillText="LEADERBOARD"
-            pillVariant="plain"
-            title={
-              <>
-                Bergabung dengan  komunitas Gamezygo!
-              </>
-            }
-            subtitle="Ingin Mencari Teman Satu Hobi? Gabung Komunitas!"
-            actionLabel="Gabung Sekarang"
-            actionVariant="secondary"
-            onActionClick={() => showToast("Membuka grup komunitas...")}
-          />
+          <div data-animate="header" className="w-full flex flex-col items-center">
+            <Header
+              pillText="LEADERBOARD"
+              pillVariant="plain"
+              title={
+                <>
+                  Bergabung dengan  komunitas Gamezygo!
+                </>
+              }
+              subtitle="Ingin Mencari Teman Satu Hobi? Gabung Komunitas!"
+              actionLabel="Gabung Sekarang"
+              actionVariant="secondary"
+              onActionClick={() => showToast("Membuka grup komunitas...")}
+            />
+          </div>
 
           {/* Divider Line */}
-          <div className="w-full border-t-gradient-secondary my-2" />
+          <div data-animate="divider" className="w-full border-t-gradient-secondary my-2" />
 
           {/* Outer Card Wrapper */}
-          <div className="w-full rounded-lg  border border-white/10 bg-deep-blue-900 p-6 sm:p-8 flex flex-col gap-6 text-left">
+          <div data-animate="outer-card" className="w-full rounded-lg  border border-white/10 bg-deep-blue-900 p-6 sm:p-8 flex flex-col gap-6 text-left">
             {/* Wrapper Header Bar */}
-            <div className="flex items-center justify-between pb-4 border-b border-white/5">
+            <div data-animate="inner-header" className="flex items-center justify-between pb-4 border-b border-white/5">
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-surface-secondary-default border border-white/10 flex items-center justify-center text-gray-200 shrink-0">
                   <svg
@@ -1499,7 +1547,7 @@ export default function LandingPage() {
             </div>
 
             {/* 2x2 Grid of Community Cards */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
+            <div data-animate="cards-grid" className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
               {COMMUNITY_GROUPS.map((group) => (
                 <ProductCard
                   key={group.id}
@@ -1521,7 +1569,7 @@ export default function LandingPage() {
             </div>
 
             {/* Bottom: Muat Lebih Banyak */}
-            <div className="flex justify-center w-full pt-4">
+            <div data-animate="load-more" className="flex justify-center w-full pt-4">
               <button
                 type="button"
                 className="flex items-center gap-2 text-body-sm font-semibold text-gray-300 hover:text-white transition-colors cursor-pointer"
@@ -1545,6 +1593,7 @@ export default function LandingPage() {
             </div>
           </div>
         </section>
+
 
         {/* Notification Toast */}
         {toastMessage && (

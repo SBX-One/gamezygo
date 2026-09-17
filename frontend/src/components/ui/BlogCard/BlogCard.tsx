@@ -56,7 +56,7 @@ export function BlogCard({
       <div className="flex flex-col gap-5">
         {/* Date (1 BULAN LALU) */}
         {date && (
-          <span className="text-body-sm text-gray-400 uppercase tracking-wider">
+          <span className="text-body-sm text-gray-400 uppercase ">
             {date}
           </span>
         )}

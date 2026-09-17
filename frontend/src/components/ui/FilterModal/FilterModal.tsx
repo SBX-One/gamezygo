@@ -338,7 +338,7 @@ export function FilterModal({
       {/* 3. Main Genres List (or Status for Blogs) */}
       {statusOptions && statusOptions.length > 0 && (
         <div className="flex flex-col gap-3">
-          <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
+          <span className="text-body-sm text-gray-400 font-normal uppercase ">
             STATUS
           </span>
           <div className="flex flex-wrap items-center gap-2">
@@ -370,7 +370,7 @@ export function FilterModal({
       {/* 3b. Genres List if not using custom status */}
       {!statusOptions && genres && genres.length > 0 && (
         <div className="flex flex-col gap-3">
-          <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
+          <span className="text-body-sm text-gray-400 font-normal uppercase ">
             GENRE
           </span>
           <div className="flex flex-wrap items-center gap-2">
@@ -402,7 +402,7 @@ export function FilterModal({
       {/* 4. Platform Section (Blog Platform or General Launchers) */}
       {platformOptions && platformOptions.length > 0 ? (
         <div className="flex flex-col gap-3">
-          <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
+          <span className="text-body-sm text-gray-400 font-normal uppercase ">
             PLATFORM
           </span>
           <div className="flex flex-wrap items-center gap-2">
@@ -431,7 +431,7 @@ export function FilterModal({
         </div>
       ) : launchers && launchers.length > 0 ? (
         <div className="flex flex-col gap-3">
-          <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
+          <span className="text-body-sm text-gray-400 font-normal uppercase ">
             LAUNCHER
           </span>
           <div className="flex flex-wrap items-center gap-2">
@@ -463,7 +463,7 @@ export function FilterModal({
       {/* 4b. Game Section */}
       {gameOptions && gameOptions.length > 0 && (
         <div className="flex flex-col gap-3">
-          <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
+          <span className="text-body-sm text-gray-400 font-normal uppercase ">
             GAME
           </span>
           <div className="flex flex-wrap items-center gap-2">
@@ -495,7 +495,7 @@ export function FilterModal({
       {/* 5. Interactive Price Range Section */}
       {showPriceRange && (
         <div className="flex flex-col gap-3">
-          <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
+          <span className="text-body-sm text-gray-400 font-normal uppercase ">
             PRICE RANGE
           </span>
           <div className="flex items-center gap-3 w-full">
@@ -558,7 +558,7 @@ export function FilterModal({
       {/* 6. Sort By Section */}
       {sortOptions && sortOptions.length > 0 && (
         <div className="flex flex-col gap-3">
-          <span className="text-body-sm text-gray-400 font-normal uppercase tracking-wider">
+          <span className="text-body-sm text-gray-400 font-normal uppercase ">
             SORT BY
           </span>
           <div className="grid grid-cols-2 gap-2">

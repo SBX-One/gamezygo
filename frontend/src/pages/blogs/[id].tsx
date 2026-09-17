@@ -306,7 +306,7 @@ export default function BlogDetailPage() {
                   </h1>
                 </div>
 
-                <span className="text-body-xs sm:text-body-sm text-gray-400 font-medium uppercase tracking-wider ">
+                <span className="text-body-xs sm:text-body-sm text-gray-400 font-medium uppercase  ">
                   {blog.fullDate || blog.date}
                 </span>
               </div>

@@ -336,7 +336,7 @@ export default function CartPage() {
               {/* <div className="flex flex-col gap-3">
                 <label
                   htmlFor="voucher-input"
-                  className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider"
+                  className="text-label-xs font-semibold text-gray-400 uppercase "
                 >
                   VOUCHER
                 </label>
@@ -388,7 +388,7 @@ export default function CartPage() {
 
               {/* DETAIL PESANAN SECTION */}
               {/* <div className="flex flex-col gap-3">
-                <span className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <span className="text-label-xs font-semibold text-gray-400 uppercase ">
                   DETAIL PESANAN
                 </span>
 

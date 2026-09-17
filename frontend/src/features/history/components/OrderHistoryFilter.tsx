@@ -246,7 +246,7 @@ export function OrderHistoryFilter({
       {/* 2. Status Section */}
       {statusOptions.length > 0 && (
         <div className="flex flex-col gap-3">
-          <span className="text-body-sm text-gray-400 uppercase tracking-wider">
+          <span className="text-body-sm text-gray-400 uppercase ">
             STATUS
           </span>
           <div className="flex flex-wrap items-center gap-2">
@@ -272,7 +272,7 @@ export function OrderHistoryFilter({
       {/* 3. Metode Pembayaran Section */}
       {paymentOptions.length > 0 && (
         <div className="flex flex-col gap-3">
-          <span className="text-body-sm text-gray-400 uppercase tracking-wider">
+          <span className="text-body-sm text-gray-400 uppercase ">
             METODE PEMBAYARAN
           </span>
           <div className="flex flex-wrap items-center gap-2">
@@ -297,7 +297,7 @@ export function OrderHistoryFilter({
 
       {/* 4. Price Range Section */}
       <div className="flex flex-col gap-3">
-        <span className="text-body-sm text-gray-400 uppercase tracking-wider">
+        <span className="text-body-sm text-gray-400 uppercase ">
           PRICE RANGE
         </span>
 
@@ -357,7 +357,7 @@ export function OrderHistoryFilter({
       {/* 5. Sort By Section */}
       {sortOptions.length > 0 && (
         <div className="flex flex-col gap-3">
-          <span className="text-body-sm text-gray-400 uppercase tracking-wider">
+          <span className="text-body-sm text-gray-400 uppercase ">
             SORT BY
           </span>
           <div className="grid grid-cols-2 gap-2">

@@ -292,6 +292,7 @@ export default function SubscriptionPage() {
         <section className="w-full flex flex-col gap-6 sm:gap-8">
           {/* Centered Heading */}
           <Header
+            as="h2"
             pillText="GAME LIBRARY"
             pillVariant="plain"
             title="Game yang Akan Anda Dapatkan!"

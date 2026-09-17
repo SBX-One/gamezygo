@@ -618,7 +618,7 @@ export default function ReviewPage() {
               <form onSubmit={handleSubmitReview} className="flex flex-col gap-5">
                 {/* 1. RATING SECTION */}
                 <div className="flex flex-col gap-2.5">
-                  <span className="text-label-xs font-semibold tracking-wider text-gray-400 uppercase">
+                  <span className="text-label-xs font-semibold  text-gray-400 uppercase">
                     RATING
                   </span>
                   <div className="grid grid-cols-5 gap-2.5 sm:gap-3">
@@ -651,7 +651,7 @@ export default function ReviewPage() {
 
                 {/* 2. DETAIL PESANAN SECTION */}
                 <div className="flex flex-col gap-2.5">
-                  <span className="text-label-xs font-semibold tracking-wider text-gray-400 uppercase">
+                  <span className="text-label-xs font-semibold  text-gray-400 uppercase">
                     DETAIL PESANAN
                   </span>
                   <textarea
@@ -665,7 +665,7 @@ export default function ReviewPage() {
 
                 {/* 3. GAMBAR SECTION */}
                 <div className="flex flex-col gap-2.5">
-                  <span className="text-label-xs font-semibold tracking-wider text-gray-400 uppercase">
+                  <span className="text-label-xs font-semibold  text-gray-400 uppercase">
                     GAMBAR
                   </span>
 

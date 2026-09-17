@@ -1123,7 +1123,7 @@ export default function LandingPage() {
           {/* Header Bar */}
           <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-6 w-full">
             <div className="border-l-gradient-primary pl-8 pb-2 flex flex-col gap-1.5">
-              <span className="text-gray-400 text-label-xs sm:text-body-sm tracking-wider uppercase font-medium">
+              <span className="text-gray-400 text-label-xs sm:text-body-sm  uppercase font-medium">
                 MULAI MAIN DENGAN 4 LANGKAH
               </span>
               <h2 className="text-h3 sm:text-h2 font-semibold text-gradient-heading leading-[120%]">
@@ -1138,7 +1138,7 @@ export default function LandingPage() {
               <Button
                 type="button"
                 variant="secondary"
-                size="md"
+                size="sm"
                 leftIcon={
                   <svg
                     width="20"

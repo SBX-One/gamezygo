@@ -577,7 +577,7 @@ export default function CheckoutPage() {
               <div className="flex flex-col gap-3">
                 <label
                   htmlFor="voucher-input"
-                  className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider"
+                  className="text-label-xs font-semibold text-gray-400 uppercase "
                 >
                   VOUCHER
                 </label>
@@ -651,7 +651,7 @@ export default function CheckoutPage() {
 
               {/* PAYMENT METHODS (2x2 Grid) */}
               <div className="flex flex-col gap-2">
-                <span className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <span className="text-label-xs font-semibold text-gray-400 uppercase ">
                   Metode Pembayaran
                 </span>
                 <div className="grid grid-cols-2 gap-3 w-full">
@@ -723,7 +723,7 @@ export default function CheckoutPage() {
             <div className="bg-deep-blue-950/95 border border-white/15 rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-2xl backdrop-blur-xl relative flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-200">
               {/* Badge & Title */}
               <div className="flex items-center gap-2 mb-2">
-                <span className="px-2.5 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-label-xs font-semibold uppercase tracking-wider">
+                <span className="px-2.5 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-label-xs font-semibold uppercase ">
                   QRIS Instant Pay
                 </span>
               </div>

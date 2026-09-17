@@ -5,6 +5,10 @@ import { Button } from "@/components/ui/Button";
 
 export interface HeaderProps
   extends Omit<React.HTMLAttributes<HTMLElement>, "title"> {
+  /** Tag heading semantic yang digunakan: h1, h2, atau h3 (default: "h1") */
+  as?: "h1" | "h2" | "h3";
+  /** Custom class name untuk elemen heading title */
+  titleClassName?: string;
   /** Teks atau konten untuk badge Pill di atas */
   pillText?: React.ReactNode;
   /** Varian pill badge (default: secondary). Gunakan "plain" untuk teks polos tanpa kapsul pill */
@@ -43,6 +47,8 @@ const FluentPlayIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export function Header({
+  as: HeadingTag = "h1",
+  titleClassName,
   pillText = "Promo Musim Panas Telah Datang!",
   pillVariant = "secondary",
   title = "Pemilik Koleksi Game Terbesar Saat Ini!",
@@ -77,10 +83,20 @@ export function Header({
           </Pill>
         ))}
 
-      {/* 2. Main Large Headline */}
-      <h1 className="text-h1 font-semibold text-gradient-heading max-w-7/8">
+      {/* 2. Main Headline (Semantic H1/H2/H3) */}
+      <HeadingTag
+        className={cn(
+          HeadingTag === "h2"
+            ? "text-h2"
+            : HeadingTag === "h3"
+            ? "text-h3"
+            : "text-h1",
+          "font-semibold text-gradient-heading max-w-7/8",
+          titleClassName
+        )}
+      >
         {title}
-      </h1>
+      </HeadingTag>
 
       {/* 3. Bottom Row: Custom Children OR (Subtitle + Action Button) */}
       {children ? (

@@ -51,10 +51,14 @@ export interface NavbarProps extends React.HTMLAttributes<HTMLElement> {
   onSignUpClick?: () => void;
   /** Callback saat tombol keranjang belanja diklik */
   onCartClick?: () => void;
-  /** Data user untuk profil/avatar di sebelah kanan */
+  /** Data profil user untuk avatar di sebelah kanan */
   user?: NavbarUser;
   /** Callback saat tombol profil user diklik */
   onUserClick?: () => void;
+  /** Callback saat tombol logout di dropdown profil diklik */
+  onLogoutClick?: () => void;
+  /** Callback saat tombol pengaturan akun di dropdown profil diklik */
+  onSettingsClick?: () => void;
   /** Judul halaman saat variant='back' (default: 'Artikel') */
   backTitle?: React.ReactNode;
   /** Callback saat tombol back diklik (mode back) */

@@ -1,4 +1,4 @@
-﻿import * as React from "react";
+import * as React from "react";
 import gsap from "gsap";
 import { cn } from "@/lib/utils";
 import type { CinematicLoaderProps } from "./CinematicLoader.types";
@@ -33,14 +33,25 @@ const GamezygoEmblem = ({
 
 export function CinematicLoader({
   onComplete,
-  forceShow = true,
+  forceShow = false,
   className,
   ...props
 }: CinematicLoaderProps) {
+  // Support ?intro=true in URL for easy manual testing / preview
+  const isForcedByUrl = React.useSyncExternalStore(
+    () => () => {},
+    () =>
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).has("intro"),
+    () => false
+  );
+
+  const shouldForce = forceShow || isForcedByUrl;
+
   // SSR-safe session cache check without calling setState in an effect
   const isAlreadyLoaded = React.useSyncExternalStore(
     () => () => {},
-    () => (!forceShow && Boolean(sessionStorage.getItem("gamezygo_loaded"))),
+    () => (!shouldForce && Boolean(sessionStorage.getItem("gamezygo_loaded"))),
     () => false
   );
 

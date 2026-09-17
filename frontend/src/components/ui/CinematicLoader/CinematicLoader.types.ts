@@ -1,4 +1,4 @@
-﻿import * as React from "react";
+import * as React from "react";
 
 export interface CinematicLoaderProps extends React.HTMLAttributes<HTMLDivElement> {
   /**
@@ -7,8 +7,8 @@ export interface CinematicLoaderProps extends React.HTMLAttributes<HTMLDivElemen
   onComplete?: () => void;
 
   /**
-   * When true, disables session storage check so the opening always plays on refresh.
-   * Default: true (for landing page cinematic experience).
+   * When true, disables session storage check so the opening always plays.
+   * Default: false (plays once per browser session; subsequent page switches skip loading).
    */
   forceShow?: boolean;
 

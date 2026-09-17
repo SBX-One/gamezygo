@@ -155,6 +155,70 @@ const ArrowLeftIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+/**
+ * Settings / Gear Icon (16px / w-4 h-4)
+ */
+const SettingsIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-4 h-4 shrink-0"
+    {...props}
+  >
+    <circle cx="12" cy="12" r="3" stroke="currentColor" strokeWidth="2" />
+    <path
+      d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 1 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 1 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 1 1-2.83-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 1 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 1 1 2.83-2.83l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 1 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 1 1 2.83 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 1 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+/**
+ * Log Out Icon (16px / w-4 h-4)
+ */
+const LogoutIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-4 h-4 shrink-0"
+    {...props}
+  >
+    <path
+      d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <polyline
+      points="16 17 21 12 16 7"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <line
+      x1="21"
+      y1="12"
+      x2="9"
+      y2="12"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 const defaultNavItems: NavItem[] = [
   { id: "home", label: "Home", href: "/", isActive: true },
   { id: "toko", label: "Toko", href: "/store" },
@@ -179,6 +243,8 @@ export function Navbar({
   onCartClick,
   user,
   onUserClick,
+  onLogoutClick,
+  onSettingsClick,
   backTitle = "Artikel",
   onBackClick,
   className,
@@ -186,6 +252,36 @@ export function Navbar({
   ...props
 }: NavbarProps) {
   const [internalSearch, setInternalSearch] = React.useState(searchValue);
+  const [isProfileOpen, setIsProfileOpen] = React.useState(false);
+  const profileMenuRef = React.useRef<HTMLDivElement>(null);
+
+  // Close profile dropdown when clicking outside or pressing Escape
+  React.useEffect(() => {
+    if (!isProfileOpen) return;
+
+    const handleOutsideClick = (e: MouseEvent) => {
+      if (
+        profileMenuRef.current &&
+        !profileMenuRef.current.contains(e.target as Node)
+      ) {
+        setIsProfileOpen(false);
+      }
+    };
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        setIsProfileOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("keydown", handleKeyDown);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isProfileOpen]);
 
   const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const val = e.target.value;
@@ -387,30 +483,108 @@ export function Navbar({
                   <CartIcon className="w-4 h-4 text-deep-blue-100" />
                 </Button>
 
-                {/* User Avatar + Chevron Down */}
-                <button
-                  type="button"
-                  onClick={onUserClick}
-                  className="flex items-center gap-2 p-1 rounded-lg hover:bg-white/5 cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-gray-50/50"
-                  aria-label="Menu Pengguna"
-                >
-                  <div className="w-7 h-7 rounded-full bg-deep-blue-700/80 border border-gradient-secondary overflow-hidden flex items-center justify-center shrink-0">
-                    {user?.avatarUrl ? (
-                      <img
-                        src={user.avatarUrl}
-                        alt={user.name || "User Avatar"}
-                        className="w-full h-full object-cover"
-                      />
-                    ) : user?.avatarFallback ? (
-                      user.avatarFallback
-                    ) : (
-                      <div className="w-full h-full bg-linear-to-tr from-rose-900 via-indigo-900 to-deep-blue-700 flex items-center justify-center text-label-xs font-bold text-gray-50">
-                        {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+                {/* User Profile Trigger & Dropdown Menu */}
+                <div ref={profileMenuRef} className="relative">
+                  <button
+                    type="button"
+                    onClick={() => setIsProfileOpen((prev) => !prev)}
+                    aria-expanded={isProfileOpen}
+                    aria-haspopup="true"
+                    className="flex items-center gap-2 p-1 rounded-lg hover:bg-white/5 cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-gray-50/50"
+                    aria-label="Menu Pengguna"
+                  >
+                    <div className="w-7 h-7 rounded-full bg-deep-blue-700/80 border border-gradient-secondary overflow-hidden flex items-center justify-center shrink-0">
+                      {user?.avatarUrl ? (
+                        <img
+                          src={user.avatarUrl}
+                          alt={user.name || "User Avatar"}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : user?.avatarFallback ? (
+                        user.avatarFallback
+                      ) : (
+                        <div className="w-full h-full bg-linear-to-tr from-rose-900 via-indigo-900 to-deep-blue-700 flex items-center justify-center text-label-xs font-bold text-gray-50">
+                          {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+                        </div>
+                      )}
+                    </div>
+                    <ChevronDownIcon
+                      className={cn(
+                        "w-4 h-4 text-deep-blue-100 transition-transform duration-200",
+                        isProfileOpen && "rotate-180"
+                      )}
+                    />
+                  </button>
+
+                  {/* Profile Dropdown Menu */}
+                  {isProfileOpen && (
+                    <div
+                      role="menu"
+                      aria-orientation="vertical"
+                      className="absolute right-0 top-full mt-2 w-56 bg-deep-blue-900/95 border border-gradient-secondary rounded-lg shadow-none backdrop-blur-md p-1.5 z-50 flex flex-col gap-1 focus:outline-none"
+                    >
+                      {/* User Info Header */}
+                      <div className="px-3 py-2 border-b border-white/10 flex items-center gap-2.5">
+                        <div className="w-8 h-8 rounded-full bg-deep-blue-700/80 border border-gradient-secondary overflow-hidden flex items-center justify-center shrink-0">
+                          {user?.avatarUrl ? (
+                            <img
+                              src={user.avatarUrl}
+                              alt={user.name || "User Avatar"}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-linear-to-tr from-rose-900 via-indigo-900 to-deep-blue-700 flex items-center justify-center text-label-xs font-bold text-gray-50">
+                              {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+                            </div>
+                          )}
+                        </div>
+                        <div className="flex flex-col min-w-0">
+                          <span className="text-label-sm font-semibold text-gray-100 truncate">
+                            {user?.name || "Pengguna Gamezygo"}
+                          </span>
+                          <span className="text-label-xs text-gray-400 font-normal truncate">
+                            Member Gamezygo
+                          </span>
+                        </div>
                       </div>
-                    )}
-                  </div>
-                  <ChevronDownIcon className="w-4 h-4 text-deep-blue-100" />
-                </button>
+
+                      {/* Menu Item: Pengaturan Akun */}
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setIsProfileOpen(false);
+                          if (onSettingsClick) {
+                            onSettingsClick();
+                          } else if (onUserClick) {
+                            onUserClick();
+                          }
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-label-sm font-medium text-gray-200 hover:text-white hover:bg-white/10 transition-colors cursor-pointer text-left outline-none"
+                      >
+                        <SettingsIcon className="w-4 h-4 text-deep-blue-100" />
+                        <span>Pengaturan Akun</span>
+                      </button>
+
+                      {/* Divider */}
+                      <div className="h-px w-full bg-white/10 my-0.5" />
+
+                      {/* Menu Item: Logout */}
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setIsProfileOpen(false);
+                          onLogoutClick?.();
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-label-sm font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors cursor-pointer text-left outline-none"
+                      >
+                        <LogoutIcon className="w-4 h-4 text-rose-400" />
+                        <span>Logout</span>
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
             )}
           </div>

@@ -5,6 +5,7 @@ import { Sidebar } from "@/components/ui/Sidebar";
 import { Footer } from "@/components/ui/Footer";
 import { useRouter } from "next/router";
 import { useUiStore } from "@/stores/use-ui-store";
+import { useAuthStore } from "@/stores/use-auth-store";
 import type { SidebarItem } from "@/components/ui/Sidebar/Sidebar.types";
 import type { StoreLayoutProps } from "./StoreLayout.types";
 
@@ -67,6 +68,8 @@ export function StoreLayout({
   onSidebarItemClick,
   user,
   onUserClick,
+  onLogoutClick,
+  onSettingsClick,
   hideNavbar = false,
   hideSidebar = false,
   sidebarSections,
@@ -81,6 +84,51 @@ export function StoreLayout({
   const headerRef = React.useRef<HTMLElement>(null);
   const [headerHeight, setHeaderHeight] = React.useState<number>(146);
   const effectiveHeaderHeight = hideNavbar ? 0 : headerHeight;
+
+  // Global Auth Integration
+  const authUser = useAuthStore((s) => s.user);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const authLogout = useAuthStore((s) => s.logout);
+
+  const isMounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+
+  const effectiveIsLoggedIn = isMounted && isAuthenticated;
+  const effectiveVariant =
+    navbarVariant === "guest" && effectiveIsLoggedIn
+      ? "login"
+      : navbarVariant;
+
+  const effectiveUser =
+    user ||
+    (effectiveIsLoggedIn && authUser
+      ? {
+          name: authUser.name,
+          avatarUrl: authUser.avatarUrl,
+        }
+      : undefined);
+
+  const handleLogout = () => {
+    if (onLogoutClick) {
+      onLogoutClick();
+    } else {
+      authLogout();
+      router.push("/");
+    }
+  };
+
+  const handleSettings = () => {
+    if (onSettingsClick) {
+      onSettingsClick();
+    } else if (onUserClick) {
+      onUserClick();
+    } else {
+      router.push("/profile");
+    }
+  };
 
   React.useEffect(() => {
     if (hideNavbar) return;
@@ -135,7 +183,7 @@ export function StoreLayout({
         >
           <div className="w-full">
             <Navbar
-              variant={navbarVariant}
+              variant={effectiveVariant}
               navItems={navItems}
               activeNavId={activeNavId}
               onNavItemClick={onNavItemClick}
@@ -145,11 +193,15 @@ export function StoreLayout({
               onSearchClear={onSearchClear}
               onSearchSubmit={onSearchSubmit}
               onFilterClick={onFilterClick}
-              onLoginClick={onLoginClick}
-              onSignUpClick={onSignUpClick}
+              onLoginClick={onLoginClick || (() => router.push("/login"))}
+              onSignUpClick={
+                onSignUpClick || (() => router.push("/login?tab=signup"))
+              }
               onCartClick={onCartClick || (() => router.push("/cart"))}
-              onUserClick={onUserClick || (() => router.push("/profile"))}
-              user={user}
+              onUserClick={handleSettings}
+              onSettingsClick={handleSettings}
+              onLogoutClick={handleLogout}
+              user={effectiveUser}
               className="w-full"
             />
           </div>

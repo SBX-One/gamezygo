@@ -248,11 +248,14 @@ export default function SubscriptionPage() {
             router.push(`/store?q=${encodeURIComponent(searchQuery.trim())}`);
           }
         }}
-        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 py-10 sm:py-16 lg:py-20 flex flex-col gap-16 sm:gap-24 lg:gap-32"
+        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 py-10 sm:py-16 lg:py-20 flex flex-col gap-16 sm:gap-24 lg:gap-50"
       >
         {/* ========================================================
             1. HERO SECTION: Header Component (matching Store)
            ======================================================== */}
+           <div className="grid gap-10xl">
+
+   
         <Header
           pillText="Promo Musim Panas Telah Datang!"
           title="Beli Sekali, Main Semua di Gamezygo!"
@@ -260,14 +263,14 @@ export default function SubscriptionPage() {
           actionLabel="Lihat Toko"
           actionVariant="primary"
           onActionClick={() => router.push("/store")}
-          className="pt-11xl"
+       
         />
 
         {/* ========================================================
             2. PRICING PLANS SECTION (Paket 1, Paket 2, Paket 3)
            ======================================================== */}
         <section className="w-full  mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 items-stretch">
+          <div className="grid grid-cols-1  md:grid-cols-3 gap-5 items-stretch lg:px-10xl">
             {SUBSCRIPTION_PLANS.map((plan) => (
               <PricingCard
                 key={plan.id}
@@ -282,36 +285,38 @@ export default function SubscriptionPage() {
             ))}
           </div>
         </section>
-
+        </div>
         {/* ========================================================
             3. GAME LIBRARY SECTION: Header, Subheader, 3x3 Grid
            ======================================================== */}
         <section className="w-full flex flex-col gap-6 sm:gap-8">
           {/* Centered Heading */}
-          <div className="flex flex-col items-center justify-center text-center gap-2">
-            <span className="text-label-xs sm:text-body-xs font-semibold tracking-widest text-gray-400 uppercase">
-              GAME LIBRARY
-            </span>
-            <h2 className="text-h3 sm:text-h2 lg:text-h1 font-bold text-gray-50 leading-tight">
-              Game yang Akan Anda Dapatkan!
-            </h2>
-          </div>
+          <Header
+            pillText="GAME LIBRARY"
+            pillVariant="plain"
+            title="Game yang Akan Anda Dapatkan!"
+            subtitle={null}
+            actionLabel={null}
+          />
 
           {/* Subheader Bar (Left title + Right Pill Badge) */}
           <div className="flex items-center justify-between gap-4 border-b border-gray-800 pb-4 mt-2 sm:mt-4">
             <h3 className="text-body-md sm:text-h5 font-semibold text-gray-50">
               Dapatkan Game Pilihan!
             </h3>
-            <div className="shrink-0 px-3 py-1 rounded-md border border-white/10 bg-white/5 backdrop-blur-md">
-              <span className="text-body-xs text-gray-300 font-medium">
-                Total : <strong className="text-gray-50 font-semibold">50.000 Games</strong>
-              </span>
-            </div>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              className="shrink-0"
+            >
+              Total : 50.000 Games
+            </Button>
           </div>
 
           {/* 3x3 Grid with Bottom Fade-Out Shadow */}
           <div className="relative w-full overflow-hidden">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full pb-8">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full pb-8">
               {SUBSCRIPTION_GAMES.map((game) => (
                 <GameListItem
                   key={game.id}
@@ -337,7 +342,7 @@ export default function SubscriptionPage() {
             4. FAQ SECTION: Left Title + Right Accordion
            ======================================================== */}
         <section className="w-full flex flex-col lg:grid lg:grid-cols-7 gap-10 lg:gap-16 items-start py-6">
-          <div className="flex flex-col w-full lg:col-span-3 gap-4 shrink-0 border-l-gradient-primary h-fit pl-6 sm:pl-8 pb-6">
+          <div className="flex flex-col w-fit lg:col-span-3 gap-4 shrink-0 border-l-gradient-primary h-fit pl-6 sm:pl-8 pb-6">
             <span className="text-body-sm text-gray-400">
               FREQUENTLY ASKED QUESTION
             </span>

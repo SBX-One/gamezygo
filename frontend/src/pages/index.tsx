@@ -955,7 +955,7 @@ export default function LandingPage() {
         onLoginClick={() => router.push("/login")}
         onSignUpClick={() => router.push("/login?tab=signup")}
         onCartClick={() => router.push("/cart")}
-        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 py-10 sm:py-16 lg:py-20 flex flex-col gap-16 sm:gap-24 lg:gap-11xl"
+        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 py-10 sm:py-16 lg:py-20 flex flex-col gap-16 sm:gap-24 lg:gap-50"
       >
         {/* ========================================================
             1. HERO CAROUSEL BANNER (PROMO UTAMA / MUSIM PANAS)
@@ -966,7 +966,6 @@ export default function LandingPage() {
             autoPlayInterval={6000}
             className="w-full h-52 sm:h-72 lg:h-105 rounded-lg overflow-hidden shadow-2xl "
           />
-        </section>
 
         {/* ========================================================
             2. GAME PILIHAN HANYA UNTUK ANDA (HORIZONTAL ROW SWIPEABLE)
@@ -991,6 +990,7 @@ export default function LandingPage() {
             }}
           />
         </section>
+      </section>
 
         {/* ========================================================
             3. DERETAN GAME TERPOPULER (Tabs + 3-Col GameListItem Grid + Fade Shadow)
@@ -1015,7 +1015,7 @@ export default function LandingPage() {
           </div>
 
           <div className="relative w-full overflow-hidden">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
               {popularGames.map((game) => (
                 <GameListItem
                   key={game.id}
@@ -1256,6 +1256,7 @@ export default function LandingPage() {
               actionLabel="Lihat Premium"
               actionVariant="secondary"
               onActionClick={() => router.push("/leaderboard")}
+            className="max-w-5/8"
             />
           </div>
 <div className="w-full border-t-gradient-secondary my-2" />
@@ -1316,6 +1317,7 @@ export default function LandingPage() {
                 Dengarkan Pendapat Gamer Setelah Beli di Gamezygo!
               </>
             }
+            className="max-w-5/8"
           >
             {/* "Beri Pendapat" Input Bar */}
             <div className="relative w-full  lg:max-w-1/2 mx-auto">
@@ -1385,7 +1387,7 @@ export default function LandingPage() {
             9. FAQ (PERTANYAAN UMUM): Left Title + Right Accordion
            ======================================================== */}
         <section className="w-full flex flex-col lg:grid lg:grid-cols-7 gap-10 lg:gap-16 items-start py-6">
-          <div className="flex flex-col w-full lg:col-span-3 gap-4 shrink-0 border-l-gradient-primary h-fit pl-6 sm:pl-8 pb-6">
+          <div className="flex flex-col w-fit  lg:col-span-3 gap-4 shrink-0 border-l-gradient-primary h-fit pl-6 sm:pl-8 pb-6">
             <span className="text-body-sm text-gray-400">
               FREQUENTLY ASKED QUESTION
             </span>

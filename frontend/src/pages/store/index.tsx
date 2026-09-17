@@ -372,7 +372,7 @@ export default function StorePage() {
         }}
         onFilterClick={() => setIsFilterModalOpen((prev) => !prev)}
         onCartClick={() => handleAddToCart("Item Cart")}
-        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 pb-20 flex flex-col gap-11xl"
+        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 pb-20 flex flex-col gap-50"
       >
         {/* ======================================================
             CASE A: STATE 500 SERVER ERROR (Screenshot 2: Empty)
@@ -522,7 +522,7 @@ export default function StorePage() {
               subtitle="Ingin Langsung Buka Semua? Beli Premium!"
               actionLabel="Lihat Premium"
               actionVariant="primary"
-              className="pt-11xl"
+              className="pt-11xl max-w-4/8"
             />
 
             {/* 2. PROMO BANNER & MINI FEATURED CARDS SECTION */}

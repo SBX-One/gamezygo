@@ -140,7 +140,7 @@ export default function LeaderboardPage() {
               actionLabel="Lihat Premium"
               actionVariant="secondary"
               onActionClick={() => handleToast("Membuka paket berlangganan...")}
-              className=""
+              className="max-w-4/8"
             />
           </div>
 <div className="grid gap-6">

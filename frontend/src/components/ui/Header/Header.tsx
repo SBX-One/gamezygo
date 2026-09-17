@@ -78,7 +78,7 @@ export function Header({
         ))}
 
       {/* 2. Main Large Headline */}
-      <h1 className="text-h1 font-semibold text-gradient-heading max-w-4/7">
+      <h1 className="text-h1 font-semibold text-gradient-heading max-w-7/8">
         {title}
       </h1>
 
@@ -89,7 +89,7 @@ export function Header({
         (subtitle || actionLabel) && (
           <div className="flex items-center justify-center gap-3 ">
             {subtitle && (
-              <p className="text-gray-400 text-body-xs font-normal text-left max-w-3/8">
+              <p className="text-gray-400 text-body-xs font-normal text-left max-w-[128px]">
                 {subtitle}
               </p>
             )}
@@ -97,9 +97,10 @@ export function Header({
             {actionLabel && (
               <Button
                 variant={actionVariant}
-                size="md"
+                size="sm"
                 leftIcon={actionIcon}
                 onClick={onActionClick}
+                className="px-10 py-4.5"
               >
                 {actionLabel}
               </Button>

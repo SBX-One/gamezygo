@@ -51,6 +51,10 @@ export interface StoreLayoutProps extends React.HTMLAttributes<HTMLDivElement> {
   sidebarSections?: SidebarSection[];
   /** Kustomisasi className untuk elemen main konten utama */
   contentClassName?: string;
+  /** Judul halaman saat navbarVariant='back' (default: 'Artikel') */
+  backTitle?: React.ReactNode;
+  /** Callback saat tombol back diklik (mode back) */
+  onBackClick?: () => void;
   /** React 19 native ref */
   ref?: React.Ref<HTMLDivElement>;
 }

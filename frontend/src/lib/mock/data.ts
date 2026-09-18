@@ -2,9 +2,12 @@ import type { User, Product } from "@/types";
 
 export const MOCK_USER: User = {
   id: "mock-uuid-1234",
-  email: "customer@gamezygo.com",
-  name: "John Doe",
+  email: "dyven@gamezygo.com",
+  name: "Dyven Siauw",
   role: "customer",
+  avatarUrl:
+    "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=200&h=200&q=80",
+  joinedDate: "22/06/2026",
 };
 
 export const MOCK_ADMIN: User = {

@@ -329,14 +329,6 @@ export default function GameLibraryPage() {
 
   const totalPages = libraryApiRes?.meta?.last_page || 25;
 
-  // Logged-in Customer User Profile (for Private Navbar)
-  const currentUser = {
-    name: "Dyven Siauw",
-    email: "dyven@gamezygo.com",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&h=120&q=80",
-  };
-
   // Handlers for active filter badges
   const handleRemoveGenre = (genreToRemove: string) => {
     setAppliedGenres((prev) => prev.filter((g) => g !== genreToRemove));
@@ -437,7 +429,6 @@ export default function GameLibraryPage() {
       <StoreLayout
         navbarVariant="private"
         activeSidebarId="perpustakaan"
-        user={currentUser}
         onCartClick={() => alert("Membuka keranjang belanja")}
       >
         <div className="flex flex-col gap-8 w-full">

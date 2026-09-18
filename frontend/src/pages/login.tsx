@@ -436,7 +436,7 @@ export default function LoginPage() {
         )}
 
         {/* Main Authentication Card */}
-        <div className="w-full max-w-1/2  mx-auto flex flex-col">
+        <div className="w-full max-w-2/7  mx-auto flex flex-col">
           {/* Outer Glass Card Panel (NO SHADOW, MAX ROUNDED-LG) */}
           <div className="w-full bg-deep-blue-900 border border-white/10 rounded-lg p-6 sm:p-8 flex flex-col gap-6 shadow-none">
             {/* Header: Logo & Branding */}

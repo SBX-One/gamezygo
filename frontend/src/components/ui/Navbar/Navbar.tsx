@@ -327,7 +327,7 @@ export function Navbar({
       {/* ========================================================
           1. BARIS ATAS: Kiri (Logo W:60 H:32 + Divider + Nav Links) & Kanan (Search + Actions)
          ======================================================== */}
-      <div className="w-full px-6 lg:px-10 py-6 lg:py-11 flex items-center justify-between gap-4">
+      <div className="w-full px-6 lg:px-20 py-6 lg:py-11 flex items-center justify-between gap-4">
         {variant === "back" ? (
           <div className="flex items-center gap-4">
             <Button
@@ -402,52 +402,51 @@ export function Navbar({
         )}
 
         {/* Kanan: Search Input Field + Tombol Aksi */}
-        {variant !== "back" && (
-          <div className="flex items-center gap-2 sm:gap-3 shrink-0">
-            {/* Search Input Field (Small 40px Hug) - Hanya untuk mode Guest & Login */}
-            {variant !== "private" && (
-              <form
-                onSubmit={handleFormSubmit}
-                className="relative hidden sm:flex items-center bg-deep-blue-950 border border-gradient-secondary rounded-lg px-3.5 py-2.5 h-10 w-36 md:w-48 lg:w-44 xl:w-64 2xl:w-80 gap-2.5 focus-within:border-deep-blue-100/40 transition-all shrink min-w-0"
-              >
-                <SearchIcon className="w-4 h-4 text-deep-blue-100 shrink-0" />
-                <input
-                  type="text"
-                  value={internalSearch}
-                  onChange={handleSearchChange}
-                  placeholder={searchPlaceholder}
-                  className="w-full bg-transparent text-label-sm text-gray-50 placeholder:text-gray-400 outline-none tracking-normal min-w-0 truncate"
-                />
-                {internalSearch && (
-                  <button
-                    type="button"
-                    onClick={handleClear}
-                    className="text-deep-blue-100 hover:text-gray-50 shrink-0 cursor-pointer outline-none"
-                    aria-label="Hapus teks"
-                  >
-                    <DismissIcon className="w-4 h-4" />
-                  </button>
-                )}
-              </form>
-            )}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Search Input Field (Small 40px Hug) - Ditampilkan untuk mode Guest, Login, & Back */}
+          {variant !== "private" && (
+            <form
+              onSubmit={handleFormSubmit}
+              className="relative hidden sm:flex items-center bg-deep-blue-950 border border-gradient-secondary rounded-lg px-3.5 py-2.5 h-10 w-36 md:w-48 lg:w-44 xl:w-64 2xl:w-80 gap-2.5 focus-within:border-deep-blue-100/40 transition-all shrink min-w-0"
+            >
+              <SearchIcon className="w-4 h-4 text-deep-blue-100 shrink-0" />
+              <input
+                type="text"
+                value={internalSearch}
+                onChange={handleSearchChange}
+                placeholder={searchPlaceholder}
+                className="w-full bg-transparent text-label-sm text-gray-50 placeholder:text-gray-400 outline-none tracking-normal min-w-0 truncate"
+              />
+              {internalSearch && (
+                <button
+                  type="button"
+                  onClick={handleClear}
+                  className="text-deep-blue-100 hover:text-gray-50 shrink-0 cursor-pointer outline-none"
+                  aria-label="Hapus teks"
+                >
+                  <DismissIcon className="w-4 h-4" />
+                </button>
+              )}
+            </form>
+          )}
 
-            {/* Filter Button (Secondary SM) - Hanya untuk mode Guest & Login */}
-            {variant !== "private" && (
-              <Button
-                type="button"
-                variant="secondary"
-                size="sm"
-                className="w-10 h-10 p-0 flex items-center justify-center shrink-0 cursor-pointer"
-                onClick={onFilterClick}
-                aria-label="Filter"
-              >
-                <FilterIcon className="w-4 h-4 text-deep-blue-100" />
-              </Button>
-            )}
+          {/* Filter Button (Secondary SM) - Hanya untuk mode Guest & Login jika ada onFilterClick */}
+          {variant !== "private" && variant !== "back" && onFilterClick && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="w-10 h-10 p-0 flex items-center justify-center shrink-0 cursor-pointer"
+              onClick={onFilterClick}
+              aria-label="Filter"
+            >
+              <FilterIcon className="w-4 h-4 text-deep-blue-100" />
+            </Button>
+          )}
 
-            {/* Action Buttons Sesuai Varian */}
-            {variant === "guest" ? (
-              /* Mode GUEST: Tombol Login (Secondary SM) & Sign Up (Primary SM) */
+          {/* Action Buttons Sesuai Varian */}
+          {variant === "guest" || (variant === "back" && !user) ? (
+            /* Mode GUEST: Tombol Login (Secondary SM) & Sign Up (Primary SM) */
               <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                 <Button
                   type="button"
@@ -588,7 +587,6 @@ export function Navbar({
               </div>
             )}
           </div>
-        )}
       </div>
 
       {/* ========================================================

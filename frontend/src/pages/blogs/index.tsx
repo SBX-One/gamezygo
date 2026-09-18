@@ -191,13 +191,6 @@ export default function BlogsPage() {
   const [currentPage, setCurrentPage] = React.useState(1);
   const [activeNavId, setActiveNavId] = React.useState("artikel");
 
-  const currentUser = {
-    name: "Cihuy6767",
-    email: "cihuy@gmail.com",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=120&h=120&q=80",
-  };
-
   const isFilterActive =
     appliedCategories.length > 0 ||
     appliedStatus.length > 0 ||
@@ -341,7 +334,6 @@ export default function BlogsPage() {
         hideSidebar={true}
         activeNavId={activeNavId}
         onNavItemClick={(item) => setActiveNavId(item.id)}
-        user={currentUser}
         searchValue={searchQuery}
         searchPlaceholder="Cari di toko"
         onSearchChange={(val) => {
@@ -356,7 +348,7 @@ export default function BlogsPage() {
         }}
         onFilterClick={handleOpenNavbarFilter}
         onCartClick={() => {}}
-        contentClassName="w-full  mx-auto px-4 sm:px-8 lg:px-10 pt-12 pb-20 flex flex-col"
+        contentClassName="w-full  mx-auto px-4 sm:px-8 lg:px-20 pt-12 pb-20 flex flex-col"
       >
         {/* ========================================================
             NAVBAR FILTER & SORT DROPDOWN (placement="navbar", z-50)

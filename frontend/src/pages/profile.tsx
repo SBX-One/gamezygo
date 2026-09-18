@@ -9,6 +9,8 @@ import {
   Toast,
 } from "@/components/ui";
 import { useUserProfile, useUpdateProfile } from "@/hooks/use-profile";
+import { useAuthStore } from "@/stores/use-auth-store";
+import { MOCK_USER } from "@/lib/mock/data";
 
 interface TransactionGame {
   id: string;
@@ -234,13 +236,16 @@ function SwipeableTrack({ children, itemCount = 0 }: SwipeableTrackProps) {
 export default function ProfilePage() {
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
 
+  // Global Auth Store Integration
+  const authUser = useAuthStore((s) => s.user);
+  const updateUser = useAuthStore((s) => s.updateUser);
+
   // User Profile State
   const [user, setUser] = React.useState({
-    name: "Cihuy6767",
-    email: "cihuy@gmail.com",
-    joinedDate: "22/06/2026",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=200&h=200&q=80",
+    name: authUser?.name || MOCK_USER.name,
+    email: authUser?.email || MOCK_USER.email,
+    joinedDate: authUser?.joinedDate || MOCK_USER.joinedDate || "22/06/2026",
+    avatarUrl: authUser?.avatarUrl || MOCK_USER.avatarUrl,
   });
 
   // TanStack Query: User Profile API
@@ -254,13 +259,17 @@ export default function ProfilePage() {
 
   React.useEffect(() => {
     if (profileApiRes?.data) {
+      const updated = {
+        name: profileApiRes.data.name || user.name,
+        email: profileApiRes.data.email || user.email,
+        avatarUrl: profileApiRes.data.avatar_url || user.avatarUrl,
+        joinedDate: profileApiRes.data.joined_date || user.joinedDate,
+      };
       setUser((prev) => ({
         ...prev,
-        name: profileApiRes.data.name || prev.name,
-        email: profileApiRes.data.email || prev.email,
-        avatarUrl: profileApiRes.data.avatar_url || prev.avatarUrl,
-        joinedDate: profileApiRes.data.joined_date || prev.joinedDate,
+        ...updated,
       }));
+      updateUser(updated);
       setEditName(profileApiRes.data.name || "");
       setEditAvatarUrl(profileApiRes.data.avatar_url || "");
     }
@@ -324,7 +333,7 @@ export default function ProfilePage() {
       handleToast("Nama tidak boleh kosong!");
       return;
     }
-    const trimmedAvatar = editAvatarUrl.trim();
+    const trimmedAvatar = editAvatarUrl?.trim() || "";
     updateProfileMutation.mutate({
       name: trimmedName,
       avatar_url: trimmedAvatar || undefined,
@@ -334,6 +343,10 @@ export default function ProfilePage() {
       name: trimmedName,
       avatarUrl: trimmedAvatar || prev.avatarUrl,
     }));
+    updateUser({
+      name: trimmedName,
+      avatarUrl: trimmedAvatar || user.avatarUrl,
+    });
     setIsEditModalOpen(false);
     handleToast("Profil berhasil diperbarui!");
   };

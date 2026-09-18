@@ -13,6 +13,7 @@ import {
 import { useReviews, useCreateReview } from "@/hooks/use-reviews";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useUserProfile } from "@/hooks/use-profile";
+import { MOCK_USER } from "@/lib/mock/data";
 
 interface AttachedImage {
   id: string;
@@ -408,11 +409,12 @@ export default function ReviewPage() {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
   const currentUser = {
-    name: profileRes?.data?.name || authUser?.name || "Cihuy6767",
-    email: profileRes?.data?.email || authUser?.email || "cihuy@gmail.com",
+    name: profileRes?.data?.name || authUser?.name || MOCK_USER.name,
+    email: profileRes?.data?.email || authUser?.email || MOCK_USER.email,
     avatarUrl:
       profileRes?.data?.avatar_url ||
-      "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=120&h=120&q=80",
+      authUser?.avatarUrl ||
+      MOCK_USER.avatarUrl,
   };
 
   // Merge API reviews if available for customer view
@@ -924,7 +926,7 @@ export default function ReviewPage() {
             </div>
           ) : (
             /* CASE 2: NORMAL CUSTOMER REVIEW PAGE */
-            <div className="flex flex-col gap-10xl w-full mx-auto pb-16 select-none">
+            <div className="flex flex-col gap-10xl w-full mx-auto pb-16 select-none ">
               {/* 1. HEADER (Mirip Bundle: Border-L Merah + Input Field) */}
               <section className="flex flex-col gap-8 border-l-gradient-primary pl-6 sm:pl-8 relative">
                 {/* Quick State Toggle for Dev/Preview */}
@@ -951,7 +953,7 @@ export default function ReviewPage() {
                 </div>
 
                 {/* Quick Feedback Input Field */}
-                <div className="pt-2 w-full  pb-6">
+                <div className="pt-2 w-full max-w-3/7 pb-6">
                   <Field
                     placeholder="Beri pendapat"
                     size="md"

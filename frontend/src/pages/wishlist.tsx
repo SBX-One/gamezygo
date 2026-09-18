@@ -215,14 +215,6 @@ export default function WishlistPage() {
   // Toast feedback
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
 
-  // Logged-in Customer User Profile (Private Navbar)
-  const currentUser = {
-    name: "Dyven Siauw",
-    email: "dyven@gamezygo.com",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&h=120&q=80",
-  };
-
   const handleAddToCart = (game: WishlistGame) => {
     if (game.productId) {
       addToCartMutation.mutate(game.productId);
@@ -315,7 +307,6 @@ export default function WishlistPage() {
       <StoreLayout
         navbarVariant="private"
         activeSidebarId="wishlist"
-        user={currentUser}
         onCartClick={() => alert("Membuka keranjang belanja")}
       >
         <div className="flex flex-col gap-6 sm:gap-8 w-full">

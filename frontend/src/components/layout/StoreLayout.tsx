@@ -6,6 +6,7 @@ import { Footer } from "@/components/ui/Footer";
 import { useRouter } from "next/router";
 import { useUiStore } from "@/stores/use-ui-store";
 import { useAuthStore } from "@/stores/use-auth-store";
+import { MOCK_USER } from "@/lib/mock/data";
 import type { SidebarItem } from "@/components/ui/Sidebar/Sidebar.types";
 import type { StoreLayoutProps } from "./StoreLayout.types";
 
@@ -74,6 +75,8 @@ export function StoreLayout({
   hideSidebar = false,
   sidebarSections,
   contentClassName,
+  backTitle,
+  onBackClick,
   className,
   ref,
   style,
@@ -103,11 +106,17 @@ export function StoreLayout({
       : navbarVariant;
 
   const effectiveUser =
-    user ||
     (effectiveIsLoggedIn && authUser
       ? {
           name: authUser.name,
           avatarUrl: authUser.avatarUrl,
+        }
+      : undefined) ||
+    user ||
+    (effectiveVariant !== "guest"
+      ? {
+          name: authUser?.name || MOCK_USER.name,
+          avatarUrl: authUser?.avatarUrl || MOCK_USER.avatarUrl,
         }
       : undefined);
 
@@ -202,6 +211,8 @@ export function StoreLayout({
               onSettingsClick={handleSettings}
               onLogoutClick={handleLogout}
               user={effectiveUser}
+              backTitle={backTitle}
+              onBackClick={onBackClick || (() => router.back())}
               className="w-full"
             />
           </div>

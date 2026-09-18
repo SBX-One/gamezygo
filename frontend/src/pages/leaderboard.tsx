@@ -3,6 +3,8 @@ import Head from "next/head";
 import { StoreLayout } from "@/components/layout";
 import { Header, Button, UserRank, Toast, Pill } from "@/components/ui";
 import { useLeaderboard, useUserLeaderboardRank } from "@/hooks/use-leaderboard";
+import { useAuthStore } from "@/stores/use-auth-store";
+import { MOCK_USER } from "@/lib/mock/data";
 
 interface LeaderboardUser {
   rank: number;
@@ -92,11 +94,12 @@ export default function LeaderboardPage() {
       ? `${userRankApiRes.data.point} pts`
       : "67 pts";
 
+  const authUser = useAuthStore((s) => s.user);
+
   const currentUser = {
-    name: "Cihuy6767",
-    email: "cihuy@gamezygo.com",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&h=120&q=80",
+    name: authUser?.name || MOCK_USER.name,
+    email: authUser?.email || MOCK_USER.email,
+    avatarUrl: authUser?.avatarUrl || MOCK_USER.avatarUrl,
   };
 
   const handleToast = (msg: string) => {
@@ -128,7 +131,7 @@ export default function LeaderboardPage() {
         user={currentUser}
         onCartClick={() => handleToast("Membuka keranjang belanja")}
       >
-        <div className="flex flex-col w-full  mx-auto select-none pt-4 pb-16">
+        <div className="flex flex-col w-full px-12   mx-auto select-none pt-4 pb-16">
           {/* ========================================================
               1. HERO SECTION (Menggunakan komponen Header yang sudah ada)
              ======================================================== */}

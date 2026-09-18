@@ -219,7 +219,7 @@ export function Sidebar({
     <aside
       ref={ref}
       className={cn(
-        "flex flex-col bg-deep-blue-950 border-r border-r-gradient-secondary px-12  py-6 w-fit min-w-91.5 select-none",
+        "flex flex-col bg-deep-blue-950 border-r border-r-gradient-secondary pl-20 pr-4  py-6 w-fit min-w-91.5 select-none",
         className
       )}
       {...props}

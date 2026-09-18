@@ -619,13 +619,6 @@ export default function BundlePage() {
 
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
 
-  const currentUser = {
-    name: "Dyven Siauw",
-    email: "dyven@gamezygo.com",
-    avatarUrl:
-      "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&h=120&q=80",
-  };
-
   const handleToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => {
@@ -698,7 +691,6 @@ export default function BundlePage() {
       <StoreLayout
         navbarVariant="private"
         activeSidebarId="paket"
-        user={currentUser}
         onCartClick={() => handleToast("Membuka keranjang belanja")}
       >
         <div className="flex flex-col w-full">

@@ -1,8 +1,10 @@
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { Navbar } from "@/components/ui/Navbar";
 import { Sidebar } from "@/components/ui/Sidebar";
 import { Footer } from "@/components/ui/Footer";
+import { FilterModal } from "@/components/ui/FilterModal";
 import { useRouter } from "next/router";
 import { useUiStore } from "@/stores/use-ui-store";
 import { useAuthStore } from "@/stores/use-auth-store";
@@ -83,7 +85,12 @@ export function StoreLayout({
   ...props
 }: StoreLayoutProps) {
   const router = useRouter();
-  const { isSidebarOpen, toggleSidebar } = useUiStore();
+  const {
+    isSidebarOpen,
+    toggleSidebar,
+    isFilterModalOpen,
+    toggleFilterModal,
+  } = useUiStore();
   const headerRef = React.useRef<HTMLElement>(null);
   const [headerHeight, setHeaderHeight] = React.useState<number>(146);
   const effectiveHeaderHeight = hideNavbar ? 0 : headerHeight;
@@ -201,7 +208,7 @@ export function StoreLayout({
               onSearchChange={onSearchChange}
               onSearchClear={onSearchClear}
               onSearchSubmit={onSearchSubmit}
-              onFilterClick={onFilterClick}
+              onFilterClick={onFilterClick || (() => toggleFilterModal())}
               onLoginClick={onLoginClick || (() => router.push("/login"))}
               onSignUpClick={
                 onSignUpClick || (() => router.push("/login?tab=signup"))
@@ -217,6 +224,20 @@ export function StoreLayout({
             />
           </div>
         </header>
+      )}
+
+      {/* ========================================================
+          UNIVERSAL GLOBAL FILTER MODAL (Available across all pages)
+         ======================================================== */}
+      {!onFilterClick && (
+        <FilterModal
+          isOpen={isFilterModalOpen}
+          placement="navbar"
+          variant="dropdown"
+          onClose={() => toggleFilterModal(false)}
+          onApply={() => toggleFilterModal(false)}
+          onReset={() => toggleFilterModal(false)}
+        />
       )}
 
       {/* ========================================================
@@ -284,51 +305,55 @@ export function StoreLayout({
       </div>
 
       {/* ========================================================
-          4. MOBILE OFF-CANVAS SIDEBAR DRAWER (< lg Viewport)
+          4. MOBILE SIDEBAR DRAWER (Sliding from Left)
          ======================================================== */}
-      {!hideSidebar && isSidebarOpen && (
-        <div
-          role="dialog"
-          aria-modal="true"
-          aria-label="Menu Navigasi Sidebar"
-          className="fixed inset-0 z-50 lg:hidden flex"
-        >
-          {/* Backdrop Blur Overlay */}
+      {isMounted &&
+        !hideSidebar &&
+        isSidebarOpen &&
+        createPortal(
           <div
-            className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity duration-200 animate-fade-in"
-            onClick={() => toggleSidebar(false)}
-            aria-hidden="true"
-          />
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu Navigasi Sidebar"
+            className="fixed inset-0 z-[100] lg:hidden flex select-none"
+          >
+            {/* Backdrop Blur Overlay */}
+            <div
+              className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity duration-200 animate-fade-in"
+              onClick={() => toggleSidebar(false)}
+              aria-hidden="true"
+            />
 
-          {/* Drawer Panel */}
-          <div className="relative z-10 w-4/5  bg-deep-blue-950 border-r border-gradient-secondary  flex flex-col h-full overflow-y-auto transform transition-transform duration-200 animate-slide-in-left">
-            {/* Drawer Header */}
-            <div className="flex items-center justify-between px-6 py-5 border-b border-b-gradient-secondary">
-              <span className="text-label-md font-bold text-gradient-heading">
-                Menu & Kategori
-              </span>
-              <button
-                type="button"
-                onClick={() => toggleSidebar(false)}
-                className="h-11 w-11 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-400 hover:text-gray-50 transition-colors cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-gray-50/50"
-                aria-label="Tutup Menu"
-              >
-                <CloseIcon />
-              </button>
-            </div>
+            {/* Drawer Panel */}
+            <div className="relative z-10 w-4/5 max-w-xs sm:max-w-sm bg-deep-blue-950 border-r border-gradient-secondary flex flex-col h-full overflow-y-auto transform transition-transform duration-200 animate-slide-in-left shadow-2xl">
+              {/* Drawer Header */}
+              <div className="flex items-center justify-between px-6 py-5 border-b border-b-gradient-secondary bg-deep-blue-950 shrink-0">
+                <span className="text-label-md font-bold text-gradient-heading">
+                  Menu & Kategori
+                </span>
+                <button
+                  type="button"
+                  onClick={() => toggleSidebar(false)}
+                  className="h-11 w-11 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-400 hover:text-gray-50 transition-colors cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-gray-50/50"
+                  aria-label="Tutup Menu"
+                >
+                  <CloseIcon />
+                </button>
+              </div>
 
-            {/* Sidebar Component Content inside Drawer */}
-            <div className="p-4 flex-1">
-              <Sidebar
-                sections={sidebarSections}
-                activeId={activeSidebarId}
-                onItemClick={handleSidebarItemClick}
-                className="border-none px-2 py-0 w-full min-w-0"
-              />
+              {/* Sidebar Component Content inside Drawer */}
+              <div className="p-4 flex-1 overflow-y-auto">
+                <Sidebar
+                  sections={sidebarSections}
+                  activeId={activeSidebarId}
+                  onItemClick={handleSidebarItemClick}
+                  className="border-none px-2 py-0 w-full min-w-0"
+                />
+              </div>
             </div>
-          </div>
-        </div>
-      )}
+          </div>,
+          document.body
+        )}
 
       {/* ========================================================
           5. FOOTER

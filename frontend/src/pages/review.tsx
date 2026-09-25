@@ -107,72 +107,6 @@ const CrossIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-const WifiOffIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="28"
-    height="28"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <path
-      d="M12 18.5C12.8284 18.5 13.5 17.8284 13.5 17C13.5 16.1716 12.8284 15.5 12 15.5C11.1716 15.5 10.5 16.1716 10.5 17C10.5 17.8284 11.1716 18.5 12 18.5Z"
-      fill="currentColor"
-    />
-    <path
-      d="M8.464 13.464C9.402 12.526 10.674 12 12 12C13.326 12 14.598 12.526 15.536 13.464M4.929 9.929C6.804 8.054 9.348 7 12 7C14.652 7 17.196 8.054 19.071 9.929M1.393 6.393C4.207 3.58 8.022 2 12 2C15.978 2 19.793 3.58 22.607 6.393M2 2L22 22"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const ArrowLeftIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <path
-      d="M19 12H5M5 12L12 19M5 12L12 5"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const ReloadIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <path
-      d="M4 12C4 7.58172 7.58172 4 12 4C15.5333 4 18.5285 6.29052 19.5702 9.5M20 12C20 16.4183 16.4183 20 12 20C8.4667 20 5.47147 17.7095 4.42975 14.5"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-    />
-    <path
-      d="M20 4V10H14M4 20V14H10"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
 
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -360,37 +294,13 @@ const GUEST_REVIEWS: ReviewItem[] = [
 export default function ReviewPage() {
   const router = useRouter();
 
-  // Mode preview: Customer (500 state simulator)
-  const [previewStateOverride, setPreviewStateOverride] = React.useState<"default" | "error-500" | null>(null);
-  const queryState =
-    router.query.state === "error-500"
-      ? "error-500"
-      : router.query.state === "default"
-      ? "default"
-      : null;
-  const previewState = previewStateOverride ?? queryState ?? "default";
-  const setPreviewState = (state: "default" | "error-500") => {
-    setPreviewStateOverride(state);
-  };
-
   const { data: apiReviewsRes } = useReviews();
   const createReviewMutation = useCreateReview();
   const authUser = useAuthStore((s) => s.user);
   const { data: profileRes } = useUserProfile();
 
-  // View selection: Automatically Guest if user not logged in, Customer if logged in.
-  // Can also be manually toggled (?view=guest or ?view=customer) or via UI toggle
-  const [viewOverride, setViewOverride] = React.useState<"guest" | "customer" | null>(null);
-  const queryView =
-    router.query.view === "guest"
-      ? "guest"
-      : router.query.view === "customer"
-      ? "customer"
-      : null;
-  const isGuestView =
-    (viewOverride ?? queryView) !== null
-      ? (viewOverride ?? queryView) === "guest"
-      : !authUser;
+  // Tampilan otomatis: Guest jika belum login, Customer jika sudah login
+  const isGuestView = !authUser;
 
   const [reviews, setReviews] = React.useState<ReviewItem[]>(INITIAL_REVIEWS);
   const [quickFeedback, setQuickFeedback] = React.useState("");
@@ -732,17 +642,9 @@ export default function ReviewPage() {
          ========================================================================= */}
       {isGuestView ? (
         <StoreLayout
-          navbarVariant={authUser ? "login" : "guest"}
+          navbarVariant="guest"
           activeNavId="ulasan"
           hideSidebar={true}
-          user={
-            authUser
-              ? {
-                  name: authUser.name || "Customer Gamezygo",
-                  avatarUrl: authUser.avatarUrl,
-                }
-              : undefined
-          }
           onLoginClick={() => router.push("/login")}
           onSignUpClick={() => router.push("/login?tab=signup")}
           onCartClick={() => router.push("/cart")}
@@ -757,17 +659,6 @@ export default function ReviewPage() {
           }}
           contentClassName="w-full  mx-auto px-4 sm:px-6 lg:px-20 py-10 sm:py-16 flex flex-col gap-8xl sm:gap-11xl select-none"
         >
-          {/* Quick Dev Switcher to preview Customer View */}
-          <div className="w-full flex justify-end -mb-8">
-            <button
-              type="button"
-              onClick={() => setViewOverride("customer")}
-              className="text-label-xs text-gray-500 hover:text-gray-300 transition-colors px-2.5 py-1 rounded bg-white/5 border border-white/5 cursor-pointer"
-              title="Klik untuk beralih ke tampilan Customer (Login)"
-            >
-              Mode: Tamu (Guest) • Beralih ke Customer
-            </button>
-          </div>
 
           {/* 1. HERO SECTION: Centered Header with Input & Rating Stats */}
           <section className="w-full flex flex-col items-center justify-center text-center">
@@ -874,76 +765,13 @@ export default function ReviewPage() {
           user={currentUser}
           onCartClick={() => handleToast("Membuka keranjang belanja")}
         >
-          {/* Quick Dev Switcher to preview Guest View */}
-          <div className="w-full flex justify-end -mb-4">
-            <button
-              type="button"
-              onClick={() => setViewOverride("guest")}
-              className="text-label-xs text-gray-500 hover:text-gray-300 transition-colors px-2.5 py-1 rounded bg-white/5 border border-white/5 cursor-pointer"
-              title="Klik untuk beralih ke tampilan Guest (Belum Login)"
-            >
-              Mode: Customer (Login) • Beralih ke Tamu (Guest)
-            </button>
-          </div>
-
-          {/* CASE 1: 500 INTERNAL SERVER ERROR VIEW */}
-          {previewState === "error-500" ? (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center select-none px-4 py-16">
-              {/* Wifi Off Box */}
-              <div className="w-14 h-14 rounded-lg bg-white/5 border border-gradient-secondary flex items-center justify-center text-white mb-6">
-                <WifiOffIcon className="w-7 h-7 text-white" />
-              </div>
-
-              {/* Title */}
-              <h2 className="text-h4 sm:text-h3 font-bold text-white mb-2">
-                500: Internal Server Error
-              </h2>
-
-              {/* Description */}
-              <p className="text-gray-400 text-body-sm mx-auto mb-8 font-normal leading-relaxed">
-                This page you&apos;re looking for doesn&apos;t exist or has been moved. Please check the URL or return to the homepage.
-              </p>
-
-              {/* Buttons */}
-              <div className="flex items-center justify-center gap-3">
-                <Button
-                  variant="secondary"
-                  size="md"
-                  leftIcon={<ArrowLeftIcon className="w-4 h-4" />}
-                  onClick={() => setPreviewState("default")}
-                >
-                  Kembali
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="md"
-                  leftIcon={<ReloadIcon className="w-4 h-4" />}
-                  onClick={() => setPreviewState("default")}
-                >
-                  Reload
-                </Button>
-              </div>
-            </div>
-          ) : (
-            /* CASE 2: NORMAL CUSTOMER REVIEW PAGE */
             <div className="flex flex-col gap-10xl w-full mx-auto pb-16 select-none ">
               {/* 1. HEADER (Mirip Bundle: Border-L Merah + Input Field) */}
               <section className="flex flex-col gap-8 border-l-gradient-primary pl-6 sm:pl-8 relative">
-                {/* Quick State Toggle for Dev/Preview */}
                 <div className="grid gap-4">
-                  <div className="flex items-center justify-between">
-                    <span className="text-body-sm text-gray-400 uppercase">
-                      REVIEW
-                    </span>
-                    <button
-                      type="button"
-                      onClick={() => setPreviewState("error-500")}
-                      className="text-label-xs text-gray-500 hover:text-gray-300 transition-colors px-2 py-1 rounded bg-white/5 border border-white/5 cursor-pointer"
-                      title="Klik untuk melihat tampilan 500: Internal Server Error"
-                    >
-                      Simulasikan 500 Error
-                    </button>
-                  </div>
+                  <span className="text-body-sm text-gray-400 uppercase">
+                    REVIEW
+                  </span>
 
                   <h1 className="text-h3 sm:text-h2 xl:text-h1 font-bold text-gradient-heading w-fit">
                     Dengarkan Pendapat Gamer
@@ -1009,7 +837,6 @@ export default function ReviewPage() {
                 </div>
               </section>
             </div>
-          )}
 
           {renderReviewModal()}
         </StoreLayout>

@@ -18,6 +18,8 @@ import {
 } from "@/services/steam";
 import productsData from "@/json/products.json";
 import { OWNED_LIBRARY_GAMES } from "@/pages/library";
+import { BUNDLE_GAMES } from "@/pages/bundle";
+import { INITIAL_WISHLIST_GAMES } from "@/pages/wishlist";
 import { useCartStore } from "@/stores/use-cart-store";
 import { useProductDetail } from "@/hooks/use-products";
 import { formatRupiah, formatDiscount } from "@/utils/formatters";
@@ -441,12 +443,20 @@ export default function GameStoreDetailPage() {
       ...OWNED_LIBRARY_GAMES,
       ...((productsData as { miniFeatured?: Array<Record<string, unknown>> }).miniFeatured || []),
       ...((productsData as { tawaranKhusus?: Array<Record<string, unknown>> }).tawaranKhusus || []),
+      ...((productsData as { rilisTerbaru?: Array<Record<string, unknown>> }).rilisTerbaru || []),
+      ...((productsData as { semuaProduk?: Array<Record<string, unknown>> }).semuaProduk || []),
+      ...BUNDLE_GAMES,
+      ...INITIAL_WISHLIST_GAMES,
     ];
 
     const found = allProducts.find(
       (p) =>
         String(p.id).toLowerCase() === id.toLowerCase() ||
-        String((p as { steamAppId?: number }).steamAppId) === id
+        String((p as { slug?: string }).slug || "").toLowerCase() === id.toLowerCase() ||
+        String((p as { steamAppId?: number }).steamAppId) === id ||
+        String((p as { title?: string }).title || "")
+          .toLowerCase()
+          .replace(/[^a-z0-9]/g, "") === id.toLowerCase().replace(/[^a-z0-9]/g, "")
     );
 
     if (found) {
@@ -783,7 +793,7 @@ export default function GameStoreDetailPage() {
         activeNavId="toko"
         contentClassName="p-0"
       >
-        <div className="w-full max-w-full min-w-0 px-4 sm:px-6 md:px-8 lg:px-12 flex flex-col gap-8 sm:gap-12 lg:gap-11xl py-6 sm:py-10 lg:py-16">
+        <div className="w-full max-w-full min-w-0 px-4 sm:px-6 md:px-8 lg:px-20 flex flex-col gap-8 sm:gap-12 lg:gap-11xl py-6 sm:py-10 lg:py-16">
           {/* =========================================================================
               MAIN GRID: 1 Column on Mobile/Tablet (< lg), 7 Columns on Desktop (>= lg)
               ========================================================================= */}

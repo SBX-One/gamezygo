@@ -199,8 +199,8 @@ const defaultSidebarSections: SidebarSection[] = [
   {
     id: "other",
     items: [
-      { id: "artikel", label: "Artikel", icon: <ArticleIcon /> },
-      { id: "pengaturan", label: "Pengaturan", icon: <SettingsIcon /> },
+      { id: "artikel", label: "Artikel", icon: <ArticleIcon />, href: "/blogs" },
+      { id: "pengaturan", label: "Pengaturan", icon: <SettingsIcon />, href: "/profile" },
     ],
   },
 ];

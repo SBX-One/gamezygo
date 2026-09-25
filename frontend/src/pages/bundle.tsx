@@ -1,5 +1,6 @@
 import * as React from "react";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { StoreLayout } from "@/components/layout";
 import {
   Button,
@@ -300,9 +301,21 @@ const MINI_CATALOG_GAMES = [
   },
 ];
 
-const BUNDLE_GAMES = [
+export interface BundleGame {
+  id: string;
+  slug?: string;
+  steamAppId?: number;
+  title: string;
+  imageSrc: string;
+  genres: string[];
+  launcher?: string;
+}
+
+export const BUNDLE_GAMES: BundleGame[] = [
   {
     id: "b-1",
+    slug: "ac-black-flag",
+    steamAppId: 242050,
     title: "Assassin's Creed Black Flag Resynced",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/242050/library_600x900_2x.jpg",
@@ -311,6 +324,8 @@ const BUNDLE_GAMES = [
   },
   {
     id: "b-2",
+    slug: "first-light",
+    steamAppId: 1091500,
     title: "007 - First Light",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/library_600x900_2x.jpg",
@@ -319,6 +334,8 @@ const BUNDLE_GAMES = [
   },
   {
     id: "b-3",
+    slug: "college-football-27",
+    steamAppId: 2582560,
     title: "EA SPORTS CF™ 27 Standard Edition",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2582560/library_600x900_2x.jpg",
@@ -327,6 +344,8 @@ const BUNDLE_GAMES = [
   },
   {
     id: "b-4",
+    slug: "subnautica-2",
+    steamAppId: 1962700,
     title: "Subnautica 2",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1962700/library_600x900_2x.jpg",
@@ -335,6 +354,8 @@ const BUNDLE_GAMES = [
   },
   {
     id: "b-5",
+    slug: "tk-fc-26",
+    steamAppId: 2195250,
     title: "EA SPORTS FC™ 26 Standard Edition",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2195250/library_600x900_2x.jpg",
@@ -343,6 +364,8 @@ const BUNDLE_GAMES = [
   },
   {
     id: "b-6",
+    slug: "rt-dead-by-daylight",
+    steamAppId: 381210,
     title: "Dead by Daylight",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/381210/library_600x900_2x.jpg",
@@ -351,6 +374,8 @@ const BUNDLE_GAMES = [
   },
   {
     id: "b-7",
+    slug: "tk-ghost-tsushima",
+    steamAppId: 2215430,
     title: "Phantom Blade",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2215430/library_600x900_2x.jpg",
@@ -359,6 +384,8 @@ const BUNDLE_GAMES = [
   },
   {
     id: "b-8",
+    slug: "tk-gta-v",
+    steamAppId: 271590,
     title: "Grand Thief Auto V",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
@@ -367,6 +394,8 @@ const BUNDLE_GAMES = [
   },
   {
     id: "b-9",
+    slug: "tk-rdr-2",
+    steamAppId: 1174180,
     title: "Read Dead Redemption II",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/library_600x900_2x.jpg",
@@ -375,6 +404,8 @@ const BUNDLE_GAMES = [
   },
   {
     id: "b-10",
+    slug: "4197610",
+    steamAppId: 4197610,
     title: "Vanakan",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/4197610/caad28198a0aa74f908b0efead31904113c32e3f/hero_capsule_2x.jpg",
@@ -383,6 +414,8 @@ const BUNDLE_GAMES = [
   },
   {
     id: "b-11",
+    slug: "344850",
+    steamAppId: 344850,
     title: "Pharmacy Simulator: Big Pharma",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/344850/library_600x900_2x.jpg",
@@ -391,6 +424,8 @@ const BUNDLE_GAMES = [
   },
   {
     id: "b-12",
+    slug: "1245620",
+    steamAppId: 1245620,
     title: "Learning on Demand Racing",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/library_600x900_2x.jpg",
@@ -399,6 +434,8 @@ const BUNDLE_GAMES = [
   },
   {
     id: "b-13",
+    slug: "686810",
+    steamAppId: 686810,
     title: "Hell Let Loose: Vietnam",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/686810/library_600x900_2x.jpg",
@@ -407,6 +444,8 @@ const BUNDLE_GAMES = [
   },
   {
     id: "b-14",
+    slug: "203350",
+    steamAppId: 203350,
     title: "The Lord of the Rings: War in the North™ - Legacy Edition",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/203350/library_600x900_2x.jpg",
@@ -415,6 +454,8 @@ const BUNDLE_GAMES = [
   },
   {
     id: "b-15",
+    slug: "2582560",
+    steamAppId: 2582560,
     title: "EA SPORTS™ Madden NFL 27",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2582560/library_600x900_2x.jpg",
@@ -423,6 +464,8 @@ const BUNDLE_GAMES = [
   },
   {
     id: "b-16",
+    slug: "990080",
+    steamAppId: 990080,
     title: "Earthworm Jim",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/990080/library_600x900_2x.jpg",
@@ -432,6 +475,7 @@ const BUNDLE_GAMES = [
 ];
 
 export default function BundlePage() {
+  const router = useRouter();
   // TanStack Query: Subscriptions API
   const { data: subscriptionPlansRes } = useSubscriptionPlans();
   const { data: userSubRes } = useUserSubscription();
@@ -645,8 +689,23 @@ export default function BundlePage() {
     appliedLaunchers.length > 0 ||
     appliedSort !== "Terbaru";
 
-  const filteredGames = React.useMemo(() => {
-    let list = [...BUNDLE_GAMES];
+  const bundleGames: BundleGame[] = React.useMemo(() => {
+    if (subsProductsRes?.data && subsProductsRes.data.length > 0) {
+      return subsProductsRes.data.map((item) => ({
+        id: String(item.id),
+        slug: item.slug || String(item.id),
+        steamAppId: (item as unknown as { steam_app_id?: number }).steam_app_id,
+        title: item.name,
+        imageSrc: item.thumbnail || "",
+        genres: item.product_genre_categories?.map((g) => g.name) || ["Action", "Adventure"],
+        launcher: item.product_launcher_category?.name || "Steam",
+      }));
+    }
+    return BUNDLE_GAMES;
+  }, [subsProductsRes]);
+
+  const filteredGames: BundleGame[] = React.useMemo(() => {
+    let list = [...bundleGames];
 
     if (isSearchActive) {
       const q = searchQuery.trim().toLowerCase();
@@ -882,6 +941,7 @@ export default function BundlePage() {
                           discount={game.tier}
                           originalPrice={game.originalPrice}
                           price={game.price}
+                          onClick={() => router.push(`/store/tk-gta-v`)}
                         />
                       ))}
                     </div>
@@ -1095,20 +1155,26 @@ export default function BundlePage() {
               {/* GRID GAME ATAU EMPTY STATE (Screenshot 4: Paid-Searched / Paid-Empty) */}
               {filteredGames.length > 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
-                  {filteredGames.map((game) => (
-                    <ProductCard
-                      key={game.id}
-                      orientation="vertical"
-                      title={game.title}
-                      imageSrc={game.imageSrc}
-                      genres={game.genres}
-                      platform={game.launcher}
-                      showPrice={false}
-                      showActionButton={false}
-                      className="hover:-translate-y-0.5 transition-transform duration-200 pb-8xl"
-                      
-                    />
-                  ))}
+                  {filteredGames.map((game) => {
+                    const targetSlug =
+                      game.slug ||
+                      (game.steamAppId ? String(game.steamAppId) : undefined) ||
+                      game.id;
+                    return (
+                      <ProductCard
+                        key={game.id}
+                        orientation="vertical"
+                        title={game.title}
+                        imageSrc={game.imageSrc}
+                        genres={game.genres}
+                        platform={game.launcher}
+                        showPrice={false}
+                        showActionButton={false}
+                        href={`/store/${targetSlug}`}
+                        className="hover:-translate-y-0.5 transition-transform duration-200 pb-8xl cursor-pointer"
+                      />
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="py-20 flex items-center justify-center w-full">

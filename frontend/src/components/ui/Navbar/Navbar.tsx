@@ -1,7 +1,10 @@
 import * as React from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
+import { Sidebar } from "@/components/ui/Sidebar/Sidebar";
+import { useUiStore } from "@/stores/use-ui-store";
 import type { NavbarProps, NavItem } from "./Navbar.types";
 
 /**
@@ -87,6 +90,26 @@ const FilterIcon = (props: React.SVGProps<SVGSVGElement>) => (
   >
     <path
       d="M13.5 16C13.6989 16 13.8897 16.079 14.0303 16.2197C14.171 16.3603 14.25 16.5511 14.25 16.75C14.25 16.9489 14.171 17.1397 14.0303 17.2803C13.8897 17.421 13.6989 17.5 13.5 17.5H10.5C10.3011 17.5 10.1103 17.421 9.96967 17.2803C9.82902 17.1397 9.75 16.9489 9.75 16.75C9.75 16.5511 9.82902 16.3603 9.96967 16.2197C10.1103 16.079 10.3011 16 10.5 16H13.5ZM16.5 11C16.6989 11 16.8897 11.079 17.0303 11.2197C17.171 11.3603 17.25 11.5511 17.25 11.75C17.25 11.9489 17.171 12.1397 17.0303 12.2803C16.8897 12.421 16.6989 12.5 16.5 12.5H7.5C7.30109 12.5 7.11032 12.421 6.96967 12.2803C6.82902 12.1397 6.75 11.9489 6.75 11.75C6.75 11.5511 6.82902 11.3603 6.96967 11.2197C7.11032 11.079 7.30109 11 7.5 11H16.5ZM19.5 6C19.6989 6 19.8897 6.07902 20.0303 6.21967C20.171 6.36032 20.25 6.55109 20.25 6.75C20.25 6.94891 20.171 7.13968 20.0303 7.28033C19.8897 7.42098 19.6989 7.5 19.5 7.5H4.5C4.30109 7.5 4.11032 7.42098 3.96967 7.28033C3.82902 7.13968 3.75 6.94891 3.75 6.75C3.75 6.55109 3.82902 6.36032 3.96967 6.21967C4.11032 6.07902 4.30109 6 4.5 6H19.5Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+/**
+ * Mobile Hamburger Menu Icon (20px / w-5 h-5)
+ */
+const MenuIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-5 h-5 shrink-0"
+    {...props}
+  >
+    <path
+      d="M3.75 6.75C3.75 6.33579 4.08579 6 4.5 6H19.5C19.9142 6 20.25 6.33579 20.25 6.75C20.25 7.16421 19.9142 7.5 19.5 7.5H4.5C4.08579 7.5 3.75 7.16421 3.75 7.5ZM3.75 12C3.75 11.5858 4.08579 11.25 4.5 11.25H19.5C19.9142 11.25 20.25 11.5858 20.25 12C20.25 12.4142 19.9142 12.75 19.5 12.75H4.5C4.08579 12.75 3.75 12.4142 3.75 12ZM3.75 17.25C3.75 16.8358 4.08579 16.5 4.5 16.5H19.5C19.9142 16.5 20.25 16.8358 20.25 17.25C20.25 17.6642 19.9142 18 19.5 18H4.5C4.08579 18 3.75 17.6642 3.75 17.25Z"
       fill="currentColor"
     />
   </svg>
@@ -254,6 +277,12 @@ export function Navbar({
   const [internalSearch, setInternalSearch] = React.useState(searchValue);
   const [isProfileOpen, setIsProfileOpen] = React.useState(false);
   const profileMenuRef = React.useRef<HTMLDivElement>(null);
+  const { isMobileNavOpen, toggleMobileNav } = useUiStore();
+  const [mounted, setMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setMounted(true);
+  }, []);
 
   // Close profile dropdown when clicking outside or pressing Escape
   React.useEffect(() => {
@@ -430,17 +459,31 @@ export function Navbar({
             </form>
           )}
 
-          {/* Filter Button (Secondary SM) - Hanya untuk mode Guest & Login jika ada onFilterClick */}
-          {variant !== "private" && variant !== "back" && onFilterClick && (
+          {/* Desktop Filter Button (Secondary SM) - Hanya tampil di desktop (lg ke atas) */}
+          {variant !== "private" && variant !== "back" && (
             <Button
               type="button"
               variant="secondary"
               size="sm"
-              className="w-10 h-10 p-0 flex items-center justify-center shrink-0 cursor-pointer"
+              className="hidden lg:flex w-10 h-10 p-0 items-center justify-center shrink-0 cursor-pointer"
               onClick={onFilterClick}
               aria-label="Filter"
             >
               <FilterIcon className="w-4 h-4 text-deep-blue-100" />
+            </Button>
+          )}
+
+          {/* Responsive / Mobile Hamburger Menu Button - Menggantikan tombol filter di layar < lg */}
+          {variant !== "private" && variant !== "back" && (
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              className="flex lg:hidden w-10 h-10 p-0 items-center justify-center shrink-0 cursor-pointer"
+              onClick={() => toggleMobileNav()}
+              aria-label="Buka Menu Navigasi"
+            >
+              <MenuIcon className="w-5 h-5 text-deep-blue-100" />
             </Button>
           )}
 
@@ -588,6 +631,133 @@ export function Navbar({
             )}
           </div>
       </div>
+
+      {/* ========================================================
+          3. RESPONSIVE MOBILE NAVIGATION DRAWER (< lg)
+             Rendered into document.body via createPortal with z-[100]
+             to completely isolate from sticky headers & borders
+         ======================================================== */}
+      {mounted &&
+        isMobileNavOpen &&
+        createPortal(
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-label="Menu & Kategori"
+            className="fixed inset-0 z-100 lg:hidden flex select-none"
+          >
+            {/* Backdrop Blur Overlay */}
+            <div
+              className="fixed inset-0 bg-black/75 backdrop-blur-sm transition-opacity duration-200 animate-fade-in"
+              onClick={() => toggleMobileNav(false)}
+              aria-hidden="true"
+            />
+
+            {/* Drawer Panel (Sliding from Left) */}
+            <div className="relative z-10 w-4/5  bg-deep-blue-950 border-r border-gradient-secondary flex flex-col h-full overflow-y-auto transform transition-transform duration-200 animate-slide-in-left shadow-2xl">
+              {/* Drawer Header */}
+              <div className="flex items-center justify-between px-6 py-5 border-b border-b-gradient-secondary bg-deep-blue-950 shrink-0">
+                <span className="text-label-md font-bold text-gradient-heading">
+                  Menu & Kategori
+                </span>
+                <button
+                  type="button"
+                  onClick={() => toggleMobileNav(false)}
+                  className="h-11 w-11 flex items-center justify-center rounded-lg hover:bg-white/10 text-gray-400 hover:text-gray-50 transition-colors cursor-pointer outline-none focus-visible:ring-1 focus-visible:ring-gray-50/50"
+                  aria-label="Tutup Menu"
+                >
+                  <DismissIcon className="w-5 h-5" />
+                </button>
+              </div>
+
+              {/* Sidebar Component Content inside Drawer */}
+              <div className="p-4 flex-1 overflow-y-auto">
+                <Sidebar
+                  activeId={activeNavId}
+                  onItemClick={(item) => {
+                    toggleMobileNav(false);
+                    onNavItemClick?.({
+                      id: item.id,
+                      label: item.label,
+                      href: item.href,
+                    });
+                  }}
+                  className="border-none px-2 py-0 w-full min-w-0"
+                />
+              </div>
+
+              {/* Auth Actions Footer */}
+              <div className="p-4 border-t border-b-gradient-secondary flex flex-col gap-3 bg-deep-blue-950 shrink-0">
+                {variant === "guest" || (variant === "back" && !user) ? (
+                  <div className="flex items-center gap-3 w-full">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="md"
+                      className="flex-1 py-2.5 text-body-sm font-semibold justify-center"
+                      onClick={() => {
+                        toggleMobileNav(false);
+                        onLoginClick?.();
+                      }}
+                    >
+                      Login
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="primary"
+                      size="md"
+                      className="flex-1 py-2.5 text-body-sm font-semibold justify-center"
+                      onClick={() => {
+                        toggleMobileNav(false);
+                        onSignUpClick?.();
+                      }}
+                    >
+                      Sign Up
+                    </Button>
+                  </div>
+                ) : (
+                  <div className="flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-deep-blue-700/80 border border-gradient-secondary overflow-hidden flex items-center justify-center shrink-0">
+                        {user?.avatarUrl ? (
+                          <img
+                            src={user.avatarUrl}
+                            alt={user.name || "User Avatar"}
+                            className="w-full h-full object-cover"
+                          />
+                        ) : (
+                          <div className="w-full h-full bg-linear-to-tr from-rose-900 via-indigo-900 to-deep-blue-700 flex items-center justify-center text-label-xs font-bold text-gray-50">
+                            {user?.name ? user.name.charAt(0).toUpperCase() : "U"}
+                          </div>
+                        )}
+                      </div>
+                      <div className="flex flex-col">
+                        <span className="text-body-sm font-semibold text-white truncate">
+                          {user?.name || "Pengguna"}
+                        </span>
+                        <span className="text-label-xs text-gray-400">Akun Aktif</span>
+                      </div>
+                    </div>
+
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      className="px-3 py-1.5 text-label-xs font-medium text-rose-400 hover:text-rose-300"
+                      onClick={() => {
+                        toggleMobileNav(false);
+                        onLogoutClick?.();
+                      }}
+                    >
+                      Logout
+                    </Button>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>,
+          document.body
+        )}
 
       {/* ========================================================
           2. BARIS PEMBATAS BAWAH: Height 4 (h-4 = 16px), Warna #15161D (bg-deep-blue-900), Border Y Linear Gradient Secondary

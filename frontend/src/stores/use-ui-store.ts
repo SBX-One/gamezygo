@@ -13,12 +13,14 @@ import { devtools, persist } from "zustand/middleware";
 export interface UiState {
   isMobileNavOpen: boolean;
   isSidebarOpen: boolean;
+  isFilterModalOpen: boolean;
   theme: "light" | "dark";
 }
 
 export interface UiActions {
   toggleMobileNav: (isOpen?: boolean) => void;
   toggleSidebar: (isOpen?: boolean) => void;
+  toggleFilterModal: (isOpen?: boolean) => void;
   setTheme: (theme: "light" | "dark") => void;
 }
 
@@ -30,6 +32,7 @@ export const useUiStore = create<UiStore>()(
       (set) => ({
         isMobileNavOpen: false,
         isSidebarOpen: false,
+        isFilterModalOpen: false,
         theme: "dark",
 
         toggleMobileNav: (isOpen) =>
@@ -40,6 +43,12 @@ export const useUiStore = create<UiStore>()(
         toggleSidebar: (isOpen) =>
           set((state) => ({
             isSidebarOpen: isOpen !== undefined ? isOpen : !state.isSidebarOpen,
+          })),
+
+        toggleFilterModal: (isOpen) =>
+          set((state) => ({
+            isFilterModalOpen:
+              isOpen !== undefined ? isOpen : !state.isFilterModalOpen,
           })),
 
         setTheme: (theme) => set({ theme }),
@@ -60,3 +69,4 @@ export const useUiStore = create<UiStore>()(
 export const useUiTheme = () => useUiStore((s) => s.theme);
 export const useIsMobileNavOpen = () => useUiStore((s) => s.isMobileNavOpen);
 export const useIsSidebarOpen = () => useUiStore((s) => s.isSidebarOpen);
+export const useIsFilterModalOpen = () => useUiStore((s) => s.isFilterModalOpen);

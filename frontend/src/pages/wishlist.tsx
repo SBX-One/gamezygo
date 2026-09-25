@@ -8,7 +8,7 @@ import {
   EmptyState,
   Toast,
 } from "@/components/ui";
-import { useWishlist, useRemoveFromWishlist } from "@/hooks/use-wishlist";
+import { useWishlist } from "@/hooks/use-wishlist";
 import { useAddToCart } from "@/hooks/use-cart";
 
 // Search Icon
@@ -86,9 +86,11 @@ const BookmarkOutlineIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-interface WishlistGame {
+export interface WishlistGame {
   id: string;
   productId?: number;
+  slug?: string;
+  steamAppId?: number;
   title: string;
   imageSrc: string;
   genres: string[];
@@ -97,10 +99,12 @@ interface WishlistGame {
 }
 
 // 7 Wishlist Games matching Screenshot 3 exactly
-const INITIAL_WISHLIST_GAMES: WishlistGame[] = [
+export const INITIAL_WISHLIST_GAMES: WishlistGame[] = [
   {
     id: "wish-1",
     productId: 1,
+    slug: "ac-black-flag",
+    steamAppId: 242050,
     title: "Assassin's Creed Black Flag Resynced",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/242050/library_600x900_2x.jpg",
@@ -111,6 +115,8 @@ const INITIAL_WISHLIST_GAMES: WishlistGame[] = [
   {
     id: "wish-2",
     productId: 2,
+    slug: "first-light",
+    steamAppId: 1091500,
     title: "007 - First Light",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/library_600x900_2x.jpg",
@@ -121,6 +127,8 @@ const INITIAL_WISHLIST_GAMES: WishlistGame[] = [
   {
     id: "wish-3",
     productId: 3,
+    slug: "subnautica-2",
+    steamAppId: 1962700,
     title: "Subnautica 2",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1962700/library_600x900_2x.jpg",
@@ -131,6 +139,8 @@ const INITIAL_WISHLIST_GAMES: WishlistGame[] = [
   {
     id: "wish-4",
     productId: 4,
+    slug: "tk-rdr-2",
+    steamAppId: 1174180,
     title: "Read Dead Redemption II",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/library_600x900_2x.jpg",
@@ -141,6 +151,8 @@ const INITIAL_WISHLIST_GAMES: WishlistGame[] = [
   {
     id: "wish-5",
     productId: 5,
+    slug: "686810",
+    steamAppId: 686810,
     title: "Hell Let Loose: Vietnam",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/686810/library_600x900_2x.jpg",
@@ -151,6 +163,8 @@ const INITIAL_WISHLIST_GAMES: WishlistGame[] = [
   {
     id: "wish-6",
     productId: 6,
+    slug: "1846380",
+    steamAppId: 1846380,
     title: "Need For Speed Unbound",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1846380/library_600x900_2x.jpg",
@@ -161,6 +175,8 @@ const INITIAL_WISHLIST_GAMES: WishlistGame[] = [
   {
     id: "wish-7",
     productId: 7,
+    slug: "990080",
+    steamAppId: 990080,
     title: "Earthworm Jim",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/990080/library_600x900_2x.jpg",
@@ -178,11 +194,13 @@ export default function WishlistPage() {
     INITIAL_WISHLIST_GAMES
   );
 
-  const wishlistGames = React.useMemo(() => {
+  const wishlistGames: WishlistGame[] = React.useMemo(() => {
     if (wishlistApiRes?.data && wishlistApiRes.data.length > 0) {
       return wishlistApiRes.data.map((item) => ({
         id: String(item.id),
         productId: item.product?.id,
+        slug: item.product?.slug || (item.product?.id ? String(item.product.id) : undefined),
+        steamAppId: (item.product as { steam_app_id?: number } | undefined)?.steam_app_id,
         title: item.product?.name || "Game",
         imageSrc: item.product?.thumbnail || "",
         genres: ["Action", "Adventure"],
@@ -255,7 +273,7 @@ export default function WishlistPage() {
     appliedCategories.length > 0 ||
     appliedLaunchers.length > 0;
 
-  const filteredGames = React.useMemo(() => {
+  const filteredGames: WishlistGame[] = React.useMemo(() => {
     let list = [...wishlistGames];
 
     // 1. Search Query Matching
@@ -506,21 +524,29 @@ export default function WishlistPage() {
           ) : filteredGames.length > 0 ? (
             /* CASE B: 4-COLUMN RESPONSIVE WISHLIST GRID (Screenshot 3: Default) */
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
-              {filteredGames.map((game) => (
-                <ProductCard
-                  key={game.id}
-                  orientation="vertical"
-                  title={game.title}
-                  imageSrc={game.imageSrc}
-                  genres={game.genres}
-                  platform={game.platform}
-                  showPrice={false}
-                  showActionButton={true}
-                  buttonText="Tambah Keranjang"
-                  onActionClick={() => handleAddToCart(game)}
-                  className="hover:-translate-y-0.5 transition-transform duration-200 pb-8xl"
-                />
-              ))}
+              {filteredGames.map((game) => {
+                const targetSlug =
+                  game.slug ||
+                  (game.productId ? String(game.productId) : undefined) ||
+                  (game.steamAppId ? String(game.steamAppId) : undefined) ||
+                  game.id;
+                return (
+                  <ProductCard
+                    key={game.id}
+                    orientation="vertical"
+                    title={game.title}
+                    imageSrc={game.imageSrc}
+                    genres={game.genres}
+                    platform={game.platform}
+                    showPrice={false}
+                    showActionButton={true}
+                    buttonText="Tambah Keranjang"
+                    href={`/store/${targetSlug}`}
+                    onActionClick={() => handleAddToCart(game)}
+                    className="hover:-translate-y-0.5 transition-transform duration-200 pb-8xl cursor-pointer"
+                  />
+                );
+              })}
             </div>
           ) : (
             /* CASE C: HASIL FILTER/SEARCH KOSONG */

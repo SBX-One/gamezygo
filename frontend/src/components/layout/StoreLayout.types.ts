@@ -47,6 +47,8 @@ export interface StoreLayoutProps extends React.HTMLAttributes<HTMLDivElement> {
   hideNavbar?: boolean;
   /** Sembunyikan sidebar di layout jika diperlukan */
   hideSidebar?: boolean;
+  /** Sembunyikan footer di layout jika diperlukan */
+  hideFooter?: boolean;
   /** Kustomisasi sections pada Sidebar */
   sidebarSections?: SidebarSection[];
   /** Kustomisasi className untuk elemen main konten utama */

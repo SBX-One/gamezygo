@@ -325,7 +325,6 @@ export default function WishlistPage() {
       <StoreLayout
         navbarVariant="private"
         activeSidebarId="wishlist"
-        onCartClick={() => alert("Membuka keranjang belanja")}
       >
         <div className="flex flex-col gap-6 sm:gap-8 w-full">
           {/* ========================================================

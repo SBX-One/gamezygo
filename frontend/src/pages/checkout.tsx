@@ -163,6 +163,28 @@ export default function CheckoutPage() {
   const [checkoutItems, setCheckoutItems] = React.useState<CheckoutItem[]>(DEFAULT_CHECKOUT_ITEMS);
 
   React.useEffect(() => {
+    try {
+      if (typeof window !== "undefined") {
+        const stored = sessionStorage.getItem("gamezygo_checkout_items");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            const mapped: CheckoutItem[] = parsed.map((item: any, idx: number) => ({
+              id: item.id || `item-${idx}`,
+              productId: typeof item.id === "number" ? item.id : idx + 1,
+              title: item.title || item.name || "Game",
+              imageSrc: item.imageSrc || item.thumbnail || DEFAULT_CHECKOUT_ITEMS[0].imageSrc,
+              price: item.price || 219500,
+            }));
+            setCheckoutItems(mapped);
+            return;
+          }
+        }
+      }
+    } catch {
+      // ignore parsing error
+    }
+
     if (cartApiRes?.data?.items && cartApiRes.data.items.length > 0) {
       const mapped: CheckoutItem[] = cartApiRes.data.items.map((item) => ({
         id: String(item.id),
@@ -253,14 +275,21 @@ export default function CheckoutPage() {
       setQrisModalData(null);
       setActiveReference(null);
       clearCart();
+      try {
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem("gamezygo_checkout_items");
+        }
+      } catch {
+        // ignore
+      }
       showToast(
         "success",
         "Pembayaran Dikonfirmasi!",
-        "Pembayaran telah berhasil diverifikasi. Mengalihkan ke Game Library..."
+        "Pembayaran telah berhasil diverifikasi. Membuka konfirmasi pesanan..."
       );
       setTimeout(() => {
-        router.push("/library");
-      }, 1500);
+        router.push("/checkout/success");
+      }, 800);
     };
 
     // 1. If polling reports paid
@@ -462,15 +491,22 @@ export default function CheckoutPage() {
 
     setTimeout(() => {
       clearCart();
+      try {
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem("gamezygo_checkout_items");
+        }
+      } catch {
+        // ignore
+      }
       showToast(
         "success",
         "Pembayaran Berhasil!",
         "Game telah berhasil dibeli dan ditambahkan ke Library Akun Anda."
       );
       setTimeout(() => {
-        router.push("/library");
-      }, 1200);
-    }, 1800);
+        router.push("/checkout/success");
+      }, 600);
+    }, 1500);
   };
 
   // Simulate instant payment success
@@ -478,14 +514,21 @@ export default function CheckoutPage() {
     setQrisModalData(null);
     setActiveReference(null);
     clearCart();
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("gamezygo_checkout_items");
+      }
+    } catch {
+      // ignore
+    }
     showToast(
       "success",
       "Pembayaran Berhasil Terverifikasi!",
       "Game telah berhasil dibeli dan ditambahkan ke Library Akun Anda."
     );
     setTimeout(() => {
-      router.push("/library");
-    }, 1200);
+      router.push("/checkout/success");
+    }, 400);
   };
 
   return (
@@ -501,13 +544,23 @@ export default function CheckoutPage() {
       <StoreLayout
         hideNavbar={true}
         hideSidebar={true}
-        contentClassName="w-full max-w-360 mx-auto px-4 sm:px-8 lg:px-20 flex flex-col"
+        contentClassName="w-full  mx-auto px-4 sm:px-8 lg:px-20 flex flex-col"
       >
         {/* ========================================================
-            1. PAGE TITLE & FULL-WIDTH DIVIDER
+            1. PAGE TITLE & FULL-WIDTH DIVIDER (With Back Button)
            ======================================================== */}
-        <div className="w-full border-b-gradient-secondary py-10 pb-4 mb-20">
-          <div className="w-full mx-auto px-4 sm:px-0">
+        <div className="w-full border-b-gradient-secondary py-10 pb-4 mb-20 flex items-center justify-between">
+          <div className="w-full mx-auto px-4 sm:px-0 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => router.push("/cart")}
+              className="w-10 h-10 rounded-lg bg-surface-secondary-default hover:bg-white/10 border border-white/10 flex items-center justify-center text-gray-300 hover:text-white transition-all cursor-pointer"
+              aria-label="Kembali ke Keranjang"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+            </button>
             <h1 className="text-body-lg sm:text-h6 font-semibold text-white">
               Checkout
             </h1>
@@ -702,7 +755,7 @@ export default function CheckoutPage() {
                   createPaymentMutation.isPending ||
                   checkoutItems.length === 0
                 }
-                className="w-full flex items-center justify-center gap-2 py-3.5 shadow-lg shadow-indigo-500/20"
+                className="w-full flex items-center justify-center gap-2 py-3.5 "
               >
                 <span>
                   {createOrderMutation.isPending || createPaymentMutation.isPending
@@ -720,7 +773,7 @@ export default function CheckoutPage() {
            ======================================================== */}
         {qrisModalData && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-deep-blue-950/95 border border-white/15 rounded-2xl p-6 sm:p-8 max-w-md w-full shadow-2xl backdrop-blur-xl relative flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-200">
+            <div className="bg-deep-blue-950/95 border border-white/15 rounded-2xl p-6 sm:p-8 w-full shadow-2xl backdrop-blur-xl relative flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-200">
               {/* Badge & Title */}
               <div className="flex items-center gap-2 mb-2">
                 <span className="px-2.5 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-label-xs font-semibold uppercase ">

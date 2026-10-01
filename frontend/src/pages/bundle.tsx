@@ -750,7 +750,6 @@ export default function BundlePage() {
       <StoreLayout
         navbarVariant="private"
         activeSidebarId="paket"
-        onCartClick={() => handleToast("Membuka keranjang belanja")}
       >
         <div className="flex flex-col w-full">
           {/* TOP VIEW-MODE SWITCHER */}

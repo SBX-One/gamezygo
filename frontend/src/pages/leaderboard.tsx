@@ -129,7 +129,6 @@ export default function LeaderboardPage() {
         hideSidebar={true}
         activeNavId="leaderboard"
         user={currentUser}
-        onCartClick={() => handleToast("Membuka keranjang belanja")}
       >
         <div className="flex flex-col w-full px-12   mx-auto select-none pt-4 pb-16">
           {/* ========================================================

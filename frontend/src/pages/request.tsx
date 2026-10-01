@@ -498,7 +498,6 @@ export default function RequestGamePage() {
       <StoreLayout
         navbarVariant="private"
         activeSidebarId="request"
-        onCartClick={() => handleToast("Membuka keranjang belanja")}
       >
         <div className="flex flex-col gap-8 sm:gap-16 w-full select-none">
           {/* TOP PREVIEW TOGGLE BAR (Memudahkan pengujian Screenshot 1 - 4) */}

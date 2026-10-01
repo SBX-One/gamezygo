@@ -371,7 +371,6 @@ export default function StorePage() {
           setPreviewState("default");
         }}
         onFilterClick={() => setIsFilterModalOpen((prev) => !prev)}
-        onCartClick={() => handleAddToCart("Item Cart")}
         contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 pb-20 flex flex-col gap-50"
       >
         {/* ======================================================

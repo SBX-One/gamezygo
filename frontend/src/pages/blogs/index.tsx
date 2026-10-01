@@ -347,7 +347,6 @@ export default function BlogsPage() {
           setPreviewState("default");
         }}
         onFilterClick={handleOpenNavbarFilter}
-        onCartClick={() => {}}
         contentClassName="w-full  mx-auto px-4 sm:px-8 lg:px-20 pt-12 pb-20 flex flex-col"
       >
         {/* ========================================================

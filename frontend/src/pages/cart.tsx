@@ -215,10 +215,17 @@ export default function CartPage() {
 
   // Buy Now on Single Item
   const handleBuyNow = (item: CartItemData) => {
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("gamezygo_checkout_items", JSON.stringify([item]));
+      }
+    } catch {
+      // ignore storage error
+    }
     showToast("success", "Membeli Sekarang", `Melanjutkan pembelian langsung untuk ${item.title}...`);
     setTimeout(() => {
-      router.push(`/checkout?item=${item.id}`);
-    }, 800);
+      router.push("/checkout");
+    }, 400);
   };
 
   // Proceed to Checkout
@@ -227,10 +234,17 @@ export default function CartPage() {
       showToast("error", "Keranjang Kosong", "Tambahkan game ke keranjang terlebih dahulu.");
       return;
     }
-    showToast("success", "Menuju Pembayaran", "Mengarahkan ke halaman checkout dan Midtrans Snap...");
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem("gamezygo_checkout_items", JSON.stringify(cartItems));
+      }
+    } catch {
+      // ignore storage error
+    }
+    showToast("success", "Menuju Pembayaran", "Mengarahkan ke halaman checkout...");
     setTimeout(() => {
       router.push("/checkout");
-    }, 800);
+    }, 400);
   };
 
   const isEmpty = cartItems.length === 0;
@@ -248,13 +262,23 @@ export default function CartPage() {
       <StoreLayout
         hideNavbar={true}
         hideSidebar={true}
-        contentClassName="w-full max-w-360 mx-auto px-4 sm:px-8 lg:px-20 flex flex-col"
+        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 flex flex-col"
       >
         {/* ========================================================
-            1. PAGE TITLE & FULL-WIDTH DIVIDER (Matching Profile Header)
+            1. PAGE TITLE & FULL-WIDTH DIVIDER (With Back Button)
            ======================================================== */}
-        <div className="w-full border-b-gradient-secondary py-10 pb-4 mb-20">
-          <div className="w-full mx-auto px-4 sm:px-0">
+        <div className="w-full border-b-gradient-secondary py-10 pb-4 mb-20 flex items-center justify-between">
+          <div className="w-full mx-auto px-4 sm:px-0 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => router.push("/")}
+              className="w-10 h-10 rounded-lg bg-surface-secondary-default hover:bg-white/10 border border-white/10 flex items-center justify-center text-gray-300 hover:text-white transition-all cursor-pointer"
+              aria-label="Kembali ke Beranda"
+            >
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+            </button>
             <h1 className="text-body-lg sm:text-h6 font-semibold text-white">
               Keranjang
             </h1>

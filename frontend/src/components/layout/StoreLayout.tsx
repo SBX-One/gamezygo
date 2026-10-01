@@ -75,6 +75,7 @@ export function StoreLayout({
   onSettingsClick,
   hideNavbar = false,
   hideSidebar = false,
+  hideFooter = false,
   sidebarSections,
   contentClassName,
   backTitle,
@@ -358,7 +359,7 @@ export function StoreLayout({
       {/* ========================================================
           5. FOOTER
          ======================================================== */}
-      <Footer className="mt-auto border-t border-t-gradient-secondary" />
+      {!hideFooter && <Footer className="mt-auto border-t border-t-gradient-secondary" />}
     </div>
   );
 }

@@ -1,6 +1,7 @@
 import * as React from "react";
 import { createPortal } from "react-dom";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Sidebar } from "@/components/ui/Sidebar/Sidebar";
@@ -279,6 +280,15 @@ export function Navbar({
   const profileMenuRef = React.useRef<HTMLDivElement>(null);
   const { isMobileNavOpen, toggleMobileNav } = useUiStore();
   const [mounted, setMounted] = React.useState(false);
+  const router = useRouter();
+
+  const handleCartNavigation = () => {
+    if (onCartClick) {
+      onCartClick();
+    } else {
+      router.push("/cart");
+    }
+  };
 
   React.useEffect(() => {
     setMounted(true);
@@ -489,8 +499,18 @@ export function Navbar({
 
           {/* Action Buttons Sesuai Varian */}
           {variant === "guest" || (variant === "back" && !user) ? (
-            /* Mode GUEST: Tombol Login (Secondary SM) & Sign Up (Primary SM) */
+            /* Mode GUEST: Tombol Keranjang (Secondary SM), Login (Secondary SM) & Sign Up (Primary SM) */
               <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  className="w-10 h-10 p-0 flex items-center justify-center shrink-0 cursor-pointer"
+                  onClick={handleCartNavigation}
+                  aria-label="Keranjang Belanja"
+                >
+                  <CartIcon className="w-4 h-4 text-deep-blue-100" />
+                </Button>
                 <Button
                   type="button"
                   variant="secondary"
@@ -519,7 +539,7 @@ export function Navbar({
                   variant="secondary"
                   size="sm"
                   className="w-10 h-10 p-0 flex items-center justify-center shrink-0 cursor-pointer"
-                  onClick={onCartClick}
+                  onClick={handleCartNavigation}
                   aria-label="Keranjang Belanja"
                 >
                   <CartIcon className="w-4 h-4 text-deep-blue-100" />
@@ -688,6 +708,20 @@ export function Navbar({
 
               {/* Auth Actions Footer */}
               <div className="p-4 border-t border-b-gradient-secondary flex flex-col gap-3 bg-deep-blue-950 shrink-0">
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="md"
+                  className="w-full py-2.5 text-body-sm font-semibold justify-center flex items-center gap-2 cursor-pointer"
+                  onClick={() => {
+                    toggleMobileNav(false);
+                    handleCartNavigation();
+                  }}
+                  aria-label="Buka Keranjang Belanja"
+                >
+                  <CartIcon className="w-4 h-4 text-deep-blue-100" />
+                  <span>Keranjang Belanja</span>
+                </Button>
                 {variant === "guest" || (variant === "back" && !user) ? (
                   <div className="flex items-center gap-3 w-full">
                     <Button

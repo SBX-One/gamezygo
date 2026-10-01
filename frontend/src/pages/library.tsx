@@ -429,7 +429,6 @@ export default function GameLibraryPage() {
       <StoreLayout
         navbarVariant="private"
         activeSidebarId="perpustakaan"
-        onCartClick={() => alert("Membuka keranjang belanja")}
       >
         <div className="flex flex-col gap-8 w-full">
           {/* ========================================================

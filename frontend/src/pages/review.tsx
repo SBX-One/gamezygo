@@ -483,9 +483,9 @@ export default function ReviewPage() {
         />
 
         {/* Modal Dialog Card */}
-        <div className="relative z-10 w-full max-w-lg rounded-lg bg-deep-blue-900 border border-deep-blue-700/60 p-6 flex flex-col gap-6 select-none animate-scale-up shadow-none">
+        <div className="relative z-10 w-full max-w-1/3 rounded-lg bg-deep-blue-900 border border-deep-blue-700/60 p-6 flex flex-col gap-6 select-none animate-scale-up shadow-none">
           {/* Header: Title + Close Icon */}
-          <div className="flex items-center justify-between border-b border-gradient-secondary pb-4">
+          <div className="flex items-center justify-between border-b-gradient-secondary pb-4">
             <h3 className="text-body-lg font-bold text-white">
               Review
             </h3>
@@ -518,7 +518,7 @@ export default function ReviewPage() {
                       onMouseLeave={() => setHoverRating(0)}
                       className={`h-11 rounded-lg flex items-center justify-center cursor-pointer transition-all duration-200 outline-none ${
                         isActive
-                          ? "bg-linear-to-r from-pale-red-500 to-rose-600 border border-rose-500/50 text-white"
+                          ? "bg-surface-primary-default text-white"
                           : "bg-deep-blue-900 border border-deep-blue-700/60 text-gray-400 hover:border-gray-500 hover:text-gray-300"
                       }`}
                       aria-label={`Pilih rating ${star} bintang`}
@@ -607,19 +607,23 @@ export default function ReviewPage() {
 
             {/* Footer Buttons (Right Aligned: Hapus semua & Kirim) */}
             <div className="flex items-center justify-end gap-3 pt-2">
-              <button
+              <Button
                 type="button"
                 onClick={handleClearAll}
-                className="px-5 py-2.5 rounded-lg bg-deep-blue-800 hover:bg-deep-blue-700 text-white text-body-sm font-medium transition-colors cursor-pointer border border-white/5 outline-none"
+                variant={"secondary"}
+                size={"sm"}
+                className="py-2.5"
               >
                 Hapus semua
-              </button>
-              <button
+              </Button>
+              <Button
+              variant={"primary"}
+              size={"sm"}
                 type="submit"
-                className="px-6 py-2.5 rounded-lg bg-linear-to-r from-pale-red-500 to-rose-600 hover:from-pale-red-600 hover:to-rose-700 text-white text-body-sm font-semibold transition-all cursor-pointer border-none outline-none shadow-none"
+                className="py-2.5"
               >
                 Kirim
-              </button>
+              </Button>
             </div>
           </form>
         </div>
@@ -763,7 +767,6 @@ export default function ReviewPage() {
           navbarVariant="private"
           activeSidebarId="ulasan"
           user={currentUser}
-          onCartClick={() => handleToast("Membuka keranjang belanja")}
         >
             <div className="flex flex-col gap-10xl w-full mx-auto pb-16 select-none ">
               {/* 1. HEADER (Mirip Bundle: Border-L Merah + Input Field) */}

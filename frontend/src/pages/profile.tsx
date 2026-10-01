@@ -367,7 +367,6 @@ export default function ProfilePage() {
         contentClassName="sm:px-20 sm:py-10"
         activeNavId=""
         user={user}
-        onCartClick={() => handleToast("Membuka keranjang belanja")}
       >
         {/* ========================================================
             1. PAGE TITLE & FULL-WIDTH DIVIDER (Full Screen Width)

@@ -120,9 +120,10 @@ export function BannerCarousel({
   }
 
   const renderSlideContent = (slide: BannerSlide, index: number) => {
+    const isFirst = index === 0;
     const content = (
       <div
-        className="w-full h-full relative cursor-pointer group/slide overflow-hidden"
+        className="w-full h-full min-h-full relative cursor-pointer group/slide overflow-hidden"
         onClick={() => onSlideClick?.(slide, index)}
       >
         <Image
@@ -133,7 +134,8 @@ export function BannerCarousel({
           sizes="(max-width: 1024px) 100vw, 50vw"
           className="object-cover object-center select-none transition-transform duration-500 ease-out group-hover/slide:scale-[1.02]"
           draggable={false}
-          priority={index === 0}
+          priority={isFirst}
+          loading={isFirst ? "eager" : "lazy"}
         />
         {/* Subtle bottom vignette to ensure indicators and badges remain prominent */}
         <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
@@ -145,7 +147,7 @@ export function BannerCarousel({
         <Link
           key={slide.id}
           href={slide.href}
-          className="min-w-full h-full shrink-0 relative block outline-none"
+          className="min-w-full w-full h-full min-h-full shrink-0 relative block outline-none"
         >
           {content}
         </Link>
@@ -153,7 +155,7 @@ export function BannerCarousel({
     }
 
     return (
-      <div key={slide.id} className="min-w-full h-full shrink-0 relative">
+      <div key={slide.id} className="min-w-full w-full h-full min-h-full shrink-0 relative">
         {content}
       </div>
     );

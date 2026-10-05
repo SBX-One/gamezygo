@@ -1398,13 +1398,13 @@ export default function LandingPage() {
           {/* Infinite Moving Testimonial Cards Carousel (matching credentials/[id].tsx) */}
           <div data-animate="carousel" className="relative w-full overflow-hidden pt-2 sm:pt-4 pb-6 sm:pb-8">
             {/* Vignette gradient masks on sides */}
-            <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-deep-blue-950 to-transparent z-10 hidden sm:block" />
-            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-deep-blue-950 to-transparent z-10 hidden sm:block" />
+            <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-linear-to-r from-deep-blue-950 to-transparent z-10 hidden sm:block" />
+            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-linear-to-l from-deep-blue-950 to-transparent z-10 hidden sm:block" />
 
             {/* Moving Track */}
             <div
               data-animate="testimonial-track"
-              className="flex gap-6 w-max animate-infinite-carousel [animation-play-state:paused] hover:![animation-play-state:paused] items-stretch py-2"
+              className="flex gap-6 w-max animate-infinite-carousel [animation-play-state:paused] hover:[animation-play-state:paused]! items-stretch py-2"
             >
               {infiniteTestimonials.map((t, idx) => (
                 <div

@@ -205,7 +205,7 @@ export function CinematicLoader({
       aria-modal="true"
       aria-label="Loading Gamezygo Storefront"
       className={cn(
-        "fixed inset-0 z-[9999] pointer-events-auto select-none overflow-hidden font-sans",
+        "fixed inset-0 z-9999 pointer-events-auto select-none overflow-hidden font-sans",
         className
       )}
       {...props}
@@ -279,10 +279,10 @@ export function CinematicLoader({
             </div>
 
             {/* Minimalist Hairline Progress Indicator */}
-            <div className="w-48 sm:w-72 h-[2px] bg-white/10 rounded-full mt-4 sm:mt-6 overflow-hidden relative">
+            <div className="w-48 sm:w-72 h-0.5 bg-white/10 rounded-full mt-4 sm:mt-6 overflow-hidden relative">
               <div
                 ref={hairlineRef}
-                className="h-full bg-gradient-to-r from-rose-500 via-rose-400 to-indigo-400 w-full origin-left scale-x-0 will-change-transform shadow-[0_0_8px_rgba(244,63,94,0.6)]"
+                className="h-full bg-linear-to-r from-rose-500 via-rose-400 to-indigo-400 w-full origin-left scale-x-0 will-change-transform shadow-[0_0_8px_rgba(244,63,94,0.6)]"
               />
             </div>
 

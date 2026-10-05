@@ -39,18 +39,18 @@ export function UserRank({
     <div
       ref={ref}
       className={cn(
-        "flex items-center justify-between gap-4 px-6 py-4 rounded-lg bg-deep-blue-900 border border-deep-blue-700/60  select-none w-full  transition-all duration-150 hover:border-neutral-500",
+        "flex items-center justify-between gap-3 sm:gap-4 px-3.5 sm:px-6 py-3 sm:py-4 rounded-lg bg-deep-blue-900 border border-deep-blue-700/60 select-none w-full transition-all duration-150 hover:border-neutral-500",
         className
       )}
       {...props}
     >
       {/* Left: Rank # + Avatar + Username */}
-      <div className="flex items-center gap-6 min-w-0">
-        <span className="text-gray-400 font-semibold text-h6 shrink-0">
+      <div className="flex items-center gap-3 sm:gap-6 min-w-0 flex-1">
+        <span className="text-gray-400 font-semibold text-body-md sm:text-h6 shrink-0">
           {formattedRank}
         </span>
         {avatar && <div className="shrink-0">{avatar}</div>}
-        <span className="text-gray-50 font-semibold text-label-md tracking-tight truncate">
+        <span className="text-gray-50 font-semibold text-label-sm sm:text-label-md tracking-tight truncate">
           {name}
         </span>
       </div>

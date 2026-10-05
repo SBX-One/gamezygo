@@ -100,7 +100,7 @@ export default function CheckoutSuccessPage() {
 
       <main className="min-h-screen w-full flex items-center justify-center p-4 sm:p-6 bg-deep-blue-950 text-gray-50 antialiased selection:bg-rose-600/30 selection:text-white">
         {/* Main Success Card matching the design */}
-        <div className="w-full max-w-[460px] bg-[#0c1019] sm:bg-[#111520]/95 border border-white/10 rounded-lg p-6 sm:p-7 backdrop-blur-xl  flex flex-col transition-all">
+        <div className="w-full max-w-115 bg-[#0c1019] sm:bg-[#111520]/95 border border-white/10 rounded-lg p-6 sm:p-7 backdrop-blur-xl flex flex-col transition-all">
           {/* Card Header: "Transaksi Berhasil" + Close Button */}
           <div className="flex items-center justify-between pb-3.5 border-b border-white/10 w-full">
             <h1 className="text-white text-base sm:text-[17px] font-semibold tracking-normal">

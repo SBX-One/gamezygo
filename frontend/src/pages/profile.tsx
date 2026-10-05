@@ -508,7 +508,7 @@ export default function ProfilePage() {
                             "Kumpulkan minimal 100 poin untuk membuka kode voucher diskon!"
                           )
                         }
-                        className="w-8 h-8 !p-0 rounded-lg flex items-center justify-center shrink-0 border border-deep-blue-700 cursor-pointer"
+                        className="w-8 h-8 p-0! rounded-lg flex items-center justify-center shrink-0 border border-deep-blue-700 cursor-pointer"
                         title="Voucher belum tersedia (butuh 100 poin)"
                         aria-label="Voucher belum tersedia"
                       >
@@ -531,7 +531,7 @@ export default function ProfilePage() {
                       variant="secondary"
                       size="xs"
                       onClick={() => handleCopy(rewardVoucherCode)}
-                      className="w-8 h-8 !p-0 rounded-lg flex items-center justify-center shrink-0 border border-deep-blue-700 cursor-pointer"
+                      className="w-8 h-8 p-0! rounded-lg flex items-center justify-center shrink-0 border border-deep-blue-700 cursor-pointer"
                       title="Salin ID Games"
                       aria-label="Salin ID Games"
                     >
@@ -919,8 +919,8 @@ export default function ProfilePage() {
             />
 
             {/* Modal Box */}
-            <div className="relative z-10 w-full max-w-md rounded-lg bg-deep-blue-900 border border-gradient-secondary p-6 flex flex-col gap-6  animate-scale-up">
-              <div className="flex items-center justify-between border-b border-gradient-secondary pb-4">
+            <div className="relative z-10 w-full  rounded-lg bg-deep-blue-900  p-6 flex flex-col gap-6  animate-scale-up sm:max-w-[45%]">
+              <div className="flex items-center justify-between border-b-gradient-secondary pb-4">
                 <h3 className="text-body-lg font-bold text-white ">
                   Ubah Informasi Profil
                 </h3>
@@ -945,7 +945,7 @@ export default function ProfilePage() {
                   value={editName}
                   onChange={(e) => setEditName(e.target.value)}
                   size="md"
-                  containerClassName="bg-deep-blue-900/60 border-gradient-secondary"
+                  containerClassName="bg-deep-blue-900/60  "
                 />
 
                 <InputField
@@ -954,10 +954,10 @@ export default function ProfilePage() {
                   value={editAvatarUrl}
                   onChange={(e) => setEditAvatarUrl(e.target.value)}
                   size="md"
-                  containerClassName="bg-deep-blue-900/60 border-gradient-secondary"
+                  containerClassName="bg-deep-blue-900/60"
                 />
 
-                <div className="flex items-center justify-end gap-3 pt-4 border-t border-gradient-secondary">
+                <div className="flex items-center justify-end gap-3 pt-4 ">
                   <Button
                     type="button"
                     variant="secondary"

@@ -316,7 +316,7 @@ export function StoreLayout({
             role="dialog"
             aria-modal="true"
             aria-label="Menu Navigasi Sidebar"
-            className="fixed inset-0 z-[100] lg:hidden flex select-none"
+            className="fixed inset-0 z-100 lg:hidden flex select-none"
           >
             {/* Backdrop Blur Overlay */}
             <div

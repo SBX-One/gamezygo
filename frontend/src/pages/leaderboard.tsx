@@ -129,12 +129,13 @@ export default function LeaderboardPage() {
         hideSidebar={true}
         activeNavId="leaderboard"
         user={currentUser}
+        contentClassName="w-full  mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8"
       >
-        <div className="flex flex-col w-full px-12   mx-auto select-none pt-4 pb-16">
+        <div className="flex flex-col w-full mx-auto select-none gap-8 sm:gap-12 pb-16">
           {/* ========================================================
               1. HERO SECTION (Menggunakan komponen Header yang sudah ada)
              ======================================================== */}
-          <div className="flex justify-center w-full py-10xl ">
+          <div className="flex justify-center w-full py-6 sm:py-10">
             <Header
               pillText="Promo Musim Panas Telah Datang!"
               title="Pemilik Koleksi Game Terbesar Saat Ini!"
@@ -142,101 +143,102 @@ export default function LeaderboardPage() {
               actionLabel="Lihat Premium"
               actionVariant="secondary"
               onActionClick={() => handleToast("Membuka paket berlangganan...")}
-              className="max-w-4/8"
+              className="w-full "
             />
           </div>
-<div className="grid gap-6">
-          {/* ========================================================
-              2. PERINGKAT ANDA CARD (Pembungkus dengan background deep-blue-900)
-             ======================================================== */}
-          <section className="w-full rounded-lg bg-deep-blue-900 border border-gradient-secondary p-6 sm:p-7 flex flex-col gap-6 shadow-xl">
-            {/* Header: Icon + Title */}
-            <div className="flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-surface-secondary-default border border-deep-blue-700 flex items-center justify-center text-gray-300  shrink-0">
-                <img
-                  src="/assets/svg/fluent_person-add-24-filled.svg"
-                  alt="Peringkat"
-                  className="w-4.5 h-4.5 filter-[brightness(0)_invert(0.8)]"
-                />
-              </div>
-              <h2 className="text-body-lg sm:text-h6 font-semibold text-gray-50 tracking-tight">
-                Peringkat Anda
-              </h2>
-            </div>
 
-            {/* User Statistics Row */}
-            <div className="w-full min-h-16 rounded-lg bg-surface-secondary-default border border-deep-blue-700 px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none">
-              {/* Left Side: Stats with | Dividers & Username */}
-              <div className="flex items-center gap-6 overflow-x-auto no-scrollbar w-full sm:w-auto">
-                {/* Mingguan */}
-                <div className="flex items-center gap-2 shrink-0">
-                  <Pill variant="secondary" size="xs">
-                    Mingguan
-                  </Pill>
-                  <span className="text-label-md font-semibold text-gray-400">
-                    {userRankBadge}
-                  </span>
-                </div>
-
-                {/* Divider 1 */}
-                <div className="w-px h-5.5 bg-white/10 shrink-0" />
-
-                {/* Bulanan */}
-                <div className="flex items-center gap-2 shrink-0">
-                  <Pill variant="secondary" size="xs">
-                    Bulanan
-                  </Pill>
-                  <span className="text-label-md font-semibold text-gray-400">
-                    {userRankBadge}
-                  </span>
-                </div>
-
-                {/* Divider 2 */}
-                <div className="w-px h-5.5 bg-white/10 shrink-0" />
-
-                {/* All-time */}
-                <div className="flex items-center gap-2 shrink-0">
-                  <Pill variant="secondary" size="xs">
-                    All-time
-                  </Pill>
-                  <span className="text-label-md font-semibold text-gray-400">
-                    {userRankBadge}
-                  </span>
-                </div>
-
-                {/* Divider 3 */}
-                <div className="w-px h-5.5 bg-white/10 shrink-0" />
-
-                {/* Username */}
-                <span className="text-body-md font-semibold text-gray-50 truncate shrink-0">
-                  {currentUser.name}
-                </span>
-              </div>
-
-              {/* Right Side: Points Badge */}
-              <div className="px-4 py-1.5 rounded-lg border border-gradient-secondary text-label-sm font-semibold text-gray-50 shrink-0 self-end sm:self-auto">
-                {userPointsBadge}
-              </div>
-            </div>
-
-            {/* Bottom Actions Row (Caption & Tombol) */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 w-full pt-1">
-              <p className="text-body-xs sm:text-body-sm text-gray-400">
-                Raih 100 points dan dapatkan Voucher diskon!
-              </p>
+          <div className="flex flex-col gap-6 w-full">
+            {/* ========================================================
+                2. PERINGKAT ANDA CARD (Pembungkus dengan background deep-blue-900)
+               ======================================================== */}
+            <section className="w-full rounded-lg bg-deep-blue-900 border border-gradient-secondary p-4 sm:p-6 lg:p-7 flex flex-col gap-5 sm:gap-6 shadow-xl">
+              {/* Header: Icon + Title */}
               <div className="flex items-center gap-3">
-                <Button
-                  type="button"
-                  variant="primary"
-                  size="sm"
-                  onClick={() => handleToast("Voucher berhasil diklaim!")}
-                  className="px-6 py-2 cursor-pointer"
-                >
-                  Klaim Hadiah
-                </Button>
+                <div className="w-8 h-8 rounded-lg bg-surface-secondary-default border border-deep-blue-700 flex items-center justify-center text-gray-300 shrink-0">
+                  <img
+                    src="/assets/svg/fluent_person-add-24-filled.svg"
+                    alt="Peringkat"
+                    className="w-4.5 h-4.5 filter-[brightness(0)_invert(0.8)]"
+                  />
+                </div>
+                <h2 className="text-body-lg sm:text-h6 font-semibold text-gray-50 tracking-tight">
+                  Peringkat Anda
+                </h2>
               </div>
-            </div>
-          </section>
+
+              {/* User Statistics Row */}
+              <div className="w-full min-h-16 rounded-lg bg-surface-secondary-default border border-deep-blue-700 px-3.5 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 select-none">
+                {/* Left Side: Stats with | Dividers & Username */}
+                <div className="flex items-center gap-3 sm:gap-6 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
+                  {/* Mingguan */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Pill variant="secondary" size="xs">
+                      Mingguan
+                    </Pill>
+                    <span className="text-label-md font-semibold text-gray-400">
+                      {userRankBadge}
+                    </span>
+                  </div>
+
+                  {/* Divider 1 */}
+                  <div className="w-px h-5.5 bg-white/10 shrink-0" />
+
+                  {/* Bulanan */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Pill variant="secondary" size="xs">
+                      Bulanan
+                    </Pill>
+                    <span className="text-label-md font-semibold text-gray-400">
+                      {userRankBadge}
+                    </span>
+                  </div>
+
+                  {/* Divider 2 */}
+                  <div className="w-px h-5.5 bg-white/10 shrink-0" />
+
+                  {/* All-time */}
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Pill variant="secondary" size="xs">
+                      All-time
+                    </Pill>
+                    <span className="text-label-md font-semibold text-gray-400">
+                      {userRankBadge}
+                    </span>
+                  </div>
+
+                  {/* Divider 3 */}
+                  <div className="w-px h-5.5 bg-white/10 shrink-0" />
+
+                  {/* Username */}
+                  <span className="text-body-md font-semibold text-gray-50 truncate shrink-0">
+                    {currentUser.name}
+                  </span>
+                </div>
+
+                {/* Right Side: Points Badge */}
+                <div className="px-4 py-1.5 rounded-lg border border-gradient-secondary text-label-sm font-semibold text-gray-50 shrink-0 self-start sm:self-auto">
+                  {userPointsBadge}
+                </div>
+              </div>
+
+              {/* Bottom Actions Row (Caption & Tombol) */}
+              <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 w-full pt-1">
+                <p className="text-body-xs sm:text-body-sm text-gray-400">
+                  Raih 100 points dan dapatkan Voucher diskon!
+                </p>
+                <div className="flex items-center gap-3">
+                  <Button
+                    type="button"
+                    variant="primary"
+                    size="sm"
+                    onClick={() => handleToast("Voucher berhasil diklaim!")}
+                    className="w-full sm:w-auto px-6 py-2 cursor-pointer h-11 justify-center"
+                  >
+                    Klaim Hadiah
+                  </Button>
+                </div>
+              </div>
+            </section>
 
           {/* ========================================================
               3. WEEKLY & MONTHLY 2-COLUMN GRID (Menggunakan UserRank)
@@ -299,7 +301,8 @@ export default function LeaderboardPage() {
             </div>
           </section>
         </div>
-</div>
+      </div>
+
         {/* TOAST FEEDBACK */}
         {toastMessage && (
           <div className="fixed bottom-6 right-6 z-50 animate-slide-in-right">

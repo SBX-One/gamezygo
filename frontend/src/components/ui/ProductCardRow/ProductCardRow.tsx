@@ -133,7 +133,7 @@ export function ProductCardRow({
             className={cn(
               "shrink-0 flex flex-col",
               isHorizontal
-                ? "w-[320px] sm:w-[420px] lg:w-[480px] max-w-full"
+                ? "w-80 sm:w-105 lg:w-120 max-w-full"
                 : visibleCount === 5
                   ? "w-52 sm:w-[calc(50%-12px)] md:w-[calc((100%-48px)/3)] lg:w-[calc((100%-96px)/5)]"
                   : "w-60 sm:w-[calc(50%-10px)] lg:w-[calc((100%-45px)/4)]",

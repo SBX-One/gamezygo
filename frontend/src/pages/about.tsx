@@ -456,7 +456,7 @@ export default function AboutPage() {
             {/* Right: Media Card matching exact height of Header */}
             <div className="flex justify-end w-full h-full">
               <div className="w-full h-full min-h-44 sm:min-h-52 lg:min-h-0 max-w-1/2 rounded-2xl bg-deep-blue-900/60 border border-white/5 overflow-hidden relative shadow-2xl flex items-end justify-end group">
-                <div className="absolute inset-0 bg-gradient-to-tr from-deep-blue-950 via-deep-blue-900/40 to-transparent right-0" />
+                <div className="absolute inset-0 bg-linear-to-tr from-deep-blue-950 via-deep-blue-900/40 to-transparent right-0" />
               </div>
             </div>
           </div>
@@ -703,8 +703,8 @@ export default function AboutPage() {
           {/* Infinite Moving Testimonial Cards Carousel */}
           <div className="relative w-full overflow-hidden pt-2 sm:pt-4 pb-6 sm:pb-8">
             {/* Vignette gradient masks on sides */}
-            <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-r from-deep-blue-950 to-transparent z-10 hidden sm:block" />
-            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-gradient-to-l from-deep-blue-950 to-transparent z-10 hidden sm:block" />
+            <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-16 sm:w-28 bg-linear-to-r from-deep-blue-950 to-transparent z-10 hidden sm:block" />
+            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-linear-to-l from-deep-blue-950 to-transparent z-10 hidden sm:block" />
 
             {/* Moving Track */}
             <div className="flex gap-6 w-max animate-infinite-carousel hover:[animation-play-state:paused] items-stretch py-2">

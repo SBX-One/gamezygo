@@ -601,7 +601,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting || isLoading}
-                  className="w-full min-h-11 mt-2 flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600 via-rose-500 to-rose-600 hover:from-rose-500 hover:to-rose-500 text-white font-semibold text-body-sm rounded-lg transition-all duration-150 cursor-pointer active:scale-98 disabled:opacity-50 disabled:pointer-events-none shadow-none"
+                  className="w-full min-h-11 mt-2 flex items-center justify-center gap-2 bg-linear-to-r from-rose-600 via-rose-500 to-rose-600 hover:from-rose-500 hover:to-rose-500 text-white font-semibold text-body-sm rounded-lg transition-all duration-150 cursor-pointer active:scale-98 disabled:opacity-50 disabled:pointer-events-none shadow-none"
                 >
                   {isSubmitting || isLoading ? (
                     <>
@@ -764,7 +764,7 @@ export default function LoginPage() {
                 <button
                   type="submit"
                   disabled={isSubmitting || isLoading}
-                  className="w-full min-h-11 mt-2 flex items-center justify-center gap-2 bg-gradient-to-r from-rose-600 via-rose-500 to-rose-600 hover:from-rose-500 hover:to-rose-500 text-white font-semibold text-body-sm rounded-lg transition-all duration-150 cursor-pointer active:scale-98 disabled:opacity-50 disabled:pointer-events-none shadow-none"
+                  className="w-full min-h-11 mt-2 flex items-center justify-center gap-2 bg-linear-to-r from-rose-600 via-rose-500 to-rose-600 hover:from-rose-500 hover:to-rose-500 text-white font-semibold text-body-sm rounded-lg transition-all duration-150 cursor-pointer active:scale-98 disabled:opacity-50 disabled:pointer-events-none shadow-none"
                 >
                   {isSubmitting || isLoading ? (
                     <>

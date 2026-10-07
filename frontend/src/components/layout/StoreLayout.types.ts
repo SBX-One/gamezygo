@@ -39,10 +39,14 @@ export interface StoreLayoutProps extends React.HTMLAttributes<HTMLDivElement> {
   user?: NavbarUser;
   /** Callback saat avatar user diklik */
   onUserClick?: () => void;
+  /** Callback saat tombol dashboard di dropdown profil diklik */
+  onDashboardClick?: () => void;
   /** Callback saat tombol logout di dropdown profil diklik */
   onLogoutClick?: () => void;
   /** Callback saat tombol pengaturan akun di dropdown profil diklik */
   onSettingsClick?: () => void;
+  /** Mode sidebar: 'storefront' | 'dashboard' | 'auto' */
+  sidebarMode?: "storefront" | "dashboard" | "auto";
   /** Sembunyikan navbar di layout jika diperlukan */
   hideNavbar?: boolean;
   /** Sembunyikan sidebar di layout jika diperlukan */

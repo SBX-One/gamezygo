@@ -30,18 +30,18 @@ const RECENT_TRANSACTIONS: TransactionGame[] = [
     price: "Rp 219.500",
   },
   {
-    id: "gta-2",
-    title: "Grand Theft Auto V",
+    id: "ghost-1",
+    title: "Ghost of Tsushima DIRECTOR'S CUT",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    points: "+27 pts",
-    price: "Rp 219.500",
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2215430/library_600x900_2x.jpg",
+    points: "+45 pts",
+    price: "Rp 439.500",
   },
   {
-    id: "gta-3",
-    title: "Grand Theft Auto V",
+    id: "ac-1",
+    title: "Assassin's Creed Black Flag Resynced",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/242050/library_600x900_2x.jpg",
     points: "+27 pts",
     price: "Rp 219.500",
   },

@@ -46,6 +46,10 @@ export interface ProductCardRowProps extends React.HTMLAttributes<HTMLDivElement
    */
   itemClassName?: string;
   /**
+   * Menampilkan indikator progress scroll horizontal & kontrol navigasi (default: true)
+   */
+  showScrollIndicator?: boolean;
+  /**
    * Custom ref
    */
   ref?: React.Ref<HTMLDivElement>;

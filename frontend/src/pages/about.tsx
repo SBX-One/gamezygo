@@ -332,7 +332,7 @@ export default function AboutPage() {
 
       <StoreLayout
         navbarVariant={isAuthenticated ? "login" : "guest"}
-        activeNavId="home"
+        activeNavId="about"
         hideSidebar={true}
         user={
           authUser
@@ -346,7 +346,7 @@ export default function AboutPage() {
         onSignUpClick={() => router.push("/login?tab=signup")}
         onCartClick={() => router.push("/cart")}
         searchValue={searchQuery}
-        searchPlaceholder="Cari di toko"
+        searchPlaceholder="Cari game"
         onSearchChange={(val) => setSearchQuery(val)}
         onSearchClear={() => setSearchQuery("")}
         onSearchSubmit={() => {
@@ -354,7 +354,7 @@ export default function AboutPage() {
             router.push(`/store?q=${encodeURIComponent(searchQuery.trim())}`);
           }
         }}
-        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 py-10 sm:py-16 lg:py-20 flex flex-col gap-16 sm:gap-24 lg:gap-50"
+        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 py-10 sm:py-10 flex flex-col gap-16 sm:gap-24 lg:gap-50"
       >
         {/* ========================================================
             1. HERO SECTION: Header + Infinite Game Cards Carousel
@@ -368,7 +368,7 @@ export default function AboutPage() {
             actionLabel="Lihat Premium"
             actionVariant="primary"
             onActionClick={() => router.push("/subscription")}
-            className="max-w-4/8"
+            className="w-full sm:max-w-4/8"
           />
 
           {/* Infinite Game Cards Carousel (blogs/[id].tsx:L400-L433) */}

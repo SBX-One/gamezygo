@@ -60,8 +60,12 @@ export function FilterModal({
   variant = "dropdown",
   placement = "navbar",
   onClose,
+  onCancel,
   onReset,
   onApply,
+  cancelLabel = "Cancel",
+  applyLabel = "Apply",
+  resetLabel = "Reset",
   title = "Filter & Sort",
   categories = DEFAULT_CATEGORIES,
   genres = DEFAULT_GENRES,
@@ -120,6 +124,97 @@ export function FilterModal({
 
   const trackRef = React.useRef<HTMLDivElement>(null);
 
+  // Lock background scroll when modal is open
+  React.useEffect(() => {
+    if (!isOpen || variant === "inline") return;
+
+    const scrollY = window.scrollY;
+    const scrollbarWidth =
+      window.innerWidth - document.documentElement.clientWidth;
+
+    const originalBodyStyle = {
+      position: document.body.style.position,
+      top: document.body.style.top,
+      left: document.body.style.left,
+      right: document.body.style.right,
+      width: document.body.style.width,
+      overflow: document.body.style.overflow,
+      paddingRight: document.body.style.paddingRight,
+      touchAction: document.body.style.touchAction,
+    };
+    const originalHtmlOverflow = document.documentElement.style.overflow;
+    const originalHtmlOverscroll =
+      document.documentElement.style.overscrollBehavior;
+
+    // 1. Physically lock document body so background cannot scroll on any browser
+    document.body.style.position = "fixed";
+    document.body.style.top = `-${scrollY}px`;
+    document.body.style.left = "0";
+    document.body.style.right = "0";
+    document.body.style.width = "100%";
+    document.body.style.overflow = "hidden";
+    document.body.style.touchAction = "none";
+    if (scrollbarWidth > 0) {
+      document.body.style.paddingRight = `${scrollbarWidth}px`;
+    }
+    document.documentElement.style.overflow = "hidden";
+    document.documentElement.style.overscrollBehavior = "none";
+
+    // 2. Prevent touch gesture leaking to background outside modal scroll area
+    const handleTouchMove = (e: TouchEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target?.closest("[data-modal-scrollable='true']")) {
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    // 3. Prevent mouse wheel / trackpad leaking to background outside modal scroll area
+    const handleWheel = (e: WheelEvent) => {
+      const target = e.target as HTMLElement | null;
+      if (!target?.closest("[data-modal-scrollable='true']")) {
+        if (e.cancelable) {
+          e.preventDefault();
+        }
+      }
+    };
+
+    document.addEventListener("touchmove", handleTouchMove, {
+      passive: false,
+    });
+    document.addEventListener("wheel", handleWheel, {
+      passive: false,
+    });
+
+    return () => {
+      document.body.style.position = originalBodyStyle.position;
+      document.body.style.top = originalBodyStyle.top;
+      document.body.style.left = originalBodyStyle.left;
+      document.body.style.right = originalBodyStyle.right;
+      document.body.style.width = originalBodyStyle.width;
+      document.body.style.overflow = originalBodyStyle.overflow;
+      document.body.style.paddingRight = originalBodyStyle.paddingRight;
+      document.body.style.touchAction = originalBodyStyle.touchAction;
+      document.documentElement.style.overflow = originalHtmlOverflow;
+      document.documentElement.style.overscrollBehavior =
+        originalHtmlOverscroll;
+
+      document.removeEventListener("touchmove", handleTouchMove);
+      document.removeEventListener("wheel", handleWheel);
+
+      window.scrollTo(0, scrollY);
+    };
+  }, [isOpen, variant]);
+
+  const handleCancel = () => {
+    if (onCancel) {
+      onCancel();
+    } else if (onClose) {
+      onClose();
+    }
+  };
+
   const handleToggle = (
     item: string,
     currentList: string[],
@@ -148,10 +243,11 @@ export function FilterModal({
     e.preventDefault();
     const target = e.currentTarget;
     target.setPointerCapture(e.pointerId);
+    const track = (target.parentElement as HTMLElement) || trackRef.current;
 
     const onPointerMove = (moveEvent: PointerEvent) => {
-      if (!trackRef.current) return;
-      const rect = trackRef.current.getBoundingClientRect();
+      if (!track) return;
+      const rect = track.getBoundingClientRect();
       const ratio = Math.max(
         0,
         Math.min(1, (moveEvent.clientX - rect.left) / rect.width)
@@ -188,10 +284,11 @@ export function FilterModal({
     e.preventDefault();
     const target = e.currentTarget;
     target.setPointerCapture(e.pointerId);
+    const track = (target.parentElement as HTMLElement) || trackRef.current;
 
     const onPointerMove = (moveEvent: PointerEvent) => {
-      if (!trackRef.current) return;
-      const rect = trackRef.current.getBoundingClientRect();
+      if (!track) return;
+      const rect = track.getBoundingClientRect();
       const ratio = Math.max(
         0,
         Math.min(1, (moveEvent.clientX - rect.left) / rect.width)
@@ -225,8 +322,9 @@ export function FilterModal({
 
   // Track click handler
   const handleTrackClick = (e: React.MouseEvent<HTMLDivElement>) => {
-    if (!trackRef.current) return;
-    const rect = trackRef.current.getBoundingClientRect();
+    const track = (e.currentTarget as HTMLElement) || trackRef.current;
+    if (!track) return;
+    const rect = track.getBoundingClientRect();
     const ratio = Math.max(
       0,
       Math.min(1, (e.clientX - rect.left) / rect.width)
@@ -286,13 +384,16 @@ export function FilterModal({
     <div
       ref={ref}
       className={cn(
-        "flex flex-col gap-8 p-6 rounded-lg bg-deep-blue-950 border border-white/5  text-gray-50 select-none w-full",
+        "flex flex-col min-h-0 max-h-full rounded-2xl bg-deep-blue-950 border border-white/10 text-gray-50 select-none w-full overflow-hidden shadow-2xl overscroll-contain",
         className
       )}
       {...props}
     >
-      {/* 1. Header (Filter & Sort title + close button + separator) */}
-      <div className="flex items-center justify-between pb-4 border-b-gradient-secondary">
+      {/* Mobile Sheet Handle */}
+      <div className="w-10 h-1 bg-white/25 rounded-full mx-auto mt-3 mb-1 shrink-0 sm:hidden" />
+
+      {/* 1. STICKY HEADER (Title & Dismiss Button) */}
+      <div className="shrink-0 sticky top-0 z-20 flex items-center justify-between px-5 sm:px-6 py-3.5 bg-deep-blue-950/95 backdrop-blur-md border-b border-white/10">
         <h4 className="text-body-lg font-semibold text-gray-50 tracking-normal">
           {title}
         </h4>
@@ -301,12 +402,18 @@ export function FilterModal({
             type="button"
             onClick={onClose}
             aria-label="Tutup filter"
-            className="text-gray-400 hover:text-gray-50 transition-colors cursor-pointer p-1 rounded-md"
+            className="text-gray-400 hover:text-gray-50 transition-colors cursor-pointer p-1.5 rounded-lg hover:bg-white/10 outline-none"
           >
             <DismissIcon className="w-5 h-5" />
           </button>
         )}
       </div>
+
+      {/* 2. SCROLLABLE FILTER CONTENT (Only content scrolls) */}
+      <div
+        data-modal-scrollable="true"
+        className="flex-1 min-h-0 overflow-y-auto overflow-x-hidden p-5 sm:p-6 flex flex-col gap-6 sm:gap-8 scrollbar-thin overscroll-contain"
+      >
 
       {/* 2. Top Category Pills */}
       {categories && categories.length > 0 && (
@@ -581,73 +688,118 @@ export function FilterModal({
         </div>
       )}
 
-      {/* Footer Actions (Reset: Secondary SM, Apply: Primary SM) */}
-      <div className="flex items-center justify-end gap-3 pt-2">
-        <Button
+      </div>
+
+      {/* 3. STICKY FOOTER ACTIONS (Tombol Cancel & Apply selalu sticky di bawah) */}
+      <div className="shrink-0 sticky bottom-0 z-20 flex items-center justify-between gap-3 px-5 sm:px-6 py-4 bg-deep-blue-950/95 backdrop-blur-md border-t border-white/10 select-none shadow-[0_-4px_20px_rgba(0,0,0,0.6)]">
+        <button
           type="button"
-          variant="secondary"
-          size="sm"
           onClick={handleReset}
-          className="cursor-pointer"
+          className="text-body-sm font-medium text-gray-400 hover:text-rose-400 transition-colors cursor-pointer underline underline-offset-4 outline-none"
         >
-          Reset
-        </Button>
-        <Button
-          type="button"
-          variant="primary"
-          size="sm"
-          onClick={onApply}
-          className="cursor-pointer"
-        >
-          Apply
-        </Button>
+          {resetLabel}
+        </button>
+
+        <div className="flex items-center gap-3">
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={handleCancel}
+            className="cursor-pointer min-w-20 justify-center"
+          >
+            {cancelLabel}
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            onClick={onApply}
+            className="cursor-pointer min-w-24 justify-center"
+          >
+            {applyLabel}
+          </Button>
+        </div>
       </div>
     </div>
   );
 
   if (!isOpen) return null;
 
+  // Mode: INLINE
+  if (variant === "inline") {
+    return ModalContent;
+  }
+
+  // Mode: DIALOG (Explicit dialog mode on all screens)
   if (variant === "dialog" || (isDialog && variant !== "dropdown")) {
     return (
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm animate-fade-in">
-        <div className="fixed inset-0" onClick={onClose} />
-        <div className="relative z-10 w-full max-w-md">
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 pb-4 sm:p-4 bg-black/80 backdrop-blur-sm animate-fade-in touch-none overscroll-none">
+        <div
+          className="fixed inset-0 touch-none"
+          onClick={onClose}
+          onTouchMove={(e) => {
+            if (e.cancelable) e.preventDefault();
+          }}
+          aria-hidden="true"
+        />
+        <div className="relative z-10 w-full sm:max-w-lg max-h-[75vh] sm:max-h-[84vh] flex flex-col overflow-hidden rounded-2xl shadow-2xl animate-in fade-in slide-in-from-bottom-6 sm:zoom-in-95 duration-200">
           {ModalContent}
         </div>
       </div>
     );
   }
 
-  if (variant === "inline") {
-    return ModalContent;
-  }
-
-  // Default: Dropdown Popover matching Image 3
+  // Mode: DROPDOWN (Default)
+  // Pada mobile (< sm): Otomatis menjadi MODAL bottom-sheet dialog dengan backdrop overlay gelap
+  // Pada desktop (sm+): Menjadi floating dropdown popover di samping trigger/navbar
   const isNavbar = placement === "navbar";
 
   return (
     <>
-      {/* Invisible overlay for click-outside to close */}
-      <div
-        className={cn(
-          "fixed inset-0 bg-transparent",
-          isNavbar ? "z-40" : "z-25"
-        )}
-        onClick={onClose}
-      />
+      {/* ========================================================
+          1. MOBILE VIEWPORT (< sm): MODAL DIALOG DENGAN BACKDROP OVERLAY
+         ======================================================== */}
+      <div className="sm:hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in p-4 pb-4 touch-none overscroll-none">
+        {/* Backdrop overlay (klik di luar untuk menutup) */}
+        <div
+          className="fixed inset-0 touch-none"
+          onClick={onClose}
+          onTouchMove={(e) => {
+            if (e.cancelable) e.preventDefault();
+          }}
+          aria-hidden="true"
+        />
 
-      {/* Floating Dropdown Card */}
-      <div
-        className={cn(
-          "rounded-lg bg-[#0D121F]/98 backdrop-blur-xl",
-          "scrollbar-thin animate-in fade-in slide-in-from-top-2 duration-150",
-          isNavbar
-            ? "fixed right-4 sm:right-6 lg:right-20 top-20 sm:top-24 lef z-50 w-[calc(100vw-32px)] sm:w-115 max-h-[calc(100vh-120px)] overflow-y-auto"
-            : "absolute right-0 top-12 z-30 w-[calc(100vw-32px)] sm:w-115 max-h-[calc(100vh-120px)] overflow-y-auto",
-          className
-        )}
-      >
-        {ModalContent}
+        {/* Modal Card Sheet */}
+        <div className="relative z-10 w-full max-h-[75vh] flex flex-col overflow-hidden rounded-2xl shadow-2xl animate-in fade-in slide-in-from-bottom-6 duration-200">
+          {ModalContent}
+        </div>
+      </div>
+
+      {/* ========================================================
+          2. DESKTOP VIEWPORT (sm+): FLOATING DROPDOWN POPOVER
+         ======================================================== */}
+      <div className="hidden sm:block">
+        <div
+          className={cn(
+            "fixed inset-0 bg-transparent",
+            isNavbar ? "z-40" : "z-25"
+          )}
+          onClick={onClose}
+          aria-hidden="true"
+        />
+
+        <div
+          className={cn(
+            "w-115 h-[640px] max-h-[min(640px,calc(100vh-120px))] flex flex-col overflow-hidden rounded-2xl shadow-2xl animate-in fade-in slide-in-from-top-2 duration-150",
+            isNavbar
+              ? "fixed right-4 sm:right-6 lg:right-20 top-20 sm:top-24 z-50"
+              : "absolute right-0 top-12 z-30"
+          )}
+        >
+          {ModalContent}
+        </div>
       </div>
     </>
   );

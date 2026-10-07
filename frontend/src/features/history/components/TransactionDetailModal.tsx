@@ -205,16 +205,18 @@ export function TransactionDetailModal({
               placeholder="Masukkan ID Transaksi..."
               className="flex-1 rounded-lg bg-deep-blue-900 border border-white/10 px-4 py-2.5 text-body-sm font-mono text-gray-50 outline-none focus:border-brand-primary-default transition-colors placeholder:text-gray-500"
             />
-            <Button
-              type="button"
-              variant="primary"
-              size="sm"
-              isLoading={isLoading}
+            {isPending && (
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                isLoading={isLoading}
               onClick={handleCheckStatus}
               className="rounded-lg px-5 py-2.5 font-semibold shrink-0 cursor-pointer shadow-xs"
             >
               Cek Status
             </Button>
+            )}
           </div>
         </div>
 

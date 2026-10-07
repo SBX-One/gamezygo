@@ -192,112 +192,124 @@ const FAQ_ITEMS = [
 
 const MINI_CATALOG_GAMES = [
   {
-    id: "mc-1",
+    id: "tk-gta-v",
+    slug: "tk-gta-v",
     title: "Grand Theft Auto V",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
     tier: "Tier 1",
-    originalPrice: "Rp 439.000,00",
+    originalPrice: "Rp 449.500",
     price: "Rp 219.500",
   },
   {
-    id: "mc-2",
-    title: "Grand Theft Auto V",
+    id: "tk-rdr-2",
+    slug: "tk-rdr-2",
+    title: "Red Dead Redemption 2",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/library_600x900_2x.jpg",
     tier: "Tier 1",
-    originalPrice: "Rp 439.000,00",
+    originalPrice: "Rp 640.000",
+    price: "Rp 219.000",
+  },
+  {
+    id: "tk-ghost-tsushima",
+    slug: "tk-ghost-tsushima",
+    title: "Ghost of Tsushima DIRECTOR'S CUT",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2215430/library_600x900_2x.jpg",
+    tier: "Tier 1",
+    originalPrice: "Rp 879.000",
+    price: "Rp 439.500",
+  },
+  {
+    id: "ac-black-flag",
+    slug: "ac-black-flag",
+    title: "Assassin's Creed Black Flag Resynced",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/242050/library_600x900_2x.jpg",
+    tier: "Tier 2",
+    originalPrice: "Rp 313.500",
     price: "Rp 219.500",
   },
   {
-    id: "mc-3",
-    title: "Grand Theft Auto V",
+    id: "first-light",
+    slug: "first-light",
+    title: "SCP - First Light",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    tier: "Tier 1",
-    originalPrice: "Rp 439.000,00",
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/library_600x900_2x.jpg",
+    tier: "Tier 2",
+    originalPrice: "Rp 313.500",
     price: "Rp 219.500",
   },
   {
-    id: "mc-4",
-    title: "Grand Theft Auto V",
+    id: "college-football-27",
+    slug: "college-football-27",
+    title: "EA SPORTS College Football 27",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    tier: "Tier 1",
-    originalPrice: "Rp 439.000,00",
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2582560/library_600x900_2x.jpg",
+    tier: "Tier 2",
+    originalPrice: "Rp 313.500",
     price: "Rp 219.500",
   },
   {
-    id: "mc-5",
-    title: "Grand Theft Auto V",
+    id: "subnautica-2",
+    slug: "subnautica-2",
+    title: "Subnautica 2",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    tier: "Tier 1",
-    originalPrice: "Rp 439.000,00",
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1962700/library_600x900_2x.jpg",
+    tier: "Tier 2",
+    originalPrice: "Rp 313.500",
     price: "Rp 219.500",
   },
   {
-    id: "mc-6",
-    title: "Grand Theft Auto V",
+    id: "tk-fc-26",
+    slug: "tk-fc-26",
+    title: "EA SPORTS FC 26",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    tier: "Tier 1",
-    originalPrice: "Rp 439.000,00",
-    price: "Rp 219.500",
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2195250/library_600x900_2x.jpg",
+    tier: "Tier 2",
+    originalPrice: "Rp 799.000",
+    price: "Rp 349.500",
   },
   {
-    id: "mc-7",
-    title: "Grand Theft Auto V",
+    id: "rt-dead-by-daylight",
+    slug: "rt-dead-by-daylight",
+    title: "Dead by Daylight",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    tier: "Tier 1",
-    originalPrice: "Rp 439.000,00",
-    price: "Rp 219.500",
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/381210/library_600x900_2x.jpg",
+    tier: "Tier 3",
+    originalPrice: "Rp 249.000",
+    price: "Rp 99.600",
   },
   {
-    id: "mc-8",
-    title: "Grand Theft Auto V",
+    id: "beholder-conductor",
+    slug: "beholder-conductor",
+    title: "Beholder: Conductor",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    tier: "Tier 1",
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/475550/library_600x900_2x.jpg",
+    tier: "Tier 3",
     originalPrice: "Rp 439.000,00",
-    price: "Rp 219.500",
+    price: "Rp 122.999",
   },
   {
-    id: "mc-9",
-    title: "Grand Theft Auto V",
+    id: "targeted-10-days",
+    slug: "targeted-10-days",
+    title: "Targeted - 10 Days",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    tier: "Tier 1",
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/107410/library_600x900_2x.jpg",
+    tier: "Tier 3",
     originalPrice: "Rp 439.000,00",
-    price: "Rp 219.500",
+    price: "Rp 122.999",
   },
   {
-    id: "mc-10",
-    title: "Grand Theft Auto V",
+    id: "tukoni-forest-keepers",
+    slug: "tukoni-forest-keepers",
+    title: "Tukoni: Forest Keepers",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    tier: "Tier 1",
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1387610/library_600x900_2x.jpg",
+    tier: "Tier 3",
     originalPrice: "Rp 439.000,00",
-    price: "Rp 219.500",
-  },
-  {
-    id: "mc-11",
-    title: "Grand Theft Auto V",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    tier: "Tier 1",
-    originalPrice: "Rp 439.000,00",
-    price: "Rp 219.500",
-  },
-  {
-    id: "mc-12",
-    title: "Grand Theft Auto V",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    tier: "Tier 1",
-    originalPrice: "Rp 439.000,00",
-    price: "Rp 219.500",
+    price: "Rp 122.999",
   },
 ];
 
@@ -653,7 +665,6 @@ export default function BundlePage() {
   const [modalCategories, setModalCategories] = React.useState<string[]>([]);
   const [modalGenres, setModalGenres] = React.useState<string[]>([]);
   const [modalLaunchers, setModalLaunchers] = React.useState<string[]>([]);
-  const [modalPriceRange, setModalPriceRange] = React.useState<[number, number]>([0, 200000]);
   const [modalSort, setModalSort] = React.useState<string>("Terbaru");
 
   const [appliedCategories, setAppliedCategories] = React.useState<string[]>([]);
@@ -679,7 +690,6 @@ export default function BundlePage() {
     setModalCategories([]);
     setModalLaunchers([]);
     setModalSort("Terbaru");
-    setModalPriceRange([0, 200000]);
   };
 
   const isSearchActive = searchQuery.trim().length > 0;
@@ -940,7 +950,7 @@ export default function BundlePage() {
                           discount={game.tier}
                           originalPrice={game.originalPrice}
                           price={game.price}
-                          onClick={() => router.push(`/store/tk-gta-v`)}
+                          onClick={() => router.push(`/store/${game.slug || game.id}`)}
                         />
                       ))}
                     </div>
@@ -1076,7 +1086,7 @@ export default function BundlePage() {
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Cari di toko"
+                      placeholder="Cari game"
                       className="w-full bg-transparent text-label-sm text-gray-50 placeholder:text-gray-400 outline-none tracking-normal"
                     />
                     {searchQuery && (
@@ -1104,6 +1114,7 @@ export default function BundlePage() {
 
                   <FilterModal
                     isOpen={isFilterModalOpen}
+                    showPriceRange={false}
                     variant="dropdown"
                     placement="content"
                     onClose={() => setIsFilterModalOpen(false)}
@@ -1131,14 +1142,6 @@ export default function BundlePage() {
                           ? prev.filter((l) => l !== launcher)
                           : [...prev, launcher]
                       );
-                    }}
-                    priceRange={modalPriceRange}
-                    onPriceRangeChange={setModalPriceRange}
-                    selectedSort={modalSort}
-                    onSelectSort={setModalSort}
-                    onReset={() => {
-                      handleClearAllFilters();
-                      setIsFilterModalOpen(false);
                     }}
                     onApply={() => {
                       setAppliedCategories(modalCategories);
@@ -1169,7 +1172,7 @@ export default function BundlePage() {
                         platform={game.launcher}
                         showPrice={false}
                         showActionButton={false}
-                        href={`/store/${targetSlug}`}
+                        href={`/credentials/${targetSlug}`}
                         className="hover:-translate-y-0.5 transition-transform duration-200 pb-8xl cursor-pointer"
                       />
                     );

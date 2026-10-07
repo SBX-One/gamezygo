@@ -1,5 +1,6 @@
 import * as React from "react";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import { cn } from "@/lib/utils";
 import { Button, Pill } from "@/components/ui";
 import type { RequestListItemProps } from "./RequestListItem.types";
@@ -72,9 +73,37 @@ export function RequestListItem({
   onActionClick,
   isUpvoted = false,
   disabled = false,
+  href,
   className,
   ...props
 }: RequestListItemProps) {
+  const router = useRouter();
+
+  // Helper untuk menentukan URL detail game di store
+  const getDetailHref = () => {
+    if (href) return href;
+    if (id && !id.startsWith("ar-") && !id.startsWith("cr-") && !id.startsWith("mr-")) {
+      return `/store/${id}`;
+    }
+    if (title) {
+      if (title.toLowerCase().includes("grand theft auto") || title.toLowerCase().includes("gta")) {
+        return "/store/tk-gta-v";
+      }
+      const slug = title
+        .toLowerCase()
+        .replace(/[^a-z0-9]+/g, "-")
+        .replace(/^-|-$/g, "");
+      return `/store/${slug}`;
+    }
+    return `/store/${id}`;
+  };
+
+  const handleAddedActionClick = (e: React.MouseEvent<HTMLButtonElement>) => {
+    e.stopPropagation();
+    onActionClick?.(id);
+    router.push(getDetailHref());
+  };
+
   return (
     <div
       className={cn(
@@ -151,7 +180,7 @@ export function RequestListItem({
               <Button
                 variant="primary"
                 size="sm"
-                onClick={() => onActionClick?.(id)}
+                onClick={handleAddedActionClick}
                 aria-label={`Lihat game ${title} di Toko`}
               >
                 Lihat di Toko

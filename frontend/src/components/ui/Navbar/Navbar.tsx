@@ -4,7 +4,11 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
-import { Sidebar } from "@/components/ui/Sidebar/Sidebar";
+import {
+  Sidebar,
+  STOREFRONT_SIDEBAR_SECTIONS,
+  defaultSidebarSections,
+} from "@/components/ui/Sidebar";
 import { useUiStore } from "@/stores/use-ui-store";
 import type { NavbarProps, NavItem } from "./Navbar.types";
 
@@ -243,12 +247,33 @@ const LogoutIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+/**
+ * Dashboard Grid Icon (24x24)
+ */
+const DashboardIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-4 h-4 shrink-0"
+    {...props}
+  >
+    <path
+      d="M3 4.5C3 3.67157 3.67157 3 4.5 3H9.5C10.3284 3 11 3.67157 11 4.5V9.5C11 10.3284 10.3284 11 9.5 11H4.5C3.67157 11 3 10.3284 3 9.5V4.5ZM4.5 4.5V9.5H9.5V4.5H4.5ZM13 4.5C13 3.67157 13.6716 3 14.5 3H19.5C20.3284 3 21 3.67157 21 4.5V9.5C21 10.3284 20.3284 11 19.5 11H14.5C13.6716 11 13 10.3284 13 9.5V4.5ZM14.5 4.5V9.5H19.5V4.5H14.5ZM3 14.5C3 13.6716 3.67157 13 4.5 13H9.5C10.3284 13 11 13.6716 11 14.5V19.5C11 20.3284 10.3284 21 9.5 21H4.5C3.67157 21 3 20.3284 3 19.5V14.5ZM4.5 14.5V19.5H9.5V14.5H4.5ZM13 14.5C13 13.6716 13.6716 13 14.5 13H19.5C20.3284 13 21 13.6716 21 14.5V19.5C21 20.3284 20.3284 21 19.5 21H14.5C13.6716 21 13 20.3284 13 19.5V14.5ZM14.5 14.5V19.5H19.5V14.5H14.5Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
 const defaultNavItems: NavItem[] = [
-  { id: "home", label: "Home", href: "/", isActive: true },
+  { id: "home", label: "Home", href: "/" },
   { id: "toko", label: "Toko", href: "/store" },
   { id: "leaderboard", label: "Leaderboard", href: "/leaderboard" },
   { id: "ulasan", label: "Ulasan", href: "/review" },
   { id: "artikel", label: "Artikel", href: "/blogs" },
+  { id: "about", label: "About", href: "/about"},
 ];
 
 export function Navbar({
@@ -257,7 +282,7 @@ export function Navbar({
   activeNavId,
   onNavItemClick,
   searchValue = "",
-  searchPlaceholder = "Cari di toko",
+  searchPlaceholder = "Cari game",
   onSearchChange,
   onSearchClear,
   onSearchSubmit,
@@ -267,8 +292,11 @@ export function Navbar({
   onCartClick,
   user,
   onUserClick,
+  onDashboardClick,
   onLogoutClick,
   onSettingsClick,
+  sidebarMode,
+  sidebarSections,
   backTitle = "Artikel",
   onBackClick,
   className,
@@ -281,6 +309,25 @@ export function Navbar({
   const { isMobileNavOpen, toggleMobileNav } = useUiStore();
   const [mounted, setMounted] = React.useState(false);
   const router = useRouter();
+
+  // Deteksi konteks sidebar (Storefront vs Dashboard)
+  const isDashboardContext =
+    sidebarMode === "dashboard" ||
+    (sidebarMode !== "storefront" &&
+      (variant === "private" ||
+        router.pathname === "/profile" ||
+        router.pathname === "/library" ||
+        router.pathname === "/history" ||
+        router.pathname === "/wishlist" ||
+        router.pathname.startsWith("/credentials") ||
+        router.pathname.startsWith("/dashboard") ||
+        Boolean(router.pathname === "/review" && router.query.view === "dashboard")));
+
+  const effectiveMobileSidebarSections =
+    sidebarSections ||
+    (isDashboardContext
+      ? defaultSidebarSections
+      : STOREFRONT_SIDEBAR_SECTIONS);
 
   const handleCartNavigation = () => {
     if (onCartClick) {
@@ -366,7 +413,7 @@ export function Navbar({
       {/* ========================================================
           1. BARIS ATAS: Kiri (Logo W:60 H:32 + Divider + Nav Links) & Kanan (Search + Actions)
          ======================================================== */}
-      <div className="w-full px-6 lg:px-20 py-6 lg:py-11 flex items-center justify-between gap-4">
+      <div className="w-full px-6 lg:px-20 py-4 flex items-center justify-between gap-4">
         {variant === "back" ? (
           <div className="flex items-center gap-4">
             <Button
@@ -469,13 +516,13 @@ export function Navbar({
             </form>
           )}
 
-          {/* Desktop Filter Button (Secondary SM) - Hanya tampil di desktop (lg ke atas) */}
-          {variant !== "private" && variant !== "back" && (
+          {/* Filter Button (Secondary SM) - Tampil di desktop dan mobile jika onFilterClick tersedia */}
+          {variant !== "private" && variant !== "back" && onFilterClick && (
             <Button
               type="button"
               variant="secondary"
               size="sm"
-              className="hidden lg:flex w-10 h-10 p-0 items-center justify-center shrink-0 cursor-pointer"
+              className="flex w-10 h-10 p-0 items-center justify-center shrink-0 cursor-pointer"
               onClick={onFilterClick}
               aria-label="Filter"
             >
@@ -484,7 +531,7 @@ export function Navbar({
           )}
 
           {/* Responsive / Mobile Hamburger Menu Button - Menggantikan tombol filter di layar < lg */}
-          {variant !== "private" && variant !== "back" && (
+          {variant !== "back" && (
             <Button
               type="button"
               variant="secondary"
@@ -610,6 +657,24 @@ export function Navbar({
                         </div>
                       </div>
 
+                      {/* Menu Item: Dashboard */}
+                      <button
+                        type="button"
+                        role="menuitem"
+                        onClick={() => {
+                          setIsProfileOpen(false);
+                          if (onDashboardClick) {
+                            onDashboardClick();
+                          } else {
+                            router.push("/library");
+                          }
+                        }}
+                        className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-label-sm font-medium text-gray-200 hover:text-white hover:bg-white/10 transition-colors cursor-pointer text-left outline-none"
+                      >
+                        <DashboardIcon className="w-4 h-4 text-deep-blue-100" />
+                        <span>Dashboard</span>
+                      </button>
+
                       {/* Menu Item: Pengaturan Akun */}
                       <button
                         type="button"
@@ -620,6 +685,8 @@ export function Navbar({
                             onSettingsClick();
                           } else if (onUserClick) {
                             onUserClick();
+                          } else {
+                            router.push("/profile");
                           }
                         }}
                         className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-label-sm font-medium text-gray-200 hover:text-white hover:bg-white/10 transition-colors cursor-pointer text-left outline-none"
@@ -678,7 +745,7 @@ export function Navbar({
               {/* Drawer Header */}
               <div className="flex items-center justify-between px-6 py-5 border-b border-b-gradient-secondary bg-deep-blue-950 shrink-0">
                 <span className="text-label-md font-bold text-gradient-heading">
-                  Menu & Kategori
+                  {isDashboardContext ? "Dashboard Pengguna" : "Menu & Kategori"}
                 </span>
                 <button
                   type="button"
@@ -693,6 +760,7 @@ export function Navbar({
               {/* Sidebar Component Content inside Drawer */}
               <div className="p-4 flex-1 overflow-y-auto">
                 <Sidebar
+                  sections={effectiveMobileSidebarSections}
                   activeId={activeNavId}
                   onItemClick={(item) => {
                     toggleMobileNav(false);
@@ -796,7 +864,7 @@ export function Navbar({
       {/* ========================================================
           2. BARIS PEMBATAS BAWAH: Height 4 (h-4 = 16px), Warna #15161D (bg-deep-blue-900), Border Y Linear Gradient Secondary
          ======================================================== */}
-      <div className="w-full h-4 bg-deep-blue-900 border-y border-y-gradient-secondary shrink-0" />
+      <div className="w-full h-2 bg-deep-blue-900 border-y border-y-gradient-secondary shrink-0" />
     </header>
   );
 }

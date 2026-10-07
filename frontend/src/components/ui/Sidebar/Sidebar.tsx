@@ -177,7 +177,92 @@ const SettingsIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-const defaultSidebarSections: SidebarSection[] = [
+const InfoIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-4 h-4 shrink-0"
+    {...props}
+  >
+    <path
+      d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V11H13V17ZM13 9H11V7H13V9Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+const UserIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-4 h-4 shrink-0"
+    {...props}
+  >
+    <path
+      d="M12 12C14.21 12 16 10.21 16 8C16 5.79 14.21 4 12 4C9.79 4 8 5.79 8 8C8 10.21 9.79 12 12 12ZM12 14C9.33 14 4 15.34 4 18V20H20V18C20 15.34 14.67 14 12 14Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+export const STOREFRONT_SIDEBAR_SECTIONS: SidebarSection[] = [
+  {
+    id: "storefront-main",
+    title: "Belanja & Game",
+    items: [
+      { id: "home", label: "Home", icon: <HomeIcon />, href: "/" },
+      { id: "toko", label: "Toko", icon: <GamesIcon />, href: "/store" },
+      { id: "paket", label: "Paket", icon: <CrownIcon />, href: "/bundle" },
+    ],
+  },
+  {
+    id: "storefront-explore",
+    title: "Eksplorasi & Komunitas",
+    items: [
+      { id: "leaderboard", label: "Leaderboard", icon: <LeaderboardIcon />, href: "/leaderboard" },
+      { id: "ulasan", label: "Ulasan Pelanggan", icon: <ReviewIcon />, href: "/review" },
+      { id: "artikel", label: "Artikel & Berita", icon: <ArticleIcon />, href: "/blogs" },
+      { id: "about", label: "Tentang Kami", icon: <InfoIcon />, href: "/about" },
+    ],
+  },
+];
+
+export const DASHBOARD_SIDEBAR_SECTIONS: SidebarSection[] = [
+  {
+    id: "dashboard-account",
+    title: "Akun & Koleksi",
+    items: [
+      { id: "perpustakaan", label: "Perpustakaan Game", icon: <GamesIcon />, href: "/library" },
+      { id: "riwayat", label: "Riwayat Pesanan", icon: <ClockIcon />, href: "/history" },
+      { id: "wishlist", label: "Wishlist", icon: <BookmarkIcon />, href: "/wishlist" },
+      { id: "profile", label: "Profil Saya", icon: <UserIcon />, href: "/profile" },
+    ],
+  },
+  {
+    id: "dashboard-services",
+    title: "Aktivitas & Pengaturan",
+    items: [
+      { id: "ulasan", label: "Ulasan Saya", icon: <ReviewIcon />, href: "/dashboard/review" },
+      { id: "request", label: "Request Game", icon: <AddIcon />, href: "/request" },
+      { id: "pengaturan", label: "Pengaturan Akun", icon: <SettingsIcon />, href: "/profile" },
+    ],
+  },
+  {
+    id: "dashboard-store",
+    title: "Navigasi Toko",
+    items: [
+      { id: "toko", label: "Kembali ke Toko", icon: <HomeIcon />, href: "/store" },
+    ],
+  },
+];
+
+export const defaultSidebarSections: SidebarSection[] = [
   {
     id: "main",
     items: [
@@ -193,7 +278,7 @@ const defaultSidebarSections: SidebarSection[] = [
       { id: "request", label: "Request Game", icon: <AddIcon />, href: "/request" },
       { id: "wishlist", label: "Wishlist", icon: <BookmarkIcon />, href: "/wishlist" },
       { id: "leaderboard", label: "Leaderboard", icon: <LeaderboardIcon />, href: "/leaderboard" },
-      { id: "ulasan", label: "Ulasan", icon: <ReviewIcon />, href: "/review" },
+      { id: "ulasan", label: "Ulasan", icon: <ReviewIcon />, href: "/dashboard/review" },
     ],
   },
   {
@@ -236,7 +321,7 @@ export function Sidebar({
         {sections.map((section, sectionIdx) => (
           <div key={section.id || sectionIdx} className="flex flex-col">
             {/* Section Item List */}
-            <div className="flex flex-col gap-3">
+            <div className="flex flex-col gap-6">
               {section.items.map((item) => {
                 const isActive = activeId === item.id;
                 const itemClasses = cn(

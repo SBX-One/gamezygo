@@ -59,7 +59,7 @@ export function StoreLayout({
   activeNavId = "toko",
   activeSidebarId = "toko",
   searchValue = "",
-  searchPlaceholder = "Cari game di toko...",
+  searchPlaceholder = "Cari game ",
   onSearchChange,
   onSearchSubmit,
   onSearchClear,
@@ -71,8 +71,10 @@ export function StoreLayout({
   onSidebarItemClick,
   user,
   onUserClick,
+  onDashboardClick,
   onLogoutClick,
   onSettingsClick,
+  sidebarMode,
   hideNavbar = false,
   hideSidebar = false,
   hideFooter = false,
@@ -134,6 +136,14 @@ export function StoreLayout({
     } else {
       authLogout();
       router.push("/");
+    }
+  };
+
+  const handleDashboard = () => {
+    if (onDashboardClick) {
+      onDashboardClick();
+    } else {
+      router.push("/library");
     }
   };
 
@@ -216,8 +226,11 @@ export function StoreLayout({
               }
               onCartClick={onCartClick || (() => router.push("/cart"))}
               onUserClick={handleSettings}
+              onDashboardClick={handleDashboard}
               onSettingsClick={handleSettings}
               onLogoutClick={handleLogout}
+              sidebarMode={sidebarMode}
+              sidebarSections={sidebarSections}
               user={effectiveUser}
               backTitle={backTitle}
               onBackClick={onBackClick || (() => router.back())}
@@ -244,7 +257,7 @@ export function StoreLayout({
       {/* ========================================================
           2. MOBILE SIDEBAR TOGGLE BAR (< lg Viewport)
          ======================================================== */}
-      {!hideSidebar && (
+      {/* {!hideSidebar && (
         <div
           style={{ top: `${effectiveHeaderHeight}px` }}
           className="lg:hidden flex items-center justify-between px-4 py-3 bg-deep-blue-900/60 border-b border-white/5 backdrop-blur-sm sticky z-30"
@@ -269,7 +282,7 @@ export function StoreLayout({
             </button>
           )}
         </div>
-      )}
+      )} */}
 
       {/* ========================================================
           3. MAIN LAYOUT BODY (Desktop Sidebar + Main Content)

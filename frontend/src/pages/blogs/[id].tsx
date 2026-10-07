@@ -127,7 +127,7 @@ export default function BlogDetailPage() {
         onBackClick={() => router.push("/blogs")}
         hideSidebar={true}
         searchValue={headerSearch}
-        searchPlaceholder="Cari di toko"
+        searchPlaceholder="Cari game"
         onSearchChange={(val) => setHeaderSearch(val)}
         onSearchSubmit={() => {
           if (headerSearch.trim()) {
@@ -138,7 +138,7 @@ export default function BlogDetailPage() {
         contentClassName="flex-1 w-full flex flex-col pt-8 pb-20 p-0 mb-0"
       >
           {/* Upper Section (Constrained to max-w-320 container) */}
-          <div className="w-full max-w-320 mx-auto px-4 sm:px-8 xl:px-0 flex flex-col">
+          <div className="w-full max-w-320 mx-auto px-4 sm:px-8 xl:px-0 flex flex-col pt-20">
             {/* A. BREADCRUMB */}
             <div className="mb-6">
               <Breadcrumbs

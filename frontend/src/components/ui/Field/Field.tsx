@@ -76,7 +76,7 @@ export function Field({
   leftIcon,
   rightIcon,
   disabled,
-  placeholder = "Cari di toko",
+  placeholder = "Cari game",
   value,
   defaultValue,
   inputRef,

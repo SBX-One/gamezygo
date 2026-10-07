@@ -95,12 +95,15 @@ export default function LeaderboardPage() {
       : "67 pts";
 
   const authUser = useAuthStore((s) => s.user);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
-  const currentUser = {
-    name: authUser?.name || MOCK_USER.name,
-    email: authUser?.email || MOCK_USER.email,
-    avatarUrl: authUser?.avatarUrl || MOCK_USER.avatarUrl,
-  };
+  const currentUser = authUser
+    ? {
+        name: authUser.name,
+        email: authUser.email,
+        avatarUrl: authUser.avatarUrl,
+      }
+    : undefined;
 
   const handleToast = (msg: string) => {
     setToastMessage(msg);
@@ -125,7 +128,7 @@ export default function LeaderboardPage() {
       </Head>
 
       <StoreLayout
-        navbarVariant="login"
+        navbarVariant={isAuthenticated ? "login" : "guest"}
         hideSidebar={true}
         activeNavId="leaderboard"
         user={currentUser}
@@ -143,7 +146,7 @@ export default function LeaderboardPage() {
               actionLabel="Lihat Premium"
               actionVariant="secondary"
               onActionClick={() => handleToast("Membuka paket berlangganan...")}
-              className="w-full "
+              className="w-full max-w-4/7"
             />
           </div>
 
@@ -211,7 +214,7 @@ export default function LeaderboardPage() {
 
                   {/* Username */}
                   <span className="text-body-md font-semibold text-gray-50 truncate shrink-0">
-                    {currentUser.name}
+                    {currentUser?.name || "Tamu Gamezygo"}
                   </span>
                 </div>
 

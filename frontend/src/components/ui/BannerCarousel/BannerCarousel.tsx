@@ -134,8 +134,8 @@ export function BannerCarousel({
           sizes="(max-width: 1024px) 100vw, 50vw"
           className="object-cover object-center select-none transition-transform duration-500 ease-out group-hover/slide:scale-[1.02]"
           draggable={false}
-          priority={isFirst}
-          loading={isFirst ? "eager" : "lazy"}
+          priority={index < 2}
+          loading={index < 2 ? "eager" : "lazy"}
         />
         {/* Subtle bottom vignette to ensure indicators and badges remain prominent */}
         <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent pointer-events-none" />

@@ -359,7 +359,7 @@ export default function StorePage() {
             : undefined
         }
         searchValue={searchQuery}
-        searchPlaceholder="Cari di toko"
+        searchPlaceholder="Cari game"
         onSearchChange={(val) => {
           setSearchQuery(val);
           if (val.trim()) {
@@ -521,7 +521,7 @@ export default function StorePage() {
               subtitle="Ingin Langsung Buka Semua? Beli Premium!"
               actionLabel="Lihat Premium"
               actionVariant="primary"
-              className="pt-11xl max-w-4/8"
+              className="pt-10xl w-full sm:max-w-5/8 lg:max-w-4/8"
             />
 
             {/* 2. PROMO BANNER & MINI FEATURED CARDS SECTION */}

@@ -24,4 +24,6 @@ export interface RequestListItemProps
   isUpvoted?: boolean;
   /** Status disabled */
   disabled?: boolean;
+  /** URL / Link langsung ke detail game di Toko/Store */
+  href?: string;
 }

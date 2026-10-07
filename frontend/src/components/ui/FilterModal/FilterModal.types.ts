@@ -12,10 +12,18 @@ export interface FilterModalProps
   placement?: "navbar" | "content";
   /** Callback saat tombol close atau backdrop diklik */
   onClose?: () => void;
+  /** Callback saat tombol Cancel diklik (default: memanggil onClose) */
+  onCancel?: () => void;
   /** Callback saat tombol Reset diklik */
   onReset?: () => void;
   /** Callback saat tombol Apply diklik */
   onApply?: () => void;
+  /** Label untuk tombol Cancel (default: 'Cancel') */
+  cancelLabel?: string;
+  /** Label untuk tombol Apply (default: 'Apply') */
+  applyLabel?: string;
+  /** Label untuk tombol Reset (default: 'Reset') */
+  resetLabel?: string;
   /** Judul header modal (default: 'Filter & Sort') */
   title?: React.ReactNode;
   /** Daftar kategori filter teratas (default: Hot Deals, Best Seller, New Release, Coming Soon) */

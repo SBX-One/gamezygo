@@ -1,7 +1,8 @@
-import * as React from "react";
+﻿import * as React from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
+import { cn } from "@/lib/utils";
 import {
   Button,
   Pill,
@@ -415,6 +416,40 @@ export default function LandingPage() {
 
   // 3. Deretan Game Terpopuler (Tabs: Trending, Terbaru, Segera)
   const [popularTab, setPopularTab] = React.useState<string>("trending");
+  const popularScrollRef = React.useRef<HTMLDivElement>(null);
+  const [canPopularScrollUp, setCanPopularScrollUp] = React.useState<boolean>(false);
+  const [canPopularScrollDown, setCanPopularScrollDown] = React.useState<boolean>(true);
+  const [popularScrollProgress, setPopularScrollProgress] = React.useState<number>(0);
+
+  const checkPopularScroll = React.useCallback(() => {
+    const el = popularScrollRef.current;
+    if (!el) return;
+    const { scrollTop, scrollHeight, clientHeight } = el;
+    const maxScroll = scrollHeight - clientHeight;
+    setCanPopularScrollUp(scrollTop > 12);
+    setCanPopularScrollDown(maxScroll > 10 && scrollTop < maxScroll - 16);
+    setPopularScrollProgress(maxScroll > 0 ? Math.min(1, Math.max(0, scrollTop / maxScroll)) : 0);
+  }, []);
+
+  React.useEffect(() => {
+    const el = popularScrollRef.current;
+    if (el) {
+      el.scrollTo({ top: 0, behavior: "smooth" });
+    }
+    const timer = setTimeout(checkPopularScroll, 120);
+    return () => clearTimeout(timer);
+  }, [popularTab, checkPopularScroll]);
+
+  React.useEffect(() => {
+    const el = popularScrollRef.current;
+    if (!el) return;
+    checkPopularScroll();
+    const ro = new ResizeObserver(() => {
+      checkPopularScroll();
+    });
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, [checkPopularScroll]);
 
   const popularGames = React.useMemo(() => {
     const trendingList = [
@@ -498,6 +533,60 @@ export default function LandingPage() {
         price: "Rp 219.500",
         imageSrc:
           "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1962700/library_600x900_2x.jpg",
+      },
+      {
+        id: "elden-ring",
+        title: "Elden Ring: Shadow of the Erdtree",
+        discount: "-25%",
+        originalPrice: "Rp 560.000,00",
+        price: "Rp 420.000",
+        imageSrc:
+          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/library_600x900_2x.jpg",
+      },
+      {
+        id: "cyberpunk-2077",
+        title: "Cyberpunk 2077: Ultimate Edition",
+        discount: "-50%",
+        originalPrice: "Rp 699.000,00",
+        price: "Rp 349.500",
+        imageSrc:
+          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/library_600x900_2x.jpg",
+      },
+      {
+        id: "black-myth-wukong",
+        title: "Black Myth: Wukong",
+        discount: "-20%",
+        originalPrice: "Rp 699.000,00",
+        price: "Rp 499.000",
+        imageSrc:
+          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2358720/library_600x900_2x.jpg",
+      },
+      {
+        id: "ghost-tsushima",
+        title: "Ghost of Tsushima DIRECTOR'S CUT",
+        discount: "-50%",
+        originalPrice: "Rp 879.000,00",
+        price: "Rp 439.500",
+        imageSrc:
+          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2215430/library_600x900_2x.jpg",
+      },
+      {
+        id: "god-of-war-ragnarok",
+        title: "God of War Ragnarök",
+        discount: "-20%",
+        originalPrice: "Rp 879.000,00",
+        price: "Rp 703.200",
+        imageSrc:
+          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2322010/library_600x900_2x.jpg",
+      },
+      {
+        id: "hogwarts-legacy",
+        title: "Hogwarts Legacy Digital Deluxe",
+        discount: "-70%",
+        originalPrice: "Rp 799.000,00",
+        price: "Rp 239.700",
+        imageSrc:
+          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/990080/library_600x900_2x.jpg",
       },
     ];
 
@@ -583,6 +672,60 @@ export default function LandingPage() {
         imageSrc:
           "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2054970/library_600x900_2x.jpg",
       },
+      {
+        id: "ff-xvi",
+        title: "Final Fantasy XVI Complete",
+        discount: "-20%",
+        originalPrice: "Rp 729.000,00",
+        price: "Rp 583.200",
+        imageSrc:
+          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2515020/library_600x900_2x.jpg",
+      },
+      {
+        id: "frostpunk-2",
+        title: "Frostpunk 2 Deluxe Edition",
+        discount: "-15%",
+        originalPrice: "Rp 649.000,00",
+        price: "Rp 551.650",
+        imageSrc:
+          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1601580/library_600x900_2x.jpg",
+      },
+      {
+        id: "metaphor-refantazio",
+        title: "Metaphor: ReFantazio",
+        discount: "-15%",
+        originalPrice: "Rp 799.000,00",
+        price: "Rp 679.150",
+        imageSrc:
+          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2627720/library_600x900_2x.jpg",
+      },
+      {
+        id: "stalker-2",
+        title: "S.T.A.L.K.E.R. 2: Heart of Chornobyl",
+        discount: "-10%",
+        originalPrice: "Rp 799.000,00",
+        price: "Rp 719.100",
+        imageSrc:
+          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1643320/library_600x900_2x.jpg",
+      },
+      {
+        id: "star-wars-outlaws",
+        title: "Star Wars Outlaws Gold Edition",
+        discount: "-25%",
+        originalPrice: "Rp 999.000,00",
+        price: "Rp 749.250",
+        imageSrc:
+          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2842040/library_600x900_2x.jpg",
+      },
+      {
+        id: "kingdom-come-2",
+        title: "Kingdom Come: Deliverance II",
+        discount: "-15%",
+        originalPrice: "Rp 799.000,00",
+        price: "Rp 679.150",
+        imageSrc:
+          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1771300/library_600x900_2x.jpg",
+      },
     ];
 
     const segeraList = [
@@ -666,6 +809,51 @@ export default function LandingPage() {
         price: "Rp 600.000",
         imageSrc:
           "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?auto=format&fit=crop&w=600&q=80",
+      },
+      {
+        id: "witcher-4",
+        title: "The Witcher 4: Polaris",
+        discount: "-10%",
+        originalPrice: "Rp 899.000,00",
+        price: "Rp 809.100",
+        imageSrc:
+          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/292030/library_600x900_2x.jpg",
+      },
+      {
+        id: "borderlands-4",
+        title: "Borderlands 4",
+        discount: "-15%",
+        originalPrice: "Rp 850.000,00",
+        price: "Rp 722.500",
+        imageSrc:
+          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1285190/library_600x900_2x.jpg",
+      },
+      {
+        id: "silksong",
+        title: "Hollow Knight: Silksong",
+        discount: "-20%",
+        originalPrice: "Rp 249.000,00",
+        price: "Rp 199.200",
+        imageSrc:
+          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1030300/library_600x900_2x.jpg",
+      },
+      {
+        id: "fable-4",
+        title: "Fable",
+        discount: "-15%",
+        originalPrice: "Rp 799.000,00",
+        price: "Rp 679.150",
+        imageSrc:
+          "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80",
+      },
+      {
+        id: "judas",
+        title: "Judas",
+        discount: "-20%",
+        originalPrice: "Rp 799.000,00",
+        price: "Rp 639.200",
+        imageSrc:
+          "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80",
       },
     ];
 
@@ -969,7 +1157,7 @@ export default function LandingPage() {
         onLoginClick={() => router.push("/login")}
         onSignUpClick={() => router.push("/login?tab=signup")}
         onCartClick={() => router.push("/cart")}
-        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 py-10 sm:py-16 lg:py-20 flex flex-col gap-16 sm:gap-24 lg:gap-50"
+        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 py-10 sm:py-10 flex flex-col gap-16 sm:gap-24 lg:gap-50"
       >
         {/* ========================================================
             1. HERO CAROUSEL BANNER (PROMO UTAMA / MUSIM PANAS)
@@ -1034,26 +1222,70 @@ export default function LandingPage() {
             </div>
           </div>
 
-          <div className="relative w-full overflow-hidden">
-            <div data-animate="grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-              {popularGames.map((game) => (
-                <GameListItem
-                  key={game.id}
-                  title={game.title}
-                  imageSrc={game.imageSrc}
-                  discount={game.discount}
-                  originalPrice={game.originalPrice}
-                  price={game.price}
-                  onClick={() => router.push(`/store`)}
-                />
-              ))}
-            </div>
-
-            {/* Bottom Fade Shadow Overlay (Gambar 1) */}
+          <div className="relative w-full group/popular-grid">
+            {/* Top Fade Shadow Overlay (Muncul saat user scroll ke bawah) */}
             <div
-              className="pointer-events-none absolute bottom-0 left-0 right-0 h-36 bg-linear-to-t from-deep-blue-950 via-deep-blue-950/80 to-transparent z-10"
+              className={cn(
+                "pointer-events-none absolute top-0 left-0 right-0 h-14 bg-linear-to-b from-deep-blue-950 via-deep-blue-950/80 to-transparent z-10 transition-opacity duration-300",
+                canPopularScrollUp ? "opacity-100" : "opacity-0"
+              )}
               aria-hidden="true"
             />
+
+            {/* Scrollable Container (User dapat scroll ke bawah menggunakan wheel, gesture swipe, atau tombol) */}
+            <div
+              ref={popularScrollRef}
+              onScroll={checkPopularScroll}
+              className="max-h-[350px] sm:max-h-[380px] overflow-y-auto overflow-x-hidden scroll-smooth overscroll-contain pb-14 pt-1 px-1 -mx-1"
+            >
+              <div data-animate="grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full">
+                {popularGames.map((game) => (
+                  <GameListItem
+                    key={game.id}
+                    title={game.title}
+                    imageSrc={game.imageSrc}
+                    discount={game.discount}
+                    originalPrice={game.originalPrice}
+                    price={game.price}
+                    onClick={() => router.push(`/store`)}
+                  />
+                ))}
+              </div>
+            </div>
+
+            {/* Bottom Fade Shadow Overlay (Indikator affordance bahwa masih ada item di bawah) */}
+            <div
+              className={cn(
+                "pointer-events-none absolute bottom-0 left-0 right-0 h-28 sm:h-36 bg-linear-to-t from-deep-blue-950 via-deep-blue-950/90 to-transparent z-10 transition-opacity duration-300",
+                canPopularScrollDown ? "opacity-100" : "opacity-0"
+              )}
+              aria-hidden="true"
+            />
+
+            {/* Floating Quick Action / Scroll Down Pill Button */}
+            {canPopularScrollDown && (
+              <div className="absolute bottom-3 left-1/2 -translate-x-1/2 z-20 transition-all duration-300">
+                <button
+                  type="button"
+                  onClick={() => {
+                    popularScrollRef.current?.scrollBy({ top: 220, behavior: "smooth" });
+                  }}
+                  className="flex items-center gap-1.5 px-3.5 py-1.5 rounded-full bg-deep-blue-950/90 hover:bg-deep-blue-900 border border-white/15 hover:border-white/30 backdrop-blur-md text-label-xs font-medium text-gray-300 hover:text-white shadow-xl cursor-pointer transition-all hover:scale-105 active:scale-95"
+                  aria-label="Scroll kebawah untuk melihat game lainnya"
+                >
+                  <span>Scroll kebawah</span>
+                  <svg
+                    className="w-3.5 h-3.5 text-rose-400 animate-bounce"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                    stroke="currentColor"
+                    strokeWidth={2}
+                  >
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
+                  </svg>
+                </button>
+              </div>
+            )}
           </div>
         </section>
 

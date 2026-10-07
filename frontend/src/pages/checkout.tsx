@@ -98,28 +98,28 @@ const DEFAULT_CHECKOUT_ITEMS: CheckoutItem[] = [
     price: 219500,
   },
   {
-    id: "gta-2",
+    id: "rdr2-1",
     productId: 2,
-    title: "Grand Theft Auto V",
+    title: "Red Dead Redemption 2",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    price: 219500,
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/library_600x900_2x.jpg",
+    price: 219000,
   },
   {
-    id: "gta-3",
+    id: "ac-1",
     productId: 3,
-    title: "Grand Theft Auto V",
+    title: "Assassin's Creed Black Flag Resynced",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/242050/library_600x900_2x.jpg",
     price: 219500,
   },
   {
-    id: "gta-4",
+    id: "ghost-1",
     productId: 4,
-    title: "Grand Theft Auto V",
+    title: "Ghost of Tsushima DIRECTOR'S CUT",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    price: 219500,
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2215430/library_600x900_2x.jpg",
+    price: 439500,
   },
 ];
 

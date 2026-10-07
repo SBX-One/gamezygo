@@ -291,7 +291,11 @@ const GUEST_REVIEWS: ReviewItem[] = [
   },
 ];
 
-export default function ReviewPage() {
+export interface ReviewPageProps {
+  isDashboardMode?: boolean;
+}
+
+export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps) {
   const router = useRouter();
 
   const { data: apiReviewsRes } = useReviews();
@@ -299,8 +303,16 @@ export default function ReviewPage() {
   const authUser = useAuthStore((s) => s.user);
   const { data: profileRes } = useUserProfile();
 
-  // Tampilan otomatis: Guest jika belum login, Customer jika sudah login
-  const isGuestView = !authUser;
+  // Tampilan Dashboard jika:
+  // 1. isDashboardMode prop bernilai true
+  // 2. Routing Next.js diawali dengan /dashboard (e.g. /dashboard/review, /dashboard/riview, /dashboard/ulasan)
+  // 3. Query string ?view=dashboard (kompatibilitas backward)
+  const isDashboardView = Boolean(
+    isDashboardMode ||
+      router.pathname.startsWith("/dashboard") ||
+      (authUser && router.query.view === "dashboard")
+  );
+  const isGuestView = !isDashboardView;
 
   const [reviews, setReviews] = React.useState<ReviewItem[]>(INITIAL_REVIEWS);
   const [quickFeedback, setQuickFeedback] = React.useState("");
@@ -634,10 +646,18 @@ export default function ReviewPage() {
   return (
     <>
       <Head>
-        <title>Ulasan Pelanggan - Gamezygo</title>
+        <title>
+          {isDashboardView
+            ? "Ulasan Saya - Dashboard Gamezygo"
+            : "Ulasan Pelanggan - Gamezygo"}
+        </title>
         <meta
           name="description"
-          content="Dengarkan pendapat gamer setelah beli akun game dan langganan di Gamezygo!"
+          content={
+            isDashboardView
+              ? "Kelola dan lihat ulasan akun game dan pengalaman Anda di Gamezygo."
+              : "Dengarkan pendapat gamer setelah beli akun game dan langganan di Gamezygo!"
+          }
         />
       </Head>
 
@@ -649,11 +669,12 @@ export default function ReviewPage() {
           navbarVariant="guest"
           activeNavId="ulasan"
           hideSidebar={true}
+          user={authUser ? currentUser : undefined}
           onLoginClick={() => router.push("/login")}
           onSignUpClick={() => router.push("/login?tab=signup")}
           onCartClick={() => router.push("/cart")}
           searchValue={searchQuery}
-          searchPlaceholder="Cari di toko"
+          searchPlaceholder="Cari game"
           onSearchChange={(val) => setSearchQuery(val)}
           onSearchClear={() => setSearchQuery("")}
           onSearchSubmit={() => {
@@ -671,11 +692,11 @@ export default function ReviewPage() {
               pillText="Promo Musim Panas Telah Datang!"
               pillVariant="secondary"
               title="Dengarkan Pendapat Gamer Setelah Beli di Gamezygo!"
-              className="max-w-4/7 mx-auto"
+              className="max-w-6/7 sm:max-w-4/7 mx-auto"
             >
               <div className="flex flex-col items-center gap-6 w-full mt-2">
                 {/* "Beri Pendapat" Input Bar */}
-                <div className="relative w-full max-w-1/2 mx-auto">
+                <div className="relative w-full sm:max-w-1/2 mx-auto">
                   <div className="w-full flex items-center bg-deep-blue-900 border border-white/10 rounded-xl px-4 py-3 gap-3 focus-within:border-white/30 transition-all shadow-lg">
                     <span className="text-gray-400 text-body-sm font-semibold">@</span>
                     <input
@@ -784,13 +805,14 @@ export default function ReviewPage() {
                 </div>
 
                 {/* Quick Feedback Input Field */}
-                <div className="pt-2 w-full max-w-3/7 pb-6">
+                <div className="pt-2 w-full max-w-5/7 sm:max-w-3/7 pb-6">
                   <Field
                     placeholder="Beri pendapat"
                     size="md"
                     forceState="unfilled"
                     value={quickFeedback}
                     onChange={(e) => setQuickFeedback(e.target.value)}
+                     onClick={() => handleOpenModal()}
                     onKeyDown={(e) => {
                       if (e.key === "Enter") {
                         handleOpenModal();

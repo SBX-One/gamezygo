@@ -84,6 +84,8 @@ export function TestimonialCard({
         {review}
       </blockquote>
 
+<div className="w-full h-full justify-end flex flex-col">
+  
       {/* 3. Screenshot Images Gallery (rounded-lg with border-gradient-secondary, gap-8 / 32px from review) */}
       {images !== false && (
         <div className="mt-8 flex items-center gap-3 overflow-x-auto pb-1 scrollbar-none">
@@ -145,6 +147,7 @@ export function TestimonialCard({
           </p>
         )}
       </div>
+    </div>
     </div>
   );
 }

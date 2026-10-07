@@ -52,7 +52,7 @@ export function Item({
       {...props}
     >
       {/* 1. KIRI: Cover Game (min-w: 65px, height menyesuaikan / self-stretch) */}
-      <div className="w-16.25 h-17.5 self-stretch rounded-md overflow-hidden shrink-0 bg-deep-blue-950 relative flex items-center justify-center">
+      <div className="w-16.25 sm:min-h-17.5 self-stretch rounded-md overflow-hidden shrink-0 bg-deep-blue-950 relative flex items-center justify-center">
         {imageSrc ? (
           <img
             src={imageSrc}

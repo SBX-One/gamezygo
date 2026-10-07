@@ -330,12 +330,12 @@ export default function BlogsPage() {
       </Head>
 
       <StoreLayout
-        navbarVariant="login"
+        navbarVariant="guest"
         hideSidebar={true}
         activeNavId={activeNavId}
         onNavItemClick={(item) => setActiveNavId(item.id)}
         searchValue={searchQuery}
-        searchPlaceholder="Cari di toko"
+        searchPlaceholder="Cari game"
         onSearchChange={(val) => {
           setSearchQuery(val);
           if (val.trim()) {
@@ -643,6 +643,7 @@ export default function BlogsPage() {
                     isOpen={isContentFilterOpen}
                     variant="dropdown"
                     placement="content"
+                    
                     onClose={() => setIsContentFilterOpen(false)}
                     className="sm:top-12 sm:right-0 lg:right-0"
                     title="Filter & Sort"

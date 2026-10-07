@@ -17,6 +17,7 @@ import {
   useVoteGameRequest,
   useUnvoteGameRequest,
 } from "@/hooks/use-requests";
+import productsData from "@/json/products.json";
 
 // Helper to extract Steam App ID from various Steam URL patterns
 function extractSteamAppId(url: string): number | null {
@@ -128,165 +129,165 @@ interface RequestGameData {
   isUpvoted?: boolean;
 }
 
-// Initial Data for Tab 1: Request Saya (Screenshot 1)
+// Initial Data for Tab 1: Request Saya (Data beragam dari products.json)
 const INITIAL_MY_REQUESTS: RequestGameData[] = [
   {
-    id: "mr-1",
-    title: "Grand Theft Auto V",
+    id: "beholder-conductor",
+    title: "Beholder: Conductor",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    requestDate: "22/07/2026",
-    requestCount: 22,
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/475550/library_600x900_2x.jpg",
+    requestDate: "20/07/2026",
+    requestCount: 18,
   },
   {
-    id: "mr-2",
-    title: "Grand Theft Auto V",
+    id: "targeted-10-days",
+    title: "Targeted - 10 Days",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    requestDate: "22/07/2026",
-    requestCount: 22,
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/107410/library_600x900_2x.jpg",
+    requestDate: "21/07/2026",
+    requestCount: 24,
   },
   {
-    id: "mr-3",
-    title: "Grand Theft Auto V",
+    id: "tukoni-forest-keepers",
+    title: "Tukoni: Forest Keepers",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1387610/library_600x900_2x.jpg",
     requestDate: "22/07/2026",
-    requestCount: 22,
+    requestCount: 15,
   },
   {
-    id: "mr-4",
-    title: "Grand Theft Auto V",
+    id: "first-light",
+    title: "SCP - First Light",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    requestDate: "22/07/2026",
-    requestCount: 22,
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/library_600x900_2x.jpg",
+    requestDate: "23/07/2026",
+    requestCount: 31,
   },
   {
-    id: "mr-5",
-    title: "Grand Theft Auto V",
+    id: "subnautica-2",
+    title: "Subnautica 2",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    requestDate: "22/07/2026",
-    requestCount: 22,
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1962700/library_600x900_2x.jpg",
+    requestDate: "24/07/2026",
+    requestCount: 42,
   },
   {
-    id: "mr-6",
-    title: "Grand Theft Auto V",
+    id: "college-football-27",
+    title: "EA SPORTS College Football 27",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    requestDate: "22/07/2026",
-    requestCount: 22,
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2582560/library_600x900_2x.jpg",
+    requestDate: "25/07/2026",
+    requestCount: 50,
   },
 ];
 
-// Initial Data for Tab 2: Request Komunitas (Screenshot 2)
+// Initial Data for Tab 2: Request Komunitas
 const INITIAL_COMMUNITY_REQUESTS: RequestGameData[] = [
   {
-    id: "cr-1",
-    title: "Grand Theft Auto V",
+    id: "tk-ghost-tsushima",
+    title: "Ghost of Tsushima DIRECTOR'S CUT",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    requestDate: "22/07/2026",
-    requestCount: 22,
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2215430/library_600x900_2x.jpg",
+    requestDate: "18/07/2026",
+    requestCount: 88,
     isUpvoted: false,
   },
   {
-    id: "cr-2",
-    title: "Grand Theft Auto V",
+    id: "tk-rdr-2",
+    title: "Red Dead Redemption 2",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    requestDate: "22/07/2026",
-    requestCount: 22,
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/library_600x900_2x.jpg",
+    requestDate: "19/07/2026",
+    requestCount: 76,
+    isUpvoted: true,
+  },
+  {
+    id: "tk-fc-26",
+    title: "EA SPORTS FC 26",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2195250/library_600x900_2x.jpg",
+    requestDate: "20/07/2026",
+    requestCount: 64,
     isUpvoted: false,
   },
   {
-    id: "cr-3",
-    title: "Grand Theft Auto V",
+    id: "subnautica-2",
+    title: "Subnautica 2",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    requestDate: "22/07/2026",
-    requestCount: 22,
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1962700/library_600x900_2x.jpg",
+    requestDate: "21/07/2026",
+    requestCount: 52,
     isUpvoted: false,
   },
   {
-    id: "cr-4",
-    title: "Grand Theft Auto V",
+    id: "rt-dead-by-daylight",
+    title: "Dead by Daylight",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/381210/library_600x900_2x.jpg",
     requestDate: "22/07/2026",
-    requestCount: 22,
+    requestCount: 45,
     isUpvoted: false,
   },
   {
-    id: "cr-5",
-    title: "Grand Theft Auto V",
+    id: "beholder-conductor",
+    title: "Beholder: Conductor",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    requestDate: "22/07/2026",
-    requestCount: 22,
-    isUpvoted: false,
-  },
-  {
-    id: "cr-6",
-    title: "Grand Theft Auto V",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    requestDate: "22/07/2026",
-    requestCount: 22,
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/475550/library_600x900_2x.jpg",
+    requestDate: "23/07/2026",
+    requestCount: 39,
     isUpvoted: false,
   },
 ];
 
-// Initial Data for Tab 3: Telah Ditambahkan (Screenshot 3)
+// Initial Data for Tab 3: Telah Ditambahkan (Game yang sudah tersedia di toko katalog)
 const INITIAL_ADDED_REQUESTS: RequestGameData[] = [
   {
-    id: "ar-1",
+    id: "tk-gta-v",
     title: "Grand Theft Auto V",
     imageSrc:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    requestDate: "22/07/2026",
-    requestCount: 22,
+    requestDate: "15/07/2026",
+    requestCount: 142,
   },
   {
-    id: "ar-2",
-    title: "Grand Theft Auto V",
+    id: "ac-black-flag",
+    title: "Assassin's Creed Black Flag Resynced",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    requestDate: "22/07/2026",
-    requestCount: 22,
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/242050/library_600x900_2x.jpg",
+    requestDate: "16/07/2026",
+    requestCount: 110,
   },
   {
-    id: "ar-3",
-    title: "Grand Theft Auto V",
+    id: "tk-ghost-tsushima",
+    title: "Ghost of Tsushima DIRECTOR'S CUT",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    requestDate: "22/07/2026",
-    requestCount: 22,
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2215430/library_600x900_2x.jpg",
+    requestDate: "17/07/2026",
+    requestCount: 95,
   },
   {
-    id: "ar-4",
-    title: "Grand Theft Auto V",
+    id: "tk-rdr-2",
+    title: "Red Dead Redemption 2",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    requestDate: "22/07/2026",
-    requestCount: 22,
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/library_600x900_2x.jpg",
+    requestDate: "18/07/2026",
+    requestCount: 88,
   },
   {
-    id: "ar-5",
-    title: "Grand Theft Auto V",
+    id: "tk-fc-26",
+    title: "EA SPORTS FC 26",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    requestDate: "22/07/2026",
-    requestCount: 22,
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2195250/library_600x900_2x.jpg",
+    requestDate: "19/07/2026",
+    requestCount: 79,
   },
   {
-    id: "ar-6",
-    title: "Grand Theft Auto V",
+    id: "rt-dead-by-daylight",
+    title: "Dead by Daylight",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    requestDate: "22/07/2026",
-    requestCount: 22,
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/381210/library_600x900_2x.jpg",
+    requestDate: "20/07/2026",
+    requestCount: 63,
   },
 ];
 
@@ -453,9 +454,8 @@ export default function RequestGamePage() {
           : "Dukungan vote berhasil ditambahkan!"
       );
     } else if (activeTab === "added") {
-      // View in store
+      // View in store detail (navigasi ditangani langsung oleh RequestListItem)
       handleToast("Membuka halaman game di Toko Gamezygo...");
-      router.push("/store");
     }
   };
 
@@ -463,15 +463,20 @@ export default function RequestGamePage() {
   const currentItems = React.useMemo(() => {
     if (forceEmptyState) return [];
     if (requestsApiRes?.data && requestsApiRes.data.length > 0) {
-      return requestsApiRes.data.map((r) => ({
-        id: String(r.id),
-        title: r.name,
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-        requestDate: new Date(r.created_at || Date.now()).toLocaleDateString("id-ID"),
-        requestCount: r.request_count || 1,
-        isUpvoted: false,
-      }));
+      return requestsApiRes.data.map((r, index) => {
+        const fallback = productsData.tawaranKhusus[index % productsData.tawaranKhusus.length];
+        const steamAppId = extractSteamAppId(r.steam_url);
+        return {
+          id: String(r.id),
+          title: r.name,
+          imageSrc: steamAppId
+            ? `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${steamAppId}/library_600x900_2x.jpg`
+            : fallback?.imageSrc || "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+          requestDate: new Date(r.created_at || Date.now()).toLocaleDateString("id-ID"),
+          requestCount: r.request_count || 1,
+          isUpvoted: false,
+        };
+      });
     }
     if (activeTab === "my-requests") return myRequests;
     if (activeTab === "community") return communityRequests;

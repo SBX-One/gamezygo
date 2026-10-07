@@ -240,7 +240,7 @@ export default function SubscriptionPage() {
             : undefined
         }
         searchValue={searchQuery}
-        searchPlaceholder="Cari di toko"
+        searchPlaceholder="Cari game"
         onSearchChange={(val) => setSearchQuery(val)}
         onSearchClear={() => setSearchQuery("")}
         onSearchSubmit={() => {
@@ -248,7 +248,7 @@ export default function SubscriptionPage() {
             router.push(`/store?q=${encodeURIComponent(searchQuery.trim())}`);
           }
         }}
-        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 py-10 sm:py-16 lg:py-20 flex flex-col gap-16 sm:gap-24 lg:gap-50"
+        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 py-10 sm:py-10 flex flex-col gap-16 sm:gap-24 lg:gap-50"
       >
         {/* ========================================================
             1. HERO SECTION: Header Component (matching Store)

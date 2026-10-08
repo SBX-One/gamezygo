@@ -318,7 +318,6 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
   const [quickFeedback, setQuickFeedback] = React.useState("");
   const [guestOpinionInput, setGuestOpinionInput] = React.useState("");
   const [currentPage, setCurrentPage] = React.useState(1);
-  const [searchQuery, setSearchQuery] = React.useState("");
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
 
   // Review Modal State (Exact matching Image 1 & Image 2)
@@ -495,7 +494,7 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
         />
 
         {/* Modal Dialog Card */}
-        <div className="relative z-10 w-full max-w-1/3 rounded-lg bg-deep-blue-900 border border-deep-blue-700/60 p-6 flex flex-col gap-6 select-none animate-scale-up shadow-none">
+        <div className="relative z-10 w-full max-w-2.5/3 sm:max-w-1/3 rounded-lg bg-deep-blue-900 border border-deep-blue-700/60 p-6 flex flex-col gap-6 select-none animate-scale-up shadow-none">
           {/* Header: Title + Close Icon */}
           <div className="flex items-center justify-between border-b-gradient-secondary pb-4">
             <h3 className="text-body-lg font-bold text-white">
@@ -673,16 +672,7 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
           onLoginClick={() => router.push("/login")}
           onSignUpClick={() => router.push("/login?tab=signup")}
           onCartClick={() => router.push("/cart")}
-          searchValue={searchQuery}
-          searchPlaceholder="Cari game"
-          onSearchChange={(val) => setSearchQuery(val)}
-          onSearchClear={() => setSearchQuery("")}
-          onSearchSubmit={() => {
-            if (searchQuery.trim()) {
-              router.push(`/store?q=${encodeURIComponent(searchQuery.trim())}`);
-            }
-          }}
-          contentClassName="w-full  mx-auto px-4 sm:px-6 lg:px-20 py-10 sm:py-16 flex flex-col gap-8xl sm:gap-11xl select-none"
+          contentClassName="w-full max-w-360 mx-auto px-4 sm:px-6 lg:px-20 py-10 sm:py-16 flex flex-col gap-8xl sm:gap-11xl select-none"
         >
 
           {/* 1. HERO SECTION: Centered Header with Input & Rating Stats */}
@@ -789,7 +779,7 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
           activeSidebarId="ulasan"
           user={currentUser}
         >
-            <div className="flex flex-col gap-10xl w-full mx-auto pb-16 select-none ">
+            <div className="flex flex-col gap-10xl w-full  mx-auto pb-16 select-none ">
               {/* 1. HEADER (Mirip Bundle: Border-L Merah + Input Field) */}
               <section className="flex flex-col gap-8 border-l-gradient-primary pl-6 sm:pl-8 relative">
                 <div className="grid gap-4">

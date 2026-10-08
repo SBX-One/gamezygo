@@ -171,7 +171,6 @@ export default function BlogsPage() {
   };
 
   const [searchQuery, setSearchQuery] = React.useState("");
-  const [isNavbarFilterOpen, setIsNavbarFilterOpen] = React.useState(false);
   const [isContentFilterOpen, setIsContentFilterOpen] = React.useState(false);
 
   // Staged Filter States (edited in modal before clicking Apply)
@@ -211,23 +210,12 @@ export default function BlogsPage() {
     setModalSort("Terbaru");
   };
 
-  const handleOpenNavbarFilter = () => {
-    setModalCategories(appliedCategories);
-    setModalStatus(appliedStatus);
-    setModalPlatforms(appliedPlatforms);
-    setModalGames(appliedGames);
-    setModalSort(appliedSort);
-    setIsContentFilterOpen(false);
-    setIsNavbarFilterOpen((prev) => !prev);
-  };
-
   const handleOpenContentFilter = () => {
     setModalCategories(appliedCategories);
     setModalStatus(appliedStatus);
     setModalPlatforms(appliedPlatforms);
     setModalGames(appliedGames);
     setModalSort(appliedSort);
-    setIsNavbarFilterOpen(false);
     setIsContentFilterOpen((prev) => !prev);
   };
 
@@ -334,75 +322,8 @@ export default function BlogsPage() {
         hideSidebar={true}
         activeNavId={activeNavId}
         onNavItemClick={(item) => setActiveNavId(item.id)}
-        searchValue={searchQuery}
-        searchPlaceholder="Cari game"
-        onSearchChange={(val) => {
-          setSearchQuery(val);
-          if (val.trim()) {
-            setPreviewState("default");
-          }
-        }}
-        onSearchClear={() => {
-          setSearchQuery("");
-          setPreviewState("default");
-        }}
-        onFilterClick={handleOpenNavbarFilter}
-        contentClassName="w-full  mx-auto px-4 sm:px-8 lg:px-20 pt-12 pb-20 flex flex-col"
+        contentClassName="w-full max-w-360 mx-auto px-4 sm:px-8 lg:px-20 pt-12 pb-20 flex flex-col"
       >
-        {/* ========================================================
-            NAVBAR FILTER & SORT DROPDOWN (placement="navbar", z-50)
-           ======================================================== */}
-        <FilterModal
-          isOpen={isNavbarFilterOpen}
-          variant="dropdown"
-          placement="navbar"
-          onClose={() => setIsNavbarFilterOpen(false)}
-          title="Filter & Sort"
-          categories={CATEGORIES}
-          selectedCategories={modalCategories}
-          onToggleCategory={(cat) => {
-            setModalCategories((prev) =>
-              prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
-            );
-          }}
-          statusOptions={STATUS_OPTIONS}
-          selectedStatus={modalStatus}
-          onToggleStatus={(st) => {
-            setModalStatus((prev) =>
-              prev.includes(st) ? prev.filter((s) => s !== st) : [...prev, st]
-            );
-          }}
-          platformOptions={PLATFORM_OPTIONS}
-          selectedPlatforms={modalPlatforms}
-          onTogglePlatform={(pl) => {
-            setModalPlatforms((prev) =>
-              prev.includes(pl) ? prev.filter((p) => p !== pl) : [...prev, pl]
-            );
-          }}
-          gameOptions={GAME_OPTIONS}
-          selectedGames={modalGames}
-          onToggleGame={(gm) => {
-            setModalGames((prev) =>
-              prev.includes(gm) ? prev.filter((g) => g !== gm) : [...prev, gm]
-            );
-          }}
-          sortOptions={SORT_OPTIONS}
-          selectedSort={modalSort}
-          onSelectSort={setModalSort}
-          showPriceRange={false}
-          onReset={() => {
-            handleClearAllFilters();
-            setIsNavbarFilterOpen(false);
-          }}
-          onApply={() => {
-            setAppliedCategories(modalCategories);
-            setAppliedStatus(modalStatus);
-            setAppliedPlatforms(modalPlatforms);
-            setAppliedGames(modalGames);
-            setAppliedSort(modalSort);
-            setIsNavbarFilterOpen(false);
-          }}
-        />
           {/* ======================================================
               CASE A: 500 SERVER ERROR
              ====================================================== */}
@@ -452,7 +373,7 @@ export default function BlogsPage() {
                 </div>
 
                 {/* Big Title */}
-                <h1 className="text-h3 sm:text-h2 lg:text-h1 font-semibold text-gradient-heading w-fit ">
+                <h1 className="text-h1 font-semibold text-gradient-heading w-fit ">
                   Cerita Terkini Dari
                   <br />
                   Gamezygo!
@@ -610,7 +531,7 @@ export default function BlogsPage() {
                       type="text"
                       value={searchQuery}
                       onChange={(e) => setSearchQuery(e.target.value)}
-                      placeholder="Cari di toko"
+                      placeholder="Cari artikel..."
                       className="w-full bg-transparent text-label-sm text-gray-50 placeholder:text-gray-400 outline-none tracking-normal"
                     />
                     {searchQuery && (

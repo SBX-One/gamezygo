@@ -1,4 +1,5 @@
 import * as React from "react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 
 export interface BreadcrumbItem {
@@ -6,8 +7,12 @@ export interface BreadcrumbItem {
   label: React.ReactNode;
   /** URL link jika item bisa diklik */
   href?: string;
+  /** Callback opsional jika item diklik */
+  onClick?: (e: React.MouseEvent) => void;
   /** Menandakan item aktif saat ini */
   isCurrent?: boolean;
+  /** Custom className per item */
+  className?: string;
 }
 
 export interface BreadcrumbsProps extends React.HTMLAttributes<HTMLElement> {
@@ -57,7 +62,10 @@ export function Breadcrumbs({
             const isCurrent = item.isCurrent ?? isLast;
 
             return (
-              <li key={index} className="flex items-center gap-2">
+              <li
+                key={index}
+                className={cn("flex items-center gap-2", item.className)}
+              >
                 {isCurrent ? (
                   <span
                     aria-current="page"
@@ -66,12 +74,21 @@ export function Breadcrumbs({
                     {item.label}
                   </span>
                 ) : item.href ? (
-                  <a
+                  <Link
                     href={item.href}
+                    onClick={item.onClick}
                     className="text-deep-blue-100 hover:text-gray-50 transition-colors duration-150 font-normal"
                   >
                     {item.label}
-                  </a>
+                  </Link>
+                ) : item.onClick ? (
+                  <button
+                    type="button"
+                    onClick={item.onClick}
+                    className="text-deep-blue-100 hover:text-gray-50 transition-colors duration-150 font-normal bg-transparent border-0 p-0 cursor-pointer"
+                  >
+                    {item.label}
+                  </button>
                 ) : (
                   <span className="text-deep-blue-100 font-normal">
                     {item.label}

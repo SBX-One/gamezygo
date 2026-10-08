@@ -531,7 +531,7 @@ export default function GameCredentialPage() {
             <Breadcrumbs
               items={[
                 { label: "Home", href: "/" },
-                { label: "Toko", href: "/catalog" },
+                { label: "Perpustakaan", href: "/library" },
                 { label: gameTitle },
               ]}
             />

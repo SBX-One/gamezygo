@@ -132,7 +132,7 @@ export default function LeaderboardPage() {
         hideSidebar={true}
         activeNavId="leaderboard"
         user={currentUser}
-        contentClassName="w-full  mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8"
+        contentClassName="w-full max-w-360 mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8"
       >
         <div className="flex flex-col w-full mx-auto select-none gap-8 sm:gap-12 pb-16">
           {/* ========================================================
@@ -146,7 +146,7 @@ export default function LeaderboardPage() {
               actionLabel="Lihat Premium"
               actionVariant="secondary"
               onActionClick={() => handleToast("Membuka paket berlangganan...")}
-              className="w-full max-w-4/7"
+              className="w-full sm:max-w-4/7"
             />
           </div>
 

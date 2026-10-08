@@ -810,7 +810,7 @@ export default function GameStoreDetailPage() {
                       className="min-w-0 max-w-full"
                       items={[
                         { label: "Home", href: "/" },
-                        { label: "Toko", href: "/catalog" },
+                        { label: "Toko", href: "/store" },
                         { label: gameTitle },
                       ]}
                     />
@@ -880,9 +880,10 @@ export default function GameStoreDetailPage() {
                 </div>
 
                 {/* Badges Row (Genre, Rating, Launcher) */}
-                <div className="w-full min-w-0 jus max-w-full flex gap-2 sm:gap-5 pt-2 sm:pt-4">
-                  <div className="flex flex-col gap-1 sm:gap-1.5 min-w-0 overflow-hidden">
-                    <span className="text-body-sm text-gray-400">
+                <div className="w-full min-w-0 max-w-full flex items-center justify-between gap-2.5 sm:gap-6 pt-2 sm:pt-4">
+                  {/* Genre Column */}
+                  <div className="flex flex-col gap-1 sm:gap-1.5 min-w-0 flex-1 overflow-hidden">
+                    <span className="text-body-xs sm:text-body-sm text-gray-400">
                       GENRE
                     </span>
                     <div className="relative w-full overflow-hidden">
@@ -905,32 +906,31 @@ export default function GameStoreDetailPage() {
                     </div>
                   </div>
 
-                  {/* Divider 1: border-x-gradient-secondary wrapper */}
-                  <div className="flex border-x-gradient-secondary px-8 min-w-0">
-                    <div className="flex flex-col gap-1 sm:gap-1.5 shrink-0">
-                      <span className="text-body-sm text-gray-400">
-                        RATING
+                  {/* Rating Column: border-x-gradient-secondary with responsive padding */}
+                  <div className="flex flex-col gap-1 sm:gap-1.5 shrink-0 border-x-gradient-secondary px-3 sm:px-8 lg:px-16 min-w-0">
+                    <span className="text-body-xs sm:text-body-sm text-gray-400">
+                      RATING
+                    </span>
+                    <div className="flex items-center gap-1 sm:gap-2">
+                      <span className="text-body-xs sm:text-body-md font-semibold text-white">
+                        {apiProduct?.rating ? apiProduct.rating.toFixed(1) : "4.8"}
                       </span>
-                      <div className="flex items-center justify-center gap-1 sm:gap-2">
-                        <span className="text-body-md font-semibold text-white">
-                          {apiProduct?.rating ? apiProduct.rating.toFixed(1) : "4.8"}
-                        </span>
-                        <div className="flex items-center gap-0.5 sm:gap-1 text-white">
-                          <StarFilledIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-white shrink-0" />
-                          <StarFilledIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-white shrink-0" />
-                          <StarFilledIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-white shrink-0" />
-                          <StarFilledIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-white shrink-0" />
-                          <StarRegularIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-gray-500 shrink-0" />
-                        </div>
+                      <div className="flex items-center gap-0.5 sm:gap-1 text-white">
+                        <StarFilledIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-white shrink-0" />
+                        <StarFilledIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-white shrink-0" />
+                        <StarFilledIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-white shrink-0" />
+                        <StarFilledIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-white shrink-0" />
+                        <StarRegularIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-gray-500 shrink-0" />
                       </div>
                     </div>
                   </div>
 
-                  <div className="flex flex-col gap-1 sm:gap-1.5 shrink-0 items-center sm:items-start pl-1 sm:pl-2 min-w-0">
-                    <span className="text-body-sm text-gray-400">
+                  {/* Launcher Column */}
+                  <div className="flex flex-col gap-1 sm:gap-1.5 shrink-0 items-start pl-1 sm:pl-2 min-w-0">
+                    <span className="text-body-xs sm:text-body-sm text-gray-400">
                       LAUNCHER
                     </span>
-                    <span className="text-body-md font-semibold text-gray-50">
+                    <span className="text-body-sm sm:text-body-md font-semibold text-gray-50">
                       {apiProduct?.product_launcher_category?.name || "Steam"}
                     </span>
                   </div>

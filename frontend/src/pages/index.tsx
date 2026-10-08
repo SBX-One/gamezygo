@@ -1157,7 +1157,7 @@ export default function LandingPage() {
         onLoginClick={() => router.push("/login")}
         onSignUpClick={() => router.push("/login?tab=signup")}
         onCartClick={() => router.push("/cart")}
-        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 py-10 sm:py-10 flex flex-col gap-16 sm:gap-24 lg:gap-50"
+        contentClassName="w-full mx-auto max-w-360 px-4 sm:px-8 lg:px-20 py-10 sm:py-10 flex flex-col gap-16 sm:gap-24 lg:gap-50"
       >
         {/* ========================================================
             1. HERO CAROUSEL BANNER (PROMO UTAMA / MUSIM PANAS)
@@ -1524,7 +1524,7 @@ export default function LandingPage() {
               actionLabel="Lihat Premium"
               actionVariant="secondary"
               onActionClick={() => router.push("/leaderboard")}
-              className="max-w-5/8"
+              className="sm:max-w-5/8"
             />
           </div>
           <div data-animate="divider" className="w-full border-t-gradient-secondary my-2" />
@@ -1588,7 +1588,7 @@ export default function LandingPage() {
                   Dengarkan Pendapat Gamer Setelah Beli di Gamezygo!
                 </>
               }
-              className="max-w-5/8"
+              className="sm:max-w-5/8"
             >
               {/* "Beri Pendapat" Input Bar */}
               <div data-animate="opinion-bar" className="relative w-full  lg:max-w-1/2 mx-auto">

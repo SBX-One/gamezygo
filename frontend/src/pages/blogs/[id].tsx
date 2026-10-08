@@ -105,14 +105,6 @@ export default function BlogDetailPage() {
     return [...PROMO_GAMES, ...PROMO_GAMES, ...PROMO_GAMES, ...PROMO_GAMES];
   }, []);
 
-  const [headerSearch, setHeaderSearch] = React.useState("");
-
-  const handleSearchSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (headerSearch.trim()) {
-      router.push(`/blogs?q=${encodeURIComponent(headerSearch)}`);
-    }
-  };
 
   return (
     <>
@@ -126,14 +118,6 @@ export default function BlogDetailPage() {
         backTitle="Artikel"
         onBackClick={() => router.push("/blogs")}
         hideSidebar={true}
-        searchValue={headerSearch}
-        searchPlaceholder="Cari game"
-        onSearchChange={(val) => setHeaderSearch(val)}
-        onSearchSubmit={() => {
-          if (headerSearch.trim()) {
-            router.push(`/blogs?q=${encodeURIComponent(headerSearch)}`);
-          }
-        }}
         onCartClick={() => router.push("/cart")}
         contentClassName="flex-1 w-full flex flex-col pt-8 pb-20 p-0 mb-0"
       >
@@ -144,9 +128,9 @@ export default function BlogDetailPage() {
               <Breadcrumbs
                 items={[
                   { label: "Home", href: "/" },
-                  { label: "Toko", href: "/blogs" },
+                  { label: "Artikel", href: "/blogs" },
                   {
-                    label: `Aksesoris Toko ${blog.title}`,
+                    label: blog.title,
                     isCurrent: true,
                   },
                 ]}

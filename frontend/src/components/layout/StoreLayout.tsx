@@ -4,7 +4,7 @@ import { cn } from "@/lib/utils";
 import { Navbar } from "@/components/ui/Navbar";
 import { Sidebar } from "@/components/ui/Sidebar";
 import { Footer } from "@/components/ui/Footer";
-import { FilterModal } from "@/components/ui/FilterModal";
+import { FilterModal, type FilterValues } from "@/components/ui/FilterModal";
 import { useRouter } from "next/router";
 import { useUiStore } from "@/stores/use-ui-store";
 import { useAuthStore } from "@/stores/use-auth-store";
@@ -58,8 +58,8 @@ export function StoreLayout({
   navItems,
   activeNavId = "toko",
   activeSidebarId = "toko",
-  searchValue = "",
-  searchPlaceholder = "Cari game ",
+  searchValue,
+  searchPlaceholder = "Cari game",
   onSearchChange,
   onSearchSubmit,
   onSearchClear,
@@ -157,6 +157,59 @@ export function StoreLayout({
     }
   };
 
+  const handleDefaultSearchSubmit = (val: string) => {
+    if (onSearchSubmit) {
+      onSearchSubmit(val);
+    } else {
+      const q = val.trim();
+      if (q) {
+        router.push(`/store?q=${encodeURIComponent(q)}`);
+      } else {
+        router.push("/store");
+      }
+    }
+  };
+
+  const handleGlobalFilterApply = (values?: FilterValues) => {
+    toggleFilterModal(false);
+    if (!values) {
+      router.push("/store");
+      return;
+    }
+
+    const params = new URLSearchParams();
+    if (values.categories && values.categories.length > 0) {
+      params.set("categories", values.categories.join(","));
+    }
+    if (values.genres && values.genres.length > 0) {
+      params.set("genres", values.genres.join(","));
+    }
+    if (values.launchers && values.launchers.length > 0) {
+      params.set("launchers", values.launchers.join(","));
+    }
+    if (values.priceRange) {
+      if (values.priceRange[0] > 0) {
+        params.set("minPrice", values.priceRange[0].toString());
+      }
+      if (values.priceRange[1] < 200000) {
+        params.set("maxPrice", values.priceRange[1].toString());
+      }
+    }
+    if (values.sort && values.sort !== "Terbaru") {
+      params.set("sort", values.sort);
+    }
+
+    const qs = params.toString();
+    router.push(qs ? `/store?${qs}` : "/store");
+  };
+
+  const handleGlobalFilterReset = () => {
+    toggleFilterModal(false);
+    if (router.pathname === "/store") {
+      router.push("/store");
+    }
+  };
+
   React.useEffect(() => {
     if (hideNavbar) return;
     const updateHeight = () => {
@@ -191,7 +244,7 @@ export function StoreLayout({
     <div
       ref={ref}
       className={cn(
-        "min-h-screen flex flex-col bg-deep-blue-950 text-gray-50 antialiased font-sans selection:bg-rose-600/30 selection:text-gray-50 w-full",
+        "min-h-screen flex flex-col bg-deep-blue-950  text-gray-50 antialiased font-sans selection:bg-rose-600/30 selection:text-gray-50 w-full",
         className
       )}
       style={{
@@ -200,6 +253,7 @@ export function StoreLayout({
       } as React.CSSProperties}
       {...props}
     >
+      
       {/* ========================================================
           1. STICKY NAVBAR HEADER (Glassmorphic Dark Mode)
          ======================================================== */}
@@ -218,7 +272,7 @@ export function StoreLayout({
               searchPlaceholder={searchPlaceholder}
               onSearchChange={onSearchChange}
               onSearchClear={onSearchClear}
-              onSearchSubmit={onSearchSubmit}
+              onSearchSubmit={handleDefaultSearchSubmit}
               onFilterClick={onFilterClick || (() => toggleFilterModal())}
               onLoginClick={onLoginClick || (() => router.push("/login"))}
               onSignUpClick={
@@ -249,8 +303,8 @@ export function StoreLayout({
           placement="navbar"
           variant="dropdown"
           onClose={() => toggleFilterModal(false)}
-          onApply={() => toggleFilterModal(false)}
-          onReset={() => toggleFilterModal(false)}
+          onApply={handleGlobalFilterApply}
+          onReset={handleGlobalFilterReset}
         />
       )}
 

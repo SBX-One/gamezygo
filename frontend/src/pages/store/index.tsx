@@ -1,5 +1,6 @@
 import * as React from "react";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import {
   Header,
   Button,
@@ -11,6 +12,7 @@ import {
   Toast,
   BannerCarousel,
   type BannerSlide,
+  type ProductCardRowItem,
 } from "@/components/ui";
 import { StoreLayout } from "@/components/layout";
 import { useAuthStore } from "@/stores/use-auth-store";
@@ -116,6 +118,8 @@ const PROMO_BANNERS: BannerSlide[] = [
 ];
 
 export default function StorePage() {
+  const router = useRouter();
+
   // Auth state
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const authUser = useAuthStore((s) => s.user);
@@ -154,6 +158,107 @@ export default function StorePage() {
   const [previewState, setPreviewState] = React.useState<
     "default" | "error-500" | "searched" | "searched-empty" | "filter-applied" | "filter-empty"
   >("default");
+
+  // Synchronize router query params (q, search, genres, launchers, price, etc.)
+  React.useEffect(() => {
+    if (!router.isReady) return;
+
+    const {
+      q,
+      search,
+      genres,
+      genre,
+      categories,
+      category,
+      launchers,
+      launcher,
+      minPrice,
+      maxPrice,
+      sort,
+    } = router.query;
+
+    const rawQuery = (q || search) as string | undefined;
+    setSearchQuery(rawQuery || "");
+
+    const rawGenres = (genres || genre) as string | undefined;
+    if (rawGenres) {
+      const parsedGenres = rawGenres
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      setSelectedGenres(parsedGenres);
+      setAppliedGenres(parsedGenres);
+    } else {
+      setSelectedGenres([]);
+      setAppliedGenres([]);
+    }
+
+    const rawCategories = (categories || category) as string | undefined;
+    if (rawCategories) {
+      const parsedCategories = rawCategories
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      setSelectedCategories(parsedCategories);
+      setAppliedCategories(parsedCategories);
+    } else {
+      setSelectedCategories([]);
+      setAppliedCategories([]);
+    }
+
+    const rawLaunchers = (launchers || launcher) as string | undefined;
+    if (rawLaunchers) {
+      const parsedLaunchers = rawLaunchers
+        .split(",")
+        .map((s) => s.trim())
+        .filter(Boolean);
+      setSelectedLaunchers(parsedLaunchers);
+      setAppliedLaunchers(parsedLaunchers);
+    } else {
+      setSelectedLaunchers([]);
+      setAppliedLaunchers([]);
+    }
+
+    const parsedMin = minPrice ? parseInt(minPrice as string, 10) : 0;
+    const parsedMax = maxPrice ? parseInt(maxPrice as string, 10) : 200000;
+    if (
+      !isNaN(parsedMin) &&
+      !isNaN(parsedMax) &&
+      (parsedMin > 0 || parsedMax < 200000)
+    ) {
+      setPriceRange([parsedMin, parsedMax]);
+      setAppliedPriceRange([parsedMin, parsedMax]);
+    } else {
+      setPriceRange([0, 200000]);
+      setAppliedPriceRange([0, 200000]);
+    }
+
+    const rawSort = sort as string | undefined;
+    if (rawSort) {
+      setSelectedSort(rawSort);
+      setAppliedSort(rawSort);
+    } else {
+      setSelectedSort("Terbaru");
+      setAppliedSort("Terbaru");
+    }
+
+    const hasFilters = Boolean(
+      rawGenres ||
+        rawCategories ||
+        rawLaunchers ||
+        (!isNaN(parsedMin) && parsedMin > 0) ||
+        (!isNaN(parsedMax) && parsedMax < 200000) ||
+        (rawSort && rawSort !== "Terbaru")
+    );
+
+    if (rawQuery && rawQuery.trim()) {
+      setPreviewState("default");
+    } else if (hasFilters) {
+      setPreviewState("filter-applied");
+    } else {
+      setPreviewState("default");
+    }
+  }, [router.isReady, router.query]);
 
   // Cart notification toast
   const [cartToast, setCartToast] = React.useState<string | null>(null);
@@ -201,11 +306,24 @@ export default function StorePage() {
   // Determine active genres based on interactive state or user applied filters
   const activeGenres = React.useMemo(() => {
     if (appliedGenres.length > 0) return appliedGenres;
-    if (previewState === "filter-applied" || previewState === "filter-empty") {
+    if (
+      (previewState === "filter-applied" || previewState === "filter-empty") &&
+      appliedCategories.length === 0 &&
+      appliedLaunchers.length === 0 &&
+      appliedPriceRange[0] === 0 &&
+      appliedPriceRange[1] === 200000
+    ) {
       return ["Action", "Adventure", "NSFW"];
     }
     return selectedGenres;
-  }, [appliedGenres, previewState, selectedGenres]);
+  }, [
+    appliedGenres,
+    appliedCategories,
+    appliedLaunchers,
+    appliedPriceRange,
+    previewState,
+    selectedGenres,
+  ]);
 
   const handleRemoveGenre = (genreToRemove: string) => {
     const next = activeGenres.filter((g) => g !== genreToRemove);
@@ -213,11 +331,38 @@ export default function StorePage() {
     setSelectedGenres(next);
     if (
       next.length === 0 &&
+      appliedCategories.length === 0 &&
       appliedLaunchers.length === 0 &&
       appliedPriceRange[0] === 0 &&
       appliedPriceRange[1] === 200000
     ) {
       setPreviewState("default");
+      router.replace(
+        searchQuery.trim()
+          ? { pathname: "/store", query: { q: searchQuery.trim() } }
+          : "/store",
+        undefined,
+        { shallow: true }
+      );
+    } else {
+      const queryParams: Record<string, string> = {};
+      if (searchQuery.trim()) queryParams.q = searchQuery.trim();
+      if (next.length > 0) queryParams.genres = next.join(",");
+      if (appliedCategories.length > 0)
+        queryParams.categories = appliedCategories.join(",");
+      if (appliedLaunchers.length > 0)
+        queryParams.launchers = appliedLaunchers.join(",");
+      if (appliedPriceRange[0] > 0)
+        queryParams.minPrice = appliedPriceRange[0].toString();
+      if (appliedPriceRange[1] < 200000)
+        queryParams.maxPrice = appliedPriceRange[1].toString();
+      if (appliedSort !== "Terbaru") queryParams.sort = appliedSort;
+
+      router.replace(
+        { pathname: "/store", query: queryParams },
+        undefined,
+        { shallow: true }
+      );
     }
   };
 
@@ -225,6 +370,7 @@ export default function StorePage() {
     setSelectedGenres([]);
     setAppliedGenres([]);
     setSelectedCategories([]);
+    setAppliedCategories([]);
     setSelectedLaunchers([]);
     setAppliedLaunchers([]);
     setPriceRange([0, 200000]);
@@ -232,6 +378,13 @@ export default function StorePage() {
     setSelectedSort("Terbaru");
     setAppliedSort("Terbaru");
     setPreviewState("default");
+    router.replace(
+      searchQuery.trim()
+        ? { pathname: "/store", query: { q: searchQuery.trim() } }
+        : "/store",
+      undefined,
+      { shallow: true }
+    );
   };
 
   // Dynamic Banners from Backend (fallback to local if API empty)
@@ -252,20 +405,64 @@ export default function StorePage() {
 
   // Filtered Products Logic
   const searchResults = React.useMemo(() => {
-    if (productsApiData?.data && productsApiData.data.length > 0 && searchQuery.trim()) {
-      return productsApiData.data.map(mapProductToCardItem);
+    let list: Array<ProductItem | ProductCardRowItem> = ALL_STORE_PRODUCTS;
+
+    if (productsApiData?.data && productsApiData.data.length > 0) {
+      list = productsApiData.data.map(mapProductToCardItem);
     }
 
     const query = searchQuery.trim().toLowerCase();
-    if (!query) return [];
+    if (query) {
+      list = list.filter(
+        (p) =>
+          p.title.toLowerCase().includes(query) ||
+          (query.includes("gta") &&
+            p.title.toLowerCase().includes("grand theft auto")) ||
+          (query.includes("grand") &&
+            p.title.toLowerCase().includes("grand theft auto")) ||
+          p.genres?.some((g) => g.toLowerCase().includes(query)) ||
+          p.platform?.toLowerCase().includes(query)
+      );
+    }
 
-    return ALL_STORE_PRODUCTS.filter(
-      (p) =>
-        p.title.toLowerCase().includes(query) ||
-        (query.includes("gta") && p.title.toLowerCase().includes("grand theft auto")) ||
-        (query.includes("grand") && p.title.toLowerCase().includes("grand theft auto"))
-    );
-  }, [searchQuery, productsApiData]);
+    // Also respect active filters if any
+    if (activeGenres.length > 0) {
+      list = list.filter((p) =>
+        activeGenres.some((g) => p.genres.includes(g))
+      );
+    }
+    if (appliedCategories.length > 0) {
+      list = list.filter((p) =>
+        appliedCategories.some((c) => p.genres.includes(c))
+      );
+    }
+    if (appliedLaunchers.length > 0) {
+      list = list.filter((p) =>
+        appliedLaunchers.some(
+          (l) =>
+            p.platform?.toLowerCase().includes(l.toLowerCase()) ||
+            l.toLowerCase().includes(p.platform?.toLowerCase() || "")
+        )
+      );
+    }
+    if (appliedPriceRange[0] > 0 || appliedPriceRange[1] < 200000) {
+      list = list.filter((p) => {
+        const price = p.numericPrice ?? 0;
+        return (
+          price >= appliedPriceRange[0] && price <= appliedPriceRange[1]
+        );
+      });
+    }
+
+    return list;
+  }, [
+    searchQuery,
+    activeGenres,
+    appliedCategories,
+    appliedLaunchers,
+    appliedPriceRange,
+    productsApiData,
+  ]);
 
   const filteredCatalog = React.useMemo(() => {
     if (previewState === "filter-empty") {
@@ -293,7 +490,11 @@ export default function StorePage() {
     // 2. Filter by launcher / platform
     if (appliedLaunchers.length > 0) {
       list = list.filter((product) =>
-        appliedLaunchers.includes(product.platform || "Steam")
+        appliedLaunchers.some(
+          (l) =>
+            product.platform?.toLowerCase().includes(l.toLowerCase()) ||
+            l.toLowerCase().includes(product.platform?.toLowerCase() || "")
+        )
       );
     }
 
@@ -331,9 +532,11 @@ export default function StorePage() {
     previewState === "filter-applied" ||
     previewState === "filter-empty" ||
     activeGenres.length > 0 ||
+    appliedCategories.length > 0 ||
     appliedLaunchers.length > 0 ||
     appliedPriceRange[0] > 0 ||
-    appliedPriceRange[1] < 200000;
+    appliedPriceRange[1] < 200000 ||
+    appliedSort !== "Terbaru";
 
   return (
     <>
@@ -369,9 +572,28 @@ export default function StorePage() {
         onSearchClear={() => {
           setSearchQuery("");
           setPreviewState("default");
+          router.replace("/store", undefined, { shallow: true });
+        }}
+        onSearchSubmit={(val) => {
+          const q = val.trim();
+          setSearchQuery(q);
+          setPreviewState("default");
+          const nextQuery = { ...router.query };
+          if (q) {
+            nextQuery.q = q;
+            delete nextQuery.search;
+          } else {
+            delete nextQuery.q;
+            delete nextQuery.search;
+          }
+          router.replace(
+            { pathname: "/store", query: nextQuery },
+            undefined,
+            { shallow: true }
+          );
         }}
         onFilterClick={() => setIsFilterModalOpen((prev) => !prev)}
-        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 pb-20 flex flex-col gap-50"
+        contentClassName="w-full max-w-360 mx-auto px-4 sm:px-8 lg:px-20 pb-20 flex flex-col gap-50"
       >
         {/* ======================================================
             CASE A: STATE 500 SERVER ERROR (Screenshot 2: Empty)
@@ -392,7 +614,7 @@ export default function StorePage() {
           /* ======================================================
               CASE B: SEARCHED STATES (Screenshot 2: Searched / Searched Empty)
              ====================================================== */
-          <div className="flex flex-col gap-8 pt-8 mt-30 min-h-screen pb-16">
+          <div className="flex flex-col gap-8 pt-8   min-h-screen pb-16">
             <SectionHeader
               type="outer"
               title={`Cari "${searchQuery || 'Grand Thief Auto V'}"`}
@@ -426,10 +648,12 @@ export default function StorePage() {
                   onBack={() => {
                     setSearchQuery("");
                     setExactState("default");
+                    router.replace("/store", undefined, { shallow: true });
                   }}
                   onSearch={() => {
                     setSearchQuery("");
                     setExactState("default");
+                    router.replace("/store", undefined, { shallow: true });
                   }}
                 />
               </div>
@@ -449,7 +673,7 @@ export default function StorePage() {
               <div className="flex flex-wrap items-center gap-2.5">
                 {activeGenres.map((genre) => (
                   <Button
-                    key={genre}
+                    key={`genre-${genre}`}
                     type="button"
                     variant="secondary"
                     size="sm"
@@ -459,6 +683,81 @@ export default function StorePage() {
                     {genre}
                   </Button>
                 ))}
+
+                {appliedCategories.map((cat) => (
+                  <Button
+                    key={`cat-${cat}`}
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    rightIcon={<CrossIcon />}
+                    onClick={() => {
+                      const next = appliedCategories.filter((c) => c !== cat);
+                      setAppliedCategories(next);
+                      setSelectedCategories(next);
+                      const queryParams: Record<string, string> = {};
+                      if (searchQuery.trim()) queryParams.q = searchQuery.trim();
+                      if (activeGenres.length > 0) queryParams.genres = activeGenres.join(",");
+                      if (next.length > 0) queryParams.categories = next.join(",");
+                      if (appliedLaunchers.length > 0) queryParams.launchers = appliedLaunchers.join(",");
+                      if (appliedPriceRange[0] > 0) queryParams.minPrice = appliedPriceRange[0].toString();
+                      if (appliedPriceRange[1] < 200000) queryParams.maxPrice = appliedPriceRange[1].toString();
+                      if (appliedSort !== "Terbaru") queryParams.sort = appliedSort;
+                      router.replace({ pathname: "/store", query: queryParams }, undefined, { shallow: true });
+                    }}
+                  >
+                    {cat}
+                  </Button>
+                ))}
+
+                {appliedLaunchers.map((launcher) => (
+                  <Button
+                    key={`launcher-${launcher}`}
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    rightIcon={<CrossIcon />}
+                    onClick={() => {
+                      const next = appliedLaunchers.filter((l) => l !== launcher);
+                      setAppliedLaunchers(next);
+                      setSelectedLaunchers(next);
+                      const queryParams: Record<string, string> = {};
+                      if (searchQuery.trim()) queryParams.q = searchQuery.trim();
+                      if (activeGenres.length > 0) queryParams.genres = activeGenres.join(",");
+                      if (appliedCategories.length > 0) queryParams.categories = appliedCategories.join(",");
+                      if (next.length > 0) queryParams.launchers = next.join(",");
+                      if (appliedPriceRange[0] > 0) queryParams.minPrice = appliedPriceRange[0].toString();
+                      if (appliedPriceRange[1] < 200000) queryParams.maxPrice = appliedPriceRange[1].toString();
+                      if (appliedSort !== "Terbaru") queryParams.sort = appliedSort;
+                      router.replace({ pathname: "/store", query: queryParams }, undefined, { shallow: true });
+                    }}
+                  >
+                    {launcher}
+                  </Button>
+                ))}
+
+                {(appliedPriceRange[0] > 0 || appliedPriceRange[1] < 200000) && (
+                  <Button
+                    key="price-badge"
+                    type="button"
+                    variant="secondary"
+                    size="sm"
+                    rightIcon={<CrossIcon />}
+                    onClick={() => {
+                      setAppliedPriceRange([0, 200000]);
+                      setPriceRange([0, 200000]);
+                      const queryParams: Record<string, string> = {};
+                      if (searchQuery.trim()) queryParams.q = searchQuery.trim();
+                      if (activeGenres.length > 0) queryParams.genres = activeGenres.join(",");
+                      if (appliedCategories.length > 0) queryParams.categories = appliedCategories.join(",");
+                      if (appliedLaunchers.length > 0) queryParams.launchers = appliedLaunchers.join(",");
+                      if (appliedSort !== "Terbaru") queryParams.sort = appliedSort;
+                      router.replace({ pathname: "/store", query: queryParams }, undefined, { shallow: true });
+                    }}
+                  >
+                    {`Rp ${appliedPriceRange[0].toLocaleString("id-ID")} - Rp ${appliedPriceRange[1].toLocaleString("id-ID")}`}
+                  </Button>
+                )}
 
                 <Button
                   type="button"
@@ -688,11 +987,23 @@ export default function StorePage() {
           setIsFilterModalOpen(false);
           const hasFilters =
             selectedGenres.length > 0 ||
+            selectedCategories.length > 0 ||
             selectedLaunchers.length > 0 ||
             priceRange[0] > 0 ||
             priceRange[1] < 200000 ||
             selectedSort !== "Terbaru";
           setPreviewState(hasFilters ? "filter-applied" : "default");
+
+          const queryParams: Record<string, string> = {};
+          if (searchQuery.trim()) queryParams.q = searchQuery.trim();
+          if (selectedGenres.length > 0) queryParams.genres = selectedGenres.join(",");
+          if (selectedCategories.length > 0) queryParams.categories = selectedCategories.join(",");
+          if (selectedLaunchers.length > 0) queryParams.launchers = selectedLaunchers.join(",");
+          if (priceRange[0] > 0) queryParams.minPrice = priceRange[0].toString();
+          if (priceRange[1] < 200000) queryParams.maxPrice = priceRange[1].toString();
+          if (selectedSort !== "Terbaru") queryParams.sort = selectedSort;
+
+          router.replace({ pathname: "/store", query: queryParams }, undefined, { shallow: true });
         }}
       />
 

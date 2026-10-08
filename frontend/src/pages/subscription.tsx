@@ -204,7 +204,6 @@ export default function SubscriptionPage() {
   const { isAuthenticated, user } = useAuthStore();
 
   // Search query & layout nav states
-  const [searchQuery, setSearchQuery] = React.useState<string>("");
 
   // Toast notification state
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
@@ -239,15 +238,6 @@ export default function SubscriptionPage() {
               }
             : undefined
         }
-        searchValue={searchQuery}
-        searchPlaceholder="Cari game"
-        onSearchChange={(val) => setSearchQuery(val)}
-        onSearchClear={() => setSearchQuery("")}
-        onSearchSubmit={() => {
-          if (searchQuery.trim()) {
-            router.push(`/store?q=${encodeURIComponent(searchQuery.trim())}`);
-          }
-        }}
         contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 py-10 sm:py-10 flex flex-col gap-16 sm:gap-24 lg:gap-50"
       >
         {/* ========================================================

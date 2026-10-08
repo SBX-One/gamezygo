@@ -1,5 +1,16 @@
 import * as React from "react";
 
+export interface FilterValues {
+  categories?: string[];
+  genres?: string[];
+  launchers?: string[];
+  status?: string[];
+  platforms?: string[];
+  games?: string[];
+  priceRange?: [number, number];
+  sort?: string;
+}
+
 export interface FilterModalProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
   /** Apakah modal terbuka (jika digunakan sebagai overlay dialog) */
@@ -17,7 +28,7 @@ export interface FilterModalProps
   /** Callback saat tombol Reset diklik */
   onReset?: () => void;
   /** Callback saat tombol Apply diklik */
-  onApply?: () => void;
+  onApply?: (values?: FilterValues) => void;
   /** Label untuk tombol Cancel (default: 'Cancel') */
   cancelLabel?: string;
   /** Label untuk tombol Apply (default: 'Apply') */

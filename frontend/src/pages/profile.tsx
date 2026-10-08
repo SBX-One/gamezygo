@@ -389,9 +389,9 @@ export default function ProfilePage() {
            ======================================================== */}
         <div className="w-full max-w-243.5 mx-auto select-none pb-20 px-4 sm:px-0 flex flex-col gap-5">
           {/* Profile Info Card (Overlapping -mt-14 sm:-mt-16, w-full with NO mx-3/mx-6 so it is 100% sejajar with 3 cards) */}
-          <div className="relative -mt-14 sm:-mt-16 w-full rounded-lg bg-deep-blue-900 border border-white/5 p-5 sm:p-6 flex flex-col sm:flex-row  justify-between gap-4">
+          <div className="relative -mt-14 sm:-mt-16 w-full rounded-lg bg-deep-blue-900 border border-white/5 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
             {/* Left Side: Avatar + Details */}
-            <div className="flex  gap-4 sm:gap-5">
+            <div className="flex items-start sm:items-center gap-4 sm:gap-5 min-w-0">
               <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 border-gradient-secondary shrink-0 bg-deep-blue-800">
                 <img
                   src={user.avatarUrl}
@@ -399,16 +399,20 @@ export default function ProfilePage() {
                   className="w-full h-full object-cover"
                 />
               </div>
-              <div className="flex flex-col gap-1.5 min-w-0">
-                <h2 className="text-body-lg sm:text-h6 font-semibold text-white ">
+              <div className="flex flex-col gap-2 min-w-0">
+                <h2 className="text-body-lg sm:text-h6 font-semibold text-white truncate">
                   {user.name}
                 </h2>
-                <div className="flex flex-wrap items-center gap-2.5 sm:gap-4 text-label-xs">
-                  <Button variant="outline" size='sm' >
-                    {user.email}
+                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 text-label-xs min-w-0">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    className="w-fit max-w-full text-body-xs font-normal py-1.5 px-3 truncate"
+                  >
+                    <span className="truncate">{user.email}</span>
                   </Button>
-                  <span className="bg-border-secondary-default w-px h-full"></span>
-                  <span className="text-gray-400 text-body-xs">
+                  <span className="hidden sm:inline-block w-px h-3.5 bg-white/20 shrink-0" />
+                  <span className="text-gray-400 text-body-xs shrink-0">
                     Bergabung sejak: {user.joinedDate}
                   </span>
                 </div>
@@ -416,22 +420,25 @@ export default function ProfilePage() {
             </div>
 
             {/* Right Side: Ubah Profile Button */}
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => {
-                setEditName(user.name);
-                setEditAvatarUrl(user.avatarUrl);
-                setIsEditModalOpen(true);
-              }}
-            >
-              <img
-                src="/assets/svg/fluent_edit-24-regular.svg"
-                alt="Edit"
-                className="w-4 h-4 filter-[brightness(0)_invert(0.8)]"
-              />
-              <span>Ubah Profile</span>
-            </Button>
+            <div className="pt-1 sm:pt-0 shrink-0">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-fit"
+                onClick={() => {
+                  setEditName(user.name);
+                  setEditAvatarUrl(user.avatarUrl);
+                  setIsEditModalOpen(true);
+                }}
+              >
+                <img
+                  src="/assets/svg/fluent_edit-24-regular.svg"
+                  alt="Edit"
+                  className="w-4 h-4 filter-[brightness(0)_invert(0.8)]"
+                />
+                <span>Ubah Profile</span>
+              </Button>
+            </div>
           </div>
 
           {/* ========================================================

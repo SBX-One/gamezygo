@@ -215,6 +215,19 @@ export function FilterModal({
     }
   };
 
+  const handleApply = () => {
+    onApply?.({
+      categories: activeCategories,
+      genres: activeGenres,
+      launchers: activeLaunchers,
+      status: activeStatus,
+      platforms: activePlatforms,
+      games: activeGames,
+      priceRange: [currentMinPrice, currentMaxPrice],
+      sort: activeSort,
+    });
+  };
+
   const handleToggle = (
     item: string,
     currentList: string[],
@@ -714,7 +727,7 @@ export function FilterModal({
             type="button"
             variant="primary"
             size="sm"
-            onClick={onApply}
+            onClick={handleApply}
             className="cursor-pointer min-w-24 justify-center"
           >
             {applyLabel}

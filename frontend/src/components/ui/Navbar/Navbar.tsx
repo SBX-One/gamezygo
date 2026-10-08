@@ -281,7 +281,7 @@ export function Navbar({
   navItems = defaultNavItems,
   activeNavId,
   onNavItemClick,
-  searchValue = "",
+  searchValue,
   searchPlaceholder = "Cari game",
   onSearchChange,
   onSearchClear,
@@ -303,7 +303,7 @@ export function Navbar({
   ref,
   ...props
 }: NavbarProps) {
-  const [internalSearch, setInternalSearch] = React.useState(searchValue);
+  const [internalSearch, setInternalSearch] = React.useState(searchValue ?? "");
   const [isProfileOpen, setIsProfileOpen] = React.useState(false);
   const profileMenuRef = React.useRef<HTMLDivElement>(null);
   const { isMobileNavOpen, toggleMobileNav } = useUiStore();
@@ -340,6 +340,12 @@ export function Navbar({
   React.useEffect(() => {
     setMounted(true);
   }, []);
+
+  React.useEffect(() => {
+    if (searchValue !== undefined) {
+      setInternalSearch(searchValue);
+    }
+  }, [searchValue]);
 
   // Close profile dropdown when clicking outside or pressing Escape
   React.useEffect(() => {
@@ -382,7 +388,12 @@ export function Navbar({
 
   const handleFormSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSearchSubmit?.(internalSearch);
+    if (onSearchSubmit) {
+      onSearchSubmit(internalSearch);
+    } else {
+      const q = internalSearch.trim();
+      router.push(q ? `/store?q=${encodeURIComponent(q)}` : "/store");
+    }
   };
 
   return (
@@ -756,6 +767,38 @@ export function Navbar({
                   <DismissIcon className="w-5 h-5" />
                 </button>
               </div>
+
+              {/* Mobile Search Bar inside Drawer */}
+              {!isDashboardContext && (
+                <div className="px-5 pt-4 pb-1 shrink-0">
+                  <form
+                    onSubmit={(e) => {
+                      toggleMobileNav(false);
+                      handleFormSubmit(e);
+                    }}
+                    className="relative flex items-center bg-deep-blue-900/80 border border-gradient-secondary rounded-lg px-3.5 py-2.5 h-11 w-full gap-2.5 focus-within:border-deep-blue-100/40 transition-all"
+                  >
+                    <SearchIcon className="w-4 h-4 text-deep-blue-100 shrink-0" />
+                    <input
+                      type="text"
+                      value={internalSearch}
+                      onChange={handleSearchChange}
+                      placeholder={searchPlaceholder}
+                      className="w-full bg-transparent text-label-sm text-gray-50 placeholder:text-gray-400 outline-none tracking-normal min-w-0"
+                    />
+                    {internalSearch && (
+                      <button
+                        type="button"
+                        onClick={handleClear}
+                        className="text-deep-blue-100 hover:text-gray-50 shrink-0 cursor-pointer outline-none"
+                        aria-label="Hapus teks"
+                      >
+                        <DismissIcon className="w-4 h-4" />
+                      </button>
+                    )}
+                  </form>
+                </div>
+              )}
 
               {/* Sidebar Component Content inside Drawer */}
               <div className="p-4 flex-1 overflow-y-auto">

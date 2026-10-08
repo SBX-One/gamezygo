@@ -223,7 +223,6 @@ export default function AboutPage() {
   const authUser = useAuthStore((s) => s.user);
   const addToCart = useCartStore((s) => s.addItem);
 
-  const [searchQuery, setSearchQuery] = React.useState("");
   const [opinionInput, setOpinionInput] = React.useState("");
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
 
@@ -345,16 +344,7 @@ export default function AboutPage() {
         onLoginClick={() => router.push("/login")}
         onSignUpClick={() => router.push("/login?tab=signup")}
         onCartClick={() => router.push("/cart")}
-        searchValue={searchQuery}
-        searchPlaceholder="Cari game"
-        onSearchChange={(val) => setSearchQuery(val)}
-        onSearchClear={() => setSearchQuery("")}
-        onSearchSubmit={() => {
-          if (searchQuery.trim()) {
-            router.push(`/store?q=${encodeURIComponent(searchQuery.trim())}`);
-          }
-        }}
-        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 py-10 sm:py-10 flex flex-col gap-16 sm:gap-24 lg:gap-50"
+        contentClassName="w-full max-w-360 mx-auto px-4 sm:px-8 lg:px-20 py-10 sm:py-10 flex flex-col gap-16 sm:gap-24 lg:gap-50"
       >
         {/* ========================================================
             1. HERO SECTION: Header + Infinite Game Cards Carousel

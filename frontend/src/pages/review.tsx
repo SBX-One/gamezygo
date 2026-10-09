@@ -305,7 +305,7 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
 
   // Tampilan Dashboard jika:
   // 1. isDashboardMode prop bernilai true
-  // 2. Routing Next.js diawali dengan /dashboard (e.g. /dashboard/review, /dashboard/riview, /dashboard/ulasan)
+  // 2. Routing Next.js diawali dengan /dashboard (e.g. /dashboard/review)
   // 3. Query string ?view=dashboard (kompatibilitas backward)
   const isDashboardView = Boolean(
     isDashboardMode ||

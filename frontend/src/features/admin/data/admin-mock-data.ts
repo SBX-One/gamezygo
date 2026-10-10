@@ -8,11 +8,12 @@ import type {
 
 export const ADMIN_TIMEFRAMES: AdminTimeframeOption[] = [
   { label: "Hari Ini", value: "today" },
-  { label: "7 Hari Terakhir", value: "7d" },
-  { label: "30 Hari Terakhir", value: "30d" },
-  { label: "Bulan Ini", value: "month" },
-  { label: "Tahun Ini", value: "year" },
+  { label: "Kemarin", value: "yesterday" },
+  { label: "Minggu ini", value: "this_week" },
+  { label: "Bulan ini", value: "this_month" },
+  { label: "Tahun ini", value: "this_year" },
 ];
+
 
 export const MOCK_ADMIN_HERO_STAT: AdminMetricData = {
   id: "total-pendapatan",

@@ -9,11 +9,23 @@ import {
   AdminGameRequestsSection,
 } from "@/features/admin";
 
+const emptySubscribe = () => () => {};
+
 export default function AdminDashboardPage() {
   const router = useRouter();
+  const isMounted = React.useSyncExternalStore(
+    emptySubscribe,
+    () => true,
+    () => false
+  );
   const [isEmptyManual, setIsEmptyManual] = React.useState<boolean | null>(null);
+
   const isEmptyState =
-    isEmptyManual !== null ? isEmptyManual : router.query.empty === "true";
+    isEmptyManual !== null
+      ? isEmptyManual
+      : isMounted && router.isReady
+      ? router.query.empty === "true"
+      : false;
 
   return (
     <>
@@ -62,17 +74,25 @@ export default function AdminDashboardPage() {
 
           </div>
 
-          {/* 1. Hero Revenue + Stat Cards (Image 1) */}
-          <AdminMetricsSection isEmpty={isEmptyState} />
+          {/* 1. Hero Revenue + Stat Cards (Image 1) - z-20 so dropdown floats over charts below */}
+          <div className="relative z-20">
+            <AdminMetricsSection isEmpty={isEmptyState} />
+          </div>
 
           {/* 2. Best Performance Product Bar Chart (Image 2) */}
-          <AdminPerformanceChartSection isEmpty={isEmptyState} />
+          <div className="relative z-10">
+            <AdminPerformanceChartSection isEmpty={isEmptyState} />
+          </div>
 
           {/* 3. Recent Transactions Table (Image 3) */}
-          <AdminRecentTransactionsSection isEmpty={isEmptyState} />
+          <div className="relative z-0">
+            <AdminRecentTransactionsSection isEmpty={isEmptyState} />
+          </div>
 
           {/* 4. Game Requests Widget */}
-          <AdminGameRequestsSection isEmpty={isEmptyState} />
+          <div className="relative z-0">
+            <AdminGameRequestsSection isEmpty={isEmptyState} />
+          </div>
         </div>
       </AdminLayout>
     </>

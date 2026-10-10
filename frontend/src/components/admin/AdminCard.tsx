@@ -34,7 +34,7 @@ export function AdminCard({
     <div
       ref={ref}
       className={cn(
-        "rounded-xl border border-deep-blue-700 text-gray-100 shadow-sm transition-all overflow-hidden flex flex-col",
+        "rounded-xl border border-deep-blue-700 text-gray-100 shadow-sm transition-all flex flex-col relative h-full",
         className
       )}
       {...props}
@@ -42,7 +42,7 @@ export function AdminCard({
       {hasHeader && (
         <div
           className={cn(
-            "bg-deep-blue-900 flex items-center justify-between px-6 py-4 border-b border-deep-blue-700 shrink-0",
+            "rounded-t-xl bg-deep-blue-900 flex items-center justify-between px-6 py-4 border-b border-deep-blue-700 shrink-0 relative z-20 min-h-[72px] h-[72px]",
             headerClassName
           )}
         >
@@ -54,11 +54,23 @@ export function AdminCard({
             <div>{title}</div>
           )}
 
-          {headerRight && <div className="flex items-center gap-2">{headerRight}</div>}
+          {headerRight && (
+            <div className="flex items-center gap-2 relative z-30">
+              {headerRight}
+            </div>
+          )}
         </div>
       )}
 
-      <div className={cn("bg-deep-blue-950 flex-1 p-6", bodyClassName)}>{children}</div>
+      <div
+        className={cn(
+          "bg-deep-blue-950 flex-1 px-6 py-8 relative z-10 flex flex-col justify-between",
+          hasHeader ? "rounded-b-xl" : "rounded-xl",
+          bodyClassName
+        )}
+      >
+        {children}
+      </div>
     </div>
   );
 }

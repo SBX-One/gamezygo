@@ -95,13 +95,13 @@ export function AdminEmptyState({
       </div>
 
       {/* 2. Bold Title */}
-      <h4 className="text-xl sm:text-2xl font-bold text-white tracking-tight mb-2">
+      <h4 className="text-xl sm:text-2xl font-bold text-white mb-2">
         {title}
       </h4>
 
       {/* 3. Description (2 lines constrained for elegant reading) */}
       {finalDescription && (
-        <p className="text-xs sm:text-sm text-gray-400 font-normal  text-center mb-6 leading-relaxed">
+        <p className="text-xs sm:text-sm text-gray-400 font-normal text-center mb-6 leading-relaxed">
           {finalDescription}
         </p>
       )}

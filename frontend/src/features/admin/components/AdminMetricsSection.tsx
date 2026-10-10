@@ -50,13 +50,14 @@ export function AdminMetricsSection({
       />
 
       {/* 2. Three Metric Stat Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
         {activeStats.map((stat) => (
           <AdminStatCard
             key={stat.id}
             title={stat.title}
             value={stat.value}
             subtitle={stat.subtitle}
+            className="h-full"
           />
         ))}
       </div>

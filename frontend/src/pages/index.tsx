@@ -1,4 +1,4 @@
-﻿import * as React from "react";
+import * as React from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -1236,7 +1236,7 @@ export default function LandingPage() {
             <div
               ref={popularScrollRef}
               onScroll={checkPopularScroll}
-              className="max-h-[350px] sm:max-h-[380px] overflow-y-auto overflow-x-hidden scroll-smooth overscroll-contain pb-14 pt-1 px-1 -mx-1"
+              className="max-h-87.5 sm:max-h-95 overflow-y-auto overflow-x-hidden scroll-smooth overscroll-contain pb-14 pt-1 px-1 -mx-1"
             >
               <div data-animate="grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full">
                 {popularGames.map((game) => (

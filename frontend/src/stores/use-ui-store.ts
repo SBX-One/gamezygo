@@ -13,6 +13,7 @@ import { devtools, persist } from "zustand/middleware";
 export interface UiState {
   isMobileNavOpen: boolean;
   isSidebarOpen: boolean;
+  isAdminSidebarCollapsed: boolean;
   isFilterModalOpen: boolean;
   theme: "light" | "dark";
 }
@@ -20,6 +21,7 @@ export interface UiState {
 export interface UiActions {
   toggleMobileNav: (isOpen?: boolean) => void;
   toggleSidebar: (isOpen?: boolean) => void;
+  toggleAdminSidebar: (isCollapsed?: boolean) => void;
   toggleFilterModal: (isOpen?: boolean) => void;
   setTheme: (theme: "light" | "dark") => void;
 }
@@ -32,6 +34,7 @@ export const useUiStore = create<UiStore>()(
       (set) => ({
         isMobileNavOpen: false,
         isSidebarOpen: false,
+        isAdminSidebarCollapsed: false,
         isFilterModalOpen: false,
         theme: "dark",
 
@@ -45,6 +48,12 @@ export const useUiStore = create<UiStore>()(
             isSidebarOpen: isOpen !== undefined ? isOpen : !state.isSidebarOpen,
           })),
 
+        toggleAdminSidebar: (isCollapsed) =>
+          set((state) => ({
+            isAdminSidebarCollapsed:
+              isCollapsed !== undefined ? isCollapsed : !state.isAdminSidebarCollapsed,
+          })),
+
         toggleFilterModal: (isOpen) =>
           set((state) => ({
             isFilterModalOpen:
@@ -55,9 +64,10 @@ export const useUiStore = create<UiStore>()(
       }),
       {
         name: "gamezygo-ui-storage",
-        // Only persist theme
+        // Persist theme and admin sidebar collapsed state
         partialize: (state) => ({
           theme: state.theme,
+          isAdminSidebarCollapsed: state.isAdminSidebarCollapsed,
         }),
       }
     ),
@@ -69,4 +79,5 @@ export const useUiStore = create<UiStore>()(
 export const useUiTheme = () => useUiStore((s) => s.theme);
 export const useIsMobileNavOpen = () => useUiStore((s) => s.isMobileNavOpen);
 export const useIsSidebarOpen = () => useUiStore((s) => s.isSidebarOpen);
+export const useIsAdminSidebarCollapsed = () => useUiStore((s) => s.isAdminSidebarCollapsed);
 export const useIsFilterModalOpen = () => useUiStore((s) => s.isFilterModalOpen);

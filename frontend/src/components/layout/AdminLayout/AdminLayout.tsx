@@ -9,6 +9,7 @@ export function AdminLayout({
   children,
   title = "Main Dashboard",
   activeNavId,
+  headerRight,
   className,
 }: AdminLayoutProps) {
   const { isAdminSidebarCollapsed, toggleAdminSidebar } = useUiStore();
@@ -64,6 +65,7 @@ export function AdminLayout({
             title={title}
             onToggleSidebar={handleToggleSidebar}
             isSidebarCollapsed={isAdminSidebarCollapsed}
+            headerRight={headerRight}
             className="sticky top-0 z-20 bg-deep-blue-950/95 backdrop-blur-sm"
           />
 

@@ -23,7 +23,7 @@ export interface AdminSidebarProps {
 }
 
 export interface AdminHeaderProps {
-  title?: string;
+  title?: ReactNode;
   onToggleSidebar?: () => void;
   isSidebarCollapsed?: boolean;
   headerRight?: ReactNode;
@@ -32,7 +32,8 @@ export interface AdminHeaderProps {
 
 export interface AdminLayoutProps {
   children: ReactNode;
-  title?: string;
+  title?: ReactNode;
   activeNavId?: string;
+  headerRight?: ReactNode;
   className?: string;
 }

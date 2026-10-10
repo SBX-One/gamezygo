@@ -5,3 +5,4 @@ export * from "./AdminGameRequestsSection";
 export * from "./revenue";
 export * from "./transactions";
 export * from "./product-performance";
+export * from "./catalog";

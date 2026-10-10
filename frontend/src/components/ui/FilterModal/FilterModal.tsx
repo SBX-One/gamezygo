@@ -75,6 +75,10 @@ export function FilterModal({
   statusOptions,
   platformOptions,
   gameOptions,
+  genresLabel = "GENRE",
+  statusRadio,
+  showCancelButton = true,
+  popoverClassName,
   minPrice = 0,
   maxPrice = 200000,
   priceStep = 5000,
@@ -491,7 +495,7 @@ export function FilterModal({
       {!statusOptions && genres && genres.length > 0 && (
         <div className="flex flex-col gap-3">
           <span className="text-body-sm text-gray-400 font-normal uppercase ">
-            GENRE
+            {genresLabel}
           </span>
           <div className="flex flex-wrap items-center gap-2">
             {genres.map((genre, idx) => {
@@ -515,6 +519,36 @@ export function FilterModal({
                 </Button>
               );
             })}
+          </div>
+        </div>
+      )}
+
+      {/* 3c. Optional Radio Status (Matching Catalog / Filter Spec) */}
+      {statusRadio && (
+        <div className="flex flex-col gap-3">
+          <span className="text-body-sm text-gray-400 font-normal uppercase ">
+            STATUS
+          </span>
+          <div>
+            <button
+              type="button"
+              onClick={() => statusRadio.onChange(!statusRadio.checked)}
+              className="inline-flex items-center gap-2.5 text-xs sm:text-sm font-medium text-gray-200 hover:text-white cursor-pointer select-none"
+            >
+              <div
+                className={cn(
+                  "w-4 h-4 rounded-full border flex items-center justify-center transition-all",
+                  statusRadio.checked
+                    ? "border-gray-300 bg-[#1E202B]"
+                    : "border-deep-blue-700 bg-transparent"
+                )}
+              >
+                {statusRadio.checked && (
+                  <div className="w-2 h-2 rounded-full bg-white" />
+                )}
+              </div>
+              <span>{statusRadio.label}</span>
+            </button>
           </div>
         </div>
       )}
@@ -705,34 +739,59 @@ export function FilterModal({
 
       {/* 3. STICKY FOOTER ACTIONS (Tombol Cancel & Apply selalu sticky di bawah) */}
       <div className="shrink-0 sticky bottom-0 z-20 flex items-center justify-between gap-3 px-5 sm:px-6 py-4 bg-deep-blue-950/95 backdrop-blur-md border-t border-white/10 select-none shadow-[0_-4px_20px_rgba(0,0,0,0.6)]">
-        <button
-          type="button"
-          onClick={handleReset}
-          className="text-body-sm font-medium text-gray-400 hover:text-rose-400 transition-colors cursor-pointer underline underline-offset-4 outline-none"
-        >
-          {resetLabel}
-        </button>
+        {showCancelButton ? (
+          <>
+            <button
+              type="button"
+              onClick={handleReset}
+              className="text-body-sm font-medium text-gray-400 hover:text-rose-400 transition-colors cursor-pointer underline underline-offset-4 outline-none"
+            >
+              {resetLabel}
+            </button>
 
-        <div className="flex items-center gap-3">
-          <Button
-            type="button"
-            variant="secondary"
-            size="sm"
-            onClick={handleCancel}
-            className="cursor-pointer min-w-20 justify-center"
-          >
-            {cancelLabel}
-          </Button>
-          <Button
-            type="button"
-            variant="primary"
-            size="sm"
-            onClick={handleApply}
-            className="cursor-pointer min-w-24 justify-center"
-          >
-            {applyLabel}
-          </Button>
-        </div>
+            <div className="flex items-center gap-3">
+              <Button
+                type="button"
+                variant="secondary"
+                size="sm"
+                onClick={handleCancel}
+                className="cursor-pointer min-w-20 justify-center"
+              >
+                {cancelLabel}
+              </Button>
+              <Button
+                type="button"
+                variant="primary"
+                size="sm"
+                onClick={handleApply}
+                className="cursor-pointer min-w-24 justify-center"
+              >
+                {applyLabel}
+              </Button>
+            </div>
+          </>
+        ) : (
+          <div className="flex items-center justify-end gap-3 w-full">
+            <Button
+              type="button"
+              variant="secondary"
+              size="sm"
+              onClick={handleReset}
+              className="cursor-pointer min-w-20 justify-center"
+            >
+              {resetLabel}
+            </Button>
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              onClick={handleApply}
+              className="cursor-pointer min-w-24 justify-center"
+            >
+              {applyLabel}
+            </Button>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -808,7 +867,8 @@ export function FilterModal({
             "w-115 h-[640px] max-h-[min(640px,calc(100vh-120px))] flex flex-col overflow-hidden rounded-2xl shadow-2xl animate-in fade-in slide-in-from-top-2 duration-150",
             isNavbar
               ? "fixed right-4 sm:right-6 lg:right-20 top-20 sm:top-24 z-50"
-              : "absolute right-0 top-12 z-30"
+              : "absolute right-0 top-12 z-50",
+            popoverClassName
           )}
         >
           {ModalContent}

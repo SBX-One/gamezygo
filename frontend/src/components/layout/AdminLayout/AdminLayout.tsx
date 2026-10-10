@@ -66,7 +66,7 @@ export function AdminLayout({
             onToggleSidebar={handleToggleSidebar}
             isSidebarCollapsed={isAdminSidebarCollapsed}
             headerRight={headerRight}
-            className="sticky top-0 z-20 bg-deep-blue-950/95 backdrop-blur-sm"
+            className="sticky top-0 z-40 bg-deep-blue-950/95 backdrop-blur-sm"
           />
 
           {/* Main Content Area: 32px gap from Navbar (Figma Image 1 auto-layout gap 32), 24px bottom padding */}

@@ -86,6 +86,18 @@ export interface FilterModalProps
   onTogglePayment?: (payment: string) => void;
   onTogglePlatform?: (platform: string) => void;
   onToggleGame?: (game: string) => void;
+  /** Custom label untuk section genres/categories (default: 'GENRE') */
+  genresLabel?: string;
+  /** Radio option untuk section status (misal: 'Active') */
+  statusRadio?: {
+    label: string;
+    checked: boolean;
+    onChange: (checked: boolean) => void;
+  };
+  /** Sembunyikan tombol Cancel di footer (default: true / tombol tampil) */
+  showCancelButton?: boolean;
+  /** Custom className untuk outer desktop popover container */
+  popoverClassName?: string;
   /** React 19 native ref */
   ref?: React.Ref<HTMLDivElement>;
 }

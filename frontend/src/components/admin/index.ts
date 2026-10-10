@@ -8,4 +8,6 @@ export * from "./AdminButton";
 export * from "./AdminListItem";
 export * from "./AdminEmptyState";
 export * from "./AdminDropdown";
+export * from "./AdminSwitch";
+export * from "./AdminCheckbox";
 

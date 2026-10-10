@@ -152,7 +152,7 @@ export function AdminStatCard({
                   <ArrowUpIcon className="w-3.5 h-3.5" />
                 )
               }
-              className="h-[22px] px-2 py-0 text-xs font-semibold"
+              className="h-5.5 px-2 py-0 text-xs font-semibold"
             >
               {badge.text}
             </Pill>

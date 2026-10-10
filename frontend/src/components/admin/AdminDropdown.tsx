@@ -101,7 +101,7 @@ export function AdminDropdown({
         aria-haspopup="true"
         aria-expanded={isOpen}
         className={cn(
-          "w-[112px] min-w-[112px] h-10 justify-between px-3 text-white text-sm font-medium border-gradient-outline rounded-lg",
+          "w-28 min-w-28 h-10 justify-between px-3 text-white text-sm font-medium border-gradient-outline rounded-lg",
           buttonClassName
         )}
         rightIcon={
@@ -121,7 +121,7 @@ export function AdminDropdown({
         <div
           role="menu"
           className={cn(
-            "absolute right-0 mt-1.5 w-[150px] rounded-lg bg-[#15161D] border border-[#2F2F37] px-2 py-[13px] shadow-2xl shadow-black/90 z-50 flex flex-col gap-3 animate-in fade-in zoom-in-95 duration-100",
+            "absolute right-0 mt-1.5 w-37.5 rounded-lg bg-deep-blue-900 border border-deep-blue-700 px-2 py-3.25 shadow-2xl shadow-black/90 z-50 flex flex-col gap-3 animate-in fade-in zoom-in-95 duration-100",
             menuClassName
           )}
         >
@@ -141,9 +141,9 @@ export function AdminDropdown({
                     onSelect?.(option.value);
                     setIsOpen(false);
                   }}
-                  className="w-full h-[25px] justify-start px-2 text-xs font-semibold text-white [&_.button-main-text]:!text-white hover:[&_.button-main-text]:!text-white active:[&_.button-main-text]:!text-white rounded-lg border border-[#2F2F37] bg-[image:var(--gradient-surface-secondary-default)]"
+                  className="w-full h-6.25 justify-start px-2 text-xs font-semibold text-white [&_.button-main-text]:text-white! hover:[&_.button-main-text]:text-white! active:[&_.button-main-text]:text-white! rounded-lg border border-deep-blue-700 bg-(image:--gradient-surface-secondary-default)"
                 >
-                  <span className="!text-white font-semibold">{option.label}</span>
+                  <span className="text-white! font-semibold">{option.label}</span>
                 </Button>
               );
             }
@@ -159,7 +159,7 @@ export function AdminDropdown({
                   onSelect?.(option.value);
                   setIsOpen(false);
                 }}
-                className="w-full h-[25px] px-2 text-left text-xs font-medium text-gray-400 hover:text-white hover:bg-white/5 rounded-lg flex items-center transition-colors cursor-pointer select-none"
+                className="w-full h-6.25 px-2 text-left text-xs font-medium text-gray-400 hover:text-white hover:bg-white/5 rounded-lg flex items-center transition-colors cursor-pointer select-none"
               >
                 {option.label}
               </button>

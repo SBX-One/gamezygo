@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Repositories\Contracts\Api\V1\User\Announcement\AnnouncementRepositoryInterface;
 use App\Repositories\Api\V1\User\Announcement\AnnouncementRepository;
+use App\Repositories\Contracts\Api\V1\User\Auth\AuthRepositoryInterface;
+use App\Repositories\Api\V1\User\Auth\AuthRepository;
 use App\Repositories\Contracts\Api\V1\User\Blog\BlogRepositoryInterface;
 use App\Repositories\Api\V1\User\Blog\BlogRepository;
 use App\Repositories\Contracts\Api\V1\User\CustomSection\CustomSectionRepositoryInterface;
@@ -27,6 +29,7 @@ class RepositoryServiceProvider extends ServiceProvider
      */
     public function register(): void
     {
+        $this->app->bind(AuthRepositoryInterface::class, AuthRepository::class);
         $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
         $this->app->bind(CustomSectionRepositoryInterface::class, CustomSectionRepository::class);
         $this->app->bind(SubscriptionPlanRepositoryInterface::class, SubscriptionPlanRepository::class);

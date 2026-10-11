@@ -66,7 +66,7 @@ const CrossIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 import productsData from "@/json/products.json";
 import { useAnnouncements } from "@/hooks/use-common";
-import { useCustomSections, useProducts } from "@/hooks/use-products";
+import { useCustomSections, useProducts, useProductFilters } from "@/hooks/use-products";
 import {
   mapProductToCardItem,
   mapAnnouncementToSlide,
@@ -130,11 +130,6 @@ export default function StorePage() {
   }, []);
   const isUserLoggedIn = isMounted && isAuthenticated;
 
-  // React Query API Data Hooks
-  const { data: announcementsData } = useAnnouncements();
-  const { data: sectionsData } = useCustomSections();
-  const { data: productsApiData } = useProducts();
-
   // Navigation & Search State
   const [activeNavId, setActiveNavId] = React.useState<string>("toko");
   const [searchQuery, setSearchQuery] = React.useState<string>("");
@@ -153,6 +148,41 @@ export default function StorePage() {
   const [appliedLaunchers, setAppliedLaunchers] = React.useState<string[]>([]);
   const [appliedPriceRange, setAppliedPriceRange] = React.useState<[number, number]>([0, 200000]);
   const [appliedSort, setAppliedSort] = React.useState<string>("Terbaru");
+
+  // Query Params aligned with Postman API Contract
+  const apiQueryParams = React.useMemo(() => {
+    const genre = appliedGenres[0] || appliedCategories[0];
+    return {
+      search: searchQuery.trim() || undefined,
+      category: genre ? genre.toLowerCase() : undefined,
+      launcher: appliedLaunchers[0] ? appliedLaunchers[0].toLowerCase() : undefined,
+      sort_by:
+        appliedSort === "Nama (A - Z)"
+          ? "a_z"
+          : appliedSort === "Termurah"
+          ? "price_asc"
+          : appliedSort === "Termahal"
+          ? "price_desc"
+          : "latest",
+      price_range:
+        appliedPriceRange[0] > 0 || appliedPriceRange[1] < 200000
+          ? `${appliedPriceRange[0]}-${appliedPriceRange[1]}`
+          : undefined,
+    };
+  }, [
+    searchQuery,
+    appliedGenres,
+    appliedCategories,
+    appliedLaunchers,
+    appliedSort,
+    appliedPriceRange,
+  ]);
+
+  // React Query API Data Hooks
+  const { data: announcementsData } = useAnnouncements();
+  const { data: sectionsData } = useCustomSections();
+  const { data: productsApiData, isLoading: isProductsLoading } = useProducts(apiQueryParams);
+  const { data: filtersApiData } = useProductFilters();
 
   // Interaction State Simulator for Screenshots 2 & 3
   const [previewState, setPreviewState] = React.useState<
@@ -469,11 +499,10 @@ export default function StorePage() {
       return [];
     }
 
-    if (productsApiData?.data && productsApiData.data.length > 0 && activeGenres.length > 0) {
-      return productsApiData.data.map(mapProductToCardItem);
-    }
-
-    let list = [...ALL_STORE_PRODUCTS];
+    let list =
+      productsApiData?.data && productsApiData.data.length > 0
+        ? productsApiData.data.map(mapProductToCardItem)
+        : [...ALL_STORE_PRODUCTS];
 
     // 1. Filter by genres & categories
     if (activeGenres.length > 0) {

@@ -5,17 +5,23 @@ import type {
   ProductListItem,
   ProductDetailItem,
   CustomSectionItem,
+  ProductFiltersData,
 } from "@/types";
 
 export interface FetchProductsParams {
   search?: string;
-  genre_categories?: string[];
+  filter?: string;
+  category?: string;
+  launcher?: string;
+  sort_by?: string;
+  price_range?: string | number;
   page?: number;
+  genre_categories?: string[];
 }
 
 /**
- * Fetch paginated products list with optional search and genre filters
- * Endpoint: GET /api/v1/user/products/
+ * Fetch paginated products list with query filters
+ * Endpoint: GET /api/v1/user/products?filter=&category=&launcher=&sort_by=&price_range=&page
  */
 export async function fetchProducts(
   params?: FetchProductsParams
@@ -24,6 +30,26 @@ export async function fetchProducts(
 
   if (params?.search) {
     queryParams.append("search", params.search);
+  }
+
+  if (params?.filter) {
+    queryParams.append("filter", params.filter);
+  }
+
+  if (params?.category) {
+    queryParams.append("category", params.category);
+  }
+
+  if (params?.launcher) {
+    queryParams.append("launcher", params.launcher);
+  }
+
+  if (params?.sort_by) {
+    queryParams.append("sort_by", params.sort_by);
+  }
+
+  if (params?.price_range !== undefined) {
+    queryParams.append("price_range", String(params.price_range));
   }
 
   if (params?.genre_categories && params.genre_categories.length > 0) {
@@ -37,13 +63,13 @@ export async function fetchProducts(
   }
 
   const queryString = queryParams.toString();
-  const url = queryString ? `/user/products/?${queryString}` : "/user/products/";
+  const url = queryString ? `/user/products?${queryString}` : "/user/products";
 
   return apiGet<ApiPaginatedResponse<ProductListItem>>(url);
 }
 
 /**
- * Fetch single product details by slug
+ * Fetch single product details by slug or ID
  * Endpoint: GET /api/v1/user/products/:slug
  */
 export async function fetchProductDetail(
@@ -53,11 +79,21 @@ export async function fetchProductDetail(
 }
 
 /**
+ * Fetch product filter and sort options
+ * Endpoint: GET /api/v1/products/filters
+ */
+export async function fetchProductFilters(): Promise<
+  ApiResponse<ProductFiltersData>
+> {
+  return apiGet<ApiResponse<ProductFiltersData>>("/products/filters");
+}
+
+/**
  * Fetch custom promo sections for landing storefront
- * Endpoint: GET /api/v1/user/sections/
+ * Endpoint: GET /api/v1/user/custom-sections/
  */
 export async function fetchCustomSections(): Promise<
   ApiResponse<CustomSectionItem[]>
 > {
-  return apiGet<ApiResponse<CustomSectionItem[]>>("/user/sections/");
+  return apiGet<ApiResponse<CustomSectionItem[]>>("/user/custom-sections/");
 }

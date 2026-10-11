@@ -507,6 +507,69 @@ export default function BundlePage() {
     }
   }, [userSubRes]);
 
+  // Dynamic Pricing Plans from API or fallback
+  const pricingPlans = React.useMemo(() => {
+    if (subscriptionPlansRes?.data && subscriptionPlansRes.data.length > 0) {
+      return subscriptionPlansRes.data.map((plan, idx) => ({
+        id: String(plan.id),
+        type: (idx === 1 ? "primary" : "secondary") as "primary" | "secondary",
+        title: plan.name,
+        price: formatRupiah(plan.price),
+        period: `/${plan.duration ? `${plan.duration} Hari` : "Bulan"}`,
+        features:
+          plan.subscription_plan_features && plan.subscription_plan_features.length > 0
+            ? plan.subscription_plan_features.map((f) => f.feature)
+            : [
+                "Mainkan Game Lebih Banyak",
+                "Akses Seluruh Koleksi Paket",
+                "Update Game Otomatis",
+                "Dukungan CS 24/7",
+              ],
+      }));
+    }
+    return [
+      {
+        id: "plan-1",
+        type: "secondary" as const,
+        title: "Paket 1",
+        price: "IDR 150,000",
+        period: "/ Month",
+        features: [
+          "Mainkan Game Lebih Banyak",
+          "Mainkan Game Lebih Banyak",
+          "Mainkan Game Lebih Banyak",
+          "Mainkan Game Lebih Banyak",
+        ],
+      },
+      {
+        id: "plan-2",
+        type: "primary" as const,
+        title: "Paket 2",
+        price: "IDR 150,000",
+        period: "/ Month",
+        features: [
+          "Mainkan Game Lebih Banyak",
+          "Mainkan Game Lebih Banyak",
+          "Mainkan Game Lebih Banyak",
+          "Mainkan Game Lebih Banyak",
+        ],
+      },
+      {
+        id: "plan-3",
+        type: "secondary" as const,
+        title: "Paket 3",
+        price: "IDR 150,000",
+        period: "/ Month",
+        features: [
+          "Mainkan Game Lebih Banyak",
+          "Mainkan Game Lebih Banyak",
+          "Mainkan Game Lebih Banyak",
+          "Mainkan Game Lebih Banyak",
+        ],
+      },
+    ];
+  }, [subscriptionPlansRes]);
+
   // Subscription Modal State (Image 1)
   const [isSubsModalOpen, setIsSubsModalOpen] = React.useState<boolean>(false);
   const [activeSubPlan, setActiveSubPlan] = React.useState<string>("Paket 2");
@@ -816,68 +879,26 @@ export default function BundlePage() {
                     role="region"
                     aria-label="Pilihan Paket Hemat Swiper"
                   >
-                    <div className="w-[85vw] max-w-85 sm:w-85 md:w-87.5 shrink-0 snap-center xl:w-auto xl:max-w-none flex flex-col">
-                      <PricingCard
-                        type="secondary"
-                        title="Paket 1"
-                        price="IDR 150,000"
-                        period="/ Month"
-                        features={[
-                          "Mainkan Game Lebih Banyak",
-                          "Mainkan Game Lebih Banyak",
-                          "Mainkan Game Lebih Banyak",
-                          "Mainkan Game Lebih Banyak",
-                        ]}
-                        actionText="Subscribe"
-                        onActionClick={() => {
-                          setActiveSubPlan("Paket 1");
-                          setIsSubsModalOpen(true);
-                        }}
-                        className="h-full"
-                      />
-                    </div>
-
-                    <div className="w-[85vw] max-w-85 sm:w-85 md:w-87.5 shrink-0 snap-center xl:w-auto xl:max-w-none flex flex-col">
-                      <PricingCard
-                        type="primary"
-                        title="Paket 2"
-                        price="IDR 150,000"
-                        period="/ Month"
-                        features={[
-                          "Mainkan Game Lebih Banyak",
-                          "Mainkan Game Lebih Banyak",
-                          "Mainkan Game Lebih Banyak",
-                          "Mainkan Game Lebih Banyak",
-                        ]}
-                        actionText="Subscribe"
-                        onActionClick={() => {
-                          setActiveSubPlan("Paket 2");
-                          setIsSubsModalOpen(true);
-                        }}
-                        className="h-full"
-                      />
-                    </div>
-
-                    <div className="w-[85vw] max-w-85 sm:w-85 md:w-87.5 shrink-0 snap-center xl:w-auto xl:max-w-none flex flex-col">
-                      <PricingCard
-                        type="secondary"
-                        title="Paket 3"
-                        price="IDR 150,000"
-                        period="/ Month"
-                        features={[
-                          "Mainkan Game Lebih Banyak",
-                          "Mainkan Game Lebih Banyak",
-                          "Mainkan Game Lebih Banyak",
-                          "Mainkan Game Lebih Banyak",
-                        ]}
-                        actionText="Subscribe"
-                        onActionClick={() => {
-                          setActiveSubPlan("Paket 3");
-                          setIsSubsModalOpen(true);
-                        }}
-                        className="h-full"
-                      />
-                    </div>
+                    {pricingPlans.map((plan) => (
+                      <div
+                        key={plan.id}
+                        className="w-[85vw] max-w-85 sm:w-85 md:w-87.5 shrink-0 snap-center xl:w-auto xl:max-w-none flex flex-col"
+                      >
+                        <PricingCard
+                          type={plan.type}
+                          title={plan.title}
+                          price={plan.price}
+                          period={plan.period}
+                          features={plan.features}
+                          actionText="Subscribe"
+                          onActionClick={() => {
+                            setActiveSubPlan(plan.title);
+                            setIsSubsModalOpen(true);
+                          }}
+                          className="h-full"
+                        />
+                      </div>
+                    ))}
                   </div>
 
                   {/* SWIPER CONTROLS & INDICATOR (TABLET & MOBILE ONLY: < xl) */}

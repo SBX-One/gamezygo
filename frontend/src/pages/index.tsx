@@ -165,14 +165,14 @@ const FALLBACK_BANNERS: BannerSlide[] = [
   {
     id: "summer-promo-1",
     title: "Promo Musim Panas",
-    imageSrc: "/assets/png/Container.png",
+    imageSrc: "/assets/png/Banner.png",
     alt: "Promo Musim Panas - Gamezygo",
     href: "/store?promo=summer",
   },
   {
     id: "summer-promo-2",
     title: "Diskon Hingga 70%",
-    imageSrc: "/assets/png/Container.png",
+    imageSrc: "/assets/png/Banner.png",
     alt: "Diskon Besar Gamezygo",
     href: "/store?promo=mega",
   },

@@ -9,13 +9,14 @@ export type LeaderboardPeriod = "all-time" | "monthly" | "weekly";
 
 /**
  * Fetch leaderboard rankings
- * Endpoint: GET /api/v1/user/leaderboard/?period=all-time|monthly|weekly
+ * Endpoint: GET /api/v1/user/leaderboards/?period=all-time|monthly|weekly
  */
 export async function fetchLeaderboard(
   period: LeaderboardPeriod = "all-time"
 ): Promise<ApiResponse<LeaderboardItem[]>> {
+  const periodParam = period === "all-time" ? "" : period;
   return apiGet<ApiResponse<LeaderboardItem[]>>(
-    `/user/leaderboard/?period=${period}`
+    `/user/leaderboards/?period=${periodParam}`
   );
 }
 

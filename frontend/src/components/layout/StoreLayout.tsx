@@ -8,6 +8,7 @@ import { FilterModal, type FilterValues } from "@/components/ui/FilterModal";
 import { useRouter } from "next/router";
 import { useUiStore } from "@/stores/use-ui-store";
 import { useAuthStore } from "@/stores/use-auth-store";
+import { useProductFilters } from "@/hooks/use-products";
 import { MOCK_USER } from "@/lib/mock/data";
 import type { SidebarItem } from "@/components/ui/Sidebar/Sidebar.types";
 import type { StoreLayoutProps } from "./StoreLayout.types";
@@ -94,6 +95,13 @@ export function StoreLayout({
     isFilterModalOpen,
     toggleFilterModal,
   } = useUiStore();
+
+  // Dynamic Filters from Guest API
+  const { data: filtersData } = useProductFilters();
+  const filterCategories = filtersData?.data?.categories?.map((c) => c.name);
+  const filterLaunchers = filtersData?.data?.launcher?.map((l) => l.name);
+  const filterSortOptions = filtersData?.data?.sort_options?.map((s) => s.label);
+
   const headerRef = React.useRef<HTMLElement>(null);
   const [headerHeight, setHeaderHeight] = React.useState<number>(146);
   const effectiveHeaderHeight = hideNavbar ? 0 : headerHeight;
@@ -305,6 +313,21 @@ export function StoreLayout({
           onClose={() => toggleFilterModal(false)}
           onApply={handleGlobalFilterApply}
           onReset={handleGlobalFilterReset}
+          genres={
+            filterCategories && filterCategories.length > 0
+              ? filterCategories
+              : undefined
+          }
+          launchers={
+            filterLaunchers && filterLaunchers.length > 0
+              ? filterLaunchers
+              : undefined
+          }
+          sortOptions={
+            filterSortOptions && filterSortOptions.length > 0
+              ? filterSortOptions
+              : undefined
+          }
         />
       )}
 

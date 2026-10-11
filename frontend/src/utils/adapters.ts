@@ -21,15 +21,18 @@ export function mapProductToCardItem(
       ? (product as ProductDetailItem).price_discount
       : (product as { price: number }).price;
 
-  const categories =
-    "categories" in product
+  const rawCategories =
+    "categories" in product && product.categories
       ? product.categories
-      : "product_genre_categories" in product
+      : "product_genre_categories" in product && product.product_genre_categories
       ? product.product_genre_categories
       : [];
+  const categories = Array.isArray(rawCategories) ? rawCategories : [];
 
   const platform =
-    "product_launcher_category" in product
+    "launcher_category" in product && (product as { launcher_category?: { name: string } }).launcher_category
+      ? (product as { launcher_category?: { name: string } }).launcher_category?.name
+      : "product_launcher_category" in product && product.product_launcher_category
       ? product.product_launcher_category?.name
       : "Steam";
 

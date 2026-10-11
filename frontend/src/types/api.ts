@@ -80,10 +80,48 @@ export interface ProductDetailItem {
   steam_url: string;
   status: string;
   rating: number;
-  product_genre_categories: ProductCategory[];
-  product_launcher_category: ProductLauncherCategory;
-  product_specification_requirements: ProductSpecification[];
-  product_instruction: ProductInstruction;
+  categories?: ProductCategory[];
+  product_genre_categories?: ProductCategory[];
+  launcher_category?: ProductLauncherCategory;
+  product_launcher_category?: ProductLauncherCategory;
+  specification_requirements?: ProductSpecification[];
+  product_specification_requirements?: ProductSpecification[];
+  product_instruction?: ProductInstruction;
+}
+
+export interface ProductFilterCategory {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+export interface ProductFilterLauncher {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+export interface ProductFilterStatus {
+  label: string;
+  value: boolean;
+}
+
+export interface ProductFilterPriceRange {
+  min: number;
+  max: number;
+}
+
+export interface ProductFilterSortOption {
+  label: string;
+  value: string;
+}
+
+export interface ProductFiltersData {
+  categories: ProductFilterCategory[];
+  launcher: ProductFilterLauncher[];
+  statuses: ProductFilterStatus[];
+  price_range: ProductFilterPriceRange;
+  sort_options: ProductFilterSortOption[];
 }
 
 export interface GameCredentialsItem {
@@ -96,6 +134,10 @@ export interface GameCredentialsItem {
 // 3. CUSTOM SECTIONS (Landing Promo Sections)
 // ============================================================================
 
+export interface CustomSectionProductItem extends ProductListItem {
+  sort_order?: number;
+}
+
 export interface CustomSectionItem {
   id: number;
   title: string;
@@ -104,7 +146,8 @@ export interface CustomSectionItem {
   auto_rule: string | null;
   order_number: number;
   is_active: boolean;
-  custom_section_products: ProductListItem[];
+  total_products?: number;
+  custom_section_products: CustomSectionProductItem[];
 }
 
 // ============================================================================

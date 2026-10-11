@@ -2,6 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import {
   fetchProducts,
   fetchProductDetail,
+  fetchProductFilters,
   fetchCustomSections,
   type FetchProductsParams,
 } from "@/services/products.service";
@@ -12,11 +13,12 @@ export const PRODUCT_KEYS = {
   list: (params?: FetchProductsParams) => [...PRODUCT_KEYS.lists(), params] as const,
   details: () => [...PRODUCT_KEYS.all, "detail"] as const,
   detail: (slug: string) => [...PRODUCT_KEYS.details(), slug] as const,
+  filters: () => [...PRODUCT_KEYS.all, "filters"] as const,
   sections: () => ["custom-sections"] as const,
 };
 
 /**
- * Hook to fetch paginated products with search and genre filtering
+ * Hook to fetch paginated products with query filters
  */
 export function useProducts(params?: FetchProductsParams) {
   return useQuery({
@@ -26,13 +28,24 @@ export function useProducts(params?: FetchProductsParams) {
 }
 
 /**
- * Hook to fetch single product details by slug
+ * Hook to fetch single product details by slug or ID
  */
 export function useProductDetail(slug: string, options?: { enabled?: boolean }) {
   return useQuery({
     queryKey: PRODUCT_KEYS.detail(slug),
     queryFn: () => fetchProductDetail(slug),
     enabled: Boolean(slug) && (options?.enabled ?? true),
+  });
+}
+
+/**
+ * Hook to fetch product filter metadata (categories, launchers, price range, sort options)
+ */
+export function useProductFilters() {
+  return useQuery({
+    queryKey: PRODUCT_KEYS.filters(),
+    queryFn: () => fetchProductFilters(),
+    staleTime: 5 * 60 * 1000, // 5 minutes cache
   });
 }
 

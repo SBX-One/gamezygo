@@ -516,6 +516,9 @@ export default function GameStoreDetailPage() {
 
   // Dynamic Genres list
   const gameGenres = React.useMemo(() => {
+    if (apiProduct?.categories && apiProduct.categories.length > 0) {
+      return apiProduct.categories.map((c) => c.name);
+    }
     if (apiProduct?.product_genre_categories && apiProduct.product_genre_categories.length > 0) {
       return apiProduct.product_genre_categories.map((c) => c.name);
     }
@@ -931,7 +934,9 @@ export default function GameStoreDetailPage() {
                       LAUNCHER
                     </span>
                     <span className="text-body-sm sm:text-body-md font-semibold text-gray-50">
-                      {apiProduct?.product_launcher_category?.name || "Steam"}
+                      {apiProduct?.launcher_category?.name ||
+                        apiProduct?.product_launcher_category?.name ||
+                        "Steam"}
                     </span>
                   </div>
                 </div>

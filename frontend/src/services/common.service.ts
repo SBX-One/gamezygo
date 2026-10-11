@@ -13,8 +13,8 @@ export async function fetchAnnouncements(): Promise<
 
 /**
  * Fetch frequently asked questions
- * Endpoint: GET /api/v1/user/faq/
+ * Endpoint: GET /api/v1/user/faqs/
  */
 export async function fetchFaqs(): Promise<ApiResponse<FaqItem[]>> {
-  return apiGet<ApiResponse<FaqItem[]>>("/user/faq/");
+  return apiGet<ApiResponse<FaqItem[]>>("/user/faqs/");
 }

@@ -12,12 +12,14 @@ import {
 export interface AdminAddProductBasicInfoProps {
   formData: AdminAddProductFormData;
   onChange: (fields: Partial<AdminAddProductFormData>) => void;
+  showPreOrder?: boolean;
   className?: string;
 }
 
 export function AdminAddProductBasicInfo({
   formData,
   onChange,
+  showPreOrder = true,
   className,
 }: AdminAddProductBasicInfoProps) {
   const toggleGenre = (genre: string) => {
@@ -35,16 +37,16 @@ export function AdminAddProductBasicInfo({
         className
       )}
     >
-      {/* 1. Media Upload Box (Left) */}
-      <div className="shrink-0 w-full lg:w-auto flex justify-center lg:justify-start">
+      {/* 1. Media Upload Box (Left: 2/5) */}
+      <div className="w-full lg:w-2/5 shrink-0 flex justify-center lg:justify-start">
         <AdminAddProductMediaUpload
           value={formData.imageSrc}
           onChange={(url) => onChange({ imageSrc: url })}
         />
       </div>
 
-      {/* 2. Form Details (Right) */}
-      <div className="flex-1 w-full flex flex-col gap-5">
+      {/* 2. Form Details (Right: 3/5) */}
+      <div className="w-full lg:w-3/5 flex-1 flex flex-col gap-5">
         {/* Row 1: Nama Produk */}
         <div className="w-full">
           <InputField
@@ -80,16 +82,18 @@ export function AdminAddProductBasicInfo({
         </div>
 
         {/* Row 3: Pre-order Switch Toggle */}
-        <div className="flex items-center gap-3 pt-1">
-          <AdminSwitch
-            checked={formData.isPreOrder}
-            onChange={(checked) => onChange({ isPreOrder: checked })}
-            ariaLabel="Toggle Pre-order"
-          />
-          <span className="text-sm font-medium text-gray-200 select-none">
-            Pre-order
-          </span>
-        </div>
+        {showPreOrder && (
+          <div className="flex items-center gap-3 pt-1">
+            <AdminSwitch
+              checked={formData.isPreOrder}
+              onChange={(checked) => onChange({ isPreOrder: checked })}
+              ariaLabel="Toggle Pre-order"
+            />
+            <span className="text-sm font-medium text-gray-200 select-none">
+              Pre-order
+            </span>
+          </div>
+        )}
 
         {/* Row 4: Genre Chips List */}
         <div className="flex flex-col gap-2.5 pt-1">

@@ -184,6 +184,67 @@ export const DEFAULT_ADD_PRODUCT_FORM: AdminAddProductFormData = {
   selectedTemplate: DEFAULT_INSTRUCTION_TEMPLATES[0],
 };
 
+export const MOCK_EDIT_PRODUCT_FORM: AdminAddProductFormData = {
+  name: "Beholder : Conductor",
+  finalPrice: "150000",
+  initialPrice: "250000",
+  isPreOrder: false,
+  genres: ["Action", "Adventure"],
+  imageSrc:
+    "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2825530/library_600x900_2x.jpg",
+  launcher: "Steam",
+  promotionSection: "",
+  storeUrl: "https://www.instagram.com/sbxonestudio/",
+  accountUsername: "Username_test",
+  accountPassword: "Password@123",
+  minimumSpecs: [
+    {
+      id: "spec-min-1",
+      label: "OS version",
+      value: "Windows® 10 (64-bit)",
+    },
+    {
+      id: "spec-min-2",
+      label: "CPU",
+      value: "Intel® Core™ i7-7700 (quad-core) / AMD® Ryzen™ 5 1600 (hexa-core)",
+    },
+    {
+      id: "spec-min-3",
+      label: "CPU",
+      value: "Intel® Core™ i7-7700 (quad-core) / AMD® Ryzen™ 5 1600 (hexa-core)",
+    },
+    {
+      id: "spec-min-4",
+      label: "CPU",
+      value: "Intel® Core™ i7-7700 (quad-core) / AMD® Ryzen™ 5 1600 (hexa-core)",
+    },
+  ],
+  recommendationSpecs: [
+    {
+      id: "spec-rec-1",
+      label: "OS version",
+      value: "Windows® 10 (64-bit)",
+    },
+    {
+      id: "spec-rec-2",
+      label: "CPU",
+      value: "Intel® Core™ i7-7700 (quad-core) / AMD® Ryzen™ 5 1600 (hexa-core)",
+    },
+    {
+      id: "spec-rec-3",
+      label: "CPU",
+      value: "Intel® Core™ i7-7700 (quad-core) / AMD® Ryzen™ 5 1600 (hexa-core)",
+    },
+    {
+      id: "spec-rec-4",
+      label: "CPU",
+      value: "Intel® Core™ i7-7700 (quad-core) / AMD® Ryzen™ 5 1600 (hexa-core)",
+    },
+  ],
+  hasInstructionTemplate: true,
+  selectedTemplate: DEFAULT_INSTRUCTION_TEMPLATES[0],
+};
+
 export const GENRE_CHOICES = [
   "Action",
   "Adventure",

@@ -70,7 +70,7 @@ export function AdminAddProductMediaUpload({
     <div
       onClick={() => fileInputRef.current?.click()}
       className={cn(
-        "relative w-[260px] max-w-full aspect-[3/4] rounded-2xl border-2 border-dashed border-[#2F2F37] hover:border-gray-500 bg-[#15161D]/50 transition-all cursor-pointer flex flex-col items-center justify-center p-6 select-none group overflow-hidden",
+        "relative w-full aspect-[3/4] rounded-2xl border-2 border-dashed border-[#2F2F37] hover:border-gray-500 bg-[#15161D]/60 transition-all cursor-pointer flex flex-col items-center justify-center p-6 select-none group overflow-hidden shadow-sm",
         className
       )}
     >
@@ -93,13 +93,14 @@ export function AdminAddProductMediaUpload({
           />
           {/* Overlay hover actions */}
           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-            <span className="text-xs font-medium text-white px-3 py-1.5 rounded-lg bg-[#1E202B] border border-deep-blue-700">
+            <span className="text-xs font-medium text-white px-3.5 py-1.5 rounded-lg bg-[#1E202B] border border-deep-blue-700 shadow-md">
               Ganti Gambar
             </span>
             <button
               type="button"
               onClick={handleRemove}
-              className="p-1.5 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 hover:bg-rose-500/30 transition-colors"
+              className="p-2 rounded-lg bg-rose-500/20 border border-rose-500/40 text-rose-300 hover:bg-rose-500/30 transition-colors cursor-pointer"
+              aria-label="Hapus Gambar"
             >
               <TrashIcon className="w-4 h-4" />
             </button>
@@ -107,8 +108,8 @@ export function AdminAddProductMediaUpload({
         </div>
       ) : (
         <div className="flex flex-col items-center justify-center text-gray-400 group-hover:text-gray-200 transition-colors">
-          <PlusIcon className="w-6 h-6 mb-2 text-gray-400 group-hover:text-white" />
-          <span className="text-xs font-semibold tracking-wider uppercase text-gray-400 group-hover:text-gray-200">
+          <PlusIcon className="w-10 h-10 mb-3 text-gray-400 group-hover:text-white transition-colors" />
+          <span className="text-xs sm:text-sm font-bold tracking-wider uppercase text-gray-400 group-hover:text-gray-200">
             ADD IMAGE
           </span>
         </div>

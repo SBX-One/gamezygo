@@ -187,6 +187,11 @@ export function AdminAddProductInstructionTemplate({
         </div>
 
         <div className="flex items-center gap-3">
+          {activeTemplate?.lastEdit && (
+            <span className="text-xs text-gray-400 font-normal hidden sm:inline mr-1">
+              {activeTemplate.lastEdit}
+            </span>
+          )}
           <Button
             type="button"
             variant="inactive"
@@ -215,26 +220,28 @@ export function AdminAddProductInstructionTemplate({
         </div>
       </div>
 
-      {/* 2. Body Area */}
+      {/* 2. Body Area (Matching Image 5) */}
       {activeTemplate ? (
-        /* Steps View with Red Left Border (Matching Image 1 & 2 Background) */
-        <div className="p-6 sm:p-8 flex flex-col gap-6 select-none">
-          {activeTemplate.steps.map((step) => (
-            <div
-              key={step.stepNumber}
-              className="border-l-2 border-[#DF3848] pl-4 flex flex-col gap-1.5"
-            >
-              <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                LANGKAH {step.stepNumber}
-              </span>
-              <h5 className="text-sm sm:text-base font-semibold text-white">
-                {step.title}
-              </h5>
-              <p className="text-xs sm:text-sm text-gray-400 font-normal leading-relaxed">
-                {step.description}
-              </p>
-            </div>
-          ))}
+        /* Steps View with Continuous Red Left Border & Dividers (Matching Image 5) */
+        <div className="p-6 sm:p-8 flex flex-col select-none">
+          <div className="border-l-2 border-[#DF3848] pl-5 sm:pl-6 flex flex-col divide-y divide-deep-blue-700/60">
+            {activeTemplate.steps.map((step) => (
+              <div
+                key={step.stepNumber}
+                className="py-5 first:pt-0 last:pb-0 flex flex-col gap-1.5"
+              >
+                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
+                  LANGKAH {step.stepNumber}
+                </span>
+                <h5 className="text-sm sm:text-base font-semibold text-white">
+                  {step.title}
+                </h5>
+                <p className="text-xs sm:text-sm text-gray-400 font-normal leading-relaxed">
+                  {step.description}
+                </p>
+              </div>
+            ))}
+          </div>
         </div>
       ) : (
         /* Empty State */

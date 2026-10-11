@@ -116,16 +116,11 @@ export function AdminAddProductLauncherSection({
             )}
           </div>
 
-          {/* Done Button */}
+          {/* Done Button (Matching Image 3) */}
           <button
             type="button"
             onClick={() => setIsUrlSaved(true)}
-            className={cn(
-              "h-10 px-5 rounded-lg border text-xs sm:text-sm font-medium transition-all select-none cursor-pointer shrink-0",
-              isUrlSaved
-                ? "bg-emerald-600/20 border-emerald-500/40 text-emerald-300"
-                : "bg-[#252837] hover:bg-[#2F3347] border-deep-blue-700 text-white"
-            )}
+            className="h-10 px-6 rounded-lg bg-gradient-to-r from-[#DF3848] to-[#FF5364] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold shadow-sm transition-all select-none cursor-pointer shrink-0"
           >
             {isUrlSaved ? "Saved" : "Done"}
           </button>

@@ -222,8 +222,7 @@ export default function AdminCatalogPage() {
             }}
             onDeleteSelected={handleDeleteSelected}
             onEditItem={(item) => {
-              setEditingItem(item);
-              setIsAddModalOpen(true);
+              router.push(`/admin/catalog/edit/${item.id}`);
             }}
             onDeleteItem={handleDeleteItem}
             onArchiveItem={handleArchiveItem}

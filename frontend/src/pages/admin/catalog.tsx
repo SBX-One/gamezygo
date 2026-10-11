@@ -1,5 +1,6 @@
 import * as React from "react";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import {
   AdminCatalogTopBar,
@@ -18,6 +19,7 @@ import {
 } from "@/features/admin/types/admin-catalog.types";
 
 export default function AdminCatalogPage() {
+  const router = useRouter();
   const [items, setItems] = React.useState<AdminCatalogItem[]>(
     MOCK_ADMIN_CATALOG_ITEMS
   );
@@ -216,8 +218,7 @@ export default function AdminCatalogPage() {
             onToggleSelectItem={handleToggleSelectItem}
             onToggleStatus={handleToggleStatus}
             onAddNew={() => {
-              setEditingItem(null);
-              setIsAddModalOpen(true);
+              router.push("/admin/catalog/add");
             }}
             onDeleteSelected={handleDeleteSelected}
             onEditItem={(item) => {

@@ -370,7 +370,7 @@ export function AdminCatalogTable({
             /* EMPTY STATE ROW (Matching Image 4) */
             <tr>
               <td colSpan={5} className="py-20 px-6 text-center">
-                <div className="flex flex-col items-center justify-center max-w-sm mx-auto select-none">
+                <div className="flex flex-col items-center justify-center text-center mx-auto select-none">
                   {/* Gamepad Icon container with 16px radius */}
                   <div className="w-16 h-16 rounded-2xl bg-[#161822] border border-white/5 flex items-center justify-center text-gray-300 mb-5 shadow-inner">
                     <GamepadIcon className="w-8 h-8 text-gray-200" />

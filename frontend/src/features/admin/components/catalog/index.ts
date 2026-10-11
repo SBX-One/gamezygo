@@ -4,4 +4,5 @@ export * from "./AdminCatalogTable";
 export * from "./AdminCatalogFilterPopover";
 export * from "./AdminCatalogAddModal";
 export * from "./AdminCatalogDeleteModal";
+export * from "./AdminArchivedCatalogTable";
 export * from "./add";

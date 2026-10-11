@@ -74,3 +74,14 @@ export function AdminCard({
     </div>
   );
 }
+
+// Re-exports for backwards compatibility
+export {
+  AdminTable,
+  AdminTableHeader,
+  AdminTableBody,
+  AdminTableRow,
+  AdminTableHead,
+  AdminTableCell,
+} from "./AdminTable";
+

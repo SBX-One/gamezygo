@@ -7,6 +7,7 @@ import type { AdminCatalogFilterState } from "../../types/admin-catalog.types";
 export interface AdminCatalogTopBarProps {
   filters: AdminCatalogFilterState;
   onFilterChange: (filters: AdminCatalogFilterState) => void;
+  showStatusCheckboxes?: boolean;
   className?: string;
 }
 
@@ -83,6 +84,7 @@ const CATALOG_CATEGORIES = [
 export function AdminCatalogTopBar({
   filters,
   onFilterChange,
+  showStatusCheckboxes = true,
   className,
 }: AdminCatalogTopBarProps) {
   const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
@@ -98,29 +100,31 @@ export function AdminCatalogTopBar({
   return (
     <div className={cn("relative flex items-center gap-3 sm:gap-4", className)}>
       {/* 1. Checkboxes Group: Pre-order, Draft, Unlisted */}
-      <div className="hidden md:flex items-center gap-4 mr-1">
-        <AdminCheckbox
-          label="Pre-order"
-          checked={filters.isPreOrder}
-          onChange={(checked) =>
-            onFilterChange({ ...filters, isPreOrder: checked })
-          }
-        />
-        <AdminCheckbox
-          label="Draft"
-          checked={filters.isDraft}
-          onChange={(checked) =>
-            onFilterChange({ ...filters, isDraft: checked })
-          }
-        />
-        <AdminCheckbox
-          label="Unlisted"
-          checked={filters.isUnlisted}
-          onChange={(checked) =>
-            onFilterChange({ ...filters, isUnlisted: checked })
-          }
-        />
-      </div>
+      {showStatusCheckboxes && (
+        <div className="hidden md:flex items-center gap-4 mr-1">
+          <AdminCheckbox
+            label="Pre-order"
+            checked={filters.isPreOrder}
+            onChange={(checked) =>
+              onFilterChange({ ...filters, isPreOrder: checked })
+            }
+          />
+          <AdminCheckbox
+            label="Draft"
+            checked={filters.isDraft}
+            onChange={(checked) =>
+              onFilterChange({ ...filters, isDraft: checked })
+            }
+          />
+          <AdminCheckbox
+            label="Unlisted"
+            checked={filters.isUnlisted}
+            onChange={(checked) =>
+              onFilterChange({ ...filters, isUnlisted: checked })
+            }
+          />
+        </div>
+      )}
 
       {/* 2. Search Field */}
       <div className="relative flex items-center w-48 sm:w-64">

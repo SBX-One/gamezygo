@@ -192,12 +192,7 @@ export default function AdminCatalogPage() {
         <div className="space-y-6">
           {/* 1. Three Action Buttons (Figma Image 2) */}
           <AdminCatalogActionButtons
-            onViewArchived={() =>
-              setFilters((prev) => ({
-                ...prev,
-                isUnlisted: !prev.isUnlisted,
-              }))
-            }
+            onViewArchived={() => router.push("/admin/catalog/archived")}
             onEditProductSection={() => {
               // Toggle sample filter
             }}

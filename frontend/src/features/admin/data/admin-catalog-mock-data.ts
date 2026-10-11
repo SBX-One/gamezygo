@@ -122,3 +122,97 @@ export const MOCK_ADMIN_CATALOG_ITEMS: AdminCatalogItem[] = [
     stockCount: 22,
   },
 ];
+
+export const MOCK_ARCHIVED_CATALOG_ITEMS: AdminCatalogItem[] = [
+  {
+    id: "arch-1",
+    name: "Grand Thief Auto VI",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+    categories: ["Action", "Adventure", "Open World", "Crime"],
+    price: 480000,
+    isActive: false,
+    isPreOrder: false,
+    isDraft: false,
+    isUnlisted: true,
+    stockCount: 15,
+  },
+  {
+    id: "arch-2",
+    name: "Grand Thief Auto VI",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+    categories: ["Action", "Adventure", "Open World", "Shooter"],
+    price: 480000,
+    isActive: false,
+    isPreOrder: false,
+    isDraft: false,
+    isUnlisted: true,
+    stockCount: 10,
+  },
+  {
+    id: "arch-3",
+    name: "Grand Thief Auto VI",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+    categories: ["Action", "Adventure", "Multiplayer", "RPG"],
+    price: 480000,
+    isActive: false,
+    isPreOrder: false,
+    isDraft: false,
+    isUnlisted: true,
+    stockCount: 8,
+  },
+  {
+    id: "arch-4",
+    name: "Grand Thief Auto VI",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+    categories: ["Action", "Adventure", "Crime", "Racing"],
+    price: 480000,
+    isActive: false,
+    isPreOrder: false,
+    isDraft: false,
+    isUnlisted: true,
+    stockCount: 20,
+  },
+  {
+    id: "arch-5",
+    name: "Grand Thief Auto VI",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+    categories: ["Action", "Adventure", "Open World", "Shooter"],
+    price: 480000,
+    isActive: false,
+    isPreOrder: false,
+    isDraft: false,
+    isUnlisted: true,
+    stockCount: 12,
+  },
+  {
+    id: "arch-6",
+    name: "Grand Thief Auto VI",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+    categories: ["Action", "Adventure", "Multiplayer", "Racing"],
+    price: 480000,
+    isActive: false,
+    isPreOrder: false,
+    isDraft: false,
+    isUnlisted: true,
+    stockCount: 14,
+  },
+  {
+    id: "arch-7",
+    name: "Grand Thief Auto VI",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+    categories: ["Action", "Adventure", "Open World", "Crime"],
+    price: 480000,
+    isActive: false,
+    isPreOrder: false,
+    isDraft: false,
+    isUnlisted: true,
+    stockCount: 9,
+  },
+];

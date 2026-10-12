@@ -1,0 +1,335 @@
+import * as React from "react";
+import Head from "next/head";
+import Link from "next/link";
+import { AdminLayout } from "@/components/layout/AdminLayout";
+import {
+  AdminProductSectionBlock,
+  AdminAddSectionDashedBox,
+  AdminAddGameToSectionModal,
+  AdminEditSectionModal,
+  AdminClearSectionModal,
+  AdminDeleteSectionModal,
+  ChevronRightIcon,
+} from "@/features/admin/components/catalog/section";
+import { INITIAL_PRODUCT_SECTIONS } from "@/features/admin/data/admin-section-mock-data";
+import type { ProductSection, SectionProduct } from "@/features/admin/types/admin-section.types";
+
+export default function AdminProductSectionPage() {
+  const [sections, setSections] = React.useState<ProductSection[]>(
+    INITIAL_PRODUCT_SECTIONS
+  );
+
+  // Drag-and-drop state for Notion-style reordering
+  const [draggedIdx, setDraggedIdx] = React.useState<number | null>(null);
+  const [dragOverIdx, setDragOverIdx] = React.useState<number | null>(null);
+  const [dropIndicator, setDropIndicator] = React.useState<"top" | "bottom" | null>(
+    null
+  );
+
+  // Modals state
+  const [addGameModalState, setAddGameModalState] = React.useState<{
+    isOpen: boolean;
+    section: ProductSection | null;
+  }>({
+    isOpen: false,
+    section: null,
+  });
+
+  const [editSectionModalState, setEditSectionModalState] = React.useState<{
+    isOpen: boolean;
+    section: ProductSection | null;
+  }>({
+    isOpen: false,
+    section: null,
+  });
+
+  const [clearModalState, setClearModalState] = React.useState<{
+    isOpen: boolean;
+    section: ProductSection | null;
+  }>({
+    isOpen: false,
+    section: null,
+  });
+
+  const [deleteModalState, setDeleteModalState] = React.useState<{
+    isOpen: boolean;
+    section: ProductSection | null;
+  }>({
+    isOpen: false,
+    section: null,
+  });
+
+  // Drag & Drop Handlers (Notion-style section reordering)
+  const handleDragStart = (idx: number, e: React.DragEvent) => {
+    setDraggedIdx(idx);
+    e.dataTransfer.effectAllowed = "move";
+    e.dataTransfer.setData("text/plain", `${idx}`);
+  };
+
+  const handleDragOver = (idx: number, e: React.DragEvent) => {
+    e.preventDefault();
+    if (draggedIdx === null) return;
+    if (draggedIdx === idx) {
+      if (dragOverIdx !== null) setDragOverIdx(null);
+      if (dropIndicator !== null) setDropIndicator(null);
+      return;
+    }
+    const rect = e.currentTarget.getBoundingClientRect();
+    const isTopHalf = e.clientY - rect.top < rect.height / 2;
+    setDragOverIdx(idx);
+    setDropIndicator(isTopHalf ? "top" : "bottom");
+  };
+
+  const handleDragLeave = (idx: number) => {
+    if (dragOverIdx === idx) {
+      setDragOverIdx(null);
+      setDropIndicator(null);
+    }
+  };
+
+  const handleDrop = (targetIdx: number, e: React.DragEvent) => {
+    e.preventDefault();
+    if (draggedIdx === null || draggedIdx === targetIdx) {
+      setDraggedIdx(null);
+      setDragOverIdx(null);
+      setDropIndicator(null);
+      return;
+    }
+
+    setSections((prev) => {
+      const next = [...prev];
+      const [draggedItem] = next.splice(draggedIdx, 1);
+      let insertionIndex = targetIdx;
+      if (draggedIdx < targetIdx) {
+        insertionIndex = dropIndicator === "bottom" ? targetIdx : targetIdx - 1;
+      } else {
+        insertionIndex = dropIndicator === "bottom" ? targetIdx + 1 : targetIdx;
+      }
+      next.splice(insertionIndex, 0, draggedItem);
+      return next;
+    });
+
+    setDraggedIdx(null);
+    setDragOverIdx(null);
+    setDropIndicator(null);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIdx(null);
+    setDragOverIdx(null);
+    setDropIndicator(null);
+  };
+
+  // Keyboard / Click accessible reorder
+  const handleMoveUp = (idx: number) => {
+    if (idx === 0) return;
+    setSections((prev) => {
+      const next = [...prev];
+      const [item] = next.splice(idx, 1);
+      next.splice(idx - 1, 0, item);
+      return next;
+    });
+  };
+
+  const handleMoveDown = (idx: number) => {
+    if (idx === sections.length - 1) return;
+    setSections((prev) => {
+      const next = [...prev];
+      const [item] = next.splice(idx, 1);
+      next.splice(idx + 1, 0, item);
+      return next;
+    });
+  };
+
+  // Title modification handlers
+  const handleTitleChange = (sectionId: string, newTitle: string) => {
+    setSections((prev) =>
+      prev.map((s) => (s.id === sectionId ? { ...s, title: newTitle } : s))
+    );
+  };
+
+  const handleClearTitle = (sectionId: string) => {
+    setSections((prev) =>
+      prev.map((s) => (s.id === sectionId ? { ...s, title: "" } : s))
+    );
+  };
+
+  // Add new section (Image 4)
+  const handleAddNewSection = () => {
+    const newId = `sec-${Date.now()}`;
+    const newSection: ProductSection = {
+      id: newId,
+      title: "Section header",
+      slug: `section-${sections.length + 1}`,
+      products: [],
+    };
+    setSections((prev) => [...prev, newSection]);
+  };
+
+  // Game management within section
+  const handleAddGamesToSection = (games: SectionProduct[]) => {
+    if (!addGameModalState.section) return;
+    const targetSectionId = addGameModalState.section.id;
+    setSections((prev) =>
+      prev.map((s) => {
+        if (s.id === targetSectionId) {
+          const currentIds = s.products.map((p) => p.id);
+          const toAdd = games.filter((g) => !currentIds.includes(g.id));
+          return { ...s, products: [...s.products, ...toAdd] };
+        }
+        return s;
+      })
+    );
+  };
+
+  const handleAddGameToSection = (game: SectionProduct) => {
+    handleAddGamesToSection([game]);
+  };
+
+  const handleRemoveGameFromSection = (sectionId: string, gameId: string) => {
+    setSections((prev) =>
+      prev.map((s) => {
+        if (s.id === sectionId) {
+          return {
+            ...s,
+            products: s.products.filter((p) => p.id !== gameId),
+          };
+        }
+        return s;
+      })
+    );
+  };
+
+  // Clear Section (Image 3)
+  const handleConfirmClearSection = () => {
+    if (!clearModalState.section) return;
+    const sectionId = clearModalState.section.id;
+    setSections((prev) =>
+      prev.map((s) => (s.id === sectionId ? { ...s, products: [] } : s))
+    );
+  };
+
+  // Delete Section
+  const handleConfirmDeleteSection = () => {
+    if (!deleteModalState.section) return;
+    const sectionId = deleteModalState.section.id;
+    setSections((prev) => prev.filter((s) => s.id !== sectionId));
+  };
+
+  // Save Edit Section Modal
+  const handleSaveEditSection = (updatedSection: ProductSection) => {
+    setSections((prev) =>
+      prev.map((s) => (s.id === updatedSection.id ? updatedSection : s))
+    );
+  };
+
+  // Breadcrumb Title matching Image 1: [ ◫ ] | Katalog > Product Section
+  const headerTitle = (
+    <div className="flex items-center gap-2 select-none text-[12px]">
+      <Link
+        href="/admin/catalog"
+        className="text-gray-400 hover:text-white transition-colors"
+      >
+        Katalog
+      </Link>
+      <ChevronRightIcon className="w-3.5 h-3.5 text-gray-500 shrink-0" />
+      <span className="text-white font-semibold">Product Section</span>
+    </div>
+  );
+
+  return (
+    <>
+      <Head>
+        <title>Product Section Management | Gamezygo Admin</title>
+        <meta
+          name="description"
+          content="Kelola dan atur susunan section produk game pada Gamezygo"
+        />
+      </Head>
+
+      <AdminLayout
+        title={headerTitle}
+        activeNavId="katalog"
+      >
+        <div className="space-y-10 pb-16">
+          {/* Section Blocks List */}
+          {sections.map((section, idx) => (
+            <AdminProductSectionBlock
+              key={section.id}
+              section={section}
+              index={idx}
+              totalSections={sections.length}
+              isDragging={draggedIdx === idx}
+              dropIndicator={dragOverIdx === idx ? dropIndicator : null}
+              onTitleChange={(val) => handleTitleChange(section.id, val)}
+              onClearTitle={() => handleClearTitle(section.id)}
+              onEditSection={() =>
+                setEditSectionModalState({ isOpen: true, section })
+              }
+              onClearSection={() =>
+                setClearModalState({ isOpen: true, section })
+              }
+              onDeleteSection={() =>
+                setDeleteModalState({ isOpen: true, section })
+              }
+              onAddGame={() =>
+                setAddGameModalState({ isOpen: true, section })
+              }
+              onRemoveGame={(gameId) =>
+                handleRemoveGameFromSection(section.id, gameId)
+              }
+              onMoveUp={() => handleMoveUp(idx)}
+              onMoveDown={() => handleMoveDown(idx)}
+              onDragStart={(e) => handleDragStart(idx, e)}
+              onDragOver={(e) => handleDragOver(idx, e)}
+              onDragLeave={() => handleDragLeave(idx)}
+              onDrop={(e) => handleDrop(idx, e)}
+              onDragEnd={handleDragEnd}
+            />
+          ))}
+
+          {/* Add New Section Dashed Box (Image 4) */}
+          <AdminAddSectionDashedBox onClick={handleAddNewSection} />
+        </div>
+
+        {/* 1. Modal: Add Game to Section */}
+        <AdminAddGameToSectionModal
+          isOpen={addGameModalState.isOpen}
+          sectionTitle={addGameModalState.section?.title || "Section"}
+          existingProductIds={
+            addGameModalState.section?.products.map((p) => p.id) || []
+          }
+          onClose={() => setAddGameModalState({ isOpen: false, section: null })}
+          onAddGames={handleAddGamesToSection}
+          onAddGame={handleAddGameToSection}
+        />
+
+        {/* 2. Modal: Edit Section */}
+        <AdminEditSectionModal
+          isOpen={editSectionModalState.isOpen}
+          section={editSectionModalState.section}
+          onClose={() =>
+            setEditSectionModalState({ isOpen: false, section: null })
+          }
+          onSave={handleSaveEditSection}
+        />
+
+        {/* 3. Modal: Clear Section Confirmation */}
+        <AdminClearSectionModal
+          isOpen={clearModalState.isOpen}
+          sectionTitle={clearModalState.section?.title || "Section"}
+          onClose={() => setClearModalState({ isOpen: false, section: null })}
+          onConfirm={handleConfirmClearSection}
+        />
+
+        {/* 4. Modal: Delete Section Confirmation */}
+        <AdminDeleteSectionModal
+          isOpen={deleteModalState.isOpen}
+          sectionTitle={deleteModalState.section?.title || "Section"}
+          onClose={() => setDeleteModalState({ isOpen: false, section: null })}
+          onConfirm={handleConfirmDeleteSection}
+        />
+      </AdminLayout>
+    </>
+  );
+}

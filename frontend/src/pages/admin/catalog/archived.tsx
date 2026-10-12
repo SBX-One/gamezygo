@@ -176,9 +176,7 @@ export default function AdminArchivedProductPage() {
           {/* 1. Three Action Buttons (Matching Image 5) */}
           <AdminCatalogActionButtons
             onViewArchived={() => router.push("/admin/catalog")}
-            onEditProductSection={() => {
-              // Action handler
-            }}
+            onEditProductSection={() => router.push("/admin/catalog/section")}
             onPoManagement={() => {
               // Action handler
             }}

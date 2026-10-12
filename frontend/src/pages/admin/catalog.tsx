@@ -193,9 +193,7 @@ export default function AdminCatalogPage() {
           {/* 1. Three Action Buttons (Figma Image 2) */}
           <AdminCatalogActionButtons
             onViewArchived={() => router.push("/admin/catalog/archived")}
-            onEditProductSection={() => {
-              // Toggle sample filter
-            }}
+            onEditProductSection={() => router.push("/admin/catalog/section")}
             onPoManagement={() =>
               setFilters((prev) => ({
                 ...prev,

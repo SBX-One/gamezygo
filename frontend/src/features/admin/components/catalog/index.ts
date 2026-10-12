@@ -6,3 +6,4 @@ export * from "./AdminCatalogAddModal";
 export * from "./AdminCatalogDeleteModal";
 export * from "./AdminArchivedCatalogTable";
 export * from "./add";
+export * from "./section";

@@ -206,3 +206,38 @@ export const GamepadIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+export const MinusIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+);
+
+export const BookCatalogIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="28"
+    height="28"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <rect x="4" y="3" width="16" height="18" rx="3" />
+    <line x1="9" y1="7" x2="15" y2="7" />
+    <line x1="9" y1="11" x2="15" y2="11" />
+    <line x1="9" y1="15" x2="12" y2="15" />
+  </svg>
+);
+

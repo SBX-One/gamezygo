@@ -66,7 +66,7 @@ export function AdminCheckbox({
             "w-4 h-4 rounded border flex items-center justify-center transition-all duration-150",
             checked
               ? "bg-[#1E202B] border-gray-400 text-white"
-              : "bg-[#13141B] border-deep-blue-700 text-transparent hover:border-gray-500"
+              : "bg-[#13141B] border-[#374151] text-transparent hover:border-gray-400"
           )}
         >
           {checked && <CheckIcon className="w-2.5 h-2.5 text-white" />}

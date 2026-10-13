@@ -138,7 +138,7 @@ export function AdminCatalogTopBar({
             onFilterChange({ ...filters, searchQuery: e.target.value })
           }
           placeholder="Cari produk"
-          className="w-full h-9 pl-9 pr-8 bg-[#15161D] border border-deep-blue-700 rounded-lg text-xs text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors"
+          className="w-full h-9 pl-9 pr-8 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-xs text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors"
         />
         {filters.searchQuery && (
           <button
@@ -162,7 +162,7 @@ export function AdminCatalogTopBar({
             "h-9 w-9 rounded-lg border flex items-center justify-center transition-all cursor-pointer relative",
             isPopoverOpen || hasActiveFilters
               ? "bg-[#1E202B] border-gray-400 text-white"
-              : "bg-[#15161D] border-deep-blue-700 text-gray-300 hover:text-white hover:border-gray-500"
+              : "bg-deep-blue-900 border-deep-blue-700 text-gray-300 hover:text-white hover:border-gray-500"
           )}
         >
           <FilterIcon className="w-4 h-4" />

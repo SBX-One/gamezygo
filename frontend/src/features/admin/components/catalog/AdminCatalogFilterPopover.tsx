@@ -171,7 +171,7 @@ export function AdminCatalogFilterPopover({
                     "px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 border cursor-pointer",
                     isSelected
                       ? "bg-[#1E202B] text-white border-gray-400 shadow-sm"
-                      : "bg-[#15161D] text-gray-300 border-deep-blue-700 hover:border-gray-500 hover:text-white"
+                      : "bg-deep-blue-900 text-gray-300 border-deep-blue-700 hover:border-gray-500 hover:text-white"
                   )}
                 >
                   {cat}
@@ -250,7 +250,7 @@ export function AdminCatalogFilterPopover({
                 "py-2 px-3 rounded-lg text-xs font-medium transition-all border cursor-pointer text-center",
                 localSortBy === "terbaru"
                   ? "bg-[#1E202B] text-white border-gray-400 font-semibold"
-                  : "bg-[#15161D] text-gray-300 border-deep-blue-700 hover:text-white hover:border-gray-500"
+                  : "bg-deep-blue-900 text-gray-300 border-deep-blue-700 hover:text-white hover:border-gray-500"
               )}
             >
               Terbaru
@@ -262,7 +262,7 @@ export function AdminCatalogFilterPopover({
                 "py-2 px-3 rounded-lg text-xs font-medium transition-all border cursor-pointer text-center",
                 localSortBy === "name_asc"
                   ? "bg-[#1E202B] text-white border-gray-400 font-semibold"
-                  : "bg-[#15161D] text-gray-300 border-deep-blue-700 hover:text-white hover:border-gray-500"
+                  : "bg-deep-blue-900 text-gray-300 border-deep-blue-700 hover:text-white hover:border-gray-500"
               )}
             >
               Nama (A - Z)
@@ -283,7 +283,7 @@ export function AdminCatalogFilterPopover({
         <button
           type="button"
           onClick={handleApplyClick}
-          className="px-5 py-2 rounded-lg bg-[image:var(--gradient-primary-default)] text-white hover:brightness-110 active:scale-98 text-xs font-semibold shadow-sm transition-all cursor-pointer"
+          className="px-5 py-2 rounded-lg bg-gradient-primary text-white hover:brightness-110 active:scale-98 text-xs font-semibold shadow-sm transition-all cursor-pointer"
         >
           Apply
         </button>

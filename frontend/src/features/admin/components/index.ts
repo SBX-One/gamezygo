@@ -9,3 +9,4 @@ export * from "./catalog";
 export * from "./subs";
 export * from "./articles";
 export * from "./game-requests";
+export * from "./vouchers";

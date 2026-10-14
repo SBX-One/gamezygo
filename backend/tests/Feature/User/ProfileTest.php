@@ -208,4 +208,116 @@ class ProfileTest extends TestCase
         ],
       ]);
   }
+
+  public function test_authenticated_user_can_change_password_successfully(): void
+  {
+    $user = User::create([
+      'name'     => 'Password Changer',
+      'email'    => 'changer@example.com',
+      'password' => bcrypt('oldpassword123'),
+      'status'   => 'active',
+    ]);
+
+    $token = auth('api')->login($user);
+
+    $payload = [
+      'current_password'          => 'oldpassword123',
+      'new_password'              => 'newpassword123',
+      'new_password_confirmation' => 'newpassword123',
+    ];
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->putJson('/api/v1/user/profile/change-password', $payload);
+
+    $response->assertStatus(200)
+      ->assertJson([
+        'success' => true,
+        'message' => 'Password berhasil diperbarui',
+      ]);
+
+    $this->assertTrue(\Illuminate\Support\Facades\Hash::check('newpassword123', $user->fresh()->password));
+  }
+
+  public function test_change_password_fails_if_old_password_is_incorrect(): void
+  {
+    $user = User::create([
+      'name'     => 'Password Changer',
+      'email'    => 'changer2@example.com',
+      'password' => bcrypt('oldpassword123'),
+      'status'   => 'active',
+    ]);
+
+    $token = auth('api')->login($user);
+
+    $payload = [
+      'current_password'          => 'wrongoldpassword',
+      'new_password'              => 'newpassword123',
+      'new_password_confirmation' => 'newpassword123',
+    ];
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->putJson('/api/v1/user/profile/change-password', $payload);
+
+    $response->assertStatus(400)
+      ->assertJson([
+        'success' => false,
+        'message' => 'Password lama yang Anda masukkan tidak sesuai.',
+      ]);
+  }
+
+  public function test_change_password_validation_fails_if_confirmation_does_not_match(): void
+  {
+    $user = User::create([
+      'name'     => 'Password Changer',
+      'email'    => 'changer3@example.com',
+      'password' => bcrypt('oldpassword123'),
+      'status'   => 'active',
+    ]);
+
+    $token = auth('api')->login($user);
+
+    $payload = [
+      'current_password'          => 'oldpassword123',
+      'new_password'              => 'newpassword123',
+      'new_password_confirmation' => 'differentpassword123',
+    ];
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->putJson('/api/v1/user/profile/change-password', $payload);
+
+    $response->assertStatus(422)
+      ->assertJson([
+        'success' => false,
+        'message' => 'Validation error',
+      ])
+      ->assertJsonValidationErrors(['new_password']);
+  }
+
+  public function test_change_password_validation_fails_if_new_password_is_same_as_old(): void
+  {
+    $user = User::create([
+      'name'     => 'Password Changer',
+      'email'    => 'changer4@example.com',
+      'password' => bcrypt('oldpassword123'),
+      'status'   => 'active',
+    ]);
+
+    $token = auth('api')->login($user);
+
+    $payload = [
+      'current_password'          => 'oldpassword123',
+      'new_password'              => 'oldpassword123',
+      'new_password_confirmation' => 'oldpassword123',
+    ];
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->putJson('/api/v1/user/profile/change-password', $payload);
+
+    $response->assertStatus(422)
+      ->assertJson([
+        'success' => false,
+        'message' => 'Validation error',
+      ])
+      ->assertJsonValidationErrors(['new_password']);
+  }
 }

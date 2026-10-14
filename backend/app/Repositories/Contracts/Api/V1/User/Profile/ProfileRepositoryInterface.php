@@ -40,4 +40,13 @@ interface ProfileRepositoryInterface
    * @return User
    */
   public function updateProfile(User $user, array $data): User;
+
+  /**
+   * Update user password.
+   *
+   * @param User $user
+   * @param string $newPassword
+   * @return bool
+   */
+  public function updatePassword(User $user, string $newPassword): bool;
 }

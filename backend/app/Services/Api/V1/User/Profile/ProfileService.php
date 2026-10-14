@@ -69,4 +69,22 @@ class ProfileService
 
     return $user;
   }
+
+  /**
+   * Change user password after verifying current password.
+   *
+   * @param User $user
+   * @param string $currentPassword
+   * @param string $newPassword
+   * @return void
+   * @throws \Exception
+   */
+  public function changePassword(User $user, string $currentPassword, string $newPassword): void
+  {
+    if (!empty($user->password) && !\Illuminate\Support\Facades\Hash::check($currentPassword, $user->password)) {
+      throw new \Exception('Password lama yang Anda masukkan tidak sesuai.');
+    }
+
+    $this->profileRepository->updatePassword($user, $newPassword);
+  }
 }

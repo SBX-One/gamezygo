@@ -94,6 +94,7 @@ Route::prefix('user')
                     ->group(function () {
                         Route::get('/', 'show')->name('show');
                         Route::match(['put', 'patch', 'post'], '/', 'update')->name('update');
+                        Route::match(['put', 'patch', 'post'], '/change-password', 'changePassword')->name('change-password');
                     });
             });
     });

@@ -79,4 +79,18 @@ class ProfileRepository implements ProfileRepositoryInterface
 
     return $user->fresh();
   }
+
+  /**
+   * Update user password.
+   *
+   * @param User $user
+   * @param string $newPassword
+   * @return bool
+   */
+  public function updatePassword(User $user, string $newPassword): bool
+  {
+    return $user->update([
+      'password' => bcrypt($newPassword),
+    ]);
+  }
 }

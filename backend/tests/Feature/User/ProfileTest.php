@@ -1,0 +1,211 @@
+<?php
+
+namespace Tests\Feature\User;
+
+use App\Models\Order;
+use App\Models\OrderItem;
+use App\Models\Product;
+use App\Models\User;
+use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Http\UploadedFile;
+use Illuminate\Support\Facades\Storage;
+use Tests\TestCase;
+
+class ProfileTest extends TestCase
+{
+  use RefreshDatabase;
+
+  public function test_unauthenticated_user_cannot_access_profile(): void
+  {
+    $response = $this->getJson('/api/v1/user/profile');
+
+    $response->assertStatus(401);
+  }
+
+  public function test_authenticated_user_can_view_profile_with_all_required_data(): void
+  {
+    $user = User::create([
+      'name'              => 'Arya Gamer',
+      'email'             => 'arya.gamer@example.com',
+      'phone'             => '081234567890',
+      'password'          => bcrypt('secret123'),
+      'status'            => 'active',
+      'total_points'      => 950,
+      'total_transaction' => 3,
+    ]);
+
+    // Create another user with higher points to test ranking calculation
+    User::create([
+      'name'              => 'Top Gamer',
+      'email'             => 'top.gamer@example.com',
+      'password'          => bcrypt('secret123'),
+      'status'            => 'active',
+      'total_points'      => 1500,
+      'total_transaction' => 5,
+    ]);
+
+    // Create game products and assign to user's owned games
+    $products = Product::factory()->count(2)->create();
+    $user->ownedGames()->attach($products->pluck('id'));
+
+    // Create 4 orders to verify only 3 recent transactions are returned
+    for ($i = 1; $i <= 4; $i++) {
+      Order::create([
+        'user_id'         => $user->id,
+        'order_code'      => "ORD-2026-00{$i}",
+        'subtotal_price'  => 500000,
+        'discount_amount' => 50000,
+        'total_price'     => 450000,
+        'status'          => 'paid',
+        'expired_at'      => now()->addHour(),
+        'paid_at'         => now(),
+        'created_at'      => now()->subDays(5 - $i),
+      ]);
+    }
+
+    $token = auth('api')->login($user);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->getJson('/api/v1/user/profile');
+
+    $response->assertStatus(200)
+      ->assertJsonStructure([
+        'success',
+        'message',
+        'data' => [
+          'id',
+          'name',
+          'email',
+          'phone',
+          'avatar_url',
+          'status',
+          'joined_at',
+          'total_transaction',
+          'total_points',
+          'total_games_owned',
+          'rankings' => [
+            'weekly',
+            'monthly',
+            'all_time',
+          ],
+          'recent_transactions' => [
+            '*' => [
+              'id',
+              'order_code',
+              'subtotal_price',
+              'discount_amount',
+              'total_price',
+              'status',
+              'paid_at',
+              'created_at',
+              'total_items',
+            ],
+          ],
+        ],
+      ]);
+
+    $data = $response->json('data');
+
+    $this->assertEquals('arya.gamer@example.com', $data['email']);
+    $this->assertEquals('081234567890', $data['phone']);
+    $this->assertEquals(950, $data['total_points']);
+    $this->assertEquals(3, $data['total_transaction']);
+    $this->assertEquals(2, $data['total_games_owned']);
+    $this->assertEquals(2, $data['rankings']['all_time']); // Ranked 2nd after top gamer
+    $this->assertCount(3, $data['recent_transactions']); // Strictly 3 recent transactions
+    $this->assertEquals('ORD-2026-004', $data['recent_transactions'][0]['order_code']); // Most recent first
+  }
+
+  public function test_authenticated_user_can_update_profile_info(): void
+  {
+    $user = User::create([
+      'name'         => 'Original Name',
+      'email'        => 'user@example.com',
+      'phone'        => '0811111111',
+      'password'     => bcrypt('secret123'),
+      'status'       => 'active',
+      'total_points' => 100,
+    ]);
+
+    $token = auth('api')->login($user);
+
+    $payload = [
+      'name'       => 'Updated Name',
+      'phone'      => '0899999999',
+      'avatar_url' => 'https://example.com/new-avatar.jpg',
+    ];
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->putJson('/api/v1/user/profile', $payload);
+
+    $response->assertStatus(200)
+      ->assertJsonPath('data.name', 'Updated Name')
+      ->assertJsonPath('data.phone', '0899999999')
+      ->assertJsonPath('data.avatar_url', 'https://example.com/new-avatar.jpg');
+
+    $this->assertDatabaseHas('users', [
+      'id'         => $user->id,
+      'name'       => 'Updated Name',
+      'phone'      => '0899999999',
+      'avatar_url' => 'https://example.com/new-avatar.jpg',
+    ]);
+  }
+
+  public function test_authenticated_user_can_upload_avatar_image(): void
+  {
+    Storage::fake('public');
+
+    $user = User::create([
+      'name'     => 'Avatar Tester',
+      'email'    => 'avatar@example.com',
+      'password' => bcrypt('secret123'),
+      'status'   => 'active',
+    ]);
+
+    $token = auth('api')->login($user);
+
+    $file = UploadedFile::fake()->create('custom-avatar.jpg', 100, 'image/jpeg');
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->postJson('/api/v1/user/profile', [
+        'name'   => 'Avatar Tester Updated',
+        'avatar' => $file,
+      ]);
+
+    $response->assertStatus(200)
+      ->assertJsonPath('data.name', 'Avatar Tester Updated');
+
+    $this->assertNotNull($response->json('data.avatar_url'));
+    $this->assertStringContainsString('avatars/', $response->json('data.avatar_url'));
+  }
+
+  public function test_profile_update_validation_fails_with_invalid_data(): void
+  {
+    $user = User::create([
+      'name'     => 'Valid User',
+      'email'    => 'valid@example.com',
+      'password' => bcrypt('secret123'),
+      'status'   => 'active',
+    ]);
+
+    $token = auth('api')->login($user);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->putJson('/api/v1/user/profile', [
+        'name'  => '',
+        'phone' => str_repeat('0', 30), // Exceeds 20 characters
+      ]);
+
+    $response->assertStatus(422)
+      ->assertJson([
+        'success' => false,
+        'message' => 'Validation error',
+      ])
+      ->assertJsonStructure([
+        'errors' => [
+          'name',
+          'phone',
+        ],
+      ]);
+  }
+}

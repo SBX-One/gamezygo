@@ -16,6 +16,8 @@ use App\Repositories\Contracts\Api\V1\User\Leaderboard\LeaderboardRepositoryInte
 use App\Repositories\Api\V1\User\Leaderboard\LeaderboardRepository;
 use App\Repositories\Contracts\Api\V1\User\Product\ProductRepositoryInterface;
 use App\Repositories\Api\V1\User\Product\ProductRepository;
+use App\Repositories\Contracts\Api\V1\User\Profile\ProfileRepositoryInterface;
+use App\Repositories\Api\V1\User\Profile\ProfileRepository;
 use App\Repositories\Contracts\Api\V1\User\Review\ReviewRepositoryInterface;
 use App\Repositories\Api\V1\User\Review\ReviewRepository;
 use App\Repositories\Contracts\Api\V1\User\SubscriptionPlan\SubscriptionPlanRepositoryInterface;
@@ -31,6 +33,7 @@ class RepositoryServiceProvider extends ServiceProvider
     {
         $this->app->bind(AuthRepositoryInterface::class, AuthRepository::class);
         $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
+        $this->app->bind(ProfileRepositoryInterface::class, ProfileRepository::class);
         $this->app->bind(CustomSectionRepositoryInterface::class, CustomSectionRepository::class);
         $this->app->bind(SubscriptionPlanRepositoryInterface::class, SubscriptionPlanRepository::class);
         $this->app->bind(BlogRepositoryInterface::class, BlogRepository::class);

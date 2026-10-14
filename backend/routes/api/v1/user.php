@@ -6,6 +6,7 @@ use App\Http\Controllers\Api\V1\User\CustomSection\CustomSectionController;
 use App\Http\Controllers\Api\V1\User\Faq\FaqController;
 use App\Http\Controllers\Api\V1\User\Leaderboard\LeaderboardController;
 use App\Http\Controllers\Api\V1\User\Product\ProductController;
+use App\Http\Controllers\Api\V1\User\Profile\ProfileController;
 use App\Http\Controllers\Api\V1\User\Review\ReviewController;
 use App\Http\Controllers\Api\V1\User\SubscriptionPlan\SubscriptionPlanController;
 use Illuminate\Http\Request;
@@ -81,6 +82,18 @@ Route::prefix('user')
                     ->name('announcements.')
                     ->group(function () {
                         Route::get('/', 'index')->name('index');
+                    });
+            });
+
+        Route::middleware(['auth:api,sanctum'])
+            ->group(function () {
+                // Profile authenticated endpoints
+                Route::controller(ProfileController::class)
+                    ->prefix('/profile')
+                    ->name('profile.')
+                    ->group(function () {
+                        Route::get('/', 'show')->name('show');
+                        Route::match(['put', 'patch', 'post'], '/', 'update')->name('update');
                     });
             });
     });

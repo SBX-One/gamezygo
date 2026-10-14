@@ -28,6 +28,6 @@ Route::prefix('auth')
             ->controller(AuthController::class)
             ->group(function () {
                 Route::get('/me', 'me')->name('me');
-                Route::delete('/logout', 'logout')->name('logout');
+                Route::match(['post', 'delete'], '/logout', 'logout')->name('logout');
             });
     });

@@ -70,7 +70,7 @@ export function AdminAddProductMediaUpload({
     <div
       onClick={() => fileInputRef.current?.click()}
       className={cn(
-        "relative w-full aspect-[3/4] rounded-2xl border-2 border-dashed border-[#2F2F37] hover:border-gray-500 bg-[#15161D]/60 transition-all cursor-pointer flex flex-col items-center justify-center p-6 select-none group overflow-hidden shadow-sm",
+        "relative w-full aspect-3/4 rounded-2xl border-2 border-dashed border-deep-blue-700 hover:border-gray-500 bg-deep-blue-900/60 transition-all cursor-pointer flex flex-col items-center justify-center p-6 select-none group overflow-hidden shadow-sm",
         className
       )}
     >

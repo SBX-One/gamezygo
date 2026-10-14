@@ -221,7 +221,7 @@ export function AdminCatalogTable({
             <AdminTableHead className="w-14 pl-6" />
 
             {/* Column 2: Product Name with select all checkbox */}
-            <AdminTableHead className="min-w-[260px]">
+            <AdminTableHead className="min-w-65">
               <div className="flex items-center gap-3">
                 <AdminCheckbox
                   checked={allSelected}
@@ -233,10 +233,10 @@ export function AdminCatalogTable({
             </AdminTableHead>
 
             {/* Column 3: Category */}
-            <AdminTableHead className="min-w-[200px]">Category</AdminTableHead>
+            <AdminTableHead className="min-w-11xl">Category</AdminTableHead>
 
             {/* Column 4: Price */}
-            <AdminTableHead className="min-w-[140px]">Price</AdminTableHead>
+            <AdminTableHead className="min-w-35">Price</AdminTableHead>
 
             {/* Column 5: Action 3-dots */}
             <AdminTableHead className="w-12 pr-6" />
@@ -253,7 +253,7 @@ export function AdminCatalogTable({
                 <AdminTableRow
                   key={item.id}
                   className={cn(
-                    isSelected && "bg-white/[0.02]"
+                    isSelected && "bg-white/2"
                   )}
                 >
                   {/* Column 1: Switch Active/Inactive */}
@@ -335,7 +335,7 @@ export function AdminCatalogTable({
                       {isMenuOpen && (
                         <div
                           ref={menuRef}
-                          className="absolute right-0 top-8 z-30 min-w-[150px] rounded-2xl bg-[#13151F] border border-white/10 p-3 shadow-2xl animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-2 text-left"
+                          className="absolute right-0 top-8 z-30 min-w-37.5 rounded-2xl bg-[#13151F] border border-white/10 p-3 shadow-2xl animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-2 text-left"
                         >
                           <button
                             type="button"
@@ -345,7 +345,7 @@ export function AdminCatalogTable({
                             }}
                             className="flex items-center gap-3 w-full px-2 py-1.5 rounded-xl text-sm font-medium text-white hover:bg-white/5 text-left transition-colors cursor-pointer select-none"
                           >
-                            <EditIcon className="w-[18px] h-[18px] text-white shrink-0" strokeWidth={2} />
+                            <EditIcon className="w-4.5 h-4.5 text-white shrink-0" strokeWidth={2} />
                             <span>Edit</span>
                           </button>
                           <button
@@ -356,7 +356,7 @@ export function AdminCatalogTable({
                             }}
                             className="flex items-center gap-3 w-full px-2 py-1.5 rounded-xl text-sm font-medium text-white hover:bg-white/5 text-left transition-colors cursor-pointer select-none"
                           >
-                            <TrashIcon className="w-[18px] h-[18px] text-white shrink-0" strokeWidth={2} />
+                            <TrashIcon className="w-4.5 h-4.5 text-white shrink-0" strokeWidth={2} />
                             <span>Delete</span>
                           </button>
                         </div>

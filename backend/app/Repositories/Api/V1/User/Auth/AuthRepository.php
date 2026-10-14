@@ -31,6 +31,26 @@ class AuthRepository implements AuthRepositoryInterface
   }
 
   /**
+   * Create a new user record.
+   *
+   * @param array $data
+   * @return User
+   */
+  public function createUser(array $data): User
+  {
+    return User::create([
+      'name'              => $data['name'],
+      'email'             => $data['email'],
+      'password'          => bcrypt($data['password']),
+      'phone'             => $data['phone'] ?? null,
+      'status'            => 'active',
+      'total_points'      => 0,
+      'total_transaction' => 0,
+      'email_verified_at' => null,
+    ]);
+  }
+
+  /**
    * Update existing user or create a new user from Google profile data.
    *
    * @param array $data

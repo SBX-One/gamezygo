@@ -15,6 +15,82 @@ class AuthService
   }
 
   /**
+   * Register a new user and generate a JWT token.
+   *
+   * @param array $data
+   * @return array
+   */
+  public function register(array $data): array
+  {
+    $user = $this->authRepository->createUser($data);
+
+    $token = auth('api')->login($user);
+
+    return [
+      'user'       => $user,
+      'token'      => $token,
+      'token_type' => 'Bearer',
+      'expires_in' => auth('api')->factory()->getTTL() * 60,
+    ];
+  }
+
+  /**
+   * Login user with email & password credentials and generate a JWT token.
+   *
+   * @param array $credentials
+   * @return array
+   * @throws Exception
+   */
+  public function login(array $credentials): array
+  {
+    if (!$token = auth('api')->attempt($credentials)) {
+      throw new Exception('Invalid email or password.');
+    }
+
+    $user = auth('api')->user();
+
+    if ($user->status !== 'active') {
+      auth('api')->logout();
+      throw new Exception("Your account is {$user->status}. Please contact support.");
+    }
+
+    return [
+      'user'       => $user,
+      'token'      => $token,
+      'token_type' => 'Bearer',
+      'expires_in' => auth('api')->factory()->getTTL() * 60,
+    ];
+  }
+
+  /**
+   * Refresh the current JWT token.
+   *
+   * @return array
+   */
+  public function refreshToken(): array
+  {
+    $token = auth('api')->refresh();
+    $user = auth('api')->user();
+
+    return [
+      'user'       => $user,
+      'token'      => $token,
+      'token_type' => 'Bearer',
+      'expires_in' => auth('api')->factory()->getTTL() * 60,
+    ];
+  }
+
+  /**
+   * Invalidate the current JWT token.
+   *
+   * @return void
+   */
+  public function logout(): void
+  {
+    auth('api')->logout();
+  }
+
+  /**
    * Get Google OAuth redirect authorization URL.
    *
    * @return string
@@ -25,7 +101,7 @@ class AuthService
   }
 
   /**
-   * Handle Google OAuth redirect callback and generate Sanctum token.
+   * Handle Google OAuth redirect callback and generate JWT token.
    *
    * @return array
    * @throws Exception
@@ -45,17 +121,18 @@ class AuthService
       'avatar_url' => $googleUser->getAvatar(),
     ]);
 
-    $token = $user->createToken('auth_token')->plainTextToken;
+    $token = auth('api')->login($user);
 
     return [
       'user'       => $user,
       'token'      => $token,
       'token_type' => 'Bearer',
+      'expires_in' => auth('api')->factory()->getTTL() * 60,
     ];
   }
 
   /**
-   * Validate Google token (ID token or Access token) from frontend SDK and authenticate user.
+   * Validate Google token (ID token or Access token) from frontend SDK and authenticate user with JWT.
    *
    * @param string $token
    * @return array
@@ -76,12 +153,13 @@ class AuthService
       'avatar_url' => $googleData['avatar_url'] ?? null,
     ]);
 
-    $authToken = $user->createToken('auth_token')->plainTextToken;
+    $jwtToken = auth('api')->login($user);
 
     return [
       'user'       => $user,
-      'token'      => $authToken,
+      'token'      => $jwtToken,
       'token_type' => 'Bearer',
+      'expires_in' => auth('api')->factory()->getTTL() * 60,
     ];
   }
 

@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
+use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
 #[Fillable([
     'name',
@@ -26,7 +27,7 @@ use Laravel\Sanctum\HasApiTokens;
     'email_verified_at',
 ])]
 #[Hidden(['password', 'remember_token'])]
-class User extends Authenticatable
+class User extends Authenticatable implements JWTSubject
 {
     /** @use HasFactory<UserFactory> */
     use HasApiTokens, HasFactory, Notifiable;
@@ -99,5 +100,28 @@ class User extends Authenticatable
     public function gameRequests(): HasMany
     {
         return $this->hasMany(GameRequest::class);
+    }
+
+    /**
+     * Get the identifier that will be stored in the subject claim of the JWT.
+     *
+     * @return mixed
+     */
+    public function getJWTIdentifier(): mixed
+    {
+        return $this->getKey();
+    }
+
+    /**
+     * Return a key value array, containing any custom claims to be added to the JWT.
+     *
+     * @return array
+     */
+    public function getJWTCustomClaims(): array
+    {
+        return [
+            'email'  => $this->email,
+            'status' => $this->status,
+        ];
     }
 }

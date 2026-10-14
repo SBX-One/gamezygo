@@ -23,6 +23,14 @@ interface AuthRepositoryInterface
   public function findByGoogleId(string $googleId): ?User;
 
   /**
+   * Create a new user record.
+   *
+   * @param array $data
+   * @return User
+   */
+  public function createUser(array $data): User;
+
+  /**
    * Update existing user or create a new user from Google profile data.
    *
    * @param array $data

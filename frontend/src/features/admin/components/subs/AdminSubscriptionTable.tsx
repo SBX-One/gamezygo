@@ -48,7 +48,7 @@ export function AdminSubscriptionTable({
       <div className="w-full overflow-x-auto">
         <table className="w-full text-left text-sm text-gray-300 border-collapse">
           {/* Table Header */}
-          <thead>
+          <thead className="bg-deep-blue-900">
             <tr className="border-b border-deep-blue-700 text-xs font-semibold text-gray-300 select-none">
               <th className="py-4 px-6 font-semibold">User ID</th>
               <th className="py-4 px-6 font-semibold">User Email</th>

@@ -27,7 +27,10 @@ export function AdminTableHeader({
 }: React.HTMLAttributes<HTMLTableSectionElement>) {
   return (
     <thead
-      className={cn("border-b border-deep-blue-700 text-xs uppercase font-semibold text-gray-400", className)}
+      className={cn(
+        "border-b border-deep-blue-700 text-xs uppercase font-semibold text-gray-400 bg-deep-blue-900",
+        className
+      )}
       {...props}
     >
       {children}

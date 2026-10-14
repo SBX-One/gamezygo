@@ -32,7 +32,7 @@ export function AdminTransactionsTableSection({
       }`}
     >
       <AdminTable>
-        <AdminTableHeader className="bg-deep-blue-900/40">
+        <AdminTableHeader>
           <tr>
             <AdminTableHead className="pl-6">Transactions ID</AdminTableHead>
             <AdminTableHead>Customer Email</AdminTableHead>

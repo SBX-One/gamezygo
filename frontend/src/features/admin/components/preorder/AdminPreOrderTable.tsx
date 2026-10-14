@@ -127,7 +127,7 @@ export function AdminPreOrderTable({
               "px-4 py-2 rounded-xl border border-white/10 text-xs sm:text-sm font-medium transition-colors select-none",
               selectedIds.length > 0
                 ? "bg-white/5 hover:bg-rose-500/10 text-gray-200 hover:text-rose-300 border-white/10 hover:border-rose-500/40 cursor-pointer"
-                : "bg-white/[0.02] text-gray-500 border-white/5 cursor-not-allowed"
+                : "bg-white/2 text-gray-500 border-white/5 cursor-not-allowed"
             )}
           >
             Delete Selected
@@ -136,14 +136,14 @@ export function AdminPreOrderTable({
       </div>
 
       {/* Table Container */}
-      <div className="w-full overflow-x-auto min-h-[380px]">
+      <div className="w-full overflow-x-auto min-h-95">
         {items.length > 0 ? (
           <table className="w-full text-left text-sm text-gray-300 border-collapse">
             {/* Table Header */}
-            <thead>
+            <thead className="bg-deep-blue-900">
               <tr className="border-b border-deep-blue-700 text-xs font-semibold text-gray-300 select-none">
                 {/* Column 1: Checkbox + Product Name */}
-                <th className="py-4 px-6 font-semibold w-[45%] min-w-[280px]">
+                <th className="py-4 px-6 font-semibold w-[45%] min-w-70">
                   <div className="flex items-center gap-3">
                     <AdminCheckbox
                       checked={isAllSelected}
@@ -155,12 +155,12 @@ export function AdminPreOrderTable({
                 </th>
 
                 {/* Column 2: Category */}
-                <th className="py-4 px-6 font-semibold w-[30%] min-w-[200px]">
+                <th className="py-4 px-6 font-semibold w-[30%] min-w-11xl">
                   Category
                 </th>
 
                 {/* Column 3: Price */}
-                <th className="py-4 px-6 font-semibold w-[20%] min-w-[140px]">
+                <th className="py-4 px-6 font-semibold w-[20%] min-w-35">
                   Price
                 </th>
 
@@ -271,7 +271,7 @@ export function AdminPreOrderTable({
                           <div
                             ref={menuRef}
                             className={cn(
-                              "absolute right-0 z-40 w-52 rounded-2xl bg-[#13151F] border border-[#2F2F37] shadow-2xl p-2 text-left animate-in fade-in zoom-in-95 duration-100 space-y-1.5 select-none",
+                              "absolute right-0 z-40 w-52 rounded-2xl bg-[#13151F] border border-deep-blue-700 shadow-2xl p-2 text-left animate-in fade-in zoom-in-95 duration-100 space-y-1.5 select-none",
                               idx === 0 ? "top-full mt-1.5" : "bottom-full mb-1.5"
                             )}
                           >
@@ -282,7 +282,7 @@ export function AdminPreOrderTable({
                                 setActiveMenuId(null);
                                 onContinueToList?.(item);
                               }}
-                              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/[0.06] hover:bg-white/[0.1] border border-white/10 text-white font-semibold text-xs sm:text-sm transition-colors cursor-pointer group"
+                              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/6 hover:bg-white/10 border border-white/10 text-white font-semibold text-xs sm:text-sm transition-colors cursor-pointer group"
                             >
                               <span>Continue to List</span>
                               <ArrowRightThinIcon className="w-4 h-4 text-white/90 group-hover:translate-x-0.5 transition-transform" />
@@ -326,9 +326,9 @@ export function AdminPreOrderTable({
           /* Empty State (Matching Image 4) */
           <div className="w-full">
             <table className="w-full text-left text-sm text-gray-300 border-collapse">
-              <thead>
+              <thead className="bg-deep-blue-900">
                 <tr className="border-b border-deep-blue-700 text-xs font-semibold text-gray-300 select-none">
-                  <th className="py-4 px-6 font-semibold w-[45%] min-w-[280px]">
+                  <th className="py-4 px-6 font-semibold w-[45%] min-w-70">
                     <div className="flex items-center gap-3">
                       <AdminCheckbox
                         checked={false}
@@ -338,10 +338,10 @@ export function AdminPreOrderTable({
                       <span>Product Name</span>
                     </div>
                   </th>
-                  <th className="py-4 px-6 font-semibold w-[30%] min-w-[200px]">
+                  <th className="py-4 px-6 font-semibold w-[30%] min-w-11xl">
                     Category
                   </th>
-                  <th className="py-4 px-6 font-semibold w-[20%] min-w-[140px]">
+                  <th className="py-4 px-6 font-semibold w-[20%] min-w-35">
                     Price
                   </th>
                   <th className="py-4 px-6 text-right w-12" aria-label="Aksi" />

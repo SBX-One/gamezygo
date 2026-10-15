@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { AdminSwitch } from "@/components/admin/AdminSwitch";
+import { Button } from "@/components/ui/Button";
 import type { AdminAddVoucherFormData } from "../../../types/admin-voucher.types";
 
 export interface AdminAddVoucherDateRangeProps {
@@ -65,36 +66,89 @@ const DURATION_PRESETS = [
   { id: "1 Bulan", label: "1 Bulan", days: 30 },
 ];
 
+const MONTH_NAMES = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "Mei",
+  "Jun",
+  "Jul",
+  "Agu",
+  "Sept",
+  "Okt",
+  "Nov",
+  "Des",
+];
+
+interface CalendarCell {
+  day: number;
+  month: number;
+  year: number;
+  isCurrentMonth: boolean;
+}
+
+function parseDateString(str?: string): Date | null {
+  if (!str) return null;
+  const parts = str.split("/");
+  if (parts.length === 3) {
+    const d = parseInt(parts[0], 10);
+    const m = parseInt(parts[1], 10) - 1;
+    const y = parseInt(parts[2], 10);
+    if (!isNaN(d) && !isNaN(m) && !isNaN(y)) {
+      return new Date(y, m, d);
+    }
+  }
+  return null;
+}
+
+function formatDateString(date: Date): string {
+  const d = String(date.getDate()).padStart(2, "0");
+  const m = String(date.getMonth() + 1).padStart(2, "0");
+  const y = date.getFullYear();
+  return `${d}/${m}/${y}`;
+}
+
 export function AdminAddVoucherDateRange({
   formData,
   onChange,
   className,
 }: AdminAddVoucherDateRangeProps) {
-  const [selectedDayStart, setSelectedDayStart] = React.useState<number>(8);
-  const [selectedDayEnd, setSelectedDayEnd] = React.useState<number>(15);
+  // Calendar active view month/year (defaults to parsed startDate or Sept 2026)
+  const [viewDate, setViewDate] = React.useState<Date>(() => {
+    const parsed = parseDateString(formData.startDate);
+    if (parsed) {
+      return new Date(parsed.getFullYear(), parsed.getMonth(), 1);
+    }
+    return new Date(2026, 8, 1); // Sept 2026 default
+  });
+
+  const viewYear = viewDate.getFullYear();
+  const viewMonth = viewDate.getMonth();
+
+  // Navigation handlers for < and > buttons
+  const handlePrevMonth = () => {
+    setViewDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+  };
+
+  const handleNextMonth = () => {
+    setViewDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
 
   const handleSelectPreset = (preset: (typeof DURATION_PRESETS)[0]) => {
+    const baseDate = parseDateString(formData.startDate) || new Date(2026, 8, 8);
+    const end = new Date(baseDate.getTime() + preset.days * 24 * 60 * 60 * 1000);
+
     onChange({
       durationPreset: preset.id,
-      startDate: "08/09/2026",
-      endDate:
-        preset.days === 1
-          ? "09/09/2026"
-          : preset.days === 2
-          ? "10/09/2026"
-          : preset.days === 7
-          ? "15/09/2026"
-          : preset.days === 14
-          ? "22/09/2026"
-          : "08/10/2026",
+      startDate: formatDateString(baseDate),
+      endDate: formatDateString(end),
     });
-    setSelectedDayStart(8);
-    setSelectedDayEnd(Math.min(30, 8 + preset.days));
+
+    setViewDate(new Date(baseDate.getFullYear(), baseDate.getMonth(), 1));
   };
 
   const handleClearCalendar = () => {
-    setSelectedDayStart(0);
-    setSelectedDayEnd(0);
     onChange({
       startDate: "",
       endDate: "",
@@ -102,87 +156,111 @@ export function AdminAddVoucherDateRange({
     });
   };
 
-  const handleDateClick = (day: number) => {
-    if (day < 1 || day > 30) return;
-    if (selectedDayStart === 0 || selectedDayEnd !== 0) {
-      setSelectedDayStart(day);
-      setSelectedDayEnd(0);
+  const handleDateClick = (cellDate: Date) => {
+    const startObj = parseDateString(formData.startDate);
+    const endObj = parseDateString(formData.endDate);
+
+    if (!startObj || (startObj && endObj)) {
       onChange({
-        startDate: `${String(day).padStart(2, "0")}/09/2026`,
+        startDate: formatDateString(cellDate),
         endDate: "",
+        durationPreset: "",
       });
     } else {
-      if (day < selectedDayStart) {
-        setSelectedDayStart(day);
-        setSelectedDayEnd(selectedDayStart);
+      if (cellDate.getTime() < startObj.getTime()) {
         onChange({
-          startDate: `${String(day).padStart(2, "0")}/09/2026`,
-          endDate: `${String(selectedDayStart).padStart(2, "0")}/09/2026`,
+          startDate: formatDateString(cellDate),
+          endDate: formatDateString(startObj),
+          durationPreset: "",
         });
       } else {
-        setSelectedDayEnd(day);
         onChange({
-          endDate: `${String(day).padStart(2, "0")}/09/2026`,
+          endDate: formatDateString(cellDate),
+          durationPreset: "",
         });
       }
     }
   };
 
-  // Calendar dates matrix for Sept 2026
-  // Days of week: Su Mo Tu We Th Fr Sa
-  // Aug 30, 31, then Sept 1-30, then Oct 1, 2, 3
-  const calendarDays = [
-    { day: 30, isCurrentMonth: false },
-    { day: 31, isCurrentMonth: false },
-    { day: 1, isCurrentMonth: true },
-    { day: 2, isCurrentMonth: true },
-    { day: 3, isCurrentMonth: true },
-    { day: 4, isCurrentMonth: true },
-    { day: 5, isCurrentMonth: true },
+  // Generate dynamic calendar matrix for active viewYear & viewMonth
+  const calendarCells = React.useMemo(() => {
+    const cells: CalendarCell[] = [];
+    const firstDayOfWeek = new Date(viewYear, viewMonth, 1).getDay(); // 0 = Sun
+    const daysInCurrentMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+    const daysInPrevMonth = new Date(viewYear, viewMonth, 0).getDate();
 
-    { day: 6, isCurrentMonth: true },
-    { day: 7, isCurrentMonth: true },
-    { day: 8, isCurrentMonth: true },
-    { day: 9, isCurrentMonth: true },
-    { day: 10, isCurrentMonth: true },
-    { day: 11, isCurrentMonth: true },
-    { day: 12, isCurrentMonth: true },
+    // 1. Trailing days from previous month
+    for (let i = firstDayOfWeek - 1; i >= 0; i--) {
+      const d = daysInPrevMonth - i;
+      const prevM = viewMonth === 0 ? 11 : viewMonth - 1;
+      const prevY = viewMonth === 0 ? viewYear - 1 : viewYear;
+      cells.push({
+        day: d,
+        month: prevM,
+        year: prevY,
+        isCurrentMonth: false,
+      });
+    }
 
-    { day: 13, isCurrentMonth: true },
-    { day: 14, isCurrentMonth: true },
-    { day: 15, isCurrentMonth: true },
-    { day: 16, isCurrentMonth: true },
-    { day: 17, isCurrentMonth: true },
-    { day: 18, isCurrentMonth: true },
-    { day: 19, isCurrentMonth: true },
+    // 2. Current month days
+    for (let d = 1; d <= daysInCurrentMonth; d++) {
+      cells.push({
+        day: d,
+        month: viewMonth,
+        year: viewYear,
+        isCurrentMonth: true,
+      });
+    }
 
-    { day: 20, isCurrentMonth: true },
-    { day: 21, isCurrentMonth: true },
-    { day: 22, isCurrentMonth: true },
-    { day: 23, isCurrentMonth: true },
-    { day: 24, isCurrentMonth: true },
-    { day: 25, isCurrentMonth: true },
-    { day: 26, isCurrentMonth: true },
+    // 3. Leading days for next month to complete 35 or 42 grid cells
+    const totalGridSize = cells.length <= 35 ? 35 : 42;
+    const remaining = totalGridSize - cells.length;
+    for (let d = 1; d <= remaining; d++) {
+      const nextM = viewMonth === 11 ? 0 : viewMonth + 1;
+      const nextY = viewMonth === 11 ? viewYear + 1 : viewYear;
+      cells.push({
+        day: d,
+        month: nextM,
+        year: nextY,
+        isCurrentMonth: false,
+      });
+    }
 
-    { day: 27, isCurrentMonth: true },
-    { day: 28, isCurrentMonth: true },
-    { day: 29, isCurrentMonth: true },
-    { day: 30, isCurrentMonth: true },
-    { day: 1, isCurrentMonth: false },
-    { day: 2, isCurrentMonth: false },
-    { day: 3, isCurrentMonth: false },
-  ];
+    return cells;
+  }, [viewYear, viewMonth]);
+
+  // Normalized timestamps for date range matching
+  const startDateObj = parseDateString(formData.startDate);
+  const endDateObj = parseDateString(formData.endDate);
+
+  const startTime = startDateObj
+    ? new Date(
+        startDateObj.getFullYear(),
+        startDateObj.getMonth(),
+        startDateObj.getDate()
+      ).getTime()
+    : null;
+
+  const endTime = endDateObj
+    ? new Date(
+        endDateObj.getFullYear(),
+        endDateObj.getMonth(),
+        endDateObj.getDate()
+      ).getTime()
+    : null;
+
+  const hasActiveRange = startTime !== null && endTime !== null && endTime > startTime;
 
   return (
     <div className={cn("space-y-4 font-sans select-none", className)}>
-      {/* Header: Valid Date Range + Switches (Matching Image 4: Only for Bundle & Applicable to Bundle) */}
+      {/* Header: Valid Date Range + Switches */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-1 gap-3">
         <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
           Valid Date Range
         </h2>
 
-        {/* Dual toggle switches (Matching Image 4) */}
-        <div className="flex items-center gap-6 ">
+        {/* Dual toggle switches */}
+        <div className="flex items-center gap-6">
           <div className="flex items-center gap-3">
             <AdminSwitch
               checked={formData.onlyForBundle ?? false}
@@ -198,7 +276,10 @@ export function AdminAddVoucherDateRange({
             <AdminSwitch
               checked={formData.applicableToBundle ?? true}
               onChange={(checked) =>
-                onChange({ applicableToBundle: checked, applicableToSubs: checked })
+                onChange({
+                  applicableToBundle: checked,
+                  applicableToSubs: checked,
+                })
               }
               ariaLabel="Applicable to Bundle"
             />
@@ -209,25 +290,35 @@ export function AdminAddVoucherDateRange({
         </div>
       </div>
 
-      {/* Content Layout (Matching Image 5): Left Calendar Widget + Right Date Inputs */}
+      {/* Content Layout: Left Calendar Widget (deep blue 950 content + deep blue 900 header) + Right Date Inputs */}
       <div className="flex flex-col lg:flex-row items-start gap-8 w-full">
-        {/* Left: Interactive Calendar Picker Widget (Image 5) */}
-        <div className="w-full sm:w-[430px] rounded-2xl bg-[#0D0F18] border border-white/10 overflow-hidden flex flex-row shadow-sm shrink-0">
+        {/* Left: Interactive Calendar Picker Widget */}
+        <div className="w-full sm:w-[440px] rounded-2xl bg-deep-blue-950 border border-deep-blue-700/80 overflow-hidden flex flex-row shadow-sm shrink-0">
           {/* Preset Sidebar (1 Hari, 2 Hari, 1 Minggu, 2 minggu, 1 Bulan) */}
-          <div className="w-[115px] shrink-0 p-2.5 border-r border-deep-blue-700/60 flex flex-col gap-1.5 bg-[#0A0C13]/60">
+          <div className="w-[120px] shrink-0 p-3 border-r border-deep-blue-700/80 flex flex-col gap-1.5 bg-deep-blue-900/40">
             {DURATION_PRESETS.map((preset) => {
               const isActive = formData.durationPreset === preset.id;
+              if (isActive) {
+                return (
+                  <Button
+                    key={preset.id}
+                    variant="active"
+                    size="xs"
+                    fullWidth
+                    onClick={() => handleSelectPreset(preset)}
+                    className="w-full justify-start px-3 py-2 text-xs font-semibold text-white [&_.button-main-text]:text-white! hover:[&_.button-main-text]:text-white! active:[&_.button-main-text]:text-white! rounded-xl border border-deep-blue-700 bg-[image:var(--gradient-surface-secondary-default)] shadow-xs"
+                  >
+                    <span className="text-white! font-semibold">{preset.label}</span>
+                  </Button>
+                );
+              }
+
               return (
                 <button
                   key={preset.id}
                   type="button"
                   onClick={() => handleSelectPreset(preset)}
-                  className={cn(
-                    "w-full px-3 py-2 rounded-xl text-xs font-medium text-left transition-colors cursor-pointer select-none",
-                    isActive
-                      ? "bg-[#181A24] text-white font-semibold shadow-xs border border-white/10"
-                      : "text-gray-400 hover:text-white hover:bg-white/5"
-                  )}
+                  className="w-full px-3 py-2 text-left text-xs font-medium text-gray-400 hover:text-white hover:bg-white/5 rounded-xl flex items-center transition-colors cursor-pointer select-none"
                 >
                   {preset.label}
                 </button>
@@ -235,23 +326,27 @@ export function AdminAddVoucherDateRange({
             })}
           </div>
 
-          {/* Right: Calendar Grid View */}
-          <div className="flex-1 min-w-0 p-3.5 space-y-3">
-            {/* Calendar Month Header: < Sept > + Clear button */}
-            <div className="flex items-center justify-between">
+          {/* Right: Calendar View with Header (deep-blue-900) and Content (deep-blue-950) */}
+          <div className="flex-1 min-w-0 flex flex-col bg-deep-blue-950">
+            {/* Header: < Month > + Clear Button (deep blue 900 background) */}
+            <div className="bg-deep-blue-900 px-4 py-3 border-b border-deep-blue-700/80 flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <button
                   type="button"
+                  onClick={handlePrevMonth}
                   aria-label="Bulan Sebelumnya"
-                  className="p-1 rounded text-gray-400 hover:text-white transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
                 >
                   <ChevronLeftIcon />
                 </button>
-                <span className="text-xs font-bold text-white px-1">Sept</span>
+                <span className="text-sm font-semibold text-white px-1 select-none">
+                  {MONTH_NAMES[viewMonth]}
+                </span>
                 <button
                   type="button"
+                  onClick={handleNextMonth}
                   aria-label="Bulan Berikutnya"
-                  className="p-1 rounded text-gray-400 hover:text-white transition-colors cursor-pointer"
+                  className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-white/10 transition-colors cursor-pointer"
                 >
                   <ChevronRightIcon />
                 </button>
@@ -260,81 +355,101 @@ export function AdminAddVoucherDateRange({
               <button
                 type="button"
                 onClick={handleClearCalendar}
-                className="px-2.5 py-1 rounded-lg border border-white/10 bg-[#161822] hover:bg-[#1E202B] text-[11px] font-semibold text-gray-300 hover:text-white transition-colors cursor-pointer"
+                className="px-4 py-1 rounded-full border border-[#263148] bg-transparent hover:bg-white/10 text-xs font-semibold text-white transition-all cursor-pointer"
               >
                 Clear
               </button>
             </div>
 
-            {/* Days Header: Su Mo Tu We Th Fr Sa */}
-            <div
-              style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))" }}
-              className="text-center text-[11px] font-semibold text-gray-400"
-            >
-              <span>Su</span>
-              <span>Mo</span>
-              <span>Tu</span>
-              <span>We</span>
-              <span>Th</span>
-              <span>Fr</span>
-              <span>Sa</span>
-            </div>
+            {/* Content: Days Header & Grid (deep blue 950 background) */}
+            <div className="p-4 space-y-3 bg-deep-blue-950">
+              {/* Days Header: Su Mo Tu We Th Fr Sa */}
+              <div className="grid grid-cols-7 text-center text-[12px] font-medium text-[#7C88A2]">
+                <span>Su</span>
+                <span>Mo</span>
+                <span>Tu</span>
+                <span>We</span>
+                <span>Th</span>
+                <span>Fr</span>
+                <span>Sa</span>
+              </div>
 
-            {/* Days Matrix */}
-            <div
-              style={{ display: "grid", gridTemplateColumns: "repeat(7, minmax(0, 1fr))", rowGap: "4px" }}
-              className="text-center text-xs"
-            >
-              {calendarDays.map((item, idx) => {
-                const isStart =
-                  item.isCurrentMonth && item.day === selectedDayStart;
-                const isEnd =
-                  item.isCurrentMonth && item.day === selectedDayEnd;
-                const inRange =
-                  item.isCurrentMonth &&
-                  selectedDayStart > 0 &&
-                  selectedDayEnd > 0 &&
-                  item.day > selectedDayStart &&
-                  item.day < selectedDayEnd;
+              {/* Days Matrix with Connected Range Bar (deep-blue-900 selected dates) */}
+              <div className="grid grid-cols-7 text-center text-xs gap-y-1">
+                {calendarCells.map((item, idx) => {
+                  const colIndex = idx % 7; // 0 = Su, 6 = Sa
+                  const cellDate = new Date(item.year, item.month, item.day);
+                  const cellTime = cellDate.getTime();
 
-                return (
-                  <button
-                    key={idx}
-                    type="button"
-                    onClick={() =>
-                      item.isCurrentMonth && handleDateClick(item.day)
-                    }
-                    disabled={!item.isCurrentMonth}
-                    style={{ width: "28px", height: "28px" }}
-                    className={cn(
-                      "mx-auto rounded-lg flex items-center justify-center text-xs transition-colors select-none",
-                      !item.isCurrentMonth && "text-gray-600 cursor-not-allowed",
-                      item.isCurrentMonth &&
-                        !isStart &&
-                        !isEnd &&
-                        !inRange &&
-                        "text-gray-300 hover:text-white hover:bg-white/5 cursor-pointer",
-                      inRange && "bg-white/10 text-white font-medium rounded-none",
-                      (isStart || isEnd) &&
-                        "bg-[#1E202B] border border-white/30 text-white font-bold shadow-xs cursor-pointer"
-                    )}
-                  >
-                    {item.day}
-                  </button>
-                );
-              })}
+                  const isStart = startTime !== null && cellTime === startTime;
+                  const isEnd = endTime !== null && cellTime === endTime;
+                  const inRange =
+                    startTime !== null &&
+                    endTime !== null &&
+                    cellTime > startTime &&
+                    cellTime < endTime;
+
+                  return (
+                    <div
+                      key={`${item.year}-${item.month}-${item.day}-${idx}`}
+                      className="h-9 flex items-center justify-center relative select-none"
+                    >
+                      {/* Continuous Range Background Bar connecting selection (deep-blue-900) */}
+                      {hasActiveRange && (
+                        <>
+                          {isStart && (
+                            <div className="absolute inset-y-0 right-0 left-1/2 bg-deep-blue-900" />
+                          )}
+                          {inRange && (
+                            <div
+                              className={cn(
+                                "absolute inset-y-0 left-0 right-0 bg-deep-blue-900",
+                                colIndex === 0 && "rounded-l-xl",
+                                colIndex === 6 && "rounded-r-xl"
+                              )}
+                            />
+                          )}
+                          {isEnd && (
+                            <div className="absolute inset-y-0 left-0 right-1/2 bg-deep-blue-900" />
+                          )}
+                        </>
+                      )}
+
+                      <button
+                        type="button"
+                        onClick={() => handleDateClick(cellDate)}
+                        className={cn(
+                          "w-9 h-9 flex items-center justify-center text-xs transition-all relative z-10 select-none cursor-pointer",
+                          !item.isCurrentMonth && "text-[#3D4760] hover:text-slate-400",
+                          item.isCurrentMonth &&
+                            !isStart &&
+                            !isEnd &&
+                            !inRange &&
+                            "text-slate-200 hover:text-white hover:bg-white/5 rounded-xl font-normal",
+                          inRange &&
+                            "text-white font-bold bg-transparent",
+                          (isStart || isEnd) &&
+                            "rounded-xl border border-deep-blue-700 bg-deep-blue-900 text-white font-bold shadow-xs"
+                        )}
+                      >
+                        {item.day}
+                      </button>
+                    </div>
+                  );
+                })}
+              </div>
             </div>
           </div>
         </div>
 
-        {/* Right: Start Date & End Date Fields (Matching Image 5) */}
+        {/* Right: Start Date & End Date Fields */}
         <div className="flex-1 w-full max-w-[420px] space-y-4">
           {/* Start Date */}
           <div>
             <label className="block text-xs font-semibold text-gray-400 tracking-wider uppercase mb-2">
               START DATE
             </label>
-            <div className="h-11 px-4 bg-[#0D0F18] border border-deep-blue-700 rounded-xl text-sm font-medium text-white flex items-center justify-between cursor-pointer">
+            <div className="h-11 px-4 bg-deep-blue-950 border border-deep-blue-700 rounded-xl text-sm font-medium text-white flex items-center justify-between cursor-pointer">
               <span>{formData.startDate || "Pilih tanggal mulai"}</span>
               <ChevronDownIcon className="text-gray-400" />
             </div>
@@ -345,7 +460,7 @@ export function AdminAddVoucherDateRange({
             <label className="block text-xs font-semibold text-gray-400 tracking-wider uppercase mb-2">
               END DATE
             </label>
-            <div className="h-11 px-4 bg-[#0D0F18] border border-deep-blue-700 rounded-xl text-sm font-medium text-white flex items-center justify-between cursor-pointer">
+            <div className="h-11 px-4 bg-deep-blue-950 border border-deep-blue-700 rounded-xl text-sm font-medium text-white flex items-center justify-between cursor-pointer">
               <span>{formData.endDate || "Pilih tanggal berakhir"}</span>
               <ChevronDownIcon className="text-gray-400" />
             </div>

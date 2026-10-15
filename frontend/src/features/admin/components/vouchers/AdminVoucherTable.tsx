@@ -1,4 +1,5 @@
 import * as React from "react";
+import Link from "next/link";
 import { cn } from "@/lib/utils";
 import {
   AdminTable,
@@ -159,6 +160,24 @@ const GamepadIcon = (props: React.SVGProps<SVGSVGElement>) => (
 function formatCurrency(amount: number): string {
   return `Rp ${amount.toLocaleString("id-ID")}`;
 }
+
+const AnalyticsIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <line x1="18" y1="20" x2="18" y2="10" />
+    <line x1="12" y1="20" x2="12" y2="4" />
+    <line x1="6" y1="20" x2="6" y2="14" />
+  </svg>
+);
 
 export function AdminVoucherTable({
   items,
@@ -411,6 +430,14 @@ export function AdminVoucherTable({
                       {/* Dropdown Menu Popover */}
                       {isMenuOpen && (
                         <div className="absolute right-0 top-8 z-50 w-44 rounded-xl bg-[#0F111A] border border-deep-blue-700 py-1.5 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+                          <Link
+                            href={`/admin/vouchers/analytics?code=${item.code}`}
+                            onClick={() => setActiveMenuId(null)}
+                            className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-left"
+                          >
+                            <AnalyticsIcon className="w-3.5 h-3.5 text-indigo-400" />
+                            <span>Lihat Analytics</span>
+                          </Link>
                           <button
                             type="button"
                             onClick={() => {

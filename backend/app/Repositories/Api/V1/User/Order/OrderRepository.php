@@ -5,6 +5,7 @@ namespace App\Repositories\Api\V1\User\Order;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use App\Models\Voucher;
 use App\Repositories\Contracts\Api\V1\User\Order\OrderRepositoryInterface;
 use Illuminate\Support\Facades\DB;
 
@@ -85,7 +86,65 @@ class OrderRepository implements OrderRepositoryInterface
           $query->where('order_code', (string) $orderIdentifier);
         }
       })
-      ->with(['items.purchasable.files', 'payment'])
+      ->with([
+        'items.purchasable' => function (\Illuminate\Database\Eloquent\Relations\MorphTo $morphTo) {
+          $morphTo->morphWith([
+            Product::class => ['files'],
+          ]);
+        },
+        'payment',
+      ])
       ->first();
+  }
+
+  /**
+   * Find an active voucher by its code.
+   *
+   * @param string $code
+   * @return Voucher|null
+   */
+  public function findVoucherByCode(string $code): ?Voucher
+  {
+    return Voucher::where('code', $code)
+      ->with(['users', 'products'])
+      ->first();
+  }
+
+  /**
+   * Apply a voucher to an order and update calculated totals.
+   *
+   * @param Order $order
+   * @param Voucher $voucher
+   * @param int $discountAmount
+   * @return Order
+   */
+  public function applyVoucher(Order $order, Voucher $voucher, int $discountAmount): Order
+  {
+    $totalPrice = max(0, $order->subtotal_price - $discountAmount);
+
+    $order->update([
+      'voucher_id'      => $voucher->id,
+      'discount_amount' => $discountAmount,
+      'total_price'     => $totalPrice,
+    ]);
+
+    return $order->fresh();
+  }
+
+  /**
+   * Remove voucher from an order and reset discount and total.
+   *
+   * @param Order $order
+   * @return Order
+   */
+  public function removeVoucher(Order $order): Order
+  {
+    $order->update([
+      'voucher_id'      => null,
+      'discount_amount' => 0,
+      'total_price'     => $order->subtotal_price,
+    ]);
+
+    return $order->fresh();
   }
 }

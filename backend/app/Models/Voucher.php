@@ -24,11 +24,21 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'started_at',
     'expired_at',
     'status',
+    'is_active',
 ])]
 class Voucher extends Model
 {
     /** @use HasFactory<\Database\Factories\VoucherFactory> */
     use HasFactory;
+
+    protected function casts(): array
+    {
+        return [
+            'started_at' => 'datetime',
+            'expired_at' => 'datetime',
+            'is_active'  => 'boolean',
+        ];
+    }
 
     public function users(): BelongsToMany
     {

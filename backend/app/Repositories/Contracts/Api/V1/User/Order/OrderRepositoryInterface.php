@@ -5,6 +5,7 @@ namespace App\Repositories\Contracts\Api\V1\User\Order;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
+use App\Models\Voucher;
 
 interface OrderRepositoryInterface
 {
@@ -25,4 +26,30 @@ interface OrderRepositoryInterface
    * @return Order|null
    */
   public function findUserOrder(User $user, int|string $orderIdentifier): ?Order;
+
+  /**
+   * Find an active voucher by its code.
+   *
+   * @param string $code
+   * @return Voucher|null
+   */
+  public function findVoucherByCode(string $code): ?Voucher;
+
+  /**
+   * Apply a voucher to an order and update calculated totals.
+   *
+   * @param Order $order
+   * @param Voucher $voucher
+   * @param int $discountAmount
+   * @return Order
+   */
+  public function applyVoucher(Order $order, Voucher $voucher, int $discountAmount): Order;
+
+  /**
+   * Remove voucher from an order and reset discount and total.
+   *
+   * @param Order $order
+   * @return Order
+   */
+  public function removeVoucher(Order $order): Order;
 }

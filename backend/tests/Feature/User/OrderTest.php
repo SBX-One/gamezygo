@@ -6,7 +6,9 @@ use App\Models\File;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\SubscriptionPlan;
 use App\Models\User;
+use App\Models\Voucher;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -241,6 +243,542 @@ class OrderTest extends TestCase
       ->assertJson([
         'success' => false,
         'message' => 'Order not found',
+      ]);
+  }
+
+  public function test_authenticated_user_can_apply_fixed_voucher_successfully(): void
+  {
+    $user = User::factory()->create(['status' => 'active']);
+    $token = auth('api')->login($user);
+
+    $voucher = Voucher::create([
+      'name'                 => 'Diskon Game 50K',
+      'code'                 => 'GAME50',
+      'discount_type'        => 'fixed',
+      'discount_amount'      => 50000,
+      'max_discount'         => 0,
+      'min_purchase'         => 100000,
+      'applies_to'           => 'all',
+      'target_type'          => 'all_users',
+      'product_scope'        => 'all_products',
+      'slot'                 => 100,
+      'usage_limit_per_user' => 1,
+      'total_usage'          => 0,
+      'is_active'            => true,
+    ]);
+
+    $order = Order::create([
+      'user_id'         => $user->id,
+      'order_code'      => 'ORD-20260908-001',
+      'subtotal_price'  => 307300,
+      'discount_amount' => 0,
+      'total_price'     => 307300,
+      'status'          => 'pending',
+      'expired_at'      => now()->addHours(24),
+      'paid_at'         => null,
+    ]);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->postJson("/api/v1/user/orders/{$order->id}/apply-voucher", [
+        'voucher_code' => 'GAME50',
+      ]);
+
+    $response->assertStatus(200)
+      ->assertJson([
+        'success' => true,
+        'message' => 'Voucher applied successfully',
+        'data'    => [
+          'order_number'    => 'ORD-20260908-001',
+          'voucher_id'      => $voucher->id,
+          'subtotal_price'  => 307300,
+          'discount_amount' => 50000,
+          'total_price'     => 257300,
+        ],
+      ]);
+
+    $this->assertDatabaseHas('orders', [
+      'id'              => $order->id,
+      'voucher_id'      => $voucher->id,
+      'discount_amount' => 50000,
+      'total_price'     => 257300,
+    ]);
+  }
+
+  public function test_authenticated_user_can_apply_percentage_voucher_with_max_discount(): void
+  {
+    $user = User::factory()->create(['status' => 'active']);
+    $token = auth('api')->login($user);
+
+    $voucher = Voucher::create([
+      'name'                 => 'Diskon 50% Max 40K',
+      'code'                 => 'DISC50',
+      'discount_type'        => 'percentage',
+      'discount_amount'      => 50,
+      'max_discount'         => 40000,
+      'min_purchase'         => 50000,
+      'is_active'            => true,
+    ]);
+
+    $order = Order::create([
+      'user_id'         => $user->id,
+      'order_code'      => 'ORD-20260908-002',
+      'subtotal_price'  => 200000,
+      'discount_amount' => 0,
+      'total_price'     => 200000,
+      'status'          => 'pending',
+      'expired_at'      => now()->addHours(24),
+      'paid_at'         => null,
+    ]);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->postJson("/api/v1/user/orders/{$order->order_code}/apply-voucher", [
+        'voucher_code' => 'DISC50',
+      ]);
+
+    $response->assertStatus(200)
+      ->assertJson([
+        'success' => true,
+        'message' => 'Voucher applied successfully',
+        'data'    => [
+          'order_number'    => 'ORD-20260908-002',
+          'voucher_id'      => $voucher->id,
+          'subtotal_price'  => 200000,
+          'discount_amount' => 40000,
+          'total_price'     => 160000,
+        ],
+      ]);
+  }
+
+  public function test_apply_voucher_fails_if_voucher_code_invalid(): void
+  {
+    $user = User::factory()->create(['status' => 'active']);
+    $token = auth('api')->login($user);
+
+    $order = Order::create([
+      'user_id'         => $user->id,
+      'order_code'      => 'ORD-20260908-003',
+      'subtotal_price'  => 307300,
+      'discount_amount' => 0,
+      'total_price'     => 307300,
+      'status'          => 'pending',
+      'expired_at'      => now()->addHours(24),
+      'paid_at'         => null,
+    ]);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->postJson("/api/v1/user/orders/{$order->id}/apply-voucher", [
+        'voucher_code' => 'NON_EXISTENT',
+      ]);
+
+    $response->assertStatus(422)
+      ->assertJson([
+        'success' => false,
+        'message' => 'Invalid voucher code.',
+      ]);
+  }
+
+  public function test_apply_voucher_fails_if_voucher_inactive_or_expired(): void
+  {
+    $user = User::factory()->create(['status' => 'active']);
+    $token = auth('api')->login($user);
+
+    $expiredVoucher = Voucher::create([
+      'name'            => 'Expired Voucher',
+      'code'            => 'EXPIRED',
+      'discount_type'   => 'fixed',
+      'discount_amount' => 10000,
+      'expired_at'      => now()->subDay(),
+      'is_active'       => true,
+    ]);
+
+    $order = Order::create([
+      'user_id'         => $user->id,
+      'order_code'      => 'ORD-20260908-004',
+      'subtotal_price'  => 307300,
+      'discount_amount' => 0,
+      'total_price'     => 307300,
+      'status'          => 'pending',
+      'expired_at'      => now()->addHours(24),
+      'paid_at'         => null,
+    ]);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->postJson("/api/v1/user/orders/{$order->id}/apply-voucher", [
+        'voucher_code' => 'EXPIRED',
+      ]);
+
+    $response->assertStatus(422)
+      ->assertJson([
+        'success' => false,
+        'message' => 'Voucher has expired.',
+      ]);
+  }
+
+  public function test_apply_voucher_fails_if_min_purchase_not_reached(): void
+  {
+    $user = User::factory()->create(['status' => 'active']);
+    $token = auth('api')->login($user);
+
+    $voucher = Voucher::create([
+      'name'            => 'High Min Purchase',
+      'code'            => 'MIN500K',
+      'discount_type'   => 'fixed',
+      'discount_amount' => 50000,
+      'min_purchase'    => 500000,
+      'is_active'       => true,
+    ]);
+
+    $order = Order::create([
+      'user_id'         => $user->id,
+      'order_code'      => 'ORD-20260908-005',
+      'subtotal_price'  => 300000,
+      'discount_amount' => 0,
+      'total_price'     => 300000,
+      'status'          => 'pending',
+      'expired_at'      => now()->addHours(24),
+      'paid_at'         => null,
+    ]);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->postJson("/api/v1/user/orders/{$order->id}/apply-voucher", [
+        'voucher_code' => 'MIN500K',
+      ]);
+
+    $response->assertStatus(422)
+      ->assertJson([
+        'success' => false,
+      ]);
+  }
+
+  public function test_apply_voucher_fails_if_order_is_not_pending(): void
+  {
+    $user = User::factory()->create(['status' => 'active']);
+    $token = auth('api')->login($user);
+
+    $voucher = Voucher::create([
+      'name'            => 'Valid Voucher',
+      'code'            => 'VALID10',
+      'discount_type'   => 'fixed',
+      'discount_amount' => 10000,
+      'is_active'       => true,
+    ]);
+
+    $order = Order::create([
+      'user_id'         => $user->id,
+      'order_code'      => 'ORD-20260908-006',
+      'subtotal_price'  => 300000,
+      'discount_amount' => 0,
+      'total_price'     => 300000,
+      'status'          => 'paid',
+      'expired_at'      => now()->addHours(24),
+      'paid_at'         => now(),
+    ]);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->postJson("/api/v1/user/orders/{$order->id}/apply-voucher", [
+        'voucher_code' => 'VALID10',
+      ]);
+
+    $response->assertStatus(422)
+      ->assertJson([
+        'success' => false,
+        'message' => 'Voucher can only be applied to pending orders.',
+      ]);
+  }
+
+  public function test_authenticated_user_can_remove_applied_voucher_successfully(): void
+  {
+    $user = User::factory()->create(['status' => 'active']);
+    $token = auth('api')->login($user);
+
+    $voucher = Voucher::create([
+      'name'            => 'Diskon Game 50K',
+      'code'            => 'GAME50',
+      'discount_type'   => 'fixed',
+      'discount_amount' => 50000,
+      'is_active'       => true,
+    ]);
+
+    $order = Order::create([
+      'user_id'         => $user->id,
+      'order_code'      => 'ORD-20260908-001',
+      'voucher_id'      => $voucher->id,
+      'subtotal_price'  => 307300,
+      'discount_amount' => 50000,
+      'total_price'     => 257300,
+      'status'          => 'pending',
+      'expired_at'      => now()->addHours(24),
+      'paid_at'         => null,
+    ]);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->deleteJson("/api/v1/user/orders/{$order->id}/remove-voucher");
+
+    $response->assertStatus(200)
+      ->assertJson([
+        'success' => true,
+        'message' => 'Voucher removed successfully',
+        'data'    => [
+          'order_number'    => 'ORD-20260908-001',
+          'voucher_id'      => null,
+          'subtotal_price'  => 307300,
+          'discount_amount' => 0,
+          'total_price'     => 307300,
+        ],
+      ]);
+
+    $this->assertDatabaseHas('orders', [
+      'id'              => $order->id,
+      'voucher_id'      => null,
+      'discount_amount' => 0,
+      'total_price'     => 307300,
+    ]);
+  }
+
+  public function test_remove_voucher_fails_if_order_has_no_voucher_applied(): void
+  {
+    $user = User::factory()->create(['status' => 'active']);
+    $token = auth('api')->login($user);
+
+    $order = Order::create([
+      'user_id'         => $user->id,
+      'order_code'      => 'ORD-20260908-007',
+      'voucher_id'      => null,
+      'subtotal_price'  => 307300,
+      'discount_amount' => 0,
+      'total_price'     => 307300,
+      'status'          => 'pending',
+      'expired_at'      => now()->addHours(24),
+      'paid_at'         => null,
+    ]);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->postJson("/api/v1/user/orders/{$order->id}/remove-voucher");
+
+    $response->assertStatus(422)
+      ->assertJson([
+        'success' => false,
+        'message' => 'No voucher is currently applied to this order.',
+      ]);
+  }
+
+  public function test_user_cannot_apply_or_remove_voucher_on_another_users_order(): void
+  {
+    $owner = User::factory()->create(['status' => 'active']);
+    $otherUser = User::factory()->create(['status' => 'active']);
+    $token = auth('api')->login($otherUser);
+
+    $order = Order::create([
+      'user_id'         => $owner->id,
+      'order_code'      => 'ORD-20260908-008',
+      'subtotal_price'  => 300000,
+      'discount_amount' => 0,
+      'total_price'     => 300000,
+      'status'          => 'pending',
+      'expired_at'      => now()->addHours(24),
+      'paid_at'         => null,
+    ]);
+
+    $responseApply = $this->withHeader('Authorization', "Bearer {$token}")
+      ->postJson("/api/v1/user/orders/{$order->id}/apply-voucher", [
+        'voucher_code' => 'GAME50',
+      ]);
+
+    $responseApply->assertStatus(404)
+      ->assertJson([
+        'success' => false,
+        'message' => 'Order not found',
+      ]);
+
+    $responseRemove = $this->withHeader('Authorization', "Bearer {$token}")
+      ->postJson("/api/v1/user/orders/{$order->id}/remove-voucher");
+
+    $responseRemove->assertStatus(404)
+      ->assertJson([
+        'success' => false,
+        'message' => 'Order not found',
+      ]);
+  }
+
+  public function test_voucher_can_be_applied_and_removed_via_voucher_endpoint(): void
+  {
+    $user = User::factory()->create(['status' => 'active']);
+    $token = auth('api')->login($user);
+
+    $voucher = Voucher::create([
+      'name'            => 'Voucher 50K',
+      'code'            => 'GAME50',
+      'discount_type'   => 'fixed',
+      'discount_amount' => 50000,
+      'is_active'       => true,
+    ]);
+
+    $order = Order::create([
+      'user_id'         => $user->id,
+      'order_code'      => 'ORD-20260908-009',
+      'subtotal_price'  => 300000,
+      'discount_amount' => 0,
+      'total_price'     => 300000,
+      'status'          => 'pending',
+      'expired_at'      => now()->addHours(24),
+      'paid_at'         => null,
+    ]);
+
+    // Test POST /{orderId}/voucher
+    $responseApply = $this->withHeader('Authorization', "Bearer {$token}")
+      ->postJson("/api/v1/user/orders/{$order->order_code}/voucher", [
+        'voucher_code' => 'GAME50',
+      ]);
+
+    $responseApply->assertStatus(200)
+      ->assertJsonPath('data.voucher_id', $voucher->id)
+      ->assertJsonPath('data.total_price', 250000);
+
+    // Test DELETE /{orderId}/voucher
+    $responseRemove = $this->withHeader('Authorization', "Bearer {$token}")
+      ->deleteJson("/api/v1/user/orders/{$order->order_code}/voucher");
+
+    $responseRemove->assertStatus(200)
+      ->assertJsonPath('data.voucher_id', null)
+      ->assertJsonPath('data.total_price', 300000);
+  }
+
+  public function test_apply_voucher_fails_if_voucher_is_subscription_only_and_order_is_products(): void
+  {
+    $user = User::factory()->create(['status' => 'active']);
+    $token = auth('api')->login($user);
+
+    $product = Product::factory()->create(['price' => 300000]);
+
+    $voucher = Voucher::create([
+      'name'            => 'Subscription Only Voucher',
+      'code'            => 'SUBONLY',
+      'discount_type'   => 'fixed',
+      'discount_amount' => 50000,
+      'applies_to'      => 'subscription',
+      'is_active'       => true,
+    ]);
+
+    $order = Order::create([
+      'user_id'         => $user->id,
+      'order_code'      => 'ORD-20260908-010',
+      'subtotal_price'  => 300000,
+      'discount_amount' => 0,
+      'total_price'     => 300000,
+      'status'          => 'pending',
+      'expired_at'      => now()->addHours(24),
+      'paid_at'         => null,
+    ]);
+
+    $order->items()->create([
+      'purchasable_type' => Product::class,
+      'purchasable_id'   => $product->id,
+      'price'            => 300000,
+    ]);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->postJson("/api/v1/user/orders/{$order->id}/voucher", [
+        'voucher_code' => 'SUBONLY',
+      ]);
+
+    $response->assertStatus(422)
+      ->assertJson([
+        'success' => false,
+        'message' => 'This voucher can only be used for subscription purchases.',
+      ]);
+  }
+
+  public function test_apply_voucher_fails_if_voucher_is_product_only_and_order_is_subscription(): void
+  {
+    $user = User::factory()->create(['status' => 'active']);
+    $token = auth('api')->login($user);
+
+    $plan = SubscriptionPlan::factory()->create(['price' => 200000]);
+
+    $voucher = Voucher::create([
+      'name'            => 'Product Only Voucher',
+      'code'            => 'PRODONLY',
+      'discount_type'   => 'fixed',
+      'discount_amount' => 25000,
+      'applies_to'      => 'one_time',
+      'is_active'       => true,
+    ]);
+
+    $order = Order::create([
+      'user_id'         => $user->id,
+      'order_code'      => 'ORD-20260908-011',
+      'subtotal_price'  => 200000,
+      'discount_amount' => 0,
+      'total_price'     => 200000,
+      'status'          => 'pending',
+      'expired_at'      => now()->addHours(24),
+      'paid_at'         => null,
+    ]);
+
+    $order->items()->create([
+      'purchasable_type' => SubscriptionPlan::class,
+      'purchasable_id'   => $plan->id,
+      'price'            => 200000,
+    ]);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->postJson("/api/v1/user/orders/{$order->id}/voucher", [
+        'voucher_code' => 'PRODONLY',
+      ]);
+
+    $response->assertStatus(422)
+      ->assertJson([
+        'success' => false,
+        'message' => 'This voucher can only be used for product purchases.',
+      ]);
+  }
+
+  public function test_apply_voucher_succeeds_when_applies_to_is_all(): void
+  {
+    $user = User::factory()->create(['status' => 'active']);
+    $token = auth('api')->login($user);
+
+    $product = Product::factory()->create(['price' => 300000]);
+
+    $voucher = Voucher::create([
+      'name'            => 'All Items Voucher',
+      'code'            => 'ALLITEMS',
+      'discount_type'   => 'fixed',
+      'discount_amount' => 50000,
+      'applies_to'      => 'all',
+      'is_active'       => true,
+    ]);
+
+    $order = Order::create([
+      'user_id'         => $user->id,
+      'order_code'      => 'ORD-20260908-012',
+      'subtotal_price'  => 300000,
+      'discount_amount' => 0,
+      'total_price'     => 300000,
+      'status'          => 'pending',
+      'expired_at'      => now()->addHours(24),
+      'paid_at'         => null,
+    ]);
+
+    $order->items()->create([
+      'purchasable_type' => Product::class,
+      'purchasable_id'   => $product->id,
+      'price'            => 300000,
+    ]);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->postJson("/api/v1/user/orders/{$order->id}/voucher", [
+        'voucher_code' => 'ALLITEMS',
+      ]);
+
+    $response->assertStatus(200)
+      ->assertJson([
+        'success' => true,
+        'message' => 'Voucher applied successfully',
+        'data'    => [
+          'order_number' => 'ORD-20260908-012',
+          'total_price'  => 250000,
+        ],
       ]);
   }
 }

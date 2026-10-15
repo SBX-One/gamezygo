@@ -22,6 +22,8 @@ use App\Repositories\Contracts\Api\V1\User\Profile\ProfileRepositoryInterface;
 use App\Repositories\Api\V1\User\Profile\ProfileRepository;
 use App\Repositories\Contracts\Api\V1\User\Review\ReviewRepositoryInterface;
 use App\Repositories\Api\V1\User\Review\ReviewRepository;
+use App\Repositories\Contracts\Api\V1\User\Payment\PaymentRepositoryInterface;
+use App\Repositories\Api\V1\User\Payment\PaymentRepository;
 use App\Repositories\Contracts\Api\V1\User\SubscriptionPlan\SubscriptionPlanRepositoryInterface;
 use App\Repositories\Api\V1\User\SubscriptionPlan\SubscriptionPlanRepository;
 use Illuminate\Support\ServiceProvider;
@@ -37,6 +39,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
         $this->app->bind(ProfileRepositoryInterface::class, ProfileRepository::class);
         $this->app->bind(OrderRepositoryInterface::class, OrderRepository::class);
+        $this->app->bind(PaymentRepositoryInterface::class, PaymentRepository::class);
         $this->app->bind(CustomSectionRepositoryInterface::class, CustomSectionRepository::class);
         $this->app->bind(SubscriptionPlanRepositoryInterface::class, SubscriptionPlanRepository::class);
         $this->app->bind(BlogRepositoryInterface::class, BlogRepository::class);

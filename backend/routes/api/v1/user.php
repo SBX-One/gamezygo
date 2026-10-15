@@ -6,6 +6,8 @@ use App\Http\Controllers\Api\V1\User\CustomSection\CustomSectionController;
 use App\Http\Controllers\Api\V1\User\Faq\FaqController;
 use App\Http\Controllers\Api\V1\User\Leaderboard\LeaderboardController;
 use App\Http\Controllers\Api\V1\User\Order\OrderController;
+use App\Http\Controllers\Api\V1\User\Payment\PaymentController;
+use App\Http\Controllers\Api\V1\User\Payment\PaymentWebhookController;
 use App\Http\Controllers\Api\V1\User\Product\ProductController;
 use App\Http\Controllers\Api\V1\User\Profile\ProfileController;
 use App\Http\Controllers\Api\V1\User\Review\ReviewController;
@@ -84,6 +86,10 @@ Route::prefix('user')
                     ->group(function () {
                         Route::get('/', 'index')->name('index');
                     });
+
+                // Payment webhook notification endpoint
+                Route::post('/payments/webhook', [PaymentWebhookController::class, 'handleWebhook']);
+                Route::post('/payments/notification', [PaymentWebhookController::class, 'handleWebhook']);
             });
 
         Route::middleware(['auth:api,sanctum'])
@@ -105,6 +111,27 @@ Route::prefix('user')
                     ->group(function () {
                         Route::post('/', 'store')->name('store');
                         Route::get('/{orderId}', 'show')->name('show');
+                        Route::post('/{orderId}/voucher', 'applyVoucher')->name('apply-voucher');
+                        Route::delete('/{orderId}/voucher', 'removeVoucher')->name('remove-voucher');
+                        Route::post('/{orderId}/apply-voucher', 'applyVoucher');
+                        Route::match(['post', 'delete'], '/{orderId}/remove-voucher', 'removeVoucher');
+                    });
+
+                // Payments authenticated endpoints
+                Route::controller(PaymentController::class)
+                    ->group(function () {
+                        Route::prefix('orders')->name('orders.')->group(function () {
+                            Route::post('/{orderId}/pay', 'pay')->name('pay');
+                            Route::post('/{orderId}/payments', 'pay')->name('payments');
+                        });
+
+                        Route::prefix('payments')->name('payments.')->group(function () {
+                            Route::get('/{reference}/status', 'status')->name('status');
+                            Route::get('/status/{reference?}', 'status')->name('status.query');
+                        });
+
+                        Route::get('/orders/payments/{reference}/status', 'status');
+                        Route::get('/orders/payments/status/{reference?}', 'status');
                     });
             });
     });

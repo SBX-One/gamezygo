@@ -25,4 +25,13 @@ class Payment extends Model
     {
         return $this->belongsTo(Order::class);
     }
+
+    protected function casts(): array
+    {
+        return [
+            'amount'     => 'integer',
+            'paid_at'    => 'datetime',
+            'expired_at' => 'datetime',
+        ];
+    }
 }

@@ -182,7 +182,7 @@ export function AdminAddVoucherDateRange({
         </h2>
 
         {/* Dual toggle switches (Matching Image 4) */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-6 ">
           <div className="flex items-center gap-3">
             <AdminSwitch
               checked={formData.onlyForBundle ?? false}

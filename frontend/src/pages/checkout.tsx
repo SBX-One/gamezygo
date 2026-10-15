@@ -16,6 +16,7 @@ import {
 } from "@/hooks/use-orders";
 import { subscribePaymentSSE } from "@/services/orders.service";
 import { useCartStore } from "@/stores/use-cart-store";
+import { useMidtransSnap, createSnapToken } from "@/features/checkout";
 
 /**
  * Arrow Right Icon for Checkout button
@@ -125,6 +126,16 @@ const DEFAULT_CHECKOUT_ITEMS: CheckoutItem[] = [
 
 const PAYMENT_METHODS: PaymentMethod[] = [
   {
+    id: "midtrans",
+    name: "Midtrans Snap (Sandbox)",
+    icon: "/assets/svg/fluent_@-24-QRIS.svg",
+  },
+  {
+    id: "qris",
+    name: "QRIS Manual",
+    icon: "/assets/svg/fluent_@-24-QRIS.svg",
+  },
+  {
     id: "bca",
     name: "BCA",
     icon: "/assets/svg/fluent_@-24-BCA.svg",
@@ -133,11 +144,6 @@ const PAYMENT_METHODS: PaymentMethod[] = [
     id: "mandiri",
     name: "Mandiri",
     icon: "/assets/svg/fluent_@-24-Mandiri.svg",
-  },
-  {
-    id: "qris",
-    name: "QRIS",
-    icon: "/assets/svg/fluent_@-24-QRIS.svg",
   },
   {
     id: "bni",
@@ -197,8 +203,12 @@ export default function CheckoutPage() {
     }
   }, [cartApiRes]);
 
-  // Selected Payment Method (defaults to QRIS or BCA)
-  const [selectedPayment, setSelectedPayment] = React.useState<string>("qris");
+  // Midtrans Snap SDK hook
+  const { openSnap } = useMidtransSnap();
+  const [isSnapLoading, setIsSnapLoading] = React.useState(false);
+
+  // Selected Payment Method (defaults to Midtrans Snap Sandbox)
+  const [selectedPayment, setSelectedPayment] = React.useState<string>("midtrans");
 
   // Voucher state
   const [voucherInput, setVoucherInput] = React.useState("");
@@ -402,10 +412,10 @@ export default function CheckoutPage() {
 
     const currentMethod = PAYMENT_METHODS.find((m) => m.id === selectedPayment)?.name || "Pembayaran";
 
-    // Attempt API order creation if we have a valid product
+    // Attempt API order creation if backend is needed and payment is not standalone Midtrans showcase
     let targetOrderId = activeOrderId;
 
-    if (!targetOrderId) {
+    if (!targetOrderId && selectedPayment !== "midtrans") {
       const primaryProductId = checkoutItems[0]?.productId || 1;
       const itemsPayload = checkoutItems.map((item) => ({
         product_id: item.productId || 1,
@@ -443,6 +453,91 @@ export default function CheckoutPage() {
     }
 
     // Trigger Payment
+    if (selectedPayment === "midtrans") {
+      try {
+        setIsSnapLoading(true);
+        const orderNumber =
+          activeOrderNumber ||
+          `GZG-${Date.now().toString().slice(-6)}`;
+
+        showToast(
+          "success",
+          "Menyiapkan Transaksi",
+          "Menghubungkan ke Midtrans Sandbox Gateway..."
+        );
+
+        const snapData = await createSnapToken({
+          order_id: orderNumber,
+          gross_amount: totalBelanja,
+          items: checkoutItems.map((item) => ({
+            id: item.productId || item.id,
+            name: item.title,
+            price: item.price,
+            quantity: 1,
+          })),
+          customer_details: {
+            first_name: "Customer",
+            email: "customer@gamezygo.com",
+          },
+        });
+
+        if (snapData?.token) {
+          openSnap(snapData.token, {
+            onSuccess: (result) => {
+              clearCart();
+              try {
+                if (typeof window !== "undefined") {
+                  sessionStorage.removeItem("gamezygo_checkout_items");
+                }
+              } catch {
+                // ignore
+              }
+              showToast(
+                "success",
+                "Pembayaran Berhasil!",
+                "Transaksi Midtrans berhasil diselesaikan. Akun game siap digunakan!"
+              );
+              setTimeout(() => {
+                router.push("/checkout/success");
+              }, 800);
+            },
+            onPending: (result) => {
+              showToast(
+                "success",
+                "Menunggu Pembayaran",
+                `Transaksi pending [${result.order_id}]. Silakan selesaikan pembayaran di simulator.`
+              );
+            },
+            onError: (result) => {
+              showToast(
+                "error",
+                "Pembayaran Gagal",
+                result.status_message || "Transaksi ditolak atau gagal."
+              );
+            },
+            onClose: () => {
+              showToast(
+                "error",
+                "Pembayaran Ditutup",
+                "Anda menutup popup pembayaran sebelum transaksi selesai."
+              );
+            },
+          });
+        }
+      } catch (err: unknown) {
+        let msg = "Gagal memproses Midtrans Snap token.";
+        if (axios.isAxiosError(err)) {
+          msg = err.response?.data?.message || err.message;
+        } else if (err instanceof Error) {
+          msg = err.message;
+        }
+        showToast("error", "Midtrans Snap Error", msg);
+      } finally {
+        setIsSnapLoading(false);
+      }
+      return;
+    }
+
     if (selectedPayment === "qris") {
       if (targetOrderId) {
         try {
@@ -710,24 +805,47 @@ export default function CheckoutPage() {
                 <div className="grid grid-cols-2 gap-3 w-full">
                   {PAYMENT_METHODS.map((method) => {
                     const isSelected = selectedPayment === method.id;
+                    const isMidtrans = method.id === "midtrans";
                     return (
                       <button
                         key={method.id}
                         type="button"
                         onClick={() => setSelectedPayment(method.id)}
                         className={cn(
-                          "flex items-center justify-center gap-3 py-3 px-4 rounded-lg transition-all duration-150 cursor-pointer select-none",
+                          "flex items-center justify-between gap-3 py-3 px-4 rounded-lg transition-all duration-150 cursor-pointer select-none",
+                          isMidtrans && "col-span-2 border-indigo-500/40 bg-indigo-500/10 hover:bg-indigo-500/15",
                           isSelected
-                            ? "bg-surface-secondary-default border-gradient-secondary text-white shadow-md ring-1 ring-white/20"
+                            ? "bg-surface-secondary-default border-indigo-500 text-white shadow-md ring-1 ring-indigo-500/40"
                             : "bg-surface-secondary-default border border-white/10 hover:border-white/20 text-gray-200"
                         )}
                       >
-                        <img
-                          src={method.icon}
-                          alt={method.name}
-                          className="w-6 h-6 object-contain shrink-0"
-                        />
-                        <span className="text-label-sm font-semibold">{method.name}</span>
+                        <div className="flex items-center gap-3">
+                          <img
+                            src={method.icon}
+                            alt={method.name}
+                            className="w-6 h-6 object-contain shrink-0"
+                          />
+                          <div className="flex flex-col items-start text-left">
+                            <span className="text-label-sm font-semibold">{method.name}</span>
+                            {isMidtrans && (
+                              <span className="text-[11px] text-indigo-300 font-normal">
+                                VA (BCA, Mandiri, BNI), QRIS, E-Wallet Sandbox
+                              </span>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Radio selection indicator */}
+                        <div
+                          className={cn(
+                            "w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors ml-2",
+                            isSelected
+                              ? "border-indigo-400 bg-indigo-500"
+                              : "border-gray-500 bg-transparent"
+                          )}
+                        >
+                          {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
+                        </div>
                       </button>
                     );
                   })}
@@ -751,6 +869,7 @@ export default function CheckoutPage() {
                 size="md"
                 onClick={handlePay}
                 disabled={
+                  isSnapLoading ||
                   createOrderMutation.isPending ||
                   createPaymentMutation.isPending ||
                   checkoutItems.length === 0
@@ -758,7 +877,9 @@ export default function CheckoutPage() {
                 className="w-full flex items-center justify-center gap-2 py-3.5 "
               >
                 <span>
-                  {createOrderMutation.isPending || createPaymentMutation.isPending
+                  {isSnapLoading
+                    ? "Membuka Midtrans Snap..."
+                    : createOrderMutation.isPending || createPaymentMutation.isPending
                     ? "Menyiapkan Transaksi..."
                     : `Bayar ${formatRupiah(totalBelanja)}`}
                 </span>

@@ -16,6 +16,7 @@ export interface AdminArticleBlockEditorProps {
   activeBlockId: string | null;
   onActiveBlockChange: (id: string | null) => void;
   zoom?: number;
+  hideTitle?: boolean;
   className?: string;
 }
 
@@ -100,6 +101,7 @@ export function AdminArticleBlockEditor({
   activeBlockId,
   onActiveBlockChange,
   zoom = 100,
+  hideTitle = false,
   className,
 }: AdminArticleBlockEditorProps) {
   // Slash command menu state
@@ -468,16 +470,18 @@ export function AdminArticleBlockEditor({
       )}
     >
       {/* 1. Article Title Header: "Hello World!" (Matching Image 5) */}
-      <div className="mb-6 w-full">
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => onTitleChange(e.target.value)}
-          onKeyDown={handleTitleKeyDown}
-          placeholder="Hello World!"
-          className="w-full p-0 m-0 text-3xl sm:text-4xl font-bold font-sans text-white placeholder-gray-600 bg-transparent border-none outline-none tracking-tight transition-colors"
-        />
-      </div>
+      {!hideTitle && (
+        <div className="mb-6 w-full">
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => onTitleChange(e.target.value)}
+            onKeyDown={handleTitleKeyDown}
+            placeholder="Hello World!"
+            className="w-full p-0 m-0 text-3xl sm:text-4xl font-bold font-sans text-white placeholder-gray-600 bg-transparent border-none outline-none tracking-tight transition-colors"
+          />
+        </div>
+      )}
 
       {/* 2. Interactive Blocks List (Flush with Title, actions in left gutter) */}
       <div className="space-y-3 relative font-sans">

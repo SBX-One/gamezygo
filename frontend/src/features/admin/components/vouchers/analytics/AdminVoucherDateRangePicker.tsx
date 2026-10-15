@@ -254,7 +254,7 @@ export function AdminVoucherDateRangePicker({
       style={{ width: "475px", maxWidth: "95vw" }}
     >
       {/* 1. Left Column: Presets (Hari Ini, Kemarin, Minggu ini, Bulan ini, Tahun ini) */}
-      <div className="w-[138px] shrink-0 p-3.5 border-r border-deep-blue-700/80 bg-deep-blue-900/40 flex flex-col justify-center gap-1.5">
+      <div className="w-34.5 shrink-0 p-3.5 border-r border-deep-blue-700/80 bg-deep-blue-900/40 flex flex-col justify-center gap-1.5">
         {PRESET_OPTIONS.map((preset) => {
           const isActive = activePreset === preset.id;
           if (isActive) {
@@ -265,7 +265,7 @@ export function AdminVoucherDateRangePicker({
                 size="xs"
                 fullWidth
                 onClick={() => handleSelectPreset(preset)}
-                className="w-full justify-start px-3 py-2 text-xs font-semibold text-white [&_.button-main-text]:text-white! hover:[&_.button-main-text]:text-white! active:[&_.button-main-text]:text-white! rounded-xl border border-deep-blue-700 bg-[image:var(--gradient-surface-secondary-default)] shadow-xs"
+                className="w-full justify-start px-3 py-2 text-xs font-semibold text-white [&_.button-main-text]:text-white! hover:[&_.button-main-text]:text-white! active:[&_.button-main-text]:text-white! rounded-xl border border-deep-blue-700 bg-(image:--gradient-surface-secondary-default) shadow-xs"
               >
                 <span className="text-white! font-semibold">{preset.label}</span>
               </Button>

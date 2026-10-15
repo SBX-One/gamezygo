@@ -142,7 +142,7 @@ export function AdminVoucherRevenueChart({
         <div className="p-6 pt-7 pb-6 relative overflow-hidden rounded-b-2xl">
           <div className="relative flex">
             {/* Y-Axis Scale Ticks */}
-            <div className="flex flex-col justify-between items-end pr-5 text-[11px] sm:text-xs font-medium text-gray-500 h-[260px] select-none shrink-0 w-12">
+            <div className="flex flex-col justify-between items-end pr-5 text-[11px] sm:text-xs font-medium text-gray-500 h-65 select-none shrink-0 w-12">
               {yTicks.map((val) => (
                 <span key={val} className="leading-none">
                   {val}
@@ -151,7 +151,7 @@ export function AdminVoucherRevenueChart({
             </div>
 
             {/* Chart Plot Area with Grid Lines and SVG */}
-            <div className="relative flex-1 h-[260px]">
+            <div className="relative flex-1 h-65">
               {/* Horizontal Grid lines matching ticks */}
               <div className="absolute inset-0 flex flex-col justify-between pointer-events-none">
                 {yTicks.map((val) => (

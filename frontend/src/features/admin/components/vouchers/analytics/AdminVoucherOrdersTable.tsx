@@ -105,7 +105,7 @@ export function AdminVoucherOrdersTable({
               orders.map((item, idx) => (
                 <AdminTableRow
                   key={`${item.id}-${idx}`}
-                  className="border-b border-deep-blue-700/40 hover:bg-white/[0.02] transition-colors"
+                  className="border-b border-deep-blue-700/40 hover:bg-white/2 transition-colors"
                 >
                   {/* Order ID */}
                   <AdminTableCell className="pl-6 py-4.5 font-mono text-xs sm:text-sm text-gray-200">
@@ -119,7 +119,7 @@ export function AdminVoucherOrdersTable({
 
                   {/* Status Badge (Matching Image 5: Amber Pending badge) */}
                   <AdminTableCell className="py-4.5">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#312010] text-[#F59E0B] border border-[#F59E0B]/35">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#312010] text-amber-500 border border-amber-500/35">
                       {item.status === "pending"
                         ? "Pending"
                         : item.status === "completed"

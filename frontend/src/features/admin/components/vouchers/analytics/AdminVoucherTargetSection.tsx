@@ -155,7 +155,7 @@ export function AdminVoucherTargetSection({
             {users.map((user) => (
               <div
                 key={user.id}
-                className="rounded-xl bg-deep-blue-950 border border-deep-blue-700/80 px-4 py-3 sm:py-3.5 flex items-center gap-3.5 transition-all duration-150 hover:border-deep-blue-600 shadow-xs h-[72px] sm:h-[82px]"
+                className="rounded-xl bg-deep-blue-950 border border-deep-blue-700/80 px-4 py-3 sm:py-3.5 flex items-center gap-3.5 transition-all duration-150 hover:border-deep-blue-600 shadow-xs h-18 sm:h-20.5"
               >
                 <div className="w-8 h-8 rounded-lg bg-deep-blue-900/80 border border-white/5 flex items-center justify-center shrink-0">
                   <UserOutlineIcon className="w-4 h-4 text-gray-400" />

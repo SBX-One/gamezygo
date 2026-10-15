@@ -293,9 +293,9 @@ export function AdminAddVoucherDateRange({
       {/* Content Layout: Left Calendar Widget (deep blue 950 content + deep blue 900 header) + Right Date Inputs */}
       <div className="flex flex-col lg:flex-row items-start gap-8 w-full">
         {/* Left: Interactive Calendar Picker Widget */}
-        <div className="w-full sm:w-[440px] rounded-2xl bg-deep-blue-950 border border-deep-blue-700/80 overflow-hidden flex flex-row shadow-sm shrink-0">
+        <div className="w-full sm:w-110 rounded-2xl bg-deep-blue-950 border border-deep-blue-700/80 overflow-hidden flex flex-row shadow-sm shrink-0">
           {/* Preset Sidebar (1 Hari, 2 Hari, 1 Minggu, 2 minggu, 1 Bulan) */}
-          <div className="w-[120px] shrink-0 p-3 border-r border-deep-blue-700/80 flex flex-col gap-1.5 bg-deep-blue-900/40">
+          <div className="w-30 shrink-0 p-3 border-r border-deep-blue-700/80 flex flex-col gap-1.5 bg-deep-blue-900/40">
             {DURATION_PRESETS.map((preset) => {
               const isActive = formData.durationPreset === preset.id;
               if (isActive) {
@@ -306,7 +306,7 @@ export function AdminAddVoucherDateRange({
                     size="xs"
                     fullWidth
                     onClick={() => handleSelectPreset(preset)}
-                    className="w-full justify-start px-3 py-2 text-xs font-semibold text-white [&_.button-main-text]:text-white! hover:[&_.button-main-text]:text-white! active:[&_.button-main-text]:text-white! rounded-xl border border-deep-blue-700 bg-[image:var(--gradient-surface-secondary-default)] shadow-xs"
+                    className="w-full justify-start px-3 py-2 text-xs font-semibold text-white [&_.button-main-text]:text-white! hover:[&_.button-main-text]:text-white! active:[&_.button-main-text]:text-white! rounded-xl border border-deep-blue-700 bg-(image:--gradient-surface-secondary-default) shadow-xs"
                   >
                     <span className="text-white! font-semibold">{preset.label}</span>
                   </Button>
@@ -443,7 +443,7 @@ export function AdminAddVoucherDateRange({
         </div>
 
         {/* Right: Start Date & End Date Fields */}
-        <div className="flex-1 w-full max-w-[420px] space-y-4">
+        <div className="flex-1 w-full max-w-105 space-y-4">
           {/* Start Date */}
           <div>
             <label className="block text-xs font-semibold text-gray-400 tracking-wider uppercase mb-2">

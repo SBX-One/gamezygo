@@ -125,7 +125,7 @@ export default function AdminVoucherAnalyticsPage() {
       <button
         type="button"
         onClick={handleExportCSV}
-        className="px-5 py-2 rounded-xl bg-gradient-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-sm select-none"
+        className="px-5 py-2 rounded-xl bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-sm select-none"
       >
         Export CSV
       </button>

@@ -15,7 +15,8 @@ import {
   usePaymentStatus,
 } from "@/hooks/use-orders";
 import { subscribePaymentSSE } from "@/services/orders.service";
-import { useCartStore } from "@/stores/use-cart-store";
+import { useCartStore, type CartStore } from "@/stores/use-cart-store";
+import type { CartProductItem } from "@/types/api";
 import { useMidtransSnap, createSnapToken } from "@/features/checkout";
 
 /**
@@ -124,43 +125,15 @@ const DEFAULT_CHECKOUT_ITEMS: CheckoutItem[] = [
   },
 ];
 
-const PAYMENT_METHODS: PaymentMethod[] = [
-  {
-    id: "midtrans",
-    name: "Midtrans Snap (Sandbox)",
-    icon: "/assets/svg/fluent_@-24-QRIS.svg",
-  },
-  {
-    id: "qris",
-    name: "QRIS Manual",
-    icon: "/assets/svg/fluent_@-24-QRIS.svg",
-  },
-  {
-    id: "bca",
-    name: "BCA",
-    icon: "/assets/svg/fluent_@-24-BCA.svg",
-  },
-  {
-    id: "mandiri",
-    name: "Mandiri",
-    icon: "/assets/svg/fluent_@-24-Mandiri.svg",
-  },
-  {
-    id: "bni",
-    name: "BNI",
-    icon: "/assets/svg/fluent_@-24-BNI.svg",
-  },
-];
-
 export default function CheckoutPage() {
   const router = useRouter();
 
   // Zustand state
-  const clearCart = useCartStore((s) => s.clearCart);
-  const activeOrderNumber = useCartStore((s) => s.orderNumber);
-  const activeOrderId = useCartStore((s) => s.orderId);
-  const setOrderDetails = useCartStore((s) => s.setOrderDetails);
-  const setGatewayReference = useCartStore((s) => s.setGatewayReference);
+  const clearCart = useCartStore((s: CartStore) => s.clearCart);
+  const activeOrderNumber = useCartStore((s: CartStore) => s.orderNumber);
+  const activeOrderId = useCartStore((s: CartStore) => s.orderId);
+  const setOrderDetails = useCartStore((s: CartStore) => s.setOrderDetails);
+  const setGatewayReference = useCartStore((s: CartStore) => s.setGatewayReference);
 
   // TanStack Query Cart data
   const { data: cartApiRes } = useCart();
@@ -192,7 +165,7 @@ export default function CheckoutPage() {
     }
 
     if (cartApiRes?.data?.items && cartApiRes.data.items.length > 0) {
-      const mapped: CheckoutItem[] = cartApiRes.data.items.map((item) => ({
+      const mapped: CheckoutItem[] = cartApiRes.data.items.map((item: CartProductItem) => ({
         id: String(item.id),
         productId: item.id,
         title: item.name,
@@ -410,8 +383,6 @@ export default function CheckoutPage() {
       return;
     }
 
-    const currentMethod = PAYMENT_METHODS.find((m) => m.id === selectedPayment)?.name || "Pembayaran";
-
     // Attempt API order creation if backend is needed and payment is not standalone Midtrans showcase
     let targetOrderId = activeOrderId;
 
@@ -578,6 +549,11 @@ export default function CheckoutPage() {
     }
 
     // Non-QRIS payment simulation (BCA, Mandiri, BNI)
+    const currentMethod =
+      selectedPayment === "midtrans"
+        ? "Midtrans Gateway"
+        : selectedPayment.toUpperCase();
+
     showToast(
       "success",
       "Memproses Pembayaran",
@@ -797,61 +773,7 @@ export default function CheckoutPage() {
                 </div>
               </div>
 
-              {/* PAYMENT METHODS (2x2 Grid) */}
-              <div className="flex flex-col gap-2">
-                <span className="text-label-xs font-semibold text-gray-400 uppercase ">
-                  Metode Pembayaran
-                </span>
-                <div className="grid grid-cols-2 gap-3 w-full">
-                  {PAYMENT_METHODS.map((method) => {
-                    const isSelected = selectedPayment === method.id;
-                    const isMidtrans = method.id === "midtrans";
-                    return (
-                      <button
-                        key={method.id}
-                        type="button"
-                        onClick={() => setSelectedPayment(method.id)}
-                        className={cn(
-                          "flex items-center justify-between gap-3 py-3 px-4 rounded-lg transition-all duration-150 cursor-pointer select-none",
-                          isMidtrans && "col-span-2 border-indigo-500/40 bg-indigo-500/10 hover:bg-indigo-500/15",
-                          isSelected
-                            ? "bg-surface-secondary-default border-indigo-500 text-white shadow-md ring-1 ring-indigo-500/40"
-                            : "bg-surface-secondary-default border border-white/10 hover:border-white/20 text-gray-200"
-                        )}
-                      >
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={method.icon}
-                            alt={method.name}
-                            className="w-6 h-6 object-contain shrink-0"
-                          />
-                          <div className="flex flex-col items-start text-left">
-                            <span className="text-label-sm font-semibold">{method.name}</span>
-                            {isMidtrans && (
-                              <span className="text-[11px] text-indigo-300 font-normal">
-                                VA (BCA, Mandiri, BNI), QRIS, E-Wallet Sandbox
-                              </span>
-                            )}
-                          </div>
-                        </div>
-
-                        {/* Radio selection indicator */}
-                        <div
-                          className={cn(
-                            "w-4 h-4 rounded-full border flex items-center justify-center shrink-0 transition-colors ml-2",
-                            isSelected
-                              ? "border-indigo-400 bg-indigo-500"
-                              : "border-gray-500 bg-transparent"
-                          )}
-                        >
-                          {isSelected && <div className="w-1.5 h-1.5 rounded-full bg-white" />}
-                        </div>
-                      </button>
-                    );
-                  })}
-                </div>
-              </div>
-
+          
               {/* TOTAL BELANJA BOX */}
               <div className="bg-surface-secondary-default border-gradient-secondary rounded-lg px-4 py-3.5 flex items-center justify-between">
                 <span className="text-body-sm font-semibold text-white">

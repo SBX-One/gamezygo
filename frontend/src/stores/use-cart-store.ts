@@ -112,6 +112,8 @@ export const useCartStore = create<CartStore>()(
             voucherCode: null,
             discountAmount: 0,
             orderId: null,
+            orderNumber: null,
+            gatewayReference: null,
             snapToken: null,
           });
         },

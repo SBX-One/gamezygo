@@ -1,4 +1,5 @@
 export * from "./api";
+export type { CartProductItem, CartResponse, AddToCartResponse } from "./api";
 
 export interface User {
   id: string | number;

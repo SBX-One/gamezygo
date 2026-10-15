@@ -102,4 +102,14 @@ class Product extends Model
         }
         return 0;
     }
+
+    public function getThumbnailAttribute(): ?string
+    {
+        if (array_key_exists('thumbnail', $this->attributes) && $this->attributes['thumbnail'] !== null) {
+            return $this->attributes['thumbnail'];
+        }
+
+        $file = $this->relationLoaded('files') ? $this->files->first() : $this->files()->first();
+        return $file ? $file->file_path : null;
+    }
 }

@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\User\Blog\BlogController;
 use App\Http\Controllers\Api\V1\User\CustomSection\CustomSectionController;
 use App\Http\Controllers\Api\V1\User\Faq\FaqController;
 use App\Http\Controllers\Api\V1\User\Leaderboard\LeaderboardController;
+use App\Http\Controllers\Api\V1\User\Order\OrderController;
 use App\Http\Controllers\Api\V1\User\Product\ProductController;
 use App\Http\Controllers\Api\V1\User\Profile\ProfileController;
 use App\Http\Controllers\Api\V1\User\Review\ReviewController;
@@ -95,6 +96,15 @@ Route::prefix('user')
                         Route::get('/', 'show')->name('show');
                         Route::match(['put', 'patch', 'post'], '/', 'update')->name('update');
                         Route::match(['put', 'patch', 'post'], '/change-password', 'changePassword')->name('change-password');
+                    });
+
+                // Orders authenticated endpoints
+                Route::controller(OrderController::class)
+                    ->prefix('/orders')
+                    ->name('orders.')
+                    ->group(function () {
+                        Route::post('/', 'store')->name('store');
+                        Route::get('/{orderId}', 'show')->name('show');
                     });
             });
     });

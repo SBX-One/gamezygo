@@ -21,7 +21,7 @@ return new class extends Migration
             $table->integer('total_price');
             $table->enum('status', ['pending', 'paid', 'failed', 'refunded', 'expired', 'cancelled'])->default('pending');
             $table->timestamp('expired_at');
-            $table->timestamp('paid_at');
+            $table->timestamp('paid_at')->nullable();
             $table->softDeletes();
             $table->timestamps();
         });

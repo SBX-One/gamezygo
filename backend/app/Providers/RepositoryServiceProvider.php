@@ -14,6 +14,8 @@ use App\Repositories\Contracts\Api\V1\User\Faq\FaqRepositoryInterface;
 use App\Repositories\Api\V1\User\Faq\FaqRepository;
 use App\Repositories\Contracts\Api\V1\User\Leaderboard\LeaderboardRepositoryInterface;
 use App\Repositories\Api\V1\User\Leaderboard\LeaderboardRepository;
+use App\Repositories\Contracts\Api\V1\User\Order\OrderRepositoryInterface;
+use App\Repositories\Api\V1\User\Order\OrderRepository;
 use App\Repositories\Contracts\Api\V1\User\Product\ProductRepositoryInterface;
 use App\Repositories\Api\V1\User\Product\ProductRepository;
 use App\Repositories\Contracts\Api\V1\User\Profile\ProfileRepositoryInterface;
@@ -34,6 +36,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(AuthRepositoryInterface::class, AuthRepository::class);
         $this->app->bind(ProductRepositoryInterface::class, ProductRepository::class);
         $this->app->bind(ProfileRepositoryInterface::class, ProfileRepository::class);
+        $this->app->bind(OrderRepositoryInterface::class, OrderRepository::class);
         $this->app->bind(CustomSectionRepositoryInterface::class, CustomSectionRepository::class);
         $this->app->bind(SubscriptionPlanRepositoryInterface::class, SubscriptionPlanRepository::class);
         $this->app->bind(BlogRepositoryInterface::class, BlogRepository::class);

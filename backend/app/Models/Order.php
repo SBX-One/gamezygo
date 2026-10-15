@@ -44,4 +44,12 @@ class Order extends Model
     {
         return $this->hasOne(Payment::class);
     }
+
+    protected function casts(): array
+    {
+        return [
+            'expired_at' => 'datetime',
+            'paid_at'    => 'datetime',
+        ];
+    }
 }

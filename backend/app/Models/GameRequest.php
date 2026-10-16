@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'user_id',
     'name',
     'steam_url',
+    'request_count',
     'note',
     'status',
     'admin_note',
@@ -19,6 +20,13 @@ class GameRequest extends Model
 {
     /** @use HasFactory<\Database\Factories\GameRequestFactory> */
     use HasFactory;
+
+    protected function casts(): array
+    {
+        return [
+            'request_count' => 'integer',
+        ];
+    }
 
     public function user(): BelongsTo
     {

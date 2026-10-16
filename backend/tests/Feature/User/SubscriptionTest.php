@@ -22,14 +22,14 @@ class SubscriptionTest extends TestCase
 
   public function test_unauthenticated_user_cannot_access_subscription(): void
   {
-    $response = $this->getJson('/api/v1/user/subscription');
+    $response = $this->getJson('/api/v1/user/profile/subscriptions');
 
     $response->assertStatus(401);
   }
 
   public function test_unauthenticated_user_cannot_access_subscription_products(): void
   {
-    $response = $this->getJson('/api/v1/user/subscription/products');
+    $response = $this->getJson('/api/v1/user/profile/subscriptions/products');
 
     $response->assertStatus(401);
   }
@@ -46,7 +46,7 @@ class SubscriptionTest extends TestCase
     $token = auth('api')->login($user);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->getJson('/api/v1/user/subscription');
+      ->getJson('/api/v1/user/profile/subscriptions');
 
     $response->assertStatus(404)
       ->assertJson([
@@ -84,7 +84,7 @@ class SubscriptionTest extends TestCase
     $token = auth('api')->login($user);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->getJson('/api/v1/user/subscription');
+      ->getJson('/api/v1/user/profile/subscriptions');
 
     $response->assertStatus(404)
       ->assertJson([
@@ -156,7 +156,7 @@ class SubscriptionTest extends TestCase
     $token = auth('api')->login($user);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->getJson('/api/v1/user/subscription');
+      ->getJson('/api/v1/user/profile/subscriptions');
 
     $response->assertStatus(200)
       ->assertJson([
@@ -256,7 +256,7 @@ class SubscriptionTest extends TestCase
     $token = auth('api')->login($user);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->getJson('/api/v1/user/subscription/products');
+      ->getJson('/api/v1/user/profile/subscriptions/products');
 
     $response->assertStatus(200)
       ->assertJson([
@@ -307,7 +307,7 @@ class SubscriptionTest extends TestCase
     $token = auth('api')->login($user);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->getJson('/api/v1/user/subscription/products?search=Cyberpunk');
+      ->getJson('/api/v1/user/profile/subscriptions/products?search=Cyberpunk');
 
     $response->assertStatus(200);
     $data = $response->json('data');
@@ -340,7 +340,7 @@ class SubscriptionTest extends TestCase
     $token = auth('api')->login($user);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->getJson('/api/v1/user/subscription/products?genre_categories[0]=action&genre_categories[1]=rpg');
+      ->getJson('/api/v1/user/profile/subscriptions/products?genre_categories[0]=action&genre_categories[1]=rpg');
 
     $response->assertStatus(200);
     $data = $response->json('data');

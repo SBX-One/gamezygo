@@ -14,12 +14,21 @@ use App\Http\Controllers\Api\V1\User\Profile\ProfileController;
 use App\Http\Controllers\Api\V1\User\Review\ReviewController;
 use App\Http\Controllers\Api\V1\User\SubscriptionPlan\SubscriptionPlanController;
 use App\Http\Controllers\Api\V1\User\UserSubscription\UserSubscriptionController;
+use App\Http\Controllers\Api\V1\User\GameRequest\GameRequestController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('user')
     ->name('user.')
     ->group(function () {
+        // Public Game Requests endpoint (without auth or guest middleware)
+        Route::controller(GameRequestController::class)
+            ->prefix('/game-requests')
+            ->name('game-requests.')
+            ->group(function () {
+                Route::get('/', 'index')->name('index');
+            });
+
         Route::middleware(['guest'])
             ->group(function () {
 
@@ -164,6 +173,26 @@ Route::prefix('user')
                             ->group(function () {
                                 Route::get('/', 'show')->name('index');
                                 Route::get('/products', 'products')->name('products');
+                            });
+                    });
+
+                // Game Requests authenticated endpoints
+                Route::controller(GameRequestController::class)
+                    ->group(function () {
+                        Route::prefix('profile/game-requests')
+                            ->name('profile.game-requests.')
+                            ->group(function () {
+                                Route::get('/', 'userRequests')->name('index');
+                                Route::post('/', 'store')->name('store');
+                                Route::delete('/{id}', 'destroy')->name('destroy');
+                            });
+
+                        Route::prefix('game-requests')
+                            ->name('game-requests.')
+                            ->group(function () {
+                                Route::get('/me', 'userRequests')->name('me');
+                                Route::post('/', 'store')->name('store');
+                                Route::delete('/{id}', 'destroy')->name('destroy');
                             });
                     });
             });

@@ -30,6 +30,8 @@ use App\Repositories\Contracts\Api\V1\User\SubscriptionPlan\SubscriptionPlanRepo
 use App\Repositories\Api\V1\User\SubscriptionPlan\SubscriptionPlanRepository;
 use App\Repositories\Contracts\Api\V1\User\UserSubscription\UserSubscriptionRepositoryInterface;
 use App\Repositories\Api\V1\User\UserSubscription\UserSubscriptionRepository;
+use App\Repositories\Contracts\Api\V1\User\GameRequest\GameRequestRepositoryInterface;
+use App\Repositories\Api\V1\User\GameRequest\GameRequestRepository;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -53,6 +55,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(AnnouncementRepositoryInterface::class, AnnouncementRepository::class);
         $this->app->bind(CartRepositoryInterface::class, CartRepository::class);
         $this->app->bind(UserSubscriptionRepositoryInterface::class, UserSubscriptionRepository::class);
+        $this->app->bind(GameRequestRepositoryInterface::class, GameRequestRepository::class);
     }
 
     /**

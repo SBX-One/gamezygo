@@ -24,8 +24,9 @@ class CreateOrderRequest extends FormRequest
   public function rules(): array
   {
     return [
-      'item_type'  => ['required', 'string', 'in:product'],
-      'product_id' => ['required', 'integer', 'exists:products,id'],
+      'item_type'            => ['required', 'string', 'in:product,subscription'],
+      'product_id'           => ['required_if:item_type,product', 'nullable', 'integer', 'exists:products,id'],
+      'subscription_plan_id' => ['required_if:item_type,subscription', 'nullable', 'integer', 'exists:subscription_plans,id'],
     ];
   }
 
@@ -37,10 +38,12 @@ class CreateOrderRequest extends FormRequest
   public function messages(): array
   {
     return [
-      'item_type.required'  => 'Item type wajib diisi.',
-      'item_type.in'        => 'Item type yang didukung saat ini hanya product.',
-      'product_id.required' => 'Product ID wajib diisi.',
-      'product_id.exists'   => 'Product tidak ditemukan.',
+      'item_type.required'               => 'Item type wajib diisi.',
+      'item_type.in'                     => 'Item type harus berupa product atau subscription.',
+      'product_id.required_if'           => 'Product ID wajib diisi untuk item product.',
+      'product_id.exists'                => 'Product tidak ditemukan.',
+      'subscription_plan_id.required_if' => 'Subscription Plan ID wajib diisi untuk item subscription.',
+      'subscription_plan_id.exists'      => 'Paket subscription tidak ditemukan.',
     ];
   }
 

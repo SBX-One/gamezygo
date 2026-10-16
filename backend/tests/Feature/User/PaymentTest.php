@@ -6,7 +6,9 @@ use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\SubscriptionPlan;
 use App\Models\User;
+use App\Models\UserSubscription;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Tests\TestCase;
 
@@ -512,5 +514,72 @@ class PaymentTest extends TestCase
       ->assertJson([
         'error' => 'Invalid signature verification',
       ]);
+  }
+
+  public function test_webhook_settlement_activates_user_subscription(): void
+  {
+    $user = User::factory()->create(['status' => 'active']);
+    $plan = SubscriptionPlan::create([
+      'name'          => 'Pro Gaming Monthly',
+      'price'         => 99000,
+      'duration_days' => 30,
+      'is_active'     => true,
+    ]);
+
+    $order = Order::create([
+      'user_id'         => $user->id,
+      'order_code'      => 'ORD-20260908-200',
+      'subtotal_price'  => 99000,
+      'discount_amount' => 0,
+      'total_price'     => 99000,
+      'status'          => 'pending',
+      'expired_at'      => now()->addHours(24),
+      'paid_at'         => null,
+    ]);
+
+    $orderItem = $order->items()->create([
+      'purchasable_type' => SubscriptionPlan::class,
+      'purchasable_id'   => $plan->id,
+      'price'            => 99000,
+    ]);
+
+    $payment = Payment::create([
+      'order_id'          => $order->id,
+      'payment_method'    => 'qris',
+      'gateway_reference' => 'TRX-20260908-0200',
+      'amount'            => 99000,
+      'status'            => 'pending',
+      'expired_at'        => now()->addMinutes(20),
+      'paid_at'           => null,
+    ]);
+
+    $serverKey = (string) config('services.midtrans.server_key');
+    $signature = hash('sha512', 'TRX-20260908-0200' . '200' . '99000.00' . $serverKey);
+
+    $response = $this->postJson('/api/v1/payments/webhook', [
+      'order_id'           => 'TRX-20260908-0200',
+      'status_code'        => '200',
+      'gross_amount'       => '99000.00',
+      'transaction_status' => 'settlement',
+      'fraud_status'       => 'accept',
+      'signature_key'      => $signature,
+    ]);
+
+    $response->assertStatus(200);
+
+    $this->assertDatabaseHas('orders', [
+      'id'     => $order->id,
+      'status' => 'paid',
+    ]);
+
+    $this->assertDatabaseHas('user_subscriptions', [
+      'user_id'              => $user->id,
+      'subscription_plan_id' => $plan->id,
+      'status'               => 'active',
+    ]);
+
+    $subscription = UserSubscription::where('user_id', $user->id)->first();
+    $this->assertNotNull($subscription);
+    $this->assertEquals(30, (int) round($subscription->started_at->diffInDays($subscription->expired_at)));
   }
 }

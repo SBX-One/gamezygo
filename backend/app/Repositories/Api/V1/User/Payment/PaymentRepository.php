@@ -5,7 +5,9 @@ namespace App\Repositories\Api\V1\User\Payment;
 use App\Models\Order;
 use App\Models\Payment;
 use App\Models\Product;
+use App\Models\SubscriptionPlan;
 use App\Models\User;
+use App\Models\UserSubscription;
 use App\Repositories\Contracts\Api\V1\User\Payment\PaymentRepositoryInterface;
 use DateTimeInterface;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
@@ -123,10 +125,30 @@ class PaymentRepository implements PaymentRepositoryInterface
         $order->voucher()->increment('total_usage');
       }
 
-      // Deliver games to user's owned games library
+      // Deliver games or activate subscription
       foreach ($order->items as $item) {
         if ($item->purchasable instanceof Product) {
           $order->user->ownedGames()->syncWithoutDetaching([$item->purchasable_id]);
+        } elseif ($item->purchasable instanceof SubscriptionPlan) {
+          $plan = $item->purchasable;
+
+          // Extend if user has an existing active subscription, else start from now
+          $latestActiveSub = UserSubscription::where('user_id', $order->user_id)
+            ->where('status', 'active')
+            ->where('expired_at', '>', $now)
+            ->orderByDesc('expired_at')
+            ->first();
+
+          $startedAt = $latestActiveSub ? $latestActiveSub->expired_at : $now;
+          $expiredAt = $startedAt->copy()->addDays($plan->duration_days);
+
+          UserSubscription::create([
+            'user_id'              => $order->user_id,
+            'subscription_plan_id' => $plan->id,
+            'started_at'           => $startedAt,
+            'expired_at'           => $expiredAt,
+            'status'               => 'active',
+          ]);
         }
       }
 

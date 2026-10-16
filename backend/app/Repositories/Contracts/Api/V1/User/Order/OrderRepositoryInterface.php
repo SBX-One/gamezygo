@@ -4,6 +4,7 @@ namespace App\Repositories\Contracts\Api\V1\User\Order;
 
 use App\Models\Order;
 use App\Models\Product;
+use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Models\Voucher;
 
@@ -17,6 +18,15 @@ interface OrderRepositoryInterface
    * @return Order
    */
   public function createOrderForProduct(User $user, Product $product): Order;
+
+  /**
+   * Create a new pending order for a subscription plan.
+   *
+   * @param User $user
+   * @param SubscriptionPlan $plan
+   * @return Order
+   */
+  public function createOrderForSubscription(User $user, SubscriptionPlan $plan): Order;
 
   /**
    * Find an order belonging to a user by ID or order code.

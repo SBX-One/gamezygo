@@ -3,6 +3,7 @@
 namespace App\Http\Resources\Api\V1\User\Order;
 
 use App\Models\Product;
+use App\Models\SubscriptionPlan;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
 
@@ -26,16 +27,23 @@ class OrderDetailResource extends JsonResource
       'order_items'     => $this->items->map(function ($item) {
         $purchasable = $item->purchasable;
         $isProduct = $purchasable instanceof Product;
+        $isSubscription = $purchasable instanceof SubscriptionPlan;
 
         return [
-          'id'        => $item->id,
-          'item_type' => $isProduct ? 'product' : 'item',
-          'product'   => $isProduct ? [
+          'id'                => $item->id,
+          'item_type'         => $isProduct ? 'product' : ($isSubscription ? 'subscription' : 'item'),
+          'product'           => $isProduct ? [
             'id'        => $purchasable->id,
             'name'      => $purchasable->name,
             'thumbnail' => $purchasable->thumbnail,
           ] : null,
-          'price'     => (int) $item->price,
+          'subscription_plan' => $isSubscription ? [
+            'id'            => $purchasable->id,
+            'name'          => $purchasable->name,
+            'duration_days' => (int) $purchasable->duration_days,
+            'price'         => (int) $purchasable->price,
+          ] : null,
+          'price'             => (int) $item->price,
         ];
       })->values(),
       'payment'         => $this->payment ? [

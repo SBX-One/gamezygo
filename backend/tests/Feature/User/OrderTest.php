@@ -781,4 +781,64 @@ class OrderTest extends TestCase
         ],
       ]);
   }
+
+  public function test_authenticated_user_can_create_subscription_order_successfully(): void
+  {
+    $user = User::factory()->create(['status' => 'active']);
+    $token = auth('api')->login($user);
+
+    $plan = SubscriptionPlan::create([
+      'name'          => 'Pro Gaming Monthly',
+      'price'         => 99000,
+      'duration_days' => 30,
+      'is_active'     => true,
+    ]);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->postJson('/api/v1/user/orders', [
+        'item_type'            => 'subscription',
+        'subscription_plan_id' => $plan->id,
+      ]);
+
+    $response->assertStatus(201)
+      ->assertJson([
+        'success' => true,
+        'message' => 'Order created successfully',
+        'data'    => [
+          'subtotal_price'  => 99000,
+          'discount_amount' => 0,
+          'total_price'     => 99000,
+        ],
+      ]);
+
+    $this->assertDatabaseHas('orders', [
+      'user_id'     => $user->id,
+      'total_price' => 99000,
+      'status'      => 'pending',
+    ]);
+
+    $this->assertDatabaseHas('order_items', [
+      'purchasable_type' => SubscriptionPlan::class,
+      'purchasable_id'   => $plan->id,
+      'price'            => 99000,
+    ]);
+  }
+
+  public function test_create_subscription_order_fails_with_invalid_plan(): void
+  {
+    $user = User::factory()->create(['status' => 'active']);
+    $token = auth('api')->login($user);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->postJson('/api/v1/user/orders', [
+        'item_type'            => 'subscription',
+        'subscription_plan_id' => 99999,
+      ]);
+
+    $response->assertStatus(422)
+      ->assertJson([
+        'success' => false,
+        'message' => 'Validation error',
+      ]);
+  }
 }

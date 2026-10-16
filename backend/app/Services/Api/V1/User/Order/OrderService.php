@@ -24,6 +24,12 @@ class OrderService
    */
   public function createOrder(User $user, array $data): Order
   {
+    if (($data['item_type'] ?? '') === 'subscription' || !empty($data['subscription_plan_id'])) {
+      $plan = SubscriptionPlan::where('is_active', true)->findOrFail($data['subscription_plan_id']);
+
+      return $this->orderRepository->createOrderForSubscription($user, $plan);
+    }
+
     $product = Product::findOrFail($data['product_id']);
 
     return $this->orderRepository->createOrderForProduct($user, $product);

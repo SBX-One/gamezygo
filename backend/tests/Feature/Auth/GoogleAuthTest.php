@@ -165,4 +165,41 @@ class GoogleAuthTest extends TestCase
 
     $this->assertCount(0, $user->fresh()->tokens);
   }
+
+  public function test_google_callback_authenticates_user_and_returns_token(): void
+  {
+    $abstractUser = Mockery::mock(SocialiteUser::class);
+    $abstractUser->shouldReceive('getId')->andReturn('google-uid-777');
+    $abstractUser->shouldReceive('getName')->andReturn('OAuth User');
+    $abstractUser->shouldReceive('getEmail')->andReturn('oauth.user@example.com');
+    $abstractUser->shouldReceive('getAvatar')->andReturn('https://example.com/avatar.jpg');
+
+    $provider = Mockery::mock(\Laravel\Socialite\Contracts\Provider::class);
+    $provider->shouldReceive('stateless')->andReturnSelf();
+    $provider->shouldReceive('user')->andReturn($abstractUser);
+
+    Socialite::shouldReceive('driver')->with('google')->andReturn($provider);
+
+    $response = $this->getJson('/api/v1/auth/google/callback');
+
+    $response->assertStatus(200)
+      ->assertJsonStructure([
+        'success',
+        'message',
+        'data' => [
+          'token',
+          'token_type',
+          'user' => [
+            'id',
+            'name',
+            'email',
+          ],
+        ],
+      ]);
+
+    $this->assertDatabaseHas('users', [
+      'email'     => 'oauth.user@example.com',
+      'google_id' => 'google-uid-777',
+    ]);
+  }
 }

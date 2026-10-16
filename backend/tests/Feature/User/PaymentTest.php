@@ -18,7 +18,7 @@ class PaymentTest extends TestCase
 
   public function test_unauthenticated_user_cannot_pay(): void
   {
-    $response = $this->postJson('/api/v1/user/orders/1/pay', [
+    $response = $this->postJson('/api/v1/user/orders/1/payments', [
       'payment_method' => 'qris',
     ]);
 
@@ -50,7 +50,7 @@ class PaymentTest extends TestCase
     ]);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->postJson("/api/v1/user/orders/{$order->id}/pay", [
+      ->postJson("/api/v1/user/orders/{$order->id}/payments", [
         'payment_method' => 'qris',
       ]);
 
@@ -99,7 +99,7 @@ class PaymentTest extends TestCase
     $token = auth('api')->login($user);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->postJson('/api/v1/user/orders/9999/pay', [
+      ->postJson('/api/v1/user/orders/9999/payments', [
         'payment_method' => 'qris',
       ]);
 
@@ -128,7 +128,7 @@ class PaymentTest extends TestCase
     ]);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->postJson("/api/v1/user/orders/{$order->id}/pay", [
+      ->postJson("/api/v1/user/orders/{$order->id}/payments", [
         'payment_method' => 'qris',
       ]);
 
@@ -156,7 +156,7 @@ class PaymentTest extends TestCase
     ]);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->postJson("/api/v1/user/orders/{$order->id}/pay", [
+      ->postJson("/api/v1/user/orders/{$order->id}/payments", [
         'payment_method' => 'qris',
       ]);
 
@@ -184,7 +184,7 @@ class PaymentTest extends TestCase
     ]);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->postJson("/api/v1/user/orders/{$order->id}/pay", [
+      ->postJson("/api/v1/user/orders/{$order->id}/payments", [
         'payment_method' => 'qris',
       ]);
 
@@ -212,7 +212,7 @@ class PaymentTest extends TestCase
     ]);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->postJson("/api/v1/user/orders/{$order->id}/pay", [
+      ->postJson("/api/v1/user/orders/{$order->id}/payments", [
         'payment_method' => 'qris',
       ]);
 
@@ -336,7 +336,7 @@ class PaymentTest extends TestCase
     ]);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->postJson("/api/v1/user/orders/{$order->order_code}/pay", [
+      ->postJson("/api/v1/user/orders/{$order->order_code}/payments", [
         'payment_method' => 'qris',
       ]);
 
@@ -374,7 +374,7 @@ class PaymentTest extends TestCase
     ]);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->getJson('/api/v1/user/payments/status?references=TRX-20260908-0099');
+      ->getJson("/api/v1/user/payments/{$payment->gateway_reference}/status");
 
     $response->assertStatus(200)
       ->assertJson([

@@ -10,5 +10,3 @@ use Illuminate\Support\Facades\Route;
 
 // Public Midtrans Webhook Notification
 Route::post('payments/webhook', [PaymentWebhookController::class, 'handleWebhook'])->name('payments.webhook');
-Route::post('payments/notification', [PaymentWebhookController::class, 'handleWebhook']);
-Route::post('webhook/midtrans', [PaymentWebhookController::class, 'handleWebhook']);

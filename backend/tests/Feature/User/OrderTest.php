@@ -279,7 +279,7 @@ class OrderTest extends TestCase
     ]);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->postJson("/api/v1/user/orders/{$order->id}/apply-voucher", [
+      ->postJson("/api/v1/user/orders/{$order->id}/voucher", [
         'voucher_code' => 'GAME50',
       ]);
 
@@ -331,7 +331,7 @@ class OrderTest extends TestCase
     ]);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->postJson("/api/v1/user/orders/{$order->order_code}/apply-voucher", [
+      ->postJson("/api/v1/user/orders/{$order->order_code}/voucher", [
         'voucher_code' => 'DISC50',
       ]);
 
@@ -366,7 +366,7 @@ class OrderTest extends TestCase
     ]);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->postJson("/api/v1/user/orders/{$order->id}/apply-voucher", [
+      ->postJson("/api/v1/user/orders/{$order->id}/voucher", [
         'voucher_code' => 'NON_EXISTENT',
       ]);
 
@@ -403,7 +403,7 @@ class OrderTest extends TestCase
     ]);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->postJson("/api/v1/user/orders/{$order->id}/apply-voucher", [
+      ->postJson("/api/v1/user/orders/{$order->id}/voucher", [
         'voucher_code' => 'EXPIRED',
       ]);
 
@@ -440,7 +440,7 @@ class OrderTest extends TestCase
     ]);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->postJson("/api/v1/user/orders/{$order->id}/apply-voucher", [
+      ->postJson("/api/v1/user/orders/{$order->id}/voucher", [
         'voucher_code' => 'MIN500K',
       ]);
 
@@ -475,7 +475,7 @@ class OrderTest extends TestCase
     ]);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->postJson("/api/v1/user/orders/{$order->id}/apply-voucher", [
+      ->postJson("/api/v1/user/orders/{$order->id}/voucher", [
         'voucher_code' => 'VALID10',
       ]);
 
@@ -512,7 +512,7 @@ class OrderTest extends TestCase
     ]);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->deleteJson("/api/v1/user/orders/{$order->id}/remove-voucher");
+      ->deleteJson("/api/v1/user/orders/{$order->id}/voucher");
 
     $response->assertStatus(200)
       ->assertJson([
@@ -553,7 +553,7 @@ class OrderTest extends TestCase
     ]);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->postJson("/api/v1/user/orders/{$order->id}/remove-voucher");
+      ->deleteJson("/api/v1/user/orders/{$order->id}/voucher");
 
     $response->assertStatus(422)
       ->assertJson([
@@ -580,7 +580,7 @@ class OrderTest extends TestCase
     ]);
 
     $responseApply = $this->withHeader('Authorization', "Bearer {$token}")
-      ->postJson("/api/v1/user/orders/{$order->id}/apply-voucher", [
+      ->postJson("/api/v1/user/orders/{$order->id}/voucher", [
         'voucher_code' => 'GAME50',
       ]);
 
@@ -591,7 +591,7 @@ class OrderTest extends TestCase
       ]);
 
     $responseRemove = $this->withHeader('Authorization', "Bearer {$token}")
-      ->postJson("/api/v1/user/orders/{$order->id}/remove-voucher");
+      ->deleteJson("/api/v1/user/orders/{$order->id}/voucher");
 
     $responseRemove->assertStatus(404)
       ->assertJson([

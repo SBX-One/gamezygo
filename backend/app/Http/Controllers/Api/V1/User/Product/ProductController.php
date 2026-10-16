@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\User\Product\ProductCollection;
 use App\Http\Resources\Api\V1\User\Product\ProductCredentialResource;
 use App\Http\Resources\Api\V1\User\Product\ProductDetailResource;
+use App\Http\Resources\Api\V1\User\Product\ProductFilterResource;
 use App\Models\Product;
 use App\Services\Api\V1\User\Product\ProductService;
 use Illuminate\Auth\Access\AuthorizationException;
@@ -36,6 +37,22 @@ class ProductController extends Controller
         $products = $this->productService->getGuestProducts($filters);
 
         return new ProductCollection($products);
+    }
+
+    /**
+     * Display a listing of available product filters.
+     *
+     * @return JsonResponse
+     */
+    public function filters(): JsonResponse
+    {
+        $filters = $this->productService->getProductFilters();
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Product filters retrieved successfully',
+            'data'    => (new ProductFilterResource($filters))->resolve(),
+        ], 200);
     }
 
     public function show(Product $product): ProductDetailResource

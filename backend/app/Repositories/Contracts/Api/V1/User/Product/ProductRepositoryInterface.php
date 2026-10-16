@@ -42,4 +42,11 @@ interface ProductRepositoryInterface
      * @return ProductGameAccount|null
      */
     public function getGameAccount(Product $product): ?ProductGameAccount;
+
+    /**
+     * Get available product filter data.
+     *
+     * @return array<string, mixed>
+     */
+    public function getProductFilters(): array;
 }

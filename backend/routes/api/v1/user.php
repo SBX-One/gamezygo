@@ -100,6 +100,7 @@ Route::prefix('user')
                     ->name('profile.')
                     ->group(function () {
                         Route::get('/', 'show')->name('show');
+                        Route::get('/products', 'products')->name('products');
                         Route::match(['put', 'patch', 'post'], '/', 'update')->name('update');
                         Route::match(['put', 'patch', 'post'], '/change-password', 'changePassword')->name('change-password');
                     });

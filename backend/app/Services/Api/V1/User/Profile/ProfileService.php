@@ -5,6 +5,7 @@ namespace App\Services\Api\V1\User\Profile;
 use App\Models\User;
 use App\Repositories\Contracts\Api\V1\User\Profile\ProfileRepositoryInterface;
 use Illuminate\Http\UploadedFile;
+use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
 
 class ProfileService
@@ -86,5 +87,17 @@ class ProfileService
     }
 
     $this->profileRepository->updatePassword($user, $newPassword);
+  }
+
+  /**
+   * Get paginated products owned by user with filters.
+   *
+   * @param User $user
+   * @param array $filters
+   * @return LengthAwarePaginator
+   */
+  public function getOwnedProducts(User $user, array $filters = []): LengthAwarePaginator
+  {
+    return $this->profileRepository->getUserOwnedProducts($user, $filters);
   }
 }

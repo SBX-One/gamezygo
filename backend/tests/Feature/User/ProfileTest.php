@@ -2,6 +2,7 @@
 
 namespace Tests\Feature\User;
 
+use App\Models\GenreCategory;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
@@ -319,5 +320,199 @@ class ProfileTest extends TestCase
         'message' => 'Validation error',
       ])
       ->assertJsonValidationErrors(['new_password']);
+  }
+
+  public function test_unauthenticated_user_cannot_access_profile_products(): void
+  {
+    $response = $this->getJson('/api/v1/user/profile/products');
+
+    $response->assertStatus(401);
+  }
+
+  public function test_authenticated_user_can_view_owned_products_with_pagination_and_meta(): void
+  {
+    $user = User::create([
+      'name'     => 'Game Owner',
+      'email'    => 'owner@example.com',
+      'password' => bcrypt('secret123'),
+      'status'   => 'active',
+    ]);
+
+    $actionCategory = GenreCategory::create([
+      'name' => 'Action',
+      'slug' => 'action',
+    ]);
+    $adventureCategory = GenreCategory::create([
+      'name' => 'Adventure',
+      'slug' => 'adventure',
+    ]);
+
+    $product1 = Product::factory()->create([
+      'name'           => "Assassin's Creed Black Flag Resynced",
+      'slug'           => 'assassins-creed-black-flag-resynced',
+      'price'          => 439000,
+      'discount_price' => 307300,
+    ]);
+    $product1->genreCategories()->attach([$actionCategory->id, $adventureCategory->id]);
+
+    $product2 = Product::factory()->create([
+      'name'           => 'Tomb Raider',
+      'slug'           => 'tomb-raider',
+      'price'          => 349000,
+      'discount_price' => 209400,
+    ]);
+    $product2->genreCategories()->attach([$adventureCategory->id]);
+
+    $user->ownedGames()->attach([$product1->id, $product2->id]);
+
+    $token = auth('api')->login($user);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->getJson('/api/v1/user/profile/products');
+
+    $response->assertStatus(200)
+      ->assertJson([
+        'success' => true,
+        'message' => 'Products retrieved successfully',
+      ])
+      ->assertJsonStructure([
+        'success',
+        'message',
+        'data' => [
+          '*' => [
+            'id',
+            'name',
+            'slug',
+            'thumbnail',
+            'price',
+            'discount_price',
+            'discount',
+            'categories' => [
+              '*' => [
+                'id',
+                'name',
+                'slug',
+              ],
+            ],
+          ],
+        ],
+        'meta' => [
+          'current_page',
+          'from',
+          'last_page',
+          'per_page',
+          'to',
+          'total',
+        ],
+      ]);
+
+    $this->assertCount(2, $response->json('data'));
+    $this->assertEquals(2, $response->json('meta.total'));
+    $this->assertEquals(1, $response->json('meta.current_page'));
+    $this->assertEquals(20, $response->json('meta.per_page'));
+  }
+
+  public function test_authenticated_user_can_filter_owned_products_by_search(): void
+  {
+    $user = User::create([
+      'name'     => 'Search Gamer',
+      'email'    => 'search@example.com',
+      'password' => bcrypt('secret123'),
+      'status'   => 'active',
+    ]);
+
+    $game1 = Product::factory()->create([
+      'name' => "Assassin's Creed Black Flag Resynced",
+      'slug' => 'assassins-creed-black-flag-resynced',
+    ]);
+    $game2 = Product::factory()->create([
+      'name' => 'Grand Theft Auto V',
+      'slug' => 'grand-theft-auto-v',
+    ]);
+
+    $user->ownedGames()->attach([$game1->id, $game2->id]);
+
+    $token = auth('api')->login($user);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->getJson('/api/v1/user/profile/products?search=Assassin');
+
+    $response->assertStatus(200);
+    $data = $response->json('data');
+    $this->assertCount(1, $data);
+    $this->assertEquals("Assassin's Creed Black Flag Resynced", $data[0]['name']);
+  }
+
+  public function test_authenticated_user_can_filter_owned_products_by_genre_categories(): void
+  {
+    $user = User::create([
+      'name'     => 'Genre Gamer',
+      'email'    => 'genre@example.com',
+      'password' => bcrypt('secret123'),
+      'status'   => 'active',
+    ]);
+
+    $action = GenreCategory::create(['name' => 'Action', 'slug' => 'action']);
+    $rpg = GenreCategory::create(['name' => 'RPG', 'slug' => 'rpg']);
+    $racing = GenreCategory::create(['name' => 'Racing', 'slug' => 'racing']);
+
+    $gameAction = Product::factory()->create(['name' => 'Action Game']);
+    $gameAction->genreCategories()->attach($action->id);
+
+    $gameRpg = Product::factory()->create(['name' => 'RPG Game']);
+    $gameRpg->genreCategories()->attach($rpg->id);
+
+    $gameRacing = Product::factory()->create(['name' => 'Racing Game']);
+    $gameRacing->genreCategories()->attach($racing->id);
+
+    $user->ownedGames()->attach([$gameAction->id, $gameRpg->id, $gameRacing->id]);
+
+    $token = auth('api')->login($user);
+
+    // Query with genre_categories[0]=action&genre_categories[1]=rpg
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->getJson('/api/v1/user/profile/products?genre_categories[0]=action&genre_categories[1]=rpg');
+
+    $response->assertStatus(200);
+    $data = $response->json('data');
+    $this->assertCount(2, $data);
+
+    $names = array_column($data, 'name');
+    $this->assertContains('Action Game', $names);
+    $this->assertContains('RPG Game', $names);
+    $this->assertNotContains('Racing Game', $names);
+  }
+
+  public function test_profile_products_isolates_user_data(): void
+  {
+    $userA = User::create([
+      'name'     => 'User A',
+      'email'    => 'usera@example.com',
+      'password' => bcrypt('secret123'),
+      'status'   => 'active',
+    ]);
+
+    $userB = User::create([
+      'name'     => 'User B',
+      'email'    => 'userb@example.com',
+      'password' => bcrypt('secret123'),
+      'status'   => 'active',
+    ]);
+
+    $gameA = Product::factory()->create(['name' => 'Game A']);
+    $gameB = Product::factory()->create(['name' => 'Game B']);
+
+    $userA->ownedGames()->attach($gameA->id);
+    $userB->ownedGames()->attach($gameB->id);
+
+    $token = auth('api')->login($userA);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->getJson('/api/v1/user/profile/products');
+
+    $response->assertStatus(200);
+    $data = $response->json('data');
+    $this->assertCount(1, $data);
+    $this->assertEquals('Game A', $data[0]['name']);
   }
 }

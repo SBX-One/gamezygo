@@ -49,4 +49,13 @@ interface ProfileRepositoryInterface
    * @return bool
    */
   public function updatePassword(User $user, string $newPassword): bool;
+
+  /**
+   * Get paginated products/games owned by the user with optional search and genre filters.
+   *
+   * @param User $user
+   * @param array $filters
+   * @return \Illuminate\Pagination\LengthAwarePaginator
+   */
+  public function getUserOwnedProducts(User $user, array $filters = []): \Illuminate\Pagination\LengthAwarePaginator;
 }

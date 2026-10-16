@@ -128,12 +128,98 @@ class GameRequestTest extends TestCase
     $data = $response->json('data');
     $this->assertCount(2, $data);
 
-    // Ensure request_count is not included in personal list
-    $this->assertArrayNotHasKey('request_count', $data[0]);
+    // Ensure request_count is included in personal list
+    $this->assertArrayHasKey('request_count', $data[0]);
+    $this->assertEquals(1, $data[0]['request_count']);
     $this->assertArrayHasKey('id', $data[0]);
     $this->assertArrayHasKey('name', $data[0]);
     $this->assertArrayHasKey('steam_url', $data[0]);
     $this->assertArrayHasKey('status', $data[0]);
+  }
+
+  public function test_authenticated_user_can_view_own_game_requests_via_scope_mine(): void
+  {
+    $userA = User::factory()->create();
+    $userB = User::factory()->create();
+
+    GameRequest::create([
+      'user_id'       => $userA->id,
+      'name'          => 'User A Mine Game 1',
+      'steam_url'     => 'https://store.steampowered.com/app/555/',
+      'request_count' => 12,
+      'status'        => 'pending',
+    ]);
+
+    GameRequest::create([
+      'user_id'       => $userB->id,
+      'name'          => 'User B Other Game',
+      'steam_url'     => 'https://store.steampowered.com/app/666/',
+      'request_count' => 1,
+      'status'        => 'pending',
+    ]);
+
+    $token = auth('api')->login($userA);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->getJson('/api/v1/user/game-requests?scope=mine');
+
+    $response->assertStatus(200)
+      ->assertJson([
+        'success' => true,
+        'message' => 'Game requests retrieved successfully',
+      ]);
+
+    $data = $response->json('data');
+    $this->assertCount(1, $data);
+    $this->assertEquals('User A Mine Game 1', $data[0]['name']);
+    $this->assertEquals(12, $data[0]['request_count']);
+    $this->assertArrayHasKey('status', $data[0]);
+    $this->assertArrayHasKey('note', $data[0]);
+    $this->assertArrayHasKey('admin_note', $data[0]);
+    $this->assertArrayHasKey('created_at', $data[0]);
+    $this->assertArrayHasKey('updated_at', $data[0]);
+  }
+
+  public function test_unauthenticated_user_cannot_view_game_requests_with_scope_mine(): void
+  {
+    $response = $this->getJson('/api/v1/user/game-requests?scope=mine');
+
+    $response->assertStatus(401);
+  }
+
+  public function test_can_view_added_game_requests_via_scope_added(): void
+  {
+    $user = User::factory()->create();
+
+    GameRequest::create([
+      'user_id'       => $user->id,
+      'name'          => 'Added Game 1',
+      'steam_url'     => 'https://store.steampowered.com/app/777/',
+      'request_count' => 5,
+      'status'        => 'available',
+    ]);
+
+    GameRequest::create([
+      'user_id'       => $user->id,
+      'name'          => 'Pending Game 2',
+      'steam_url'     => 'https://store.steampowered.com/app/888/',
+      'request_count' => 2,
+      'status'        => 'pending',
+    ]);
+
+    $response = $this->getJson('/api/v1/user/game-requests?scope=added');
+
+    $response->assertStatus(200)
+      ->assertJson([
+        'success' => true,
+        'message' => 'Game requests retrieved successfully',
+      ]);
+
+    $data = $response->json('data');
+    $this->assertCount(1, $data);
+    $this->assertEquals('Added Game 1', $data[0]['name']);
+    $this->assertEquals('available', $data[0]['status']);
+    $this->assertEquals(5, $data[0]['request_count']);
   }
 
   public function test_user_cannot_create_game_request_with_invalid_url(): void

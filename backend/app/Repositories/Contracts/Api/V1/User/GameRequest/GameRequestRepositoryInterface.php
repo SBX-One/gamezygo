@@ -21,10 +21,11 @@ interface GameRequestRepositoryInterface
    * Get authenticated user's game requests paginated.
    *
    * @param User $user
+   * @param array<string, mixed> $filters
    * @param int $perPage
    * @return LengthAwarePaginator
    */
-  public function getUserRequests(User $user, int $perPage = 20): LengthAwarePaginator;
+  public function getUserRequests(User $user, array $filters = [], int $perPage = 20): LengthAwarePaginator;
 
   /**
    * Find a game request by ID belonging to specific user.

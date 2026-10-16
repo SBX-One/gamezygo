@@ -43,14 +43,30 @@ class GameRequestRepository implements GameRequestRepositoryInterface
    * Get authenticated user's game requests paginated.
    *
    * @param User $user
+   * @param array<string, mixed> $filters
    * @param int $perPage
    * @return LengthAwarePaginator
    */
-  public function getUserRequests(User $user, int $perPage = 20): LengthAwarePaginator
+  public function getUserRequests(User $user, array $filters = [], int $perPage = 20): LengthAwarePaginator
   {
-    return $user->gameRequests()
-      ->orderByDesc('id')
-      ->paginate($perPage);
+    $query = $user->gameRequests();
+
+    if (!empty($filters['search'])) {
+      $search = trim((string) $filters['search']);
+      $query->where(function ($q) use ($search) {
+        $q->whereRaw('LOWER(name) LIKE ?', ['%' . strtolower($search) . '%'])
+          ->orWhere('steam_url', 'like', '%' . $search . '%');
+      });
+    }
+
+    if (!empty($filters['status'])) {
+      $query->where('status', $filters['status']);
+    }
+
+    $page = isset($filters['page']) ? (int) $filters['page'] : null;
+
+    return $query->orderByDesc('id')
+      ->paginate(perPage: $perPage, page: $page);
   }
 
   /**

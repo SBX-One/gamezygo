@@ -8,6 +8,7 @@ use App\Http\Resources\Api\V1\User\GameRequest\GameRequestCollection;
 use App\Http\Resources\Api\V1\User\GameRequest\GameRequestResource;
 use App\Services\Api\V1\User\GameRequest\GameRequestService;
 use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -22,14 +23,39 @@ class GameRequestController extends Controller
   }
 
   /**
-   * Display all requested games (public view without auth requirement).
+   * Display requested games (public view, user's requests via ?scope=mine, or added games via ?scope=added).
    *
    * @param Request $request
    * @return GameRequestCollection
    */
   public function index(Request $request): GameRequestCollection
   {
+    $scope = $request->query('scope');
+
+    if ($scope === 'mine') {
+      try {
+        $user = $request->user('api') ?? auth('api')->user() ?? $request->user('sanctum') ?? auth('sanctum')->user() ?? $request->user();
+      } catch (Throwable) {
+        $user = null;
+      }
+
+      if (!$user) {
+        throw new AuthenticationException('Unauthenticated.');
+      }
+
+      $filters = $request->only(['page', 'per_page', 'search', 'status']);
+      $requests = $this->gameRequestService->getUserRequests($user, $filters);
+
+      return new GameRequestCollection($requests, isPublic: true);
+    }
+
     $filters = $request->only(['search', 'status', 'page', 'per_page']);
+
+    // Scope for games that have already been added to the catalog
+    if (in_array($scope, ['added', 'available', 'ditambahkan'], true)) {
+      $filters['status'] = 'available';
+    }
+
     $requests = $this->gameRequestService->getAllRequests($filters);
 
     return new GameRequestCollection($requests, isPublic: true);
@@ -44,10 +70,10 @@ class GameRequestController extends Controller
   public function userRequests(Request $request): GameRequestCollection
   {
     $user = $request->user() ?? auth('api')->user();
-    $filters = $request->only(['page', 'per_page']);
+    $filters = $request->only(['page', 'per_page', 'search', 'status']);
     $requests = $this->gameRequestService->getUserRequests($user, $filters);
 
-    return new GameRequestCollection($requests, isPublic: false);
+    return new GameRequestCollection($requests, isPublic: true);
   }
 
   /**

@@ -7,9 +7,9 @@ use Illuminate\Http\Resources\Json\ResourceCollection;
 
 class GameRequestCollection extends ResourceCollection
 {
-  protected bool $isPublic = false;
+  protected bool $isPublic = true;
 
-  public function __construct($resource, bool $isPublic = false)
+  public function __construct($resource, bool $isPublic = true)
   {
     parent::__construct($resource);
     $this->isPublic = $isPublic;

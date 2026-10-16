@@ -43,7 +43,7 @@ class GameRequestService
   {
     $perPage = (int) ($filters['per_page'] ?? 20);
 
-    return $this->gameRequestRepository->getUserRequests($user, $perPage);
+    return $this->gameRequestRepository->getUserRequests($user, $filters, $perPage);
   }
 
   /**

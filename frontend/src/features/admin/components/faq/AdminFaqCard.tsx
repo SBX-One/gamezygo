@@ -1,0 +1,136 @@
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
+import type { AdminFaqItem } from "../../types/admin-faq.types";
+
+export interface AdminFaqCardProps {
+  item: AdminFaqItem;
+  onEdit: (item: AdminFaqItem) => void;
+  onRemove: (item: AdminFaqItem) => void;
+  onToggleExpand?: (id: string) => void;
+  className?: string;
+}
+
+/**
+ * Edit Pencil Icon matching public/assets/svg/fluent_edit-24-regular.svg
+ */
+const EditIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <path
+      d="M20.9524 3.04797C20.2811 2.37747 19.3711 2.00085 18.4224 2.00085C17.4736 2.00085 16.5636 2.37747 15.8924 3.04797L3.94036 15C3.53389 15.406 3.24827 15.917 3.11536 16.476L2.02036 21.078C1.99071 21.2026 1.99349 21.3328 2.02843 21.4561C2.06337 21.5793 2.12931 21.6916 2.21996 21.7821C2.31061 21.8727 2.42295 21.9385 2.54626 21.9733C2.66957 22.0081 2.79974 22.0108 2.92436 21.981L7.52536 20.885C8.08466 20.7522 8.59604 20.4666 9.00236 20.06L20.9524 8.10997C21.6229 7.43871 21.9995 6.52874 21.9995 5.57997C21.9995 4.6312 21.6229 3.72123 20.9524 3.04997M16.9524 4.10997C17.1454 3.91693 17.3746 3.7638 17.6268 3.65932C17.879 3.55485 18.1494 3.50108 18.4224 3.50108C18.6954 3.50108 18.9657 3.55485 19.2179 3.65932C19.4701 3.7638 19.6993 3.91693 19.8924 4.10997C20.0854 4.30301 20.2385 4.53219 20.343 4.78441C20.4475 5.03664 20.5012 5.30697 20.5012 5.57997C20.5012 5.85297 20.4475 6.12331 20.343 6.37553C20.2385 6.62775 20.0854 6.85693 19.8924 7.04997L19.0004 7.93897L16.0604 4.99997L16.9524 4.10997ZM15.0004 6.06197L17.9404 8.99997L7.94036 19C7.73036 19.21 7.46636 19.357 7.17736 19.426L3.76136 20.24L4.57436 16.824C4.64336 16.534 4.79136 16.27 5.00136 16.06L15.0004 6.06197Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+/**
+ * Minus / Horizontal Line Icon matching public/assets/svg/fluent_line-horizontal-1-24-regular.svg
+ */
+const MinusLineIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <path
+      d="M2 11.75C2 11.5511 2.07902 11.3603 2.21967 11.2197C2.36032 11.079 2.55109 11 2.75 11H21.25C21.4489 11 21.6397 11.079 21.7803 11.2197C21.921 11.3603 22 11.5511 22 11.75C22 11.9489 21.921 12.1397 21.7803 12.2803C21.6397 12.421 21.4489 12.5 21.25 12.5H2.75C2.55109 12.5 2.36032 12.421 2.21967 12.2803C2.07902 12.1397 2 11.9489 2 11.75Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+/**
+ * Plus Icon for collapsed state
+ */
+const PlusIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+);
+
+export function AdminFaqCard({
+  item,
+  onEdit,
+  onRemove,
+  onToggleExpand,
+  className,
+}: AdminFaqCardProps) {
+  const isExpanded = item.isExpanded ?? true;
+
+  return (
+    <div
+      className={cn(
+        "w-full rounded-lg bg-deep-blue-900 border border-deep-blue-700/80 p-5 sm:p-6 flex flex-col gap-3.5 transition-all shadow-xs font-sans select-none",
+        className
+      )}
+    >
+      {/* Top Row: Question Title & Expand/Collapse Toggle */}
+      <div className="flex items-center justify-between gap-4 w-full">
+        <h3 className="text-sm sm:text-base font-semibold text-white tracking-tight leading-snug">
+          {item.question}
+        </h3>
+
+        <button
+          type="button"
+          onClick={() => onToggleExpand?.(item.id)}
+          aria-label={isExpanded ? "Collapse" : "Expand"}
+          className="p-1 text-gray-400 hover:text-white transition-colors cursor-pointer shrink-0"
+        >
+          {isExpanded ? <MinusLineIcon /> : <PlusIcon />}
+        </button>
+      </div>
+
+      {/* Answer Body (shown when expanded) */}
+      {isExpanded && (
+        <p className="text-xs sm:text-sm text-gray-300 font-normal leading-relaxed text-justify sm:text-left">
+          {item.answer}
+        </p>
+      )}
+
+      {/* Bottom Action Row: Edit & Remove from List (Matching Image 2) */}
+      <div className="flex items-center justify-end gap-2.5 pt-1">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => onEdit(item)}
+          leftIcon={<EditIcon className="w-3.5 h-3.5 text-gray-300" />}
+          className="min-h-9 h-9 px-3.5 text-xs font-medium"
+        >
+          Edit
+        </Button>
+
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          onClick={() => onRemove(item)}
+          className="min-h-9 h-9 px-3.5 text-xs font-medium"
+        >
+          Remove from List
+        </Button>
+      </div>
+    </div>
+  );
+}

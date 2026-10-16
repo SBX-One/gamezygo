@@ -9,7 +9,6 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'name',
-    'description',
     'price',
     'duration_days',
     'max_concurrent_access',

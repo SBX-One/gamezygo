@@ -18,7 +18,6 @@ class SubscriptionPlanResource extends JsonResource
         return [
             'id'                         => $this->id,
             'name'                       => $this->name,
-            'description'                => $this->description,
             'price'                      => (int) $this->price,
             'duration_days'              => (int) $this->duration_days,
             'max_concurrent_access'      => (int) ($this->max_concurrent_access ?? 1),

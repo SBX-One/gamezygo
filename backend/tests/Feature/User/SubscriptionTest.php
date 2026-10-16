@@ -67,7 +67,6 @@ class SubscriptionTest extends TestCase
 
     $plan = SubscriptionPlan::create([
       'name'                  => 'Basic Plan',
-      'description'           => 'Basic plan description',
       'price'                 => 49000,
       'duration_days'         => 30,
       'max_concurrent_access' => 1,
@@ -106,7 +105,6 @@ class SubscriptionTest extends TestCase
 
     $plan = SubscriptionPlan::create([
       'name'                  => 'Premium',
-      'description'           => 'Get access to premium games and exclusive benefits.',
       'price'                 => 99000,
       'duration_days'         => 30,
       'max_concurrent_access' => 2,
@@ -172,7 +170,6 @@ class SubscriptionTest extends TestCase
           'subscription_plan'    => [
             'id'                         => $plan->id,
             'name'                       => 'Premium',
-            'description'                => 'Get access to premium games and exclusive benefits.',
             'price'                      => 99000,
             'duration_days'              => 30,
             'max_concurrent_access'      => 2,

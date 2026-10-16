@@ -20,7 +20,6 @@ class SubscriptionPlanFactory extends Factory
     {
         return [
             'name'                  => fake()->name(),
-            'description'           => fake()->sentence(),
             'price'                 => fake()->numberBetween(10000, 100000),
             'duration_days'         => fake()->numberBetween(1, 30),
             'max_concurrent_access' => fake()->numberBetween(1, 4),

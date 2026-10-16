@@ -12,9 +12,6 @@ return new class extends Migration
   public function up(): void
   {
     Schema::table('subscription_plans', function (Blueprint $table) {
-      if (!Schema::hasColumn('subscription_plans', 'description')) {
-        $table->text('description')->nullable()->after('name');
-      }
       if (!Schema::hasColumn('subscription_plans', 'max_concurrent_access')) {
         $table->integer('max_concurrent_access')->default(1)->after('duration_days');
       }
@@ -33,9 +30,6 @@ return new class extends Migration
   public function down(): void
   {
     Schema::table('subscription_plans', function (Blueprint $table) {
-      if (Schema::hasColumn('subscription_plans', 'description')) {
-        $table->dropColumn('description');
-      }
       if (Schema::hasColumn('subscription_plans', 'max_concurrent_access')) {
         $table->dropColumn('max_concurrent_access');
       }

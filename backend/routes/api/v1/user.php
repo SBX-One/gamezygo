@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\User\Announcement\AnnouncementController;
 use App\Http\Controllers\Api\V1\User\Blog\BlogController;
+use App\Http\Controllers\Api\V1\User\Cart\CartController;
 use App\Http\Controllers\Api\V1\User\CustomSection\CustomSectionController;
 use App\Http\Controllers\Api\V1\User\Faq\FaqController;
 use App\Http\Controllers\Api\V1\User\Leaderboard\LeaderboardController;
@@ -111,6 +112,17 @@ Route::prefix('user')
                     ->name('products.')
                     ->group(function () {
                         Route::get('/{slug}/credentials', 'credentials')->name('credentials');
+                    });
+
+                // Cart authenticated endpoints
+                Route::controller(CartController::class)
+                    ->prefix('/cart')
+                    ->name('cart.')
+                    ->group(function () {
+                        Route::get('/', 'index')->name('index');
+                        Route::post('/', 'store')->name('store');
+                        Route::delete('/clear', 'clear')->name('clear');
+                        Route::delete('/{productId?}', 'destroy')->name('destroy');
                     });
 
                 // Orders authenticated endpoints

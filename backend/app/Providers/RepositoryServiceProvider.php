@@ -22,6 +22,8 @@ use App\Repositories\Contracts\Api\V1\User\Profile\ProfileRepositoryInterface;
 use App\Repositories\Api\V1\User\Profile\ProfileRepository;
 use App\Repositories\Contracts\Api\V1\User\Review\ReviewRepositoryInterface;
 use App\Repositories\Api\V1\User\Review\ReviewRepository;
+use App\Repositories\Contracts\Api\V1\User\Cart\CartRepositoryInterface;
+use App\Repositories\Api\V1\User\Cart\CartRepository;
 use App\Repositories\Contracts\Api\V1\User\Payment\PaymentRepositoryInterface;
 use App\Repositories\Api\V1\User\Payment\PaymentRepository;
 use App\Repositories\Contracts\Api\V1\User\SubscriptionPlan\SubscriptionPlanRepositoryInterface;
@@ -47,6 +49,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(LeaderboardRepositoryInterface::class, LeaderboardRepository::class);
         $this->app->bind(FaqRepositoryInterface::class, FaqRepository::class);
         $this->app->bind(AnnouncementRepositoryInterface::class, AnnouncementRepository::class);
+        $this->app->bind(CartRepositoryInterface::class, CartRepository::class);
     }
 
     /**

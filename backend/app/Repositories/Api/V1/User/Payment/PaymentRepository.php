@@ -145,6 +145,7 @@ class PaymentRepository implements PaymentRepositoryInterface
           UserSubscription::create([
             'user_id'              => $order->user_id,
             'subscription_plan_id' => $plan->id,
+            'order_item_id'        => $item->id,
             'started_at'           => $startedAt,
             'expired_at'           => $expiredAt,
             'status'               => 'active',

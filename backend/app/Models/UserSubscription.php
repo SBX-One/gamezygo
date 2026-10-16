@@ -29,6 +29,16 @@ class UserSubscription extends Model
         ];
     }
 
+    public function getExpiresAtAttribute()
+    {
+        return $this->expired_at;
+    }
+
+    public function setExpiresAtAttribute($value): void
+    {
+        $this->attributes['expired_at'] = $value;
+    }
+
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);

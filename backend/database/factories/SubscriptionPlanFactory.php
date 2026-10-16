@@ -19,10 +19,12 @@ class SubscriptionPlanFactory extends Factory
     public function definition(): array
     {
         return [
-            'name'          => fake()->name(),
-            'price'         => fake()->numberBetween(10000, 100000),
-            'duration_days' => fake()->numberBetween(1, 30),
-            'is_active'     => fake()->boolean,
+            'name'                  => fake()->name(),
+            'description'           => fake()->sentence(),
+            'price'                 => fake()->numberBetween(10000, 100000),
+            'duration_days'         => fake()->numberBetween(1, 30),
+            'max_concurrent_access' => fake()->numberBetween(1, 4),
+            'is_active'             => fake()->boolean,
         ];
     }
 

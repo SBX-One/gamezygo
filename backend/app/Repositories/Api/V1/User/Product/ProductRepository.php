@@ -121,7 +121,7 @@ class ProductRepository implements ProductRepositoryInterface
             return true;
         }
 
-        if ($product->is_subscription_supported && $user->activeSubscription()->exists()) {
+        if ($product->is_subscription_supported && $user->subscriptions()->where('status', 'active')->where('expired_at', '>', now())->exists()) {
             return true;
         }
 

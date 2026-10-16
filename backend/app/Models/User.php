@@ -81,7 +81,8 @@ class User extends Authenticatable implements JWTSubject
     {
         return $this->hasOne(UserSubscription::class)
             ->where('status', 'active')
-            ->where('expired_at', '>', now());
+            ->where('expired_at', '>', now())
+            ->orderByDesc('expired_at');
     }
 
     public function reviews(): HasMany

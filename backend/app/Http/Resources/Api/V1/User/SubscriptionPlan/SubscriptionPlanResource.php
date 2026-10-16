@@ -18,11 +18,17 @@ class SubscriptionPlanResource extends JsonResource
         return [
             'id'                         => $this->id,
             'name'                       => $this->name,
-            'price'                      => $this->price,
-            'duration'                   => $this->duration_days,
+            'description'                => $this->description,
+            'price'                      => (int) $this->price,
+            'duration_days'              => (int) $this->duration_days,
+            'max_concurrent_access'      => (int) ($this->max_concurrent_access ?? 1),
             'is_active'                  => (bool) $this->is_active,
             'subscription_plan_features' => SubscriptionPlanFeatureResource::collection(
-                $this->whenLoaded('features')
+                $this->relationLoaded('features')
+                    ? $this->features
+                    : ($this->relationLoaded('subscriptionPlanFeatures')
+                        ? $this->subscriptionPlanFeatures
+                        : $this->features()->orderBy('sort_number')->get())
             ),
         ];
     }

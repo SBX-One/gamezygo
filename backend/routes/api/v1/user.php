@@ -13,6 +13,7 @@ use App\Http\Controllers\Api\V1\User\Product\ProductController;
 use App\Http\Controllers\Api\V1\User\Profile\ProfileController;
 use App\Http\Controllers\Api\V1\User\Review\ReviewController;
 use App\Http\Controllers\Api\V1\User\SubscriptionPlan\SubscriptionPlanController;
+use App\Http\Controllers\Api\V1\User\UserSubscription\UserSubscriptionController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
@@ -153,6 +154,26 @@ Route::prefix('user')
 
                         Route::get('/orders/payments/{reference}/status', 'status');
                         Route::get('/orders/payments/status/{reference?}', 'status');
+                    });
+
+                // User Subscription authenticated endpoints
+                Route::controller(UserSubscriptionController::class)
+                    ->group(function () {
+                        Route::prefix('/subscription')
+                            ->name('subscription.')
+                            ->group(function () {
+                                Route::get('/', 'show')->name('show');
+                                Route::get('/products', 'products')->name('products');
+                            });
+
+                        Route::prefix('/subscriptions')
+                            ->name('subscriptions.')
+                            ->group(function () {
+                                Route::get('/', 'show')->name('index');
+                                Route::get('/current', 'show')->name('current');
+                                Route::get('/me', 'show')->name('me');
+                                Route::get('/products', 'products')->name('products');
+                            });
                     });
             });
     });

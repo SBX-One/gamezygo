@@ -28,6 +28,8 @@ use App\Repositories\Contracts\Api\V1\User\Payment\PaymentRepositoryInterface;
 use App\Repositories\Api\V1\User\Payment\PaymentRepository;
 use App\Repositories\Contracts\Api\V1\User\SubscriptionPlan\SubscriptionPlanRepositoryInterface;
 use App\Repositories\Api\V1\User\SubscriptionPlan\SubscriptionPlanRepository;
+use App\Repositories\Contracts\Api\V1\User\UserSubscription\UserSubscriptionRepositoryInterface;
+use App\Repositories\Api\V1\User\UserSubscription\UserSubscriptionRepository;
 use Illuminate\Support\ServiceProvider;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -50,6 +52,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(FaqRepositoryInterface::class, FaqRepository::class);
         $this->app->bind(AnnouncementRepositoryInterface::class, AnnouncementRepository::class);
         $this->app->bind(CartRepositoryInterface::class, CartRepository::class);
+        $this->app->bind(UserSubscriptionRepositoryInterface::class, UserSubscriptionRepository::class);
     }
 
     /**

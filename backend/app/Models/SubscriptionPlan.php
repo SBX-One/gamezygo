@@ -9,8 +9,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Fillable([
     'name',
+    'description',
     'price',
     'duration_days',
+    'max_concurrent_access',
     'is_active',
 ])]
 class SubscriptionPlan extends Model
@@ -19,6 +21,11 @@ class SubscriptionPlan extends Model
     use HasFactory;
 
     public function features(): HasMany
+    {
+        return $this->hasMany(SubscriptionPlanFeature::class);
+    }
+
+    public function subscriptionPlanFeatures(): HasMany
     {
         return $this->hasMany(SubscriptionPlanFeature::class);
     }

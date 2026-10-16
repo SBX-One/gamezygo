@@ -21,12 +21,6 @@ class ProductFactory extends Factory
      */
     public function definition(): array
     {
-        static $launcherIds;
-        static $instructionIds;
-
-        $launcherIds ??= ProductLauncherCategory::pluck('id');
-        $instructionIds ??= ProductInstruction::pluck('id');
-
         $name = fake()->unique()->words(3, true);
         $slug = str()->slug($name) . '-' . fake()->unique()->numberBetween(100, 9999);
 
@@ -36,8 +30,8 @@ class ProductFactory extends Factory
             'description'                  => fake()->text(),
             'price'                        => fake()->numberBetween(50000, 800000),
             'discount_price'               => fake()->numberBetween(0, 400000),
-            'product_launcher_category_id' => $launcherIds->isNotEmpty() ? $launcherIds->random() : ProductLauncherCategory::factory(),
-            'product_instruction_id'       => $instructionIds->isNotEmpty() ? $instructionIds->random() : ProductInstruction::factory(),
+            'product_launcher_category_id' => ProductLauncherCategory::first()?->id ?? ProductLauncherCategory::factory(),
+            'product_instruction_id'       => ProductInstruction::first()?->id ?? ProductInstruction::factory(),
             'steam_url'                    => fake()->url(),
             'status'                       => fake()->randomElement(['listing', 'pre-order', 'archive']),
             'is_subscription_supported'    => fake()->boolean(70),

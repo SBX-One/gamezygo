@@ -159,19 +159,10 @@ Route::prefix('user')
                 // User Subscription authenticated endpoints
                 Route::controller(UserSubscriptionController::class)
                     ->group(function () {
-                        Route::prefix('/subscription')
-                            ->name('subscription.')
-                            ->group(function () {
-                                Route::get('/', 'show')->name('show');
-                                Route::get('/products', 'products')->name('products');
-                            });
-
-                        Route::prefix('/subscriptions')
-                            ->name('subscriptions.')
+                        Route::prefix('profile/subscriptions')
+                            ->name('profile.subscriptions.')
                             ->group(function () {
                                 Route::get('/', 'show')->name('index');
-                                Route::get('/current', 'show')->name('current');
-                                Route::get('/me', 'show')->name('me');
                                 Route::get('/products', 'products')->name('products');
                             });
                     });

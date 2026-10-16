@@ -105,6 +105,14 @@ Route::prefix('user')
                         Route::match(['put', 'patch', 'post'], '/change-password', 'changePassword')->name('change-password');
                     });
 
+                // Products authenticated endpoints
+                Route::controller(ProductController::class)
+                    ->prefix('/products')
+                    ->name('products.')
+                    ->group(function () {
+                        Route::get('/{slug}/credentials', 'credentials')->name('credentials');
+                    });
+
                 // Orders authenticated endpoints
                 Route::controller(OrderController::class)
                     ->prefix('/orders')

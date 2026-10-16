@@ -3,6 +3,8 @@
 namespace App\Repositories\Api\V1\User\Product;
 
 use App\Models\Product;
+use App\Models\ProductGameAccount;
+use App\Models\User;
 use App\Repositories\Contracts\Api\V1\User\Product\ProductRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Str;
@@ -100,5 +102,40 @@ class ProductRepository implements ProductRepositoryInterface
                 $query->where('status', 'approved');
             }], 'rating')
             ->first();
+    }
+
+    /**
+     * Check if a user owns a given product directly or via active subscription.
+     *
+     * @param User $user
+     * @param Product $product
+     * @return bool
+     */
+    public function isUserOwnedProduct(User $user, Product $product): bool
+    {
+        $isDirectlyOwned = $user->ownedGames()
+            ->where('products.id', $product->id)
+            ->exists();
+
+        if ($isDirectlyOwned) {
+            return true;
+        }
+
+        if ($product->is_subscription_supported && $user->activeSubscription()->exists()) {
+            return true;
+        }
+
+        return false;
+    }
+
+    /**
+     * Get game account credentials for a product.
+     *
+     * @param Product $product
+     * @return ProductGameAccount|null
+     */
+    public function getGameAccount(Product $product): ?ProductGameAccount
+    {
+        return $product->gameAccounts()->first();
     }
 }

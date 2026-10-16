@@ -4,10 +4,15 @@ namespace App\Http\Controllers\Api\V1\User\Product;
 
 use App\Http\Controllers\Controller;
 use App\Http\Resources\Api\V1\User\Product\ProductCollection;
+use App\Http\Resources\Api\V1\User\Product\ProductCredentialResource;
 use App\Http\Resources\Api\V1\User\Product\ProductDetailResource;
 use App\Models\Product;
 use App\Services\Api\V1\User\Product\ProductService;
+use Illuminate\Auth\Access\AuthorizationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
+use Throwable;
 
 class ProductController extends Controller
 {
@@ -38,5 +43,45 @@ class ProductController extends Controller
         $productDetail = $this->productService->getProductDetail($product->slug);
 
         return new ProductDetailResource($productDetail);
+    }
+
+    /**
+     * Retrieve game credentials for a product owned by authenticated user.
+     *
+     * @param Request $request
+     * @param string $slug
+     * @return JsonResponse
+     */
+    public function credentials(Request $request, string $slug): JsonResponse
+    {
+        $user = $request->user() ?? auth('api')->user();
+
+        try {
+            $account = $this->productService->getProductCredentials($user, $slug);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Game credentials retrieved successfully',
+                'data'    => (new ProductCredentialResource($account))->resolve(),
+            ], 200);
+        } catch (AuthorizationException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage() ?: 'You do not own this game',
+                'data'    => null,
+            ], 403);
+        } catch (ModelNotFoundException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage() ?: 'Product not found',
+                'data'    => null,
+            ], 404);
+        } catch (Throwable $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'data'    => null,
+            ], 400);
+        }
     }
 }

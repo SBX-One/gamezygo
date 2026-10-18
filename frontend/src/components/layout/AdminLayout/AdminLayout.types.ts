@@ -36,4 +36,5 @@ export interface AdminLayoutProps {
   activeNavId?: string;
   headerRight?: ReactNode;
   className?: string;
+  headerClassName?: string;
 }

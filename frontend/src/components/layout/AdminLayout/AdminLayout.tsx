@@ -11,6 +11,7 @@ export function AdminLayout({
   activeNavId,
   headerRight,
   className,
+  headerClassName,
 }: AdminLayoutProps) {
   const { isAdminSidebarCollapsed, toggleAdminSidebar } = useUiStore();
   const [isMobileOpen, setIsMobileOpen] = React.useState(false);
@@ -66,7 +67,7 @@ export function AdminLayout({
             onToggleSidebar={handleToggleSidebar}
             isSidebarCollapsed={isAdminSidebarCollapsed}
             headerRight={headerRight}
-            className="sticky top-0 z-40 bg-deep-blue-950/95 backdrop-blur-sm"
+            className={cn("sticky top-0 z-40 bg-deep-blue-950/95 backdrop-blur-sm", headerClassName)}
           />
 
           {/* Main Content Area: 32px gap from Navbar (Figma Image 1 auto-layout gap 32), 24px bottom padding */}

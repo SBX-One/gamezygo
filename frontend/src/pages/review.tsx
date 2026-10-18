@@ -300,17 +300,28 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
 
   const { data: apiReviewsRes } = useReviews();
   const createReviewMutation = useCreateReview();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const authUser = useAuthStore((s) => s.user);
   const { data: profileRes } = useUserProfile();
 
+  const isMounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+
+  const isLoggedIn = isMounted && Boolean(isAuthenticated || authUser);
+
   // Tampilan Dashboard jika:
-  // 1. isDashboardMode prop bernilai true
-  // 2. Routing Next.js diawali dengan /dashboard (e.g. /dashboard/review)
-  // 3. Query string ?view=dashboard (kompatibilitas backward)
+  // 1. isDashboardMode prop bernilai true (misal dipanggil dari /dashboard/review)
+  // 2. Routing Next.js diawali dengan /dashboard
+  // 3. Pengguna sudah login (autentikasi aktif) kecuali sengaja meminta ?view=guest
+  // 4. Query string ?view=dashboard
   const isDashboardView = Boolean(
     isDashboardMode ||
       router.pathname.startsWith("/dashboard") ||
-      (authUser && router.query.view === "dashboard")
+      router.query.view === "dashboard" ||
+      (isLoggedIn && router.query.view !== "guest")
   );
   const isGuestView = !isDashboardView;
 

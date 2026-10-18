@@ -71,6 +71,7 @@ import {
   mapProductToCardItem,
   mapAnnouncementToSlide,
   mapSectionProducts,
+  type AnnouncementLike,
 } from "@/utils/adapters";
 
 interface ProductItem {
@@ -97,21 +98,21 @@ const PROMO_BANNERS: BannerSlide[] = [
   {
     id: "summer-promo-1",
     title: "Promo Musim Panas",
-    imageSrc: "/assets/png/Container.png",
+    imageSrc: "/assets/png/Banner.png",
     alt: "Promo Musim Panas - Gamezygo",
     href: "/store?promo=summer",
   },
   {
     id: "summer-promo-2",
     title: "Promo Musim Panas Spesial",
-    imageSrc: "/assets/png/Container.png",
+    imageSrc: "/assets/png/Banner.png",
     alt: "Promo Musim Panas Spesial - Gamezygo",
     href: "/store?promo=summer-special",
   },
   {
     id: "summer-promo-3",
     title: "Promo Musim Panas Flash Deals",
-    imageSrc: "/assets/png/Container.png",
+    imageSrc: "/assets/png/Banner.png",
     alt: "Promo Musim Panas Flash Deals - Gamezygo",
     href: "/store?promo=summer-flash",
   },
@@ -417,13 +418,38 @@ export default function StorePage() {
     );
   };
 
-  // Dynamic Banners from Backend (fallback to local if API empty)
+  // Dynamic local admin banners loaded safely after mount to avoid hydration mismatch
+  const [localAdminBanners, setLocalAdminBanners] = React.useState<BannerSlide[] | null>(null);
+
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem("gamezygo_admin_announcements");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const published = (parsed as AnnouncementLike[]).filter(
+            (a) => a.isPublished !== false
+          );
+          if (published.length > 0) {
+            setLocalAdminBanners(published.map(mapAnnouncementToSlide));
+          }
+        }
+      }
+    } catch {
+      // Fallback
+    }
+  }, []);
+
+  // Dynamic Banners from Backend (or admin localStorage post-mount, fallback to local if API empty)
   const heroBanners = React.useMemo(() => {
     if (announcementsData?.data && announcementsData.data.length > 0) {
       return announcementsData.data.map(mapAnnouncementToSlide);
     }
+    if (localAdminBanners && localAdminBanners.length > 0) {
+      return localAdminBanners;
+    }
     return PROMO_BANNERS;
-  }, [announcementsData]);
+  }, [announcementsData, localAdminBanners]);
 
   // Dynamic Custom Sections from Backend
   const customSections = React.useMemo(() => {
@@ -857,11 +883,11 @@ export default function StorePage() {
               {/* Promo Banner Carousel: Di atas pada layar kecil/zoom (order-1), di kanan pada layar lebar (xl:order-2) */}
               <BannerCarousel
                 slides={heroBanners}
-                className="order-1 xl:order-2 flex-1 min-w-0 xl:col-span-3 h-64 sm:h-80 md:h-96 xl:h-135"
+                className="order-1 xl:order-2 flex-1 min-w-0 xl:col-span-3 w-full h-65 sm:h-85 md:h-100 xl:h-136 min-h-65 sm:min-h-85 md:min-h-100 xl:min-h-136"
               />
 
               {/* 2 Horizontal Product Cards: Di bawah pada layar kecil/zoom (order-2), di kiri pada layar lebar (xl:order-1) */}
-              <div className="order-2 xl:order-1 xl:col-span-2 grid grid-cols-1 md:grid-cols-2 xl:flex xl:flex-col gap-6 shrink-0 w-full justify-between">
+              <div className="order-2 xl:order-1 xl:col-span-2 flex flex-col gap-6 shrink-0 w-full justify-between">
                 {MINI_FEATURED_GAMES.slice(0, 2).map((game) => (
                   <ProductCard
                     key={game.id}

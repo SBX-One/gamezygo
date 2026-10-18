@@ -5,6 +5,7 @@ import { StoreLayout } from "@/components/layout";
 import { Button, EmptyState, Toast, Item } from "@/components/ui";
 import { useCart, useRemoveFromCart } from "@/hooks/use-cart";
 import { formatRupiah, formatDiscount } from "@/utils/formatters";
+import { useAuthStore } from "@/stores/use-auth-store";
 
 /**
  * Arrow Right Icon for Checkout button
@@ -113,6 +114,7 @@ const formatCurrency = (amount: number): string => {
 
 export default function CartPage() {
   const router = useRouter();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   // Server-side Cart API Hook
   const { data: cartApiRes } = useCart();
@@ -222,6 +224,15 @@ export default function CartPage() {
     } catch {
       // ignore storage error
     }
+
+    if (!isAuthenticated) {
+      showToast("error", "Login Diperlukan", "Silakan login terlebih dahulu untuk melanjutkan checkout.");
+      setTimeout(() => {
+        router.push("/login?redirect=/checkout");
+      }, 500);
+      return;
+    }
+
     showToast("success", "Membeli Sekarang", `Melanjutkan pembelian langsung untuk ${item.title}...`);
     setTimeout(() => {
       router.push("/checkout");
@@ -241,6 +252,15 @@ export default function CartPage() {
     } catch {
       // ignore storage error
     }
+
+    if (!isAuthenticated) {
+      showToast("error", "Login Diperlukan", "Silakan login terlebih dahulu untuk melanjutkan checkout.");
+      setTimeout(() => {
+        router.push("/login?redirect=/checkout");
+      }, 500);
+      return;
+    }
+
     showToast("success", "Menuju Pembayaran", "Mengarahkan ke halaman checkout...");
     setTimeout(() => {
       router.push("/checkout");

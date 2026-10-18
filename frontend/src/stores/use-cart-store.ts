@@ -2,6 +2,7 @@ import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
 import type { CartItem } from "@/types";
 import { MOCK_PRODUCTS } from "@/lib/mock/data";
+import { useAuthStore } from "./use-auth-store";
 
 /**
  * Usage Example:
@@ -161,6 +162,11 @@ export const useCartStore = create<CartStore>()(
         checkout: async () => {
           set({ isLoading: true, error: null });
           try {
+            const { isAuthenticated } = useAuthStore.getState();
+            if (!isAuthenticated) {
+              throw new Error("Silakan login terlebih dahulu untuk melakukan checkout.");
+            }
+
             const { cartItems } = get();
 
             if (cartItems.length === 0) {

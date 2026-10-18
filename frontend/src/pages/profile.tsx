@@ -1,5 +1,6 @@
 import * as React from "react";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { StoreLayout } from "@/components/layout";
 import {
   Button,
@@ -234,6 +235,7 @@ function SwipeableTrack({ children, itemCount = 0 }: SwipeableTrackProps) {
 }
 
 export default function ProfilePage() {
+  const router = useRouter();
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
 
   // Global Auth Store Integration
@@ -369,11 +371,39 @@ export default function ProfilePage() {
         user={user}
       >
         {/* ========================================================
-            1. PAGE TITLE & FULL-WIDTH DIVIDER (Full Screen Width)
+            1. PAGE TITLE & FULL-WIDTH DIVIDER (With Back Button)
            ======================================================== */}
-        <div className="w-full  border-b-gradient-secondary pt-6 pb-4 mb-8xl">
-          <div className="w-full mx-auto px-4 sm:px-0">
-            <h1 className="text-body-lg sm:text-h6 font-bold text-white ">
+        <div className="w-full border-b-gradient-secondary pt-6 pb-4 mb-8xl">
+          <div className="w-full mx-auto px-4 sm:px-0 flex items-center gap-3">
+            <button
+              type="button"
+              onClick={() => {
+                if (typeof window !== "undefined" && window.history.length > 1) {
+                  router.back();
+                } else {
+                  router.push("/");
+                }
+              }}
+              className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg bg-surface-secondary-default hover:bg-white/10 border border-white/10 flex items-center justify-center text-gray-300 hover:text-white transition-all cursor-pointer shadow-xs active:scale-95"
+              aria-label="Kembali ke halaman sebelumnya"
+              title="Kembali"
+            >
+              <svg
+                width="18"
+                height="18"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-4.5 h-4.5 text-gray-300 hover:text-white"
+              >
+                <path d="M19 12H5M12 19l-7-7 7-7" />
+              </svg>
+            </button>
+
+            <h1 className="text-body-lg sm:text-h6 font-bold text-white">
               Profile
             </h1>
           </div>

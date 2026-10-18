@@ -18,6 +18,7 @@ import { subscribePaymentSSE } from "@/services/orders.service";
 import { useCartStore, type CartStore } from "@/stores/use-cart-store";
 import type { CartProductItem } from "@/types/api";
 import { useMidtransSnap, createSnapToken } from "@/features/checkout";
+import { useAuthStore } from "@/stores/use-auth-store";
 
 /**
  * Arrow Right Icon for Checkout button
@@ -127,6 +128,21 @@ const DEFAULT_CHECKOUT_ITEMS: CheckoutItem[] = [
 
 export default function CheckoutPage() {
   const router = useRouter();
+
+  // Auth state & protected route check
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const [isHydrated, setIsHydrated] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsHydrated(true);
+  }, []);
+
+  React.useEffect(() => {
+    if (isHydrated && !isAuthenticated) {
+      showToast("error", "Login Diperlukan", "Silakan login terlebih dahulu untuk mengakses halaman checkout.");
+      router.replace("/login?redirect=/checkout");
+    }
+  }, [isHydrated, isAuthenticated, router]);
 
   // Zustand state
   const clearCart = useCartStore((s: CartStore) => s.clearCart);
@@ -378,6 +394,12 @@ export default function CheckoutPage() {
 
   // Handle Pay / Checkout
   const handlePay = async () => {
+    if (!isAuthenticated) {
+      showToast("error", "Login Diperlukan", "Silakan login terlebih dahulu untuk melakukan pembayaran.");
+      router.push("/login?redirect=/checkout");
+      return;
+    }
+
     if (checkoutItems.length === 0) {
       showToast("error", "Checkout Kosong", "Tidak ada item untuk dibayar.");
       return;
@@ -601,6 +623,21 @@ export default function CheckoutPage() {
       router.push("/checkout/success");
     }, 400);
   };
+
+  // Prevent flash of checkout content while verifying authentication
+  if (!isHydrated || !isAuthenticated) {
+    return (
+      <StoreLayout activeNavId="toko">
+        <Head>
+          <title>Checkout - Gamezygo</title>
+        </Head>
+        <div className="min-h-[70vh] flex flex-col items-center justify-center gap-4 text-center">
+          <div className="w-10 h-10 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
+          <p className="text-gray-400 text-sm">Memeriksa status login...</p>
+        </div>
+      </StoreLayout>
+    );
+  }
 
   return (
     <>

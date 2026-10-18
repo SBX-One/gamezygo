@@ -54,15 +54,47 @@ export function mapProductToCardItem(
 /**
  * Convert backend Announcement items into BannerSlide format for BannerCarousel
  */
+export interface AnnouncementLike {
+  id?: number | string;
+  banner_file_url?: string;
+  imageUrl?: string;
+  image_url?: string;
+  banner_url?: string;
+  order_number?: number;
+  orderNumber?: number;
+  title?: string;
+  alt?: string;
+  link?: string;
+  pageLink?: string;
+  href?: string;
+  isPublished?: boolean;
+}
+
 export function mapAnnouncementToSlide(
-  announcement: AnnouncementItem
+  announcement: AnnouncementItem | AnnouncementLike
 ): BannerSlide {
+  const a = announcement as AnnouncementLike;
+  const imageSrc =
+    a.banner_file_url ||
+    a.imageUrl ||
+    a.image_url ||
+    a.banner_url ||
+    "/assets/png/Banner.png";
+
+  const orderNum = a.order_number ?? a.orderNumber ?? 1;
+  const slideId = a.id ? `banner-${a.id}` : `banner-order-${orderNum}`;
+
   return {
-    id: `banner-${announcement.id}`,
-    imageSrc: announcement.banner_file_url,
-    title: `Promo #${announcement.order_number}`,
-    alt: `Banner Promo Gamezygo #${announcement.order_number}`,
-    href: announcement.link || "/store",
+    id: slideId,
+    imageSrc,
+    title: a.title || `Promo #${orderNum}`,
+    alt: a.alt || `Banner Promo Gamezygo #${orderNum}`,
+    href: (() => {
+      const rawHref = a.link || a.pageLink || a.href || "/store";
+      return rawHref.startsWith("/") || rawHref.startsWith("http")
+        ? rawHref
+        : `/${rawHref.trim().toLowerCase().replace(/\s+/g, "-")}`;
+    })(),
   };
 }
 

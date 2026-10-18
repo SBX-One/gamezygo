@@ -158,14 +158,14 @@ export function ProductCard({
         ref={ref}
         onClick={handleContainerClick}
         className={cn(
-          "flex flex-col sm:flex-row gap-4 sm:gap-6 p-3 items-stretch sm:items-center rounded-lg bg-deep-blue-900 border border-white/5 select-none transition-all duration-150 w-full sm:min-w-129.5 max-w-full h-auto sm:h-65 shrink-0",
+          "flex flex-col sm:flex-row gap-4 sm:gap-6 p-3 items-stretch rounded-lg bg-deep-blue-900 border border-white/5 select-none transition-all duration-150 w-full min-w-0 max-w-full h-auto min-h-55 sm:min-h-65 shrink-0 overflow-hidden",
           href && "cursor-pointer hover:border-white/20 hover:scale-[1.01]",
           className
         )}
         {...props}
       >
         {/* Left: Game Cover */}
-        <div className="w-full sm:w-auto h-44 sm:h-full aspect-video sm:aspect-3/4 rounded-lg overflow-hidden relative bg-deep-blue-950 shrink-0">
+        <div className="w-full sm:w-44 md:w-48 lg:w-44 xl:w-44 h-47.5 sm:h-auto aspect-video sm:aspect-3/4 rounded-lg overflow-hidden relative bg-deep-blue-950 shrink-0 self-stretch">
           {/* Cover Image */}
           {imageSlot ? (
             imageSlot
@@ -174,6 +174,12 @@ export function ProductCard({
               src={imageSrc}
               alt={imageAlt || (typeof title === "string" ? title : "Game cover")}
               className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+              onError={(e) => {
+                const target = e.currentTarget;
+                if (!target.src.includes("/assets/png/")) {
+                  target.src = "/assets/png/Banner.png";
+                }
+              }}
             />
           ) : (
             <div className="w-full h-full bg-deep-blue-950 flex items-center justify-center text-gray-500 text-body-xs">
@@ -203,9 +209,9 @@ export function ProductCard({
         </div>
 
         {/* Right: Content Column */}
-        <div className="flex flex-col justify-between flex-1 self-stretch min-w-0 h-full py-0.5 gap-3">
+        <div className="flex flex-col justify-between flex-1 self-stretch min-w-0 py-1 gap-2.5 sm:gap-3">
           {/* Top Block: Title & Genres */}
-          <div className="flex flex-col gap-2.5 sm:gap-5 pt-5">
+          <div className="flex flex-col gap-2 sm:gap-3 pt-1">
             {/* 1. Title Game */}
             {href ? (
               <Link
@@ -215,7 +221,7 @@ export function ProductCard({
                 {title}
               </Link>
             ) : (
-              <h4 className="text-xs sm:text-h6 font-semibold text-gray-50 leading-tight sm:leading-[120%] pt-1 sm:pt-5 line-clamp-2">
+              <h4 className="text-xs sm:text-h6 font-semibold text-gray-50 leading-tight sm:leading-[120%] line-clamp-2">
                 {title}
               </h4>
             )}
@@ -233,7 +239,7 @@ export function ProductCard({
           </div>
 
           {/* Bottom Block: Prices & Action Button */}
-          <div className="flex flex-col justify-center gap-2.5 sm:gap-3 mt-auto">
+          <div className="flex flex-col justify-center gap-2 sm:gap-2.5 mt-auto pt-2">
             {showPrice && price && renderPrices()}
             {renderActionButton()}
           </div>

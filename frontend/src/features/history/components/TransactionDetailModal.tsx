@@ -222,7 +222,7 @@ export function TransactionDetailModal({
 
         {/* Section 2: DETAIL PESANAN */}
         <div className="flex flex-col gap-3 border-b border-b-gradient-secondary pb-6">
-          <span className="text-body-sm uppercase  text-gray-400">
+          <span className="text-body-sm uppercase text-gray-400">
             DETAIL PESANAN
           </span>
           <div className="flex flex-col gap-2.5 text-body-sm">
@@ -241,7 +241,17 @@ export function TransactionDetailModal({
           </div>
         </div>
 
-        {/* Section 3: TOTAL BELANJA BOX */}
+        {/* Section 3: METODE PEMBAYARAN */}
+        <div className="flex flex-col gap-2">
+          <span className="text-body-sm  text-gray-400">
+            METODE PEMBAYARAN
+          </span>
+          <span className="text-body-sm font-semibold text-gray-50">
+            {order.paymentMethod || "QRIS"}
+          </span>
+        </div>
+
+        {/* Section 4: TOTAL BELANJA BOX */}
         <div className="rounded-lg bg-deep-blue-900 border border-white/10 px-5 py-3.5 flex items-center justify-between shadow-inner">
           <span className="font-semibold text-body-md text-gray-100">
             Total Belanja

@@ -533,11 +533,11 @@ export function Navbar({
               type="button"
               variant="secondary"
               size="sm"
-              className="flex w-10 h-10 p-0 items-center justify-center shrink-0 cursor-pointer"
+              className="hidden sm:flex w-10 h-10 p-0 items-center justify-center shrink-0 cursor-pointer"
               onClick={onFilterClick}
               aria-label="Filter"
             >
-              <FilterIcon className="w-4 h-4 text-deep-blue-100" />
+              <FilterIcon className=" w-4 h-4 text-deep-blue-100" />
             </Button>
           )}
 

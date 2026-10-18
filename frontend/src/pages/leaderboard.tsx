@@ -169,10 +169,77 @@ export default function LeaderboardPage() {
                 </h2>
               </div>
 
-              {/* User Statistics Row */}
-              <div className="w-full min-h-16 rounded-lg bg-surface-secondary-default border border-deep-blue-700 px-3.5 sm:px-5 py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4 select-none">
+              {/* ========================================================
+                  USER STATISTICS CARD
+                  - Mobile & Tablet (< lg): Vertical Stack (No Scroll-X)
+                  - Desktop (lg+): Horizontal Bar with Dividers
+                 ======================================================== */}
+
+              {/* 1. MOBILE & TABLET (< lg): VERTICAL STACK */}
+              <div className="flex lg:hidden w-full rounded-lg bg-surface-secondary-default border border-deep-blue-700 p-4 sm:p-5 flex-col gap-3.5 select-none">
+                {/* Username & Points Header Row */}
+                <div className="flex items-center justify-between gap-3 pb-3 border-b border-white/10">
+                  <span className="text-body-md font-semibold text-gray-50 truncate">
+                    {currentUser?.name || "Tamu Gamezygo"}
+                  </span>
+                  <div className="px-3.5 py-1 rounded-lg border border-gradient-secondary text-label-sm font-semibold text-gray-50 shrink-0">
+                    {userPointsBadge}
+                  </div>
+                </div>
+
+                {/* Vertical Statistics List */}
+                <div className="flex flex-col gap-2.5 w-full">
+                  {/* Mingguan */}
+                  <div className="flex items-center justify-between py-1.5 border-b border-white/5">
+                    <div className="flex items-center gap-2.5">
+                      <Pill variant="secondary" size="xs">
+                        Mingguan
+                      </Pill>
+                      <span className="text-body-xs text-gray-400">
+                        Peringkat Minggu Ini
+                      </span>
+                    </div>
+                    <span className="text-label-md font-bold text-gray-100">
+                      {userRankBadge}
+                    </span>
+                  </div>
+
+                  {/* Bulanan */}
+                  <div className="flex items-center justify-between py-1.5 border-b border-white/5">
+                    <div className="flex items-center gap-2.5">
+                      <Pill variant="secondary" size="xs">
+                        Bulanan
+                      </Pill>
+                      <span className="text-body-xs text-gray-400">
+                        Peringkat Bulan Ini
+                      </span>
+                    </div>
+                    <span className="text-label-md font-bold text-gray-100">
+                      {userRankBadge}
+                    </span>
+                  </div>
+
+                  {/* All-time */}
+                  <div className="flex items-center justify-between py-1.5">
+                    <div className="flex items-center gap-2.5">
+                      <Pill variant="secondary" size="xs">
+                        All-time
+                      </Pill>
+                      <span className="text-body-xs text-gray-400">
+                        Peringkat Sepanjang Masa
+                      </span>
+                    </div>
+                    <span className="text-label-md font-bold text-gray-100">
+                      {userRankBadge}
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* 2. DESKTOP (lg+): HORIZONTAL BAR */}
+              <div className="hidden lg:flex w-full min-h-16 rounded-lg bg-surface-secondary-default border border-deep-blue-700 px-5 py-3 items-center justify-between gap-4 select-none">
                 {/* Left Side: Stats with | Dividers & Username */}
-                <div className="flex items-center gap-3 sm:gap-6 overflow-x-auto no-scrollbar w-full sm:w-auto pb-1 sm:pb-0">
+                <div className="flex items-center gap-6">
                   {/* Mingguan */}
                   <div className="flex items-center gap-2 shrink-0">
                     <Pill variant="secondary" size="xs">
@@ -219,7 +286,7 @@ export default function LeaderboardPage() {
                 </div>
 
                 {/* Right Side: Points Badge */}
-                <div className="px-4 py-1.5 rounded-lg border border-gradient-secondary text-label-sm font-semibold text-gray-50 shrink-0 self-start sm:self-auto">
+                <div className="px-4 py-1.5 rounded-lg border border-gradient-secondary text-label-sm font-semibold text-gray-50 shrink-0">
                   {userPointsBadge}
                 </div>
               </div>

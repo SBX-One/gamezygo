@@ -128,86 +128,43 @@ export function FilterModal({
 
   const trackRef = React.useRef<HTMLDivElement>(null);
 
-  // Lock background scroll when modal is open
+  // Close on Escape key press
+  React.useEffect(() => {
+    if (!isOpen || !onClose) return;
+
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape") {
+        onClose();
+      }
+    };
+
+    window.addEventListener("keydown", handleKeyDown);
+    return () => {
+      window.removeEventListener("keydown", handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
+  // Lock background scroll ONLY for modal dialogs / mobile sheets (NOT for desktop dropdown popovers)
   React.useEffect(() => {
     if (!isOpen || variant === "inline") return;
 
-    const scrollY = window.scrollY;
-    const scrollbarWidth =
-      window.innerWidth - document.documentElement.clientWidth;
+    // Dropdown popover on desktop (sm+) should NEVER lock body scroll or alter body style.
+    // Locking body with position: fixed breaks sticky navigation headers and shifts the navbar off-screen!
+    const isDesktopDropdown =
+      variant === "dropdown" &&
+      typeof window !== "undefined" &&
+      window.innerWidth >= 640;
 
-    const originalBodyStyle = {
-      position: document.body.style.position,
-      top: document.body.style.top,
-      left: document.body.style.left,
-      right: document.body.style.right,
-      width: document.body.style.width,
-      overflow: document.body.style.overflow,
-      paddingRight: document.body.style.paddingRight,
-      touchAction: document.body.style.touchAction,
-    };
-    const originalHtmlOverflow = document.documentElement.style.overflow;
-    const originalHtmlOverscroll =
-      document.documentElement.style.overscrollBehavior;
+    if (isDesktopDropdown) return;
 
-    // 1. Physically lock document body so background cannot scroll on any browser
-    document.body.style.position = "fixed";
-    document.body.style.top = `-${scrollY}px`;
-    document.body.style.left = "0";
-    document.body.style.right = "0";
-    document.body.style.width = "100%";
+    // For modal dialogs (variant === "dialog") or mobile sheet:
+    // Simply set overflow: hidden on document.body.
+    // NEVER use position: fixed or top: -scrollY as that breaks sticky headers!
+    const originalBodyOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
-    document.body.style.touchAction = "none";
-    if (scrollbarWidth > 0) {
-      document.body.style.paddingRight = `${scrollbarWidth}px`;
-    }
-    document.documentElement.style.overflow = "hidden";
-    document.documentElement.style.overscrollBehavior = "none";
-
-    // 2. Prevent touch gesture leaking to background outside modal scroll area
-    const handleTouchMove = (e: TouchEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (!target?.closest("[data-modal-scrollable='true']")) {
-        if (e.cancelable) {
-          e.preventDefault();
-        }
-      }
-    };
-
-    // 3. Prevent mouse wheel / trackpad leaking to background outside modal scroll area
-    const handleWheel = (e: WheelEvent) => {
-      const target = e.target as HTMLElement | null;
-      if (!target?.closest("[data-modal-scrollable='true']")) {
-        if (e.cancelable) {
-          e.preventDefault();
-        }
-      }
-    };
-
-    document.addEventListener("touchmove", handleTouchMove, {
-      passive: false,
-    });
-    document.addEventListener("wheel", handleWheel, {
-      passive: false,
-    });
 
     return () => {
-      document.body.style.position = originalBodyStyle.position;
-      document.body.style.top = originalBodyStyle.top;
-      document.body.style.left = originalBodyStyle.left;
-      document.body.style.right = originalBodyStyle.right;
-      document.body.style.width = originalBodyStyle.width;
-      document.body.style.overflow = originalBodyStyle.overflow;
-      document.body.style.paddingRight = originalBodyStyle.paddingRight;
-      document.body.style.touchAction = originalBodyStyle.touchAction;
-      document.documentElement.style.overflow = originalHtmlOverflow;
-      document.documentElement.style.overscrollBehavior =
-        originalHtmlOverscroll;
-
-      document.removeEventListener("touchmove", handleTouchMove);
-      document.removeEventListener("wheel", handleWheel);
-
-      window.scrollTo(0, scrollY);
+      document.body.style.overflow = originalBodyOverflow;
     };
   }, [isOpen, variant]);
 
@@ -856,7 +813,7 @@ export function FilterModal({
         <div
           className={cn(
             "fixed inset-0 bg-transparent",
-            isNavbar ? "z-40" : "z-25"
+            isNavbar ? "z-35" : "z-25"
           )}
           onClick={onClose}
           aria-hidden="true"
@@ -864,7 +821,7 @@ export function FilterModal({
 
         <div
           className={cn(
-            "w-115 h-[640px] max-h-[min(640px,calc(100vh-120px))] flex flex-col overflow-hidden rounded-2xl shadow-2xl animate-in fade-in slide-in-from-top-2 duration-150",
+            "w-115 h-160 max-h-[min(640px,calc(100vh-120px))] flex flex-col overflow-hidden rounded-2xl shadow-2xl animate-in fade-in slide-in-from-top-2 duration-150",
             isNavbar
               ? "fixed right-4 sm:right-6 lg:right-20 top-20 sm:top-24 z-50"
               : "absolute right-0 top-12 z-50",

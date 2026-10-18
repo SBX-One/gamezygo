@@ -1167,7 +1167,7 @@ export default function LandingPage() {
             <BannerCarousel
               slides={bannerSlides}
               autoPlayInterval={6000}
-              className="w-full h-52 sm:h-72 lg:h-105 rounded-lg overflow-hidden shadow-2xl "
+              className="w-full h-55 sm:h-75 lg:h-105 min-h-55 sm:min-h-75 lg:min-h-105 rounded-lg overflow-hidden shadow-2xl"
             />
           </div>
 

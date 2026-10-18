@@ -119,6 +119,43 @@ export function BannerCarousel({
     return null;
   }
 
+interface SlideImageProps {
+  src?: string;
+  alt: string;
+  priority?: boolean;
+}
+
+function SlideImage({ src, alt, priority = false }: SlideImageProps) {
+  const fallbackSrc = "/assets/png/Banner.png";
+  const [currentSrc, setCurrentSrc] = React.useState<string>(src || fallbackSrc);
+  const [hasError, setHasError] = React.useState<boolean>(false);
+
+  React.useEffect(() => {
+    setCurrentSrc(src || fallbackSrc);
+    setHasError(false);
+  }, [src]);
+
+  return (
+    <Image
+      src={currentSrc}
+      alt={alt}
+      fill
+      unoptimized
+      sizes="(max-width: 1024px) 100vw, 60vw"
+      className="object-cover object-center select-none transition-transform duration-500 ease-out group-hover/slide:scale-[1.02]"
+      draggable={false}
+      priority={priority}
+      loading={priority ? "eager" : "lazy"}
+      onError={() => {
+        if (!hasError && currentSrc !== fallbackSrc) {
+          setHasError(true);
+          setCurrentSrc(fallbackSrc);
+        }
+      }}
+    />
+  );
+}
+
   const renderSlideContent = (slide: BannerSlide, index: number) => {
     const isFirst = index === 0;
     const content = (
@@ -126,16 +163,10 @@ export function BannerCarousel({
         className="w-full h-full min-h-full relative cursor-pointer group/slide overflow-hidden"
         onClick={() => onSlideClick?.(slide, index)}
       >
-        <Image
+        <SlideImage
           src={slide.imageSrc}
           alt={slide.alt || slide.title || `Slide ${index + 1}`}
-          fill
-          unoptimized
-          sizes="(max-width: 1024px) 100vw, 50vw"
-          className="object-cover object-center select-none transition-transform duration-500 ease-out group-hover/slide:scale-[1.02]"
-          draggable={false}
           priority={index < 2}
-          loading={index < 2 ? "eager" : "lazy"}
         />
         {/* Subtle bottom vignette to ensure indicators and badges remain prominent */}
         <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
@@ -164,8 +195,8 @@ export function BannerCarousel({
   return (
     <div
       className={cn(
-        "relative group overflow-hidden rounded-lg border border-gradient-secondary  bg-deep-blue-900 select-none",
-        "min-h-65 sm:min-h-85 lg:min-h-0",
+        "relative group overflow-hidden rounded-lg border border-gradient-secondary bg-deep-blue-900 select-none",
+        "w-full h-65 sm:h-85 md:h-100 xl:h-120 min-h-65 sm:min-h-85 md:min-h-100",
         className
       )}
       onMouseEnter={() => setIsPaused(true)}

@@ -13,3 +13,4 @@ export * from "./vouchers";
 export * from "./instructions";
 export * from "./faq";
 export * from "./announcements";
+export * from "./community";

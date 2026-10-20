@@ -76,6 +76,9 @@ export function FilterModal({
   platformOptions,
   gameOptions,
   genresLabel = "GENRE",
+  platformLabel = "PLATFORM",
+  priceLabel = "PRICE RANGE",
+  formatPrice,
   statusRadio,
   showCancelButton = true,
   popoverClassName,
@@ -514,7 +517,7 @@ export function FilterModal({
       {platformOptions && platformOptions.length > 0 ? (
         <div className="flex flex-col gap-3">
           <span className="text-body-sm text-gray-400 font-normal uppercase ">
-            PLATFORM
+            {platformLabel}
           </span>
           <div className="flex flex-wrap items-center gap-2">
             {platformOptions.map((platform) => {
@@ -607,12 +610,12 @@ export function FilterModal({
       {showPriceRange && (
         <div className="flex flex-col gap-3">
           <span className="text-body-sm text-gray-400 font-normal uppercase ">
-            PRICE RANGE
+            {priceLabel}
           </span>
           <div className="flex items-center gap-3 w-full">
             {/* Min Price indicator */}
             <span className="text-body-sm font-semibold text-gray-50 shrink-0 min-w-12 text-left">
-              {formatRupiah(currentMinPrice)}
+              {(formatPrice ?? formatRupiah)(currentMinPrice)}
             </span>
 
             {/* Interactive Dual Slider Scale & Range Track */}
@@ -660,7 +663,7 @@ export function FilterModal({
 
             {/* Max Price indicator */}
             <span className="text-body-sm font-semibold text-gray-50 shrink-0 min-w-22 text-right">
-              {formatRupiah(currentMaxPrice)}
+              {(formatPrice ?? formatRupiah)(currentMaxPrice)}
             </span>
           </div>
         </div>

@@ -16,3 +16,4 @@ export * from "./announcements";
 export * from "./community";
 export * from "./categories";
 export * from "./reviews";
+export * from "./users";

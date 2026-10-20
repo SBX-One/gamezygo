@@ -88,6 +88,12 @@ export interface FilterModalProps
   onToggleGame?: (game: string) => void;
   /** Custom label untuk section genres/categories (default: 'GENRE') */
   genresLabel?: string;
+  /** Custom label untuk section platform (default: 'PLATFORM') */
+  platformLabel?: string;
+  /** Custom label untuk section price range (default: 'PRICE RANGE') */
+  priceLabel?: string;
+  /** Custom formatter untuk label nilai harga / poin numerik (default: formatRupiah) */
+  formatPrice?: (amount: number) => string;
   /** Radio option untuk section status (misal: 'Active') */
   statusRadio?: {
     label: string;

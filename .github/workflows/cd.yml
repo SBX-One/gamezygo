@@ -1,0 +1,131 @@
+name: Gamezygo CD (Deploy to Hostinger VPS)
+
+on:
+  push:
+    branches:
+      - development  # Deploys to Staging environment
+      - main         # Deploys to Production environment
+  workflow_dispatch:
+    inputs:
+      target_env:
+        description: 'Target Deployment Environment'
+        required: true
+        default: 'staging'
+        type: choice
+        options:
+          - staging
+          - production
+
+concurrency:
+  group: cd-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  pre-deploy-check:
+    name: Pre-Deployment Build & Verification
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Verify Frontend Production Build
+        working-directory: frontend
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+          NODE_ENV: production
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile || pnpm install
+          else
+            npm install
+          fi
+          pnpm run build
+
+      - name: Validate Docker Compose Production Spec
+        run: |
+          docker compose -f docker-compose.prod.yml config
+
+  deploy:
+    name: Deploy to Hostinger VPS
+    needs: pre-deploy-check
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Determine Deployment Environment
+        id: env
+        run: |
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ]; then
+            TARGET="${{ github.event.inputs.target_env }}"
+          elif [ "${{ github.ref }}" = "refs/heads/main" ]; then
+            TARGET="production"
+          else
+            TARGET="staging"
+          fi
+          echo "environment=$TARGET" >> $GITHUB_OUTPUT
+          echo "Target environment is: $TARGET"
+
+      - name: Check Required Deployment Secrets
+        id: check-secrets
+        env:
+          VPS_HOST: ${{ secrets.VPS_HOST }}
+          VPS_SSH_KEY: ${{ secrets.VPS_SSH_KEY }}
+        run: |
+          if [ -z "$VPS_HOST" ] || [ -z "$VPS_SSH_KEY" ]; then
+            echo "::warning::VPS_HOST or VPS_SSH_KEY secrets are not configured in GitHub Secrets yet. Skipping remote SSH execution."
+            echo "configured=false" >> $GITHUB_OUTPUT
+          else
+            echo "configured=true" >> $GITHUB_OUTPUT
+          fi
+
+      - name: Execute Remote Deployment via SSH
+        if: steps.check-secrets.outputs.configured == 'true'
+        uses: appleboy/ssh-action@v1.1.0
+        with:
+          host: ${{ secrets.VPS_HOST }}
+          username: ${{ secrets.VPS_USER || 'root' }}
+          key: ${{ secrets.VPS_SSH_KEY }}
+          port: ${{ secrets.VPS_PORT || 22 }}
+          envs: TARGET_ENV=${{ steps.env.outputs.environment }}
+          script: |
+            set -e
+            echo "=== Starting deployment for Gamezygo ($TARGET_ENV) ==="
+
+            # Determine application directory based on environment
+            if [ "$TARGET_ENV" = "production" ]; then
+              APP_DIR="${{ secrets.VPS_APP_DIR_PROD || '/opt/gamezygo/production' }}"
+              TARGET_BRANCH="main"
+            else
+              APP_DIR="${{ secrets.VPS_APP_DIR_STAGING || '/opt/gamezygo/staging' }}"
+              TARGET_BRANCH="development"
+            fi
+
+            echo "Target Directory: $APP_DIR"
+            echo "Target Branch: $TARGET_BRANCH"
+
+            # Check if directory exists
+            if [ ! -d "$APP_DIR" ]; then
+              echo "Directory $APP_DIR does not exist. Creating..."
+              mkdir -p "$APP_DIR"
+              git clone https://github.com/SBX-One/gamezygo.git "$APP_DIR"
+            fi
+
+            cd "$APP_DIR"
+            git fetch origin
+            git checkout "$TARGET_BRANCH"
+            git pull origin "$TARGET_BRANCH"
+
+            # Execute deploy script
+            chmod +x docker/scripts/deploy.sh
+            bash docker/scripts/deploy.sh "$TARGET_ENV"

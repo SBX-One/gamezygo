@@ -42,7 +42,7 @@ export function AdminCategoryDeleteModal({
 
       <div
         className={cn(
-          "relative z-10 w-[440px] max-w-[95vw] rounded-xl bg-[#13151F] border border-white/10 p-6 sm:p-7 shadow-2xl flex flex-col animate-in zoom-in-95 duration-150",
+          "relative z-10 w-[440px] max-w-[95vw] rounded-lg bg-[#13151F] border border-white/10 p-6 sm:p-7 shadow-2xl flex flex-col animate-in zoom-in-95 duration-150",
           className
         )}
       >
@@ -53,7 +53,7 @@ export function AdminCategoryDeleteModal({
           {title}
         </h3>
 
-        <p className="text-xs sm:text-sm text-gray-400 font-normal mt-2 leading-relaxed">
+        <p className="text-label-xs sm:text-sm text-gray-400 font-normal mt-2 leading-relaxed">
           {description}
         </p>
 
@@ -71,7 +71,7 @@ export function AdminCategoryDeleteModal({
           <button
             type="button"
             onClick={onConfirm}
-            className="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-xs"
+            className="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-xs"
           >
             Remove
           </button>

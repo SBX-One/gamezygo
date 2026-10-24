@@ -79,7 +79,7 @@ export function AdminCategoryGroupCard({
   return (
     <div
       className={cn(
-        "w-full rounded-2xl bg-deep-blue-950 border border-deep-blue-700 overflow-hidden transition-all duration-200 select-none shadow-xs",
+        "w-full rounded-lg bg-deep-blue-950 border border-deep-blue-700 overflow-hidden transition-all duration-200 select-none shadow-xs",
         className
       )}
     >
@@ -96,7 +96,7 @@ export function AdminCategoryGroupCard({
             size="xs"
             leftIcon={<PlusIcon className="w-3.5 h-3.5" />}
             onClick={() => onAddSubCategory(category)}
-            className="gap-1.5 px-3 py-1.5 min-h-7 h-7 text-xs"
+            className="gap-1.5 px-3 py-1.5 min-h-7 h-7 text-label-xs"
           >
             Add
           </Button>
@@ -127,7 +127,7 @@ export function AdminCategoryGroupCard({
 
       {/* 2. Sub-categories List: Background deep-blue-950 ("sisanya 950") */}
       {category.subCategories.length === 0 ? (
-        <div className="px-5 py-6 text-center text-xs text-gray-500 bg-deep-blue-950">
+        <div className="px-5 py-6 text-center text-label-xs text-gray-500 bg-deep-blue-950">
           Belum ada sub-kategori. Klik "+ Add" untuk menambahkan.
         </div>
       ) : (

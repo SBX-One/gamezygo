@@ -117,7 +117,7 @@ export default function AdminPreOrdersPage() {
   const headerRight = (
     <div className="flex items-center gap-2.5 sm:gap-3">
       {/* Search Input */}
-      <div className="relative flex items-center bg-deep-blue-900 border border-deep-blue-700 focus-within:border-deep-blue-500 rounded-xl px-3.5 py-2 w-48 sm:w-64 transition-colors">
+      <div className="relative flex items-center bg-deep-blue-900 border border-deep-blue-700 focus-within:border-deep-blue-500 rounded-lg px-3.5 py-2 w-48 sm:w-64 transition-colors">
         <SearchIcon className="w-4 h-4 text-gray-400 mr-2.5 shrink-0" />
         <input
           type="text"
@@ -127,7 +127,7 @@ export default function AdminPreOrdersPage() {
             setCurrentPage(1);
           }}
           placeholder="Cari produk"
-          className="w-full bg-transparent text-gray-50 text-xs sm:text-sm placeholder:text-gray-500 focus:outline-none"
+          className="w-full bg-transparent text-gray-50 text-label-xs sm:text-sm placeholder:text-gray-500 focus:outline-none"
         />
         {searchQuery && (
           <button
@@ -145,7 +145,7 @@ export default function AdminPreOrdersPage() {
       <button
         type="button"
         title="Filter"
-        className="p-2.5 rounded-xl border border-deep-blue-700 bg-deep-blue-900 text-gray-400 hover:text-gray-50 hover:bg-deep-blue-850 transition-colors cursor-pointer shrink-0"
+        className="p-2.5 rounded-lg border border-deep-blue-700 bg-deep-blue-900 text-gray-400 hover:text-gray-50 hover:bg-deep-blue-850 transition-colors cursor-pointer shrink-0"
       >
         <FilterTaperIcon className="w-4 h-4" />
       </button>

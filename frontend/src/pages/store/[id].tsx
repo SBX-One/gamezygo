@@ -753,7 +753,7 @@ export default function GameStoreDetailPage() {
               "_blank"
             );
           }}
-          className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2.5 py-2 text-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-colors cursor-pointer group"
+          className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2.5 py-2 text-label-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-colors cursor-pointer group"
         >
           <span>Hubungi Admin</span>
           <PhoneIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-300 group-hover:text-white transition-colors -scale-x-100 shrink-0" />
@@ -771,7 +771,7 @@ export default function GameStoreDetailPage() {
               router.push("/blogs");
             }
           }}
-          className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2.5 py-2 text-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-colors cursor-pointer group"
+          className="flex-1 flex items-center justify-center gap-1.5 sm:gap-2.5 py-2 text-label-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-colors cursor-pointer group"
         >
           <span>Cara Bermain</span>
           <BookGuideIcon className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-300 group-hover:text-white transition-colors shrink-0" />
@@ -896,7 +896,7 @@ export default function GameStoreDetailPage() {
                             key={g}
                             variant="secondary"
                             size="xs"
-                            className="px-2 sm:px-3 shrink-0 whitespace-nowrap text-xs"
+                            className="px-2 sm:px-3 shrink-0 whitespace-nowrap text-label-xs"
                           >
                             {g}
                           </Pill>

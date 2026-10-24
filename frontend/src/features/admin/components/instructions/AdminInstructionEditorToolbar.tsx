@@ -265,7 +265,7 @@ export function AdminInstructionEditorToolbar({
         <div className="h-4 w-px bg-deep-blue-700" />
 
         {/* Zoom Controls: — 100% + */}
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-white">
+        <div className="flex items-center gap-1.5 text-label-xs font-semibold text-white">
           <button
             type="button"
             onClick={handleZoomOut}
@@ -274,7 +274,7 @@ export function AdminInstructionEditorToolbar({
           >
             —
           </button>
-          <span className="min-w-[36px] text-center text-xs font-medium text-gray-200">
+          <span className="min-w-[36px] text-center text-label-xs font-medium text-gray-200">
             {zoom}%
           </span>
           <button
@@ -297,7 +297,7 @@ export function AdminInstructionEditorToolbar({
             onClick={() => setIsHeadingMenuOpen(!isHeadingMenuOpen)}
             aria-label="Heading options"
             className={cn(
-              "h-7 min-w-[28px] px-2 rounded-lg border text-xs font-bold transition-colors flex items-center justify-center cursor-pointer",
+              "h-7 min-w-[28px] px-2 rounded-lg border text-label-xs font-bold transition-colors flex items-center justify-center cursor-pointer",
               isHeadingMenuOpen || activeHeading
                 ? "bg-deep-blue-800 border-deep-blue-600 text-white"
                 : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
@@ -318,7 +318,7 @@ export function AdminInstructionEditorToolbar({
                     setIsHeadingMenuOpen(false);
                   }}
                   className={cn(
-                    "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-xs font-medium transition-colors text-left cursor-pointer",
+                    "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-label-xs font-medium transition-colors text-left cursor-pointer",
                     activeHeading === hType
                       ? "bg-deep-blue-800 text-white"
                       : "text-gray-300 hover:bg-deep-blue-800/60 hover:text-white"
@@ -359,7 +359,7 @@ export function AdminInstructionEditorToolbar({
             onClick={onToggleBold}
             aria-label="Bold"
             className={cn(
-              "h-7 w-7 rounded-lg border text-xs font-bold transition-colors flex items-center justify-center cursor-pointer",
+              "h-7 w-7 rounded-lg border text-label-xs font-bold transition-colors flex items-center justify-center cursor-pointer",
               isBold
                 ? "bg-deep-blue-800 border-deep-blue-600 text-white"
                 : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
@@ -372,7 +372,7 @@ export function AdminInstructionEditorToolbar({
             onClick={onToggleItalic}
             aria-label="Italic"
             className={cn(
-              "h-7 w-7 rounded-lg border text-xs italic font-serif transition-colors flex items-center justify-center cursor-pointer",
+              "h-7 w-7 rounded-lg border text-label-xs italic font-serif transition-colors flex items-center justify-center cursor-pointer",
               isItalic
                 ? "bg-deep-blue-800 border-deep-blue-600 text-white"
                 : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
@@ -385,7 +385,7 @@ export function AdminInstructionEditorToolbar({
             onClick={onToggleUnderline}
             aria-label="Underline"
             className={cn(
-              "h-7 w-7 rounded-lg border text-xs underline transition-colors flex items-center justify-center cursor-pointer",
+              "h-7 w-7 rounded-lg border text-label-xs underline transition-colors flex items-center justify-center cursor-pointer",
               isUnderline
                 ? "bg-deep-blue-800 border-deep-blue-600 text-white"
                 : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
@@ -398,7 +398,7 @@ export function AdminInstructionEditorToolbar({
             onClick={onToggleStrike}
             aria-label="Strikethrough"
             className={cn(
-              "h-7 w-7 rounded-lg border text-xs line-through transition-colors flex items-center justify-center cursor-pointer",
+              "h-7 w-7 rounded-lg border text-label-xs line-through transition-colors flex items-center justify-center cursor-pointer",
               isStrike
                 ? "bg-deep-blue-800 border-deep-blue-600 text-white"
                 : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"

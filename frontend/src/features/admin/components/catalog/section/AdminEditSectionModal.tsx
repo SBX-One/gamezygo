@@ -70,7 +70,7 @@ export function AdminEditSectionModal({
     >
       <div
         className={cn(
-          "w-[480px] max-w-[95vw] rounded-2xl bg-deep-blue-950 border border-deep-blue-700 shadow-2xl select-none animate-in zoom-in-95 duration-150 overflow-hidden",
+          "w-[480px] max-w-[95vw] rounded-lg bg-deep-blue-950 border border-deep-blue-700 shadow-2xl select-none animate-in zoom-in-95 duration-150 overflow-hidden",
           className
         )}
       >
@@ -91,7 +91,7 @@ export function AdminEditSectionModal({
         {/* Form Body */}
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
               Section Title
             </label>
             <input
@@ -100,12 +100,12 @@ export function AdminEditSectionModal({
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Contoh: Tawaran Khusus!"
               required
-              className="w-full px-4 py-2.5 rounded-xl bg-deep-blue-900 border border-deep-blue-700 text-gray-50 text-sm placeholder:text-gray-500 focus:outline-none focus:border-deep-blue-500"
+              className="w-full px-4 py-2.5 rounded-lg bg-deep-blue-900 border border-deep-blue-700 text-gray-50 text-sm placeholder:text-gray-500 focus:outline-none focus:border-deep-blue-500"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
               Slug Identifier
             </label>
             <input
@@ -113,7 +113,7 @@ export function AdminEditSectionModal({
               value={slug}
               onChange={(e) => setSlug(e.target.value)}
               placeholder="tawaran-khusus"
-              className="w-full px-4 py-2.5 rounded-xl bg-deep-blue-900 border border-deep-blue-700 text-gray-50 text-sm placeholder:text-gray-500 focus:outline-none focus:border-deep-blue-500 font-mono text-xs"
+              className="w-full px-4 py-2.5 rounded-lg bg-deep-blue-900 border border-deep-blue-700 text-gray-50 text-sm placeholder:text-gray-500 focus:outline-none focus:border-deep-blue-500 font-mono text-label-xs"
             />
             <p className="text-[11px] text-gray-500 mt-1">
               Digunakan untuk anchoring atau identifier internal API.

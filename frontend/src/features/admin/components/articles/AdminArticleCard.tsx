@@ -322,7 +322,7 @@ export function AdminArticleCard({
         </h3>
 
         {/* Footer Meta Info: Last edited • Views */}
-        <div className="flex items-center gap-2 text-xs text-gray-400 mt-2.5 sm:mt-3">
+        <div className="flex items-center gap-2 text-label-xs text-gray-400 mt-2.5 sm:mt-3">
           <span>Last edited {article.lastEdited}</span>
           <span className="text-gray-500">•</span>
           <span>{article.views} views</span>

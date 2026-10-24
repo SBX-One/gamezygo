@@ -107,7 +107,7 @@ export function AdminInstructionTopBar({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Cari di toko"
-            className="w-full h-10 pl-10 pr-9 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-deep-blue-500 transition-colors shadow-xs"
+            className="w-full h-10 pl-10 pr-9 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-deep-blue-500 transition-colors shadow-xs"
           />
           {searchQuery && (
             <button

@@ -96,7 +96,7 @@ export default function AdminVoucherAnalyticsPage() {
   const breadcrumbs = (
     <nav
       aria-label="Breadcrumb"
-      className="flex items-center gap-2 select-none text-xs"
+      className="flex items-center gap-2 select-none text-label-xs"
     >
       <Link
         href="/admin/vouchers"
@@ -117,7 +117,7 @@ export default function AdminVoucherAnalyticsPage() {
       <button
         type="button"
         onClick={() => setIsEmptyMode((prev) => !prev)}
-        className="px-3 py-1.5 rounded-xl border border-white/10 bg-white/5 hover:bg-white/10 text-xs font-medium text-slate-300 hover:text-white transition-all cursor-pointer shadow-xs"
+        className="px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-label-xs font-medium text-slate-300 hover:text-white transition-all cursor-pointer shadow-xs"
       >
         {isEmptyMode ? "Preview Data" : "Preview Empty State"}
       </button>
@@ -125,7 +125,7 @@ export default function AdminVoucherAnalyticsPage() {
       <button
         type="button"
         onClick={handleExportCSV}
-        className="px-5 py-2 rounded-xl bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-sm select-none"
+        className="px-5 py-2 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-sm select-none"
       >
         Export CSV
       </button>

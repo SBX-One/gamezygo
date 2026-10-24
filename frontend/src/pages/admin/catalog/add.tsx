@@ -79,7 +79,7 @@ export default function AdminAddProductPage() {
 
   // Header Left Title: Breadcrumb "Katalog > Add Product" (Matching Image 1)
   const headerTitle = (
-    <div className="flex items-center gap-2 select-none text-xs">
+    <div className="flex items-center gap-2 select-none text-label-xs">
       <Link
         href="/admin/catalog"
         className="text-gray-400 hover:text-white transition-colors"

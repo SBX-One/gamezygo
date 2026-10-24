@@ -32,28 +32,28 @@ export function AdminUsersTable({
       <AdminTable>
         <AdminTableHeader className="bg-deep-blue-900 border-b border-deep-blue-700">
           <AdminTableRow className="hover:bg-transparent">
-            <AdminTableHead className="normal-case text-xs font-semibold text-gray-300 py-4 px-5">
+            <AdminTableHead className="normal-case text-label-xs font-semibold text-gray-300 py-4 px-5">
               Customer ID
             </AdminTableHead>
-            <AdminTableHead className="normal-case text-xs font-semibold text-gray-300 py-4 px-5">
+            <AdminTableHead className="normal-case text-label-xs font-semibold text-gray-300 py-4 px-5">
               Customer Email
             </AdminTableHead>
-            <AdminTableHead className="normal-case text-xs font-semibold text-gray-300 py-4 px-5">
+            <AdminTableHead className="normal-case text-label-xs font-semibold text-gray-300 py-4 px-5">
               Login Type
             </AdminTableHead>
-            <AdminTableHead className="normal-case text-xs font-semibold text-gray-300 py-4 px-5">
+            <AdminTableHead className="normal-case text-label-xs font-semibold text-gray-300 py-4 px-5">
               Points
             </AdminTableHead>
-            <AdminTableHead className="normal-case text-xs font-semibold text-gray-300 py-4 px-5">
+            <AdminTableHead className="normal-case text-label-xs font-semibold text-gray-300 py-4 px-5">
               Subscription
             </AdminTableHead>
-            <AdminTableHead className="normal-case text-xs font-semibold text-gray-300 py-4 px-5">
+            <AdminTableHead className="normal-case text-label-xs font-semibold text-gray-300 py-4 px-5">
               Join Date
             </AdminTableHead>
-            <AdminTableHead className="normal-case text-xs font-semibold text-gray-300 py-4 px-5">
+            <AdminTableHead className="normal-case text-label-xs font-semibold text-gray-300 py-4 px-5">
               Status
             </AdminTableHead>
-            <AdminTableHead className="normal-case text-xs font-semibold text-gray-300 py-4 px-5">
+            <AdminTableHead className="normal-case text-label-xs font-semibold text-gray-300 py-4 px-5">
               Last Login
             </AdminTableHead>
           </AdminTableRow>
@@ -64,7 +64,7 @@ export function AdminUsersTable({
             <AdminTableRow>
               <AdminTableCell colSpan={8} className="py-12 text-center text-gray-400">
                 <p className="text-sm font-medium">Tidak ada data pengguna ditemukan.</p>
-                <p className="text-xs text-gray-500 mt-1">Coba gunakan kata kunci pencarian yang berbeda.</p>
+                <p className="text-label-xs text-gray-500 mt-1">Coba gunakan kata kunci pencarian yang berbeda.</p>
               </AdminTableCell>
             </AdminTableRow>
           ) : (
@@ -78,34 +78,34 @@ export function AdminUsersTable({
                 )}
               >
                 {/* 1. Customer ID */}
-                <AdminTableCell className="py-4 px-5 text-xs text-gray-400 font-mono tracking-wider">
+                <AdminTableCell className="py-4 px-5 text-label-xs text-gray-400 font-mono tracking-wider">
                   {user.id}
                 </AdminTableCell>
 
                 {/* 2. Customer Email */}
-                <AdminTableCell className="py-4 px-5 text-xs font-bold text-white">
+                <AdminTableCell className="py-4 px-5 text-label-xs font-bold text-white">
                   {user.email}
                 </AdminTableCell>
 
                 {/* 3. Login Type */}
-                <AdminTableCell className="py-4 px-5 text-xs text-gray-300">
+                <AdminTableCell className="py-4 px-5 text-label-xs text-gray-300">
                   {user.loginType}
                 </AdminTableCell>
 
                 {/* 4. Points */}
-                <AdminTableCell className="py-4 px-5 text-xs font-bold text-white">
+                <AdminTableCell className="py-4 px-5 text-label-xs font-bold text-white">
                   {user.points} pts
                 </AdminTableCell>
 
                 {/* 5. Subscription */}
                 <AdminTableCell className="py-4 px-5">
-                  <span className="inline-flex items-center text-xs font-medium px-2.5 py-0.5 rounded-full bg-deep-blue-900 border border-deep-blue-700 text-gray-300">
+                  <span className="inline-flex items-center text-label-xs font-medium px-2.5 py-0.5 rounded-full bg-deep-blue-900 border border-deep-blue-700 text-gray-300">
                     {user.subscription}
                   </span>
                 </AdminTableCell>
 
                 {/* 6. Join Date */}
-                <AdminTableCell className="py-4 px-5 text-xs text-gray-400">
+                <AdminTableCell className="py-4 px-5 text-label-xs text-gray-400">
                   {user.joinDate}
                 </AdminTableCell>
 
@@ -125,7 +125,7 @@ export function AdminUsersTable({
                 </AdminTableCell>
 
                 {/* 8. Last Login */}
-                <AdminTableCell className="py-4 px-5 text-xs text-gray-400">
+                <AdminTableCell className="py-4 px-5 text-label-xs text-gray-400">
                   {user.lastLogin}
                 </AdminTableCell>
               </AdminTableRow>

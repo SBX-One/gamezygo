@@ -8,17 +8,17 @@ import type {
 
 export const MOCK_REVENUE_CHART_DATA: RevenueChartPoint[] = [
   { day: "Senin", revenue: 0 },
-  { day: "Selasa", revenue: 450 },
-  { day: "Rabu", revenue: 580 },
-  { day: "Kamis", revenue: 520 },
-  { day: "Jumat", revenue: 860 },
-  { day: "Sabtu", revenue: 980 },
-  { day: "Minggu", revenue: 880 },
+  { day: "Selasa", revenue: 600 },
+  { day: "Rabu", revenue: 520 },
+  { day: "Kamis", revenue: 850 },
+  { day: "Jumat", revenue: 970 },
+  { day: "Sabtu", revenue: 720 },
+  { day: "Minggu", revenue: 750 },
 ];
 
 export const MOCK_INCOME_SPREAD_PRODUCT_TYPE: IncomeSpreadSegment[] = [
-  { id: "paket", label: "Paket", percentage: 80, color: "#FF5364" },
-  { id: "game-satuan", label: "Game Satuan", percentage: 80, color: "#3B1F25" },
+  { id: "paket", label: "Paket", percentage: 65, color: "#FF5364" },
+  { id: "game-satuan", label: "Game Satuan", percentage: 35, color: "#5A232B" },
 ];
 
 export const MOCK_INCOME_SPREAD_PRODUCTS: IncomeSpreadSegment[] = [

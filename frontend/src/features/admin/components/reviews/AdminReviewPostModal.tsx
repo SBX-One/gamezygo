@@ -126,7 +126,7 @@ export function AdminReviewPostModal({
             <h4 className="text-sm font-bold text-white tracking-tight">
               {review.userEmail}
             </h4>
-            <p className="text-xs text-gray-400 mt-1 font-normal">
+            <p className="text-label-xs text-gray-400 mt-1 font-normal">
               {review.createdAt}
             </p>
           </div>
@@ -147,7 +147,7 @@ export function AdminReviewPostModal({
 
         {/* Section 2: ULASAN */}
         <div className="flex flex-col gap-2">
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          <span className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
             ULASAN
           </span>
           <div className="bg-deep-blue-900 border border-deep-blue-700 rounded-lg p-4">
@@ -159,7 +159,7 @@ export function AdminReviewPostModal({
 
         {/* Section 3: GAMBAR */}
         <div className="flex flex-col gap-2">
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          <span className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
             GAMBAR
           </span>
           {review.thumbnails && review.thumbnails.length > 0 ? (
@@ -179,7 +179,7 @@ export function AdminReviewPostModal({
                     />
                   </div>
                   <div className="flex flex-col min-w-0">
-                    <span className="text-xs font-medium text-white truncate">
+                    <span className="text-label-xs font-medium text-white truncate">
                       workspace....
                     </span>
                     <span className="text-[11px] text-gray-400 font-normal mt-0.5">
@@ -190,7 +190,7 @@ export function AdminReviewPostModal({
               ))}
             </div>
           ) : (
-            <div className="p-3 rounded-lg bg-deep-blue-900 border border-deep-blue-700 text-xs text-gray-400 italic">
+            <div className="p-3 rounded-lg bg-deep-blue-900 border border-deep-blue-700 text-label-xs text-gray-400 italic">
               Tidak ada gambar terlampir
             </div>
           )}
@@ -198,7 +198,7 @@ export function AdminReviewPostModal({
 
         {/* Section 4: BALASAN */}
         <div className="flex flex-col gap-2">
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          <span className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
             BALASAN
           </span>
           <textarea

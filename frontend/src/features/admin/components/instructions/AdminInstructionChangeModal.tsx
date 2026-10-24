@@ -101,7 +101,7 @@ export function AdminInstructionChangeModal({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Cari template instruksi..."
-            className="w-full h-10 pl-10 pr-4 bg-deep-blue-950 border border-deep-blue-700 rounded-lg text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-deep-blue-500"
+            className="w-full h-10 pl-10 pr-4 bg-deep-blue-950 border border-deep-blue-700 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-deep-blue-500"
           />
         </div>
 
@@ -138,7 +138,7 @@ export function AdminInstructionChangeModal({
                 <button
                   type="button"
                   className={cn(
-                    "px-3 py-1.5 rounded-lg text-xs font-medium transition-all shrink-0",
+                    "px-3 py-1.5 rounded-lg text-label-xs font-medium transition-all shrink-0",
                     isCurrent
                       ? "bg-deep-blue-900 text-white border border-deep-blue-500"
                       : "bg-deep-blue-900 hover:bg-deep-blue-800 text-gray-300 border border-deep-blue-700"

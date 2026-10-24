@@ -42,7 +42,7 @@ export function AdminInstructionCard({
             </span>
           </div>
 
-          <span className="text-xs text-gray-400 font-normal mt-0.5">
+          <span className="text-label-xs text-gray-400 font-normal mt-0.5">
             Created at : {template.createdAt}
           </span>
         </div>
@@ -50,7 +50,7 @@ export function AdminInstructionCard({
 
       {/* Right: Last edit timestamp + [ Edit ] & [ Delete ] Buttons (Matching Gambar 2 & Figma specs) */}
       <div className="flex items-center justify-between sm:justify-end gap-3 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-deep-blue-700/60">
-        <span className="text-xs text-gray-400 font-normal mr-1">
+        <span className="text-label-xs text-gray-400 font-normal mr-1">
           {template.lastEdit}
         </span>
 

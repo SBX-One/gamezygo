@@ -74,7 +74,7 @@ export function AdminQuickAddSubModal({
 
       <div
         className={cn(
-          "relative z-10 w-[440px] max-w-[95vw] rounded-xl bg-[#13151F] border border-white/10 p-6 sm:p-7 shadow-2xl flex flex-col animate-in zoom-in-95 duration-150",
+          "relative z-10 w-[440px] max-w-[95vw] rounded-lg bg-[#13151F] border border-white/10 p-6 sm:p-7 shadow-2xl flex flex-col animate-in zoom-in-95 duration-150",
           className
         )}
       >
@@ -98,7 +98,7 @@ export function AdminQuickAddSubModal({
 
         <form onSubmit={handleSubmit} className="flex flex-col gap-5">
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
               NAMA SUB-KATEGORI
             </label>
             <input
@@ -123,7 +123,7 @@ export function AdminQuickAddSubModal({
             </Button>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
+              className="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
             >
               Simpan
             </button>

@@ -72,7 +72,7 @@ export function AdminEmptyState({
       variant="dark"
       size="md"
       onClick={onAction}
-      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1E202B] hover:bg-[#252837] border border-deep-blue-700 text-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-all shadow-sm"
+      className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1E202B] hover:bg-[#252837] border border-deep-blue-700 text-label-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-all shadow-sm"
     >
       {actionIcon && actionIconPosition === "left" && actionIcon}
       <span>{actionLabel}</span>
@@ -90,7 +90,7 @@ export function AdminEmptyState({
       {...props}
     >
       {/* 1. Icon Container with 16px border-radius and subtle dark frame */}
-      <div className="w-16 h-16 rounded-2xl bg-[#161822] border border-white/5 flex items-center justify-center text-gray-100 mb-5 shadow-inner">
+      <div className="w-16 h-16 rounded-lg bg-[#161822] border border-white/5 flex items-center justify-center text-gray-100 mb-5 shadow-inner">
         {icon || <FluentBookIcon className="w-8 h-8 text-gray-200" />}
       </div>
 
@@ -101,7 +101,7 @@ export function AdminEmptyState({
 
       {/* 3. Description (2 lines constrained for elegant reading) */}
       {finalDescription && (
-        <p className="text-xs sm:text-sm text-gray-400 font-normal text-center mb-6 leading-relaxed">
+        <p className="text-label-xs sm:text-sm text-gray-400 font-normal text-center mb-6 leading-relaxed">
           {finalDescription}
         </p>
       )}

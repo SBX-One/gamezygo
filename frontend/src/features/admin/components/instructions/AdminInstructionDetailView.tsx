@@ -30,14 +30,14 @@ export function AdminInstructionDetailView({
           <h2 className="text-base sm:text-lg font-bold text-white tracking-tight">
             {template.title}
           </h2>
-          <span className="text-xs text-gray-400 font-normal mt-0.5">
+          <span className="text-label-xs text-gray-400 font-normal mt-0.5">
             Created at : {template.createdAt}
           </span>
         </div>
 
         {/* Right: Last edit timestamp + Action Buttons (Button outline xs) */}
         <div className="flex items-center gap-2.5 flex-wrap">
-          <span className="text-xs text-gray-400 font-normal mr-2">
+          <span className="text-label-xs text-gray-400 font-normal mr-2">
             {template.lastEdit}
           </span>
 
@@ -76,10 +76,10 @@ export function AdminInstructionDetailView({
                 <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
                   LANGKAH {step.stepNumber}
                 </span>
-                <h4 className="text-xs sm:text-sm font-semibold text-white tracking-tight">
+                <h4 className="text-label-xs sm:text-sm font-semibold text-white tracking-tight">
                   {step.title}
                 </h4>
-                <p className="text-xs text-gray-400 font-normal leading-relaxed">
+                <p className="text-label-xs text-gray-400 font-normal leading-relaxed">
                   {step.description}
                 </p>
               </div>

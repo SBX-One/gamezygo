@@ -33,12 +33,12 @@ export function AdminAddProductBasicInfo({
   return (
     <div
       className={cn(
-        "flex flex-col lg:flex-row items-start gap-6 lg:gap-8 w-full",
+        "flex flex-col lg:flex-row items-center gap-6 lg:gap-8 w-full",
         className
       )}
     >
       {/* 1. Media Upload Box (Left: 2/5) */}
-      <div className="w-full lg:w-2/5 shrink-0 flex justify-center lg:justify-start">
+      <div className="w-full lg:w-1/5 shrink-0 flex justify-center lg:justify-start">
         <AdminAddProductMediaUpload
           value={formData.imageSrc}
           onChange={(url) => onChange({ imageSrc: url })}
@@ -55,7 +55,7 @@ export function AdminAddProductBasicInfo({
             size="md"
             value={formData.name}
             onChange={(e) => onChange({ name: e.target.value })}
-            className="bg-[#15161D] border-deep-blue-700 hover:border-gray-500 text-white"
+            className="bg-deep-blue-900 hover:border-gray-500 text-white"
           />
         </div>
 
@@ -68,7 +68,7 @@ export function AdminAddProductBasicInfo({
             size="md"
             value={formData.finalPrice}
             onChange={(e) => onChange({ finalPrice: e.target.value })}
-            className="bg-[#15161D] border-deep-blue-700 hover:border-gray-500 text-white"
+            className="bg-deep-blue-900 hover:border-gray-500 text-white"
           />
           <InputField
             label="HARGA AWAL"
@@ -77,7 +77,7 @@ export function AdminAddProductBasicInfo({
             size="md"
             value={formData.initialPrice}
             onChange={(e) => onChange({ initialPrice: e.target.value })}
-            className="bg-[#15161D] border-deep-blue-700 hover:border-gray-500 text-white"
+            className="bg-deep-blue-900 hover:border-gray-500 text-white"
           />
         </div>
 
@@ -97,7 +97,7 @@ export function AdminAddProductBasicInfo({
 
         {/* Row 4: Genre Chips List */}
         <div className="flex flex-col gap-2.5 pt-1">
-          <label className="text-xs font-semibold tracking-wider text-gray-400 uppercase select-none">
+          <label className="text-label-xs font-semibold tracking-wider text-gray-400 uppercase select-none">
             GENRE
           </label>
           <div className="flex flex-wrap items-center gap-2">

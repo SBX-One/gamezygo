@@ -38,19 +38,21 @@ export function AdminMetricsSection({
 
   return (
     <div className={`space-y-6 ${className || ""}`}>
-      {/* 1. Large Hero Revenue Card */}
-      <AdminHeroStatCard
-        title={activeHero.title}
-        value={activeHero.value}
-        subtitle={activeHero.subtitle}
-        badge={activeHero.badge}
-        timeframes={ADMIN_TIMEFRAMES}
-        selectedTimeframe={selectedTimeframe}
-        onTimeframeChange={handleTimeframeChange}
-      />
+      {/* 1. Large Hero Revenue Card - elevated z-20 so dropdown menu floats over stat cards below */}
+      <div className="relative z-20 has-[[aria-expanded='true']]:z-40">
+        <AdminHeroStatCard
+          title={activeHero.title}
+          value={activeHero.value}
+          subtitle={activeHero.subtitle}
+          badge={activeHero.badge}
+          timeframes={ADMIN_TIMEFRAMES}
+          selectedTimeframe={selectedTimeframe}
+          onTimeframeChange={handleTimeframeChange}
+        />
+      </div>
 
       {/* 2. Three Metric Stat Cards Grid */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10 has-[[aria-expanded='true']]:z-40 items-stretch">
         {activeStats.map((stat) => (
           <AdminStatCard
             key={stat.id}

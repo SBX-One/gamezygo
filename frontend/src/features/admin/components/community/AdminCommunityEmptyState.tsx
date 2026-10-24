@@ -61,7 +61,7 @@ export function AdminCommunityEmptyState({
       )}
     >
       {/* 1. Wifi Alert Icon inside rounded square container matching Image 4 */}
-      <div className="w-16 h-16 rounded-2xl bg-[#181A26] border border-white/5 flex items-center justify-center text-gray-200 mb-5 shadow-xs">
+      <div className="w-16 h-16 rounded-lg bg-[#181A26] border border-white/5 flex items-center justify-center text-gray-200 mb-5 shadow-xs">
         <WifiAlertIcon className="w-7 h-7 text-gray-200" />
       </div>
 
@@ -71,7 +71,7 @@ export function AdminCommunityEmptyState({
       </h4>
 
       {/* 3. Description with explicit max-w-[420px] avoiding squished column from Tailwind v4 spacing tokens */}
-      <p className="text-xs sm:text-sm text-gray-400 font-normal text-center mb-6 leading-relaxed w-full max-w-[420px] mx-auto">
+      <p className="text-label-xs sm:text-sm text-gray-400 font-normal text-center mb-6 leading-relaxed w-full max-w-[420px] mx-auto">
         {description}
       </p>
 

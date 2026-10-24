@@ -156,7 +156,7 @@ export function AdminUserEditDrawer({
         <form onSubmit={handleSave} className="p-6 space-y-6">
           {/* Field 1: POINTS */}
           <div className="space-y-2">
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
               POINTS
             </label>
             <div className="relative flex items-center">
@@ -168,7 +168,7 @@ export function AdminUserEditDrawer({
                 onChange={(e) => setPoints(parseInt(e.target.value, 10) || 0)}
                 className="w-full bg-deep-blue-900/60 border border-deep-blue-700 rounded-lg px-4 py-2.5 text-sm font-semibold text-white pr-12 focus:outline-none focus:border-indigo-500 transition-colors"
               />
-              <span className="absolute right-4 text-xs font-semibold text-gray-400 pointer-events-none">
+              <span className="absolute right-4 text-label-xs font-semibold text-gray-400 pointer-events-none">
                 pts
               </span>
             </div>
@@ -176,7 +176,7 @@ export function AdminUserEditDrawer({
 
           {/* Field 2: SUBS DURATION */}
           <div className="space-y-2">
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider">
+            <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
               SUBS DURATION
             </label>
             <div className="w-full flex items-center justify-between border border-deep-blue-700 bg-deep-blue-900/40 rounded-lg px-4 py-2.5">
@@ -212,13 +212,13 @@ export function AdminUserEditDrawer({
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2 rounded-lg text-xs font-semibold border border-deep-blue-700 bg-[#161c2c] hover:bg-deep-blue-900 text-gray-200 transition-colors cursor-pointer"
+              className="px-5 py-2 rounded-lg text-label-xs font-semibold border border-deep-blue-700 bg-[#161c2c] hover:bg-deep-blue-900 text-gray-200 transition-colors cursor-pointer"
             >
               Batalkan
             </button>
             <button
               type="submit"
-              className="px-5 py-2 rounded-lg text-xs font-semibold bg-[#b93838] hover:bg-[#c93e3e] text-white transition-colors cursor-pointer border border-[#9b2c2c]"
+              className="px-5 py-2 rounded-lg text-label-xs font-semibold bg-[#b93838] hover:bg-[#c93e3e] text-white transition-colors cursor-pointer border border-[#9b2c2c]"
             >
               Simpan
             </button>

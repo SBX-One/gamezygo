@@ -7,7 +7,7 @@ import {
   AdminPerformanceChartSection,
   AdminRecentTransactionsSection,
   AdminGameRequestsSection,
-} from "@/features/admin";
+} from "@/features/admin/components";
 
 const emptySubscribe = () => () => {};
 
@@ -40,7 +40,7 @@ export default function AdminDashboardPage() {
       <AdminLayout title="Main Dashboard" activeNavId="dashboard">
         <div className="space-y-8">
           {/* Quick Preview Toggle: Data Penuh vs Empty State */}
-          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 rounded-xl bg-deep-blue-900/50 border border-deep-blue-700/60 text-xs">
+          <div className="flex flex-wrap items-center justify-between gap-3 px-4 py-2.5 rounded-lg bg-deep-blue-900/50 border border-deep-blue-700/60 text-label-xs">
             <span className="text-gray-400">
               Tampilan Dashboard:{" "}
               <span className="text-gray-100 font-semibold">
@@ -75,7 +75,7 @@ export default function AdminDashboardPage() {
           </div>
 
           {/* 1. Hero Revenue + Stat Cards (Image 1) - z-20 so dropdown floats over charts below */}
-          <div className="relative z-20">
+          <div className="relative z-20 has-[[aria-expanded='true']]:z-30">
             <AdminMetricsSection isEmpty={isEmptyState} />
           </div>
 

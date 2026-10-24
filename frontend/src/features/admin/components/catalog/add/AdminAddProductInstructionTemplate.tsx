@@ -171,7 +171,7 @@ export function AdminAddProductInstructionTemplate({
   return (
     <div
       className={cn(
-        "w-full rounded-xl border border-deep-blue-700 bg-deep-blue-950 overflow-hidden flex flex-col shadow-sm",
+        "w-full rounded-lg border border-deep-blue-700 bg-deep-blue-950 overflow-hidden flex flex-col shadow-sm",
         className
       )}
     >
@@ -181,14 +181,14 @@ export function AdminAddProductInstructionTemplate({
           <h4 className="text-base font-bold text-white tracking-tight">
             {activeTemplate ? activeTemplate.title : "Template Instruksi"}
           </h4>
-          <span className="text-xs text-gray-400 font-normal">
+          <span className="text-label-xs text-gray-400 font-normal">
             Created at : {activeTemplate?.createdAt || "22/07/2026"}
           </span>
         </div>
 
         <div className="flex items-center gap-3">
           {activeTemplate?.lastEdit && (
-            <span className="text-xs text-gray-400 font-normal hidden sm:inline mr-1">
+            <span className="text-label-xs text-gray-400 font-normal hidden sm:inline mr-1">
               {activeTemplate.lastEdit}
             </span>
           )}
@@ -236,7 +236,7 @@ export function AdminAddProductInstructionTemplate({
                 <h5 className="text-sm sm:text-base font-semibold text-white">
                   {step.title}
                 </h5>
-                <p className="text-xs sm:text-sm text-gray-400 font-normal leading-relaxed">
+                <p className="text-label-xs sm:text-sm text-gray-400 font-normal leading-relaxed">
                   {step.description}
                 </p>
               </div>
@@ -247,7 +247,7 @@ export function AdminAddProductInstructionTemplate({
         /* Empty State */
         <div className="p-8 sm:p-16 flex flex-col items-center justify-center text-center select-none">
           <div className="flex flex-col items-center justify-center text-center mx-auto">
-            <div className="w-16 h-16 rounded-2xl bg-[#161822] border border-white/5 flex items-center justify-center text-gray-300 mb-5 shadow-inner">
+            <div className="w-16 h-16 rounded-lg bg-[#161822] border border-white/5 flex items-center justify-center text-gray-300 mb-5 shadow-inner">
               <BookIcon className="w-8 h-8 text-gray-300" />
             </div>
 
@@ -255,7 +255,7 @@ export function AdminAddProductInstructionTemplate({
               Template belum terisi
             </h5>
 
-            <p className="text-xs sm:text-sm text-gray-400 mb-6 font-normal">
+            <p className="text-label-xs sm:text-sm text-gray-400 mb-6 font-normal">
               Anda belum mengisi template untuk instruksi.
             </p>
 
@@ -265,7 +265,7 @@ export function AdminAddProductInstructionTemplate({
                 setSearchQuery("");
                 setIsChooseModalOpen(true);
               }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1E202B] hover:bg-[#272A38] border border-deep-blue-700 text-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-all shadow-sm cursor-pointer whitespace-nowrap"
+              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1E202B] hover:bg-[#272A38] border border-deep-blue-700 text-label-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-all shadow-sm cursor-pointer whitespace-nowrap"
             >
               <PlusIcon className="w-3.5 h-3.5 shrink-0" />
               <span>Create New Template</span>
@@ -290,7 +290,7 @@ export function AdminAddProductInstructionTemplate({
             onClick={() => setIsChooseModalOpen(false)}
           />
 
-          <div className="relative z-10 w-[760px] max-w-[95vw] rounded-2xl bg-[#13151F] border border-deep-blue-700 p-6 select-none animate-in zoom-in-95 duration-150 text-gray-200 flex flex-col gap-5 shadow-2xl">
+          <div className="relative z-10 w-[760px] max-w-[95vw] rounded-lg bg-[#13151F] border border-deep-blue-700 p-6 select-none animate-in zoom-in-95 duration-150 text-gray-200 flex flex-col gap-5 shadow-2xl">
             {/* Header: Title + Close Button */}
             <div className="flex items-center justify-between pb-3 border-b border-deep-blue-700/80">
               <h3
@@ -320,7 +320,7 @@ export function AdminAddProductInstructionTemplate({
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Cari di toko"
-                    className="w-full h-10 pl-9 pr-8 bg-[#15161D] border border-deep-blue-700 rounded-lg text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
+                    className="w-full h-10 pl-9 pr-8 bg-[#15161D] border border-deep-blue-700 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
                   />
                   {searchQuery && (
                     <button
@@ -348,7 +348,7 @@ export function AdminAddProductInstructionTemplate({
               <button
                 type="button"
                 onClick={handleOpenCreateFromChoose}
-                className="inline-flex items-center gap-2 h-10 px-4 rounded-lg bg-[#1E202B] hover:bg-[#272A38] border border-deep-blue-700 text-xs sm:text-sm font-medium text-white transition-colors cursor-pointer shrink-0"
+                className="inline-flex items-center gap-2 h-10 px-4 rounded-lg bg-[#1E202B] hover:bg-[#272A38] border border-deep-blue-700 text-label-xs sm:text-sm font-medium text-white transition-colors cursor-pointer shrink-0"
               >
                 <PlusIcon className="w-3.5 h-3.5" />
                 <span>Create New Template</span>
@@ -362,7 +362,7 @@ export function AdminAddProductInstructionTemplate({
                 {filteredTemplates.map((tpl) => (
                   <div
                     key={tpl.id}
-                    className="w-full rounded-xl bg-[#15161D] border border-deep-blue-700/80 p-4 flex items-center justify-between gap-4 hover:border-gray-500 transition-colors"
+                    className="w-full rounded-lg bg-[#15161D] border border-deep-blue-700/80 p-4 flex items-center justify-between gap-4 hover:border-gray-500 transition-colors"
                   >
                     {/* Left: Red Accent Strip + Info */}
                     <div className="flex items-start gap-3.5 border-l-2 border-[#DF3848] pl-3.5 min-w-0">
@@ -375,7 +375,7 @@ export function AdminAddProductInstructionTemplate({
                             {tpl.badge}
                           </span>
                         </div>
-                        <span className="text-xs text-gray-400">
+                        <span className="text-label-xs text-gray-400">
                           Created at : {tpl.createdAt}
                         </span>
                       </div>
@@ -383,13 +383,13 @@ export function AdminAddProductInstructionTemplate({
 
                     {/* Right: Last Edit + Choose Button */}
                     <div className="flex items-center gap-4 shrink-0">
-                      <span className="text-xs text-gray-400 hidden sm:inline">
+                      <span className="text-label-xs text-gray-400 hidden sm:inline">
                         {tpl.lastEdit}
                       </span>
                       <button
                         type="button"
                         onClick={() => handleSelectTemplate(tpl)}
-                        className="px-4 py-1.5 rounded-lg bg-[#1E202B] hover:bg-[#272A38] border border-deep-blue-700 text-xs font-medium text-white transition-colors cursor-pointer"
+                        className="px-4 py-1.5 rounded-lg bg-[#1E202B] hover:bg-[#272A38] border border-deep-blue-700 text-label-xs font-medium text-white transition-colors cursor-pointer"
                       >
                         Choose
                       </button>
@@ -400,19 +400,19 @@ export function AdminAddProductInstructionTemplate({
             ) : (
               /* Empty State (Matching Image 3) */
               <div className="py-12 px-6 flex flex-col items-center justify-center text-center select-none">
-                <div className="w-16 h-16 rounded-2xl bg-[#161822] border border-white/5 flex items-center justify-center text-gray-300 mb-5 shadow-inner">
+                <div className="w-16 h-16 rounded-lg bg-[#161822] border border-white/5 flex items-center justify-center text-gray-300 mb-5 shadow-inner">
                   <BookIcon className="w-8 h-8 text-gray-300" />
                 </div>
                 <h4 className="text-xl font-bold text-white mb-1.5 tracking-tight">
                   Belum Ada Data Template
                 </h4>
-                <p className="text-xs sm:text-sm text-gray-400 mb-6 font-normal">
+                <p className="text-label-xs sm:text-sm text-gray-400 mb-6 font-normal">
                   Tidak ditemukan template untuk kategori instruksi.
                 </p>
                 <button
                   type="button"
                   onClick={handleOpenCreateFromChoose}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1E202B] hover:bg-[#272A38] border border-deep-blue-700 text-xs sm:text-sm font-medium text-white transition-colors cursor-pointer shadow-sm"
+                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1E202B] hover:bg-[#272A38] border border-deep-blue-700 text-label-xs sm:text-sm font-medium text-white transition-colors cursor-pointer shadow-sm"
                 >
                   <PlusIcon className="w-3.5 h-3.5" />
                   <span>Create New Template</span>
@@ -439,7 +439,7 @@ export function AdminAddProductInstructionTemplate({
             onClick={() => setIsCreateModalOpen(false)}
           />
 
-          <div className="relative z-10 w-[540px] max-w-[95vw] rounded-2xl bg-[#13151F] border border-deep-blue-700 shadow-2xl p-6 select-none animate-in zoom-in-95 duration-150 text-gray-200">
+          <div className="relative z-10 w-[540px] max-w-[95vw] rounded-lg bg-[#13151F] border border-deep-blue-700 shadow-2xl p-6 select-none animate-in zoom-in-95 duration-150 text-gray-200">
             <div className="flex items-center justify-between pb-4 border-b border-deep-blue-700">
               <h4
                 id="create-template-title"
@@ -459,7 +459,7 @@ export function AdminAddProductInstructionTemplate({
 
             <form onSubmit={handleSaveNewTemplate} className="py-4 space-y-4">
               <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase mb-1.5">
+                <label className="block text-label-xs font-semibold text-gray-400 uppercase mb-1.5">
                   Nama Template
                 </label>
                 <input
@@ -468,12 +468,12 @@ export function AdminAddProductInstructionTemplate({
                   value={newTitle}
                   onChange={(e) => setNewTitle(e.target.value)}
                   placeholder="Contoh: Panduan Download Steam Offline"
-                  className="w-full h-10 px-3 bg-[#15161D] border border-deep-blue-700 rounded-lg text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400"
+                  className="w-full h-10 px-3 bg-[#15161D] border border-deep-blue-700 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-semibold text-gray-400 uppercase mb-1.5">
+                <label className="block text-label-xs font-semibold text-gray-400 uppercase mb-1.5">
                   Instruksi / Langkah-Langkah
                 </label>
                 <textarea
@@ -481,7 +481,7 @@ export function AdminAddProductInstructionTemplate({
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
                   placeholder="1. Login Steam menggunakan kredensial akun&#10;2. Masuk ke library dan mulai unduh game&#10;3. Aktifkan offline mode setelah selesai..."
-                  className="w-full p-3 bg-[#15161D] border border-deep-blue-700 rounded-lg text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 resize-none"
+                  className="w-full p-3 bg-[#15161D] border border-deep-blue-700 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 resize-none"
                 />
               </div>
 
@@ -489,13 +489,13 @@ export function AdminAddProductInstructionTemplate({
                 <button
                   type="button"
                   onClick={() => setIsCreateModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 text-xs sm:text-sm font-medium transition-colors cursor-pointer"
+                  className="px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/5 text-label-xs sm:text-sm font-medium transition-colors cursor-pointer"
                 >
                   Batalkan
                 </button>
                 <button
                   type="submit"
-                  className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#DF3848] to-[#FF5364] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold shadow-sm transition-all cursor-pointer"
+                  className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-[#DF3848] to-[#FF5364] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold shadow-sm transition-all cursor-pointer"
                 >
                   Simpan Template
                 </button>

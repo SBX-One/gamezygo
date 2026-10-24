@@ -45,12 +45,12 @@ export function AdminCheckbox({
     <label
       htmlFor={inputId}
       className={cn(
-        "inline-flex items-center gap-2 cursor-pointer select-none text-xs text-gray-300 hover:text-white transition-colors",
+        "inline-flex items-center gap-2 cursor-pointer select-none text-label-xs text-gray-300 hover:text-white transition-colors",
         disabled && "opacity-50 cursor-not-allowed pointer-events-none",
         className
       )}
     >
-      <div className="relative flex items-center justify-center">
+      <div className="relative flex gap-2.5 items-center justify-center">
         <input
           ref={ref}
           id={inputId}
@@ -63,16 +63,16 @@ export function AdminCheckbox({
         />
         <div
           className={cn(
-            "w-4 h-4 rounded border flex items-center justify-center transition-all duration-150",
+            "w-4.5 h-4.5 rounded border flex items-center justify-center transition-all duration-150",
             checked
-              ? "bg-[#1E202B] border-gray-400 text-white"
-              : "bg-[#13141B] border-[#374151] text-transparent hover:border-gray-400"
+              ? " border-gray-400 text-white"
+              : "bg-gray-950 border-[#374151] text-transparent hover:border-gray-400"
           )}
         >
-          {checked && <CheckIcon className="w-2.5 h-2.5 text-white" />}
+          {checked && <CheckIcon className="w-4 h-4 text-white" />}
         </div>
       </div>
-      {label && <span className="font-medium tracking-normal">{label}</span>}
+      {label && <span className="text-label-sm font-semibold text-gray-400">{label}</span>}
     </label>
   );
 }

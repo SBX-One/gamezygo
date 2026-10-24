@@ -119,7 +119,7 @@ export function AdminArticleCoverUpload({
                 type="button"
                 onClick={onRemoveCover}
                 aria-label="Hapus gambar"
-                className="px-3 py-1.5 rounded-lg bg-deep-blue-950/85 hover:bg-rose-500/80 border border-white/20 text-xs font-medium text-white flex items-center gap-1.5 backdrop-blur-md cursor-pointer transition-colors"
+                className="px-3 py-1.5 rounded-lg bg-deep-blue-950/85 hover:bg-rose-500/80 border border-white/20 text-label-xs font-medium text-white flex items-center gap-1.5 backdrop-blur-md cursor-pointer transition-colors"
               >
                 <TrashIcon />
                 <span>Hapus</span>
@@ -129,7 +129,7 @@ export function AdminArticleCoverUpload({
             <button
               type="button"
               onClick={handleTriggerUpload}
-              className="px-3.5 py-1.5 rounded-lg bg-deep-blue-950/85 hover:bg-deep-blue-950 border border-white/20 text-xs font-medium text-white flex items-center gap-2 backdrop-blur-md cursor-pointer transition-colors"
+              className="px-3.5 py-1.5 rounded-lg bg-deep-blue-950/85 hover:bg-deep-blue-950 border border-white/20 text-label-xs font-medium text-white flex items-center gap-2 backdrop-blur-md cursor-pointer transition-colors"
             >
               <ImageIcon />
               <span>Change Image</span>
@@ -146,7 +146,7 @@ export function AdminArticleCoverUpload({
             <div className="w-10 h-10 rounded-lg bg-[#161823] group-hover:bg-[#1E202E] border border-white/5 flex items-center justify-center text-gray-400 group-hover:text-white transition-colors">
               <PlusIcon className="w-5 h-5" />
             </div>
-            <span className="text-xs font-semibold text-gray-400 group-hover:text-gray-200 tracking-wider uppercase transition-colors">
+            <span className="text-label-xs font-semibold text-gray-400 group-hover:text-gray-200 tracking-wider uppercase transition-colors">
               ADD THUMBNAIL
             </span>
           </div>

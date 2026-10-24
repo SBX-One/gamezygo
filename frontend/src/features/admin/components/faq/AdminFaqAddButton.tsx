@@ -39,7 +39,7 @@ export function AdminFaqAddButton({
       <div className="w-8 h-8 rounded-lg bg-deep-blue-950/80 border border-deep-blue-700/80 flex items-center justify-center text-gray-400 group-hover:text-white group-hover:scale-105 group-hover:border-deep-blue-500 transition-all shadow-xs">
         <PlusIcon />
       </div>
-      <span className="text-xs font-semibold tracking-wider text-gray-400 uppercase group-hover:text-white transition-colors">
+      <span className="text-label-xs font-semibold tracking-wider text-gray-400 uppercase group-hover:text-white transition-colors">
         ADD QUESTION
       </span>
     </button>

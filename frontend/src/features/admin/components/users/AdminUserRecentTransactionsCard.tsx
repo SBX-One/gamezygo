@@ -29,7 +29,7 @@ export function AdminUserRecentTransactionsCard({
     >
       {/* Card Header matching Image 5 */}
       <div className="px-6 py-4.5 border-b border-deep-blue-700/80 bg-deep-blue-950 flex items-center">
-        <h3 className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+        <h3 className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
           RECENT TRANSACTIONS
         </h3>
       </div>
@@ -38,22 +38,22 @@ export function AdminUserRecentTransactionsCard({
       <AdminTable>
         <AdminTableHeader className="bg-deep-blue-900 border-b border-deep-blue-700">
           <AdminTableRow className="hover:bg-transparent">
-            <AdminTableHead className="normal-case text-xs font-semibold text-gray-400 py-3.5 px-6">
+            <AdminTableHead className="normal-case text-label-xs font-semibold text-gray-400 py-3.5 px-6">
               Transactions ID
             </AdminTableHead>
-            <AdminTableHead className="normal-case text-xs font-semibold text-gray-400 py-3.5 px-6">
+            <AdminTableHead className="normal-case text-label-xs font-semibold text-gray-400 py-3.5 px-6">
               Product Name
             </AdminTableHead>
-            <AdminTableHead className="normal-case text-xs font-semibold text-gray-400 py-3.5 px-6">
+            <AdminTableHead className="normal-case text-label-xs font-semibold text-gray-400 py-3.5 px-6">
               Payment Method
             </AdminTableHead>
-            <AdminTableHead className="normal-case text-xs font-semibold text-gray-400 py-3.5 px-6">
+            <AdminTableHead className="normal-case text-label-xs font-semibold text-gray-400 py-3.5 px-6">
               Trasactions
             </AdminTableHead>
-            <AdminTableHead className="normal-case text-xs font-semibold text-gray-400 py-3.5 px-6">
+            <AdminTableHead className="normal-case text-label-xs font-semibold text-gray-400 py-3.5 px-6">
               Date
             </AdminTableHead>
-            <AdminTableHead className="normal-case text-xs font-semibold text-gray-400 py-3.5 px-6">
+            <AdminTableHead className="normal-case text-label-xs font-semibold text-gray-400 py-3.5 px-6">
               Status
             </AdminTableHead>
           </AdminTableRow>
@@ -62,7 +62,7 @@ export function AdminUserRecentTransactionsCard({
         <AdminTableBody className="divide-y divide-deep-blue-700/60">
           {transactions.length === 0 ? (
             <AdminTableRow>
-              <AdminTableCell colSpan={6} className="py-8 text-center text-gray-400 text-xs">
+              <AdminTableCell colSpan={6} className="py-8 text-center text-gray-400 text-label-xs">
                 Belum ada transaksi terkini.
               </AdminTableCell>
             </AdminTableRow>
@@ -73,32 +73,32 @@ export function AdminUserRecentTransactionsCard({
                 className="border-b border-deep-blue-700/50 hover:bg-white/[0.02] transition-colors"
               >
                 {/* Transactions ID */}
-                <AdminTableCell className="py-4 px-6 text-xs text-gray-400 font-mono">
+                <AdminTableCell className="py-4 px-6 text-label-xs text-gray-400 font-mono">
                   {tx.transactionId}
                 </AdminTableCell>
 
                 {/* Product Name */}
-                <AdminTableCell className="py-4 px-6 text-xs text-gray-300 font-medium">
+                <AdminTableCell className="py-4 px-6 text-label-xs text-gray-300 font-medium">
                   {tx.productName}
                 </AdminTableCell>
 
                 {/* Payment Method */}
-                <AdminTableCell className="py-4 px-6 text-xs font-semibold text-gray-200">
+                <AdminTableCell className="py-4 px-6 text-label-xs font-semibold text-gray-200">
                   {tx.paymentMethod}
                 </AdminTableCell>
 
                 {/* Transactions (Amount) */}
-                <AdminTableCell className="py-4 px-6 text-xs font-bold text-white">
+                <AdminTableCell className="py-4 px-6 text-label-xs font-bold text-white">
                   {tx.formattedAmount}
                 </AdminTableCell>
 
                 {/* Date */}
-                <AdminTableCell className="py-4 px-6 text-xs text-gray-400">
+                <AdminTableCell className="py-4 px-6 text-label-xs text-gray-400">
                   {tx.date}
                 </AdminTableCell>
 
                 {/* Status Badge */}
-                <AdminTableCell className="py-4 px-6 text-xs">
+                <AdminTableCell className="py-4 px-6 text-label-xs">
                   <AdminBadge
                     variant={
                       tx.status === "Pending"

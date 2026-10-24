@@ -47,7 +47,7 @@ export function AdminInstructionEditorTopBar({
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
             placeholder="Intruction Title"
-            className="w-full h-10 pl-3.5 pr-9 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-deep-blue-500 transition-colors shadow-xs"
+            className="w-full h-10 pl-3.5 pr-9 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-deep-blue-500 transition-colors shadow-xs"
           />
           {title ? (
             <button
@@ -72,7 +72,7 @@ export function AdminInstructionEditorTopBar({
             variant="outline"
             size="xs"
             onClick={onClear}
-            className="px-3 min-h-6.5 h-6.5 text-xs"
+            className="px-3 min-h-6.5 h-6.5 text-label-xs"
           >
             Clear Instruction
           </Button>
@@ -81,7 +81,7 @@ export function AdminInstructionEditorTopBar({
             variant="outline"
             size="xs"
             onClick={onDelete}
-            className="px-3 min-h-6.5 h-6.5 text-xs"
+            className="px-3 min-h-6.5 h-6.5 text-label-xs"
           >
             Delete Instruction
           </Button>

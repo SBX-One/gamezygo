@@ -155,7 +155,7 @@ export function AdminEditSubscriptionGamesModal({
     >
       <div
         className={cn(
-          "w-[860px] max-w-[95vw] rounded-2xl bg-deep-blue-950 border border-deep-blue-700 shadow-2xl select-none animate-in zoom-in-95 duration-150 overflow-hidden flex flex-col max-h-[90vh]",
+          "w-[860px] max-w-[95vw] rounded-lg bg-deep-blue-950 border border-deep-blue-700 shadow-2xl select-none animate-in zoom-in-95 duration-150 overflow-hidden flex flex-col max-h-[90vh]",
           className
         )}
       >
@@ -177,12 +177,12 @@ export function AdminEditSubscriptionGamesModal({
         {/* Content Body */}
         <div className="p-6 overflow-y-auto space-y-6">
           {/* Sub-bar: Stats Box (Matching Image 4 & Image 5) */}
-          <div className="flex items-center justify-between p-3.5 bg-deep-blue-900/50 border border-deep-blue-700 rounded-xl">
+          <div className="flex items-center justify-between p-3.5 bg-deep-blue-900/50 border border-deep-blue-700 rounded-lg">
             <div className="flex items-center gap-2 pl-2">
-              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              <span className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
                 SUBS WORTH :
               </span>
-              <span className="text-xs sm:text-sm font-bold text-gray-50">
+              <span className="text-label-xs sm:text-sm font-bold text-gray-50">
                 {subsWorth}
               </span>
             </div>
@@ -190,10 +190,10 @@ export function AdminEditSubscriptionGamesModal({
             <div className="w-px h-5 bg-deep-blue-700" />
 
             <div className="flex items-center gap-2 pr-2">
-              <span className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              <span className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
                 TOTAL GAMES :
               </span>
-              <span className="text-xs sm:text-sm font-bold text-gray-50">
+              <span className="text-label-xs sm:text-sm font-bold text-gray-50">
                 {totalGamesCount} Games
               </span>
             </div>
@@ -209,14 +209,14 @@ export function AdminEditSubscriptionGamesModal({
 
               {/* Search + Clear Row */}
               <div className="flex items-center gap-2">
-                <div className="relative flex items-center bg-deep-blue-900 border border-deep-blue-700 focus-within:border-deep-blue-500 rounded-xl px-3 py-2 flex-1 transition-colors">
+                <div className="relative flex items-center bg-deep-blue-900 border border-deep-blue-700 focus-within:border-deep-blue-500 rounded-lg px-3 py-2 flex-1 transition-colors">
                   <SearchIcon className="w-3.5 h-3.5 text-gray-400 mr-2 shrink-0" />
                   <input
                     type="text"
                     value={addedSearch}
                     onChange={(e) => setAddedSearch(e.target.value)}
                     placeholder="Cari game"
-                    className="w-full bg-transparent text-gray-50 text-xs sm:text-sm placeholder:text-gray-500 focus:outline-none"
+                    className="w-full bg-transparent text-gray-50 text-label-xs sm:text-sm placeholder:text-gray-500 focus:outline-none"
                   />
                   {addedSearch && (
                     <button
@@ -232,7 +232,7 @@ export function AdminEditSubscriptionGamesModal({
                 <button
                   type="button"
                   onClick={() => setAddedSearch("")}
-                  className="px-3.5 py-2 rounded-xl border border-deep-blue-700 bg-deep-blue-900 hover:bg-deep-blue-850 text-xs font-semibold text-gray-300 hover:text-white transition-colors cursor-pointer"
+                  className="px-3.5 py-2 rounded-lg border border-deep-blue-700 bg-deep-blue-900 hover:bg-deep-blue-850 text-label-xs font-semibold text-gray-300 hover:text-white transition-colors cursor-pointer"
                 >
                   Clear
                 </button>
@@ -244,7 +244,7 @@ export function AdminEditSubscriptionGamesModal({
                   filteredAdded.map((game, idx) => (
                     <div
                       key={`added-${game.id}-${idx}`}
-                      className="rounded-xl bg-deep-blue-900 border border-deep-blue-700/80 p-2.5 flex items-center justify-between gap-3 hover:border-deep-blue-600 transition-colors"
+                      className="rounded-lg bg-deep-blue-900 border border-deep-blue-700/80 p-2.5 flex items-center justify-between gap-3 hover:border-deep-blue-600 transition-colors"
                     >
                       {/* Left: Poster + Info */}
                       <div className="flex items-center gap-3 min-w-0">
@@ -258,7 +258,7 @@ export function AdminEditSubscriptionGamesModal({
                           />
                         </div>
                         <div className="min-w-0 space-y-1">
-                          <h5 className="text-xs sm:text-sm font-bold text-gray-50 truncate">
+                          <h5 className="text-label-xs sm:text-sm font-bold text-gray-50 truncate">
                             {game.title}
                           </h5>
                           <div className="flex items-center gap-1.5 flex-wrap">
@@ -276,7 +276,7 @@ export function AdminEditSubscriptionGamesModal({
                       <button
                         type="button"
                         onClick={() => handleRemoveGame(game)}
-                        className="px-3 py-1.5 rounded-lg border border-deep-blue-700 bg-deep-blue-950 hover:bg-deep-blue-850 text-gray-300 hover:text-rose-300 text-xs font-semibold transition-colors cursor-pointer shrink-0"
+                        className="px-3 py-1.5 rounded-lg border border-deep-blue-700 bg-deep-blue-950 hover:bg-deep-blue-850 text-gray-300 hover:text-rose-300 text-label-xs font-semibold transition-colors cursor-pointer shrink-0"
                       >
                         Remove
                       </button>
@@ -284,14 +284,14 @@ export function AdminEditSubscriptionGamesModal({
                   ))
                 ) : (
                   /* Empty State (Matching Image 5) */
-                  <div className="h-[260px] flex flex-col items-center justify-center p-6 text-center rounded-xl bg-deep-blue-900/20 border border-dashed border-deep-blue-700/60">
-                    <div className="w-14 h-14 rounded-2xl bg-deep-blue-900 border border-deep-blue-700 flex items-center justify-center text-gray-400 mb-3 shadow-md">
+                  <div className="h-[260px] flex flex-col items-center justify-center p-6 text-center rounded-lg bg-deep-blue-900/20 border border-dashed border-deep-blue-700/60">
+                    <div className="w-14 h-14 rounded-lg bg-deep-blue-900 border border-deep-blue-700 flex items-center justify-center text-gray-400 mb-3 shadow-md">
                       <BookCatalogIcon className="w-6 h-6 text-gray-400" />
                     </div>
                     <h5 className="text-sm font-bold text-gray-100">
                       Belum Ada Ditambahkan
                     </h5>
-                    <p className="text-xs text-gray-400 mt-1 max-w-[220px]">
+                    <p className="text-label-xs text-gray-400 mt-1 max-w-[220px]">
                       Katalog Subscription Anda saat ini masih kosong.
                     </p>
                   </div>
@@ -307,14 +307,14 @@ export function AdminEditSubscriptionGamesModal({
 
               {/* Search + Clear Row */}
               <div className="flex items-center gap-2">
-                <div className="relative flex items-center bg-deep-blue-900 border border-deep-blue-700 focus-within:border-deep-blue-500 rounded-xl px-3 py-2 flex-1 transition-colors">
+                <div className="relative flex items-center bg-deep-blue-900 border border-deep-blue-700 focus-within:border-deep-blue-500 rounded-lg px-3 py-2 flex-1 transition-colors">
                   <SearchIcon className="w-3.5 h-3.5 text-gray-400 mr-2 shrink-0" />
                   <input
                     type="text"
                     value={availableSearch}
                     onChange={(e) => setAvailableSearch(e.target.value)}
                     placeholder="Cari game"
-                    className="w-full bg-transparent text-gray-50 text-xs sm:text-sm placeholder:text-gray-500 focus:outline-none"
+                    className="w-full bg-transparent text-gray-50 text-label-xs sm:text-sm placeholder:text-gray-500 focus:outline-none"
                   />
                   {availableSearch && (
                     <button
@@ -330,7 +330,7 @@ export function AdminEditSubscriptionGamesModal({
                 <button
                   type="button"
                   onClick={() => setAvailableSearch("")}
-                  className="px-3.5 py-2 rounded-xl border border-deep-blue-700 bg-deep-blue-900 hover:bg-deep-blue-850 text-xs font-semibold text-gray-300 hover:text-white transition-colors cursor-pointer"
+                  className="px-3.5 py-2 rounded-lg border border-deep-blue-700 bg-deep-blue-900 hover:bg-deep-blue-850 text-label-xs font-semibold text-gray-300 hover:text-white transition-colors cursor-pointer"
                 >
                   Clear
                 </button>
@@ -342,7 +342,7 @@ export function AdminEditSubscriptionGamesModal({
                   filteredAvailable.map((game, idx) => (
                     <div
                       key={`avail-${game.id}-${idx}`}
-                      className="rounded-xl bg-deep-blue-900 border border-deep-blue-700/80 p-2.5 flex items-center justify-between gap-3 hover:border-deep-blue-600 transition-colors"
+                      className="rounded-lg bg-deep-blue-900 border border-deep-blue-700/80 p-2.5 flex items-center justify-between gap-3 hover:border-deep-blue-600 transition-colors"
                     >
                       {/* Left: Poster + Info */}
                       <div className="flex items-center gap-3 min-w-0">
@@ -356,7 +356,7 @@ export function AdminEditSubscriptionGamesModal({
                           />
                         </div>
                         <div className="min-w-0 space-y-1">
-                          <h5 className="text-xs sm:text-sm font-bold text-gray-50 truncate">
+                          <h5 className="text-label-xs sm:text-sm font-bold text-gray-50 truncate">
                             {game.title}
                           </h5>
                           <div className="flex items-center gap-1.5 flex-wrap">
@@ -374,7 +374,7 @@ export function AdminEditSubscriptionGamesModal({
                       <button
                         type="button"
                         onClick={() => handleAddGame(game)}
-                        className="px-3.5 py-1.5 rounded-lg border border-deep-blue-700 bg-deep-blue-950 hover:bg-deep-blue-850 text-gray-300 hover:text-white text-xs font-semibold transition-colors cursor-pointer shrink-0"
+                        className="px-3.5 py-1.5 rounded-lg border border-deep-blue-700 bg-deep-blue-950 hover:bg-deep-blue-850 text-gray-300 hover:text-white text-label-xs font-semibold transition-colors cursor-pointer shrink-0"
                       >
                         Add
                       </button>
@@ -382,20 +382,20 @@ export function AdminEditSubscriptionGamesModal({
                   ))
                 ) : (
                   /* Empty State (Matching Image 5) */
-                  <div className="h-[260px] flex flex-col items-center justify-center p-6 text-center rounded-xl bg-deep-blue-900/20 border border-dashed border-deep-blue-700/60">
-                    <div className="w-14 h-14 rounded-2xl bg-deep-blue-900 border border-deep-blue-700 flex items-center justify-center text-gray-400 mb-3 shadow-md">
+                  <div className="h-[260px] flex flex-col items-center justify-center p-6 text-center rounded-lg bg-deep-blue-900/20 border border-dashed border-deep-blue-700/60">
+                    <div className="w-14 h-14 rounded-lg bg-deep-blue-900 border border-deep-blue-700 flex items-center justify-center text-gray-400 mb-3 shadow-md">
                       <GamepadIcon className="w-6 h-6 text-gray-400" />
                     </div>
                     <h5 className="text-sm font-bold text-gray-100">
                       Belum Ada Data Game
                     </h5>
-                    <p className="text-xs text-gray-400 mt-1 max-w-[220px]">
+                    <p className="text-label-xs text-gray-400 mt-1 max-w-[220px]">
                       Katalog toko Anda saat ini masih kosong.
                     </p>
                     <button
                       type="button"
                       onClick={() => setAvailableGames(DEFAULT_AVAILABLE_GAMES)}
-                      className="mt-4 px-4 py-2 rounded-xl border border-deep-blue-700 bg-deep-blue-900 hover:bg-deep-blue-850 text-xs font-semibold text-gray-300 hover:text-white transition-colors cursor-pointer flex items-center gap-1.5"
+                      className="mt-4 px-4 py-2 rounded-lg border border-deep-blue-700 bg-deep-blue-900 hover:bg-deep-blue-850 text-label-xs font-semibold text-gray-300 hover:text-white transition-colors cursor-pointer flex items-center gap-1.5"
                     >
                       <PlusIcon className="w-3.5 h-3.5" />
                       <span>Tambah Produk</span>

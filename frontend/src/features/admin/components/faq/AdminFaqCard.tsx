@@ -103,7 +103,7 @@ export function AdminFaqCard({
 
       {/* Answer Body (shown when expanded) */}
       {isExpanded && (
-        <p className="text-xs sm:text-sm text-gray-300 font-normal leading-relaxed text-justify sm:text-left">
+        <p className="text-label-xs sm:text-sm text-gray-300 font-normal leading-relaxed text-justify sm:text-left">
           {item.answer}
         </p>
       )}
@@ -116,7 +116,7 @@ export function AdminFaqCard({
           size="sm"
           onClick={() => onEdit(item)}
           leftIcon={<EditIcon className="w-3.5 h-3.5 text-gray-300" />}
-          className="min-h-9 h-9 px-3.5 text-xs font-medium"
+          className="min-h-9 h-9 px-3.5 text-label-xs font-medium"
         >
           Edit
         </Button>
@@ -126,7 +126,7 @@ export function AdminFaqCard({
           variant="outline"
           size="sm"
           onClick={() => onRemove(item)}
-          className="min-h-9 h-9 px-3.5 text-xs font-medium"
+          className="min-h-9 h-9 px-3.5 text-label-xs font-medium"
         >
           Remove from List
         </Button>

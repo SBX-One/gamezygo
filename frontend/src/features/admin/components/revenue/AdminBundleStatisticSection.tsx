@@ -42,30 +42,30 @@ export function AdminBundleStatisticSection({
     >
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
         {/* 1. Left Highlight Box (Gambar 4) */}
-        <div className="rounded-xl bg-deep-blue-900/40 border border-deep-blue-700/60 p-6 flex flex-col justify-between gap-6">
+        <div className="rounded-lg  border border-deep-blue-700/60 p-6 flex flex-col justify-between gap-6">
           <div className="flex items-center gap-3 flex-wrap">
             {isEmpty ? (
               <div className="flex items-center gap-2">
                 <span className="w-5 h-0.5 bg-gray-400 inline-block rounded-full" />
-                <span className="text-3xl sm:text-4xl font-extrabold text-white">
+                <span className="text-h2 sm:text-h3 font-semibold text-white">
                   0%
                 </span>
               </div>
             ) : (
-              <div className="flex items-center gap-1.5 text-emerald-400">
+              <div className="flex items-center gap-1.5 text-green-500">
                 <ArrowUpBigIcon />
-                <span className="text-3xl sm:text-4xl font-extrabold">
+                <span className="text-h2 sm:text-h3 font-semibold">
                   {activeData.percentageIncrease}%
                 </span>
               </div>
             )}
 
             {isEmpty ? (
-              <span className="text-xs font-semibold text-gray-400 uppercase">
-                NAIK <span className="font-bold text-white">IDR 0</span> DARI BULAN LALU
+              <span className="text-body-sm  text-gray-400 uppercase">
+                NAIK <span className="font-semibold text-white">IDR 0</span> DARI BULAN LALU
               </span>
             ) : (
-              <span className="text-xs font-semibold text-gray-300 uppercase">
+              <span className="text-label-xs font-semibold text-gray-300 uppercase">
                 {activeData.amountIncreaseText}
               </span>
             )}
@@ -73,18 +73,18 @@ export function AdminBundleStatisticSection({
 
           <div className="grid grid-cols-2 gap-4 pt-4 border-t border-deep-blue-700/40">
             <div>
-              <div className="text-[11px] font-semibold text-gray-400 uppercase mb-1">
+              <div className="text-body-xs text-gray-400 uppercase mb-1">
                 LAST MONTH :
               </div>
-              <div className="text-base sm:text-lg font-bold text-white">
+              <div className="text-h5 font-semibold text-white">
                 {activeData.lastMonthAmount}
               </div>
             </div>
             <div>
-              <div className="text-[11px] font-semibold text-gray-400 uppercase mb-1">
+              <div className="text-body-xs text-gray-400 uppercase mb-1">
                 THIS MONTH :
               </div>
-              <div className="text-base sm:text-lg font-bold text-white">
+              <div className="text-h5 font-semibold text-white">
                 {activeData.thisMonthAmount}
               </div>
             </div>
@@ -92,21 +92,21 @@ export function AdminBundleStatisticSection({
         </div>
 
         {/* 2. Right Subs Metrics Rows */}
-        <div className="flex flex-col justify-center divide-y divide-deep-blue-700/60 px-2 sm:px-4">
+        <div className="flex flex-col  divide-y divide-deep-blue-700/60 px-2 sm:px-4">
           <div className="flex items-center justify-between py-5">
-            <span className="text-xs font-semibold text-gray-400 uppercase">
+            <span className="text-body-xs  text-gray-400 uppercase">
               TOTAL ACTIVE SUBS
             </span>
-            <span className="text-base sm:text-lg font-bold text-white">
+            <span className="text-body-sm font-semibold text-white">
               {activeData.totalActiveSubs}
             </span>
           </div>
 
           <div className="flex items-center justify-between py-5">
-            <span className="text-xs font-semibold text-gray-400 uppercase">
+            <span className="text-body-xs  text-gray-400 uppercase">
               TOTAL SUBS LAST MONTH
             </span>
-            <span className="text-base sm:text-lg font-bold text-white">
+            <span className="text-body-sm font-semibold text-white">
               {activeData.totalSubsLastMonth}
             </span>
           </div>

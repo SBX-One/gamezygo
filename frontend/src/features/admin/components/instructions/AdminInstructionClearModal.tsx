@@ -50,7 +50,7 @@ export function AdminInstructionClearModal({
           Are you sure to clear this instruction?
         </h3>
 
-        <p className="text-xs sm:text-sm text-gray-400 font-normal mt-2 leading-relaxed">
+        <p className="text-label-xs sm:text-sm text-gray-400 font-normal mt-2 leading-relaxed">
           If you clear this file you can't recover it.
         </p>
 
@@ -59,7 +59,7 @@ export function AdminInstructionClearModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-deep-blue-950 hover:bg-deep-blue-800 active:scale-95 border border-deep-blue-700 text-white text-xs sm:text-sm font-medium transition-all cursor-pointer shadow-xs"
+            className="px-4 py-2 rounded-lg bg-deep-blue-950 hover:bg-deep-blue-800 active:scale-95 border border-deep-blue-700 text-white text-label-xs sm:text-sm font-medium transition-all cursor-pointer shadow-xs"
           >
             Batal
           </button>
@@ -67,7 +67,7 @@ export function AdminInstructionClearModal({
           <button
             type="button"
             onClick={onConfirm}
-            className="px-5 py-2 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-xs"
+            className="px-5 py-2 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-xs"
           >
             Clear
           </button>

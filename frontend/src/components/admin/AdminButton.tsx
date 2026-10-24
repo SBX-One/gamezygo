@@ -29,8 +29,8 @@ export function AdminButton({
   }[variant];
 
   const sizeStyles = {
-    sm: "px-3 py-1.5 text-xs rounded-lg font-medium",
-    md: "px-4 py-2 text-xs sm:text-sm rounded-lg font-medium",
+    sm: "px-3 py-1.5 text-label-xs rounded-lg font-medium",
+    md: "px-4 py-2 text-label-xs sm:text-sm rounded-lg font-medium",
     lg: "px-5 py-2.5 text-sm rounded-lg font-semibold",
   }[size];
 

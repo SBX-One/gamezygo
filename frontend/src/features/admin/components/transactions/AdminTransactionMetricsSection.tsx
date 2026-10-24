@@ -47,25 +47,23 @@ export function AdminTransactionMetricsSection({
         className="h-full"
       />
 
-      {/* 2. Card 2: This Week Transactions with Dropdown (Gambar 1 & Gambar 2 Center) */}
-      <div className="relative z-20 h-full">
-        <AdminStatCard
-          title="THIS WEEK TRANSACTIONS"
-          value={metrics.thisWeekTransactions}
-          timeframes={ADMIN_TIMEFRAMES}
-          selectedTimeframe={weekTimeframe}
-          onTimeframeChange={setWeekTimeframe}
-          badge={
-            isEmpty
-              ? undefined
-              : { text: metrics.thisWeekPercentage, trend: "up" }
-          }
-          subtitle={
-            isEmpty ? "KEUNTUNGAN IDR 0" : `KEUNTUNGAN ${metrics.thisWeekProfit}`
-          }
-          className="h-full"
-        />
-      </div>
+      {/* 2. Card 2: This Week Transactions with Dropdown */}
+      <AdminStatCard
+        title="THIS WEEK TRANSACTIONS"
+        value={metrics.thisWeekTransactions}
+        timeframes={ADMIN_TIMEFRAMES}
+        selectedTimeframe={weekTimeframe}
+        onTimeframeChange={setWeekTimeframe}
+        badge={
+          isEmpty
+            ? undefined
+            : { text: metrics.thisWeekPercentage, trend: "up" }
+        }
+        subtitle={
+          isEmpty ? "KEUNTUNGAN IDR 0" : `KEUNTUNGAN ${metrics.thisWeekProfit}`
+        }
+        className="h-full"
+      />
 
       {/* 3. Card 3: This Month Transactions (Gambar 1 & Gambar 2 Right) */}
       <AdminStatCard

@@ -24,7 +24,7 @@ export function AdminSectionGameCard({
       )}
     >
       {/* 1. Portrait Poster Image Container */}
-      <div className="relative w-full h-[245px] sm:h-[260px] rounded-2xl overflow-hidden bg-deep-blue-900 border border-deep-blue-700 shadow-lg group-hover:border-deep-blue-500 transition-all">
+      <div className="relative w-full h-[245px] sm:h-[260px] rounded-lg overflow-hidden bg-deep-blue-900 border border-deep-blue-700 shadow-lg group-hover:border-deep-blue-500 transition-all">
         <Image
           src={product.imageSrc}
           alt={product.title}
@@ -46,7 +46,7 @@ export function AdminSectionGameCard({
               onRemove();
             }}
             title="Remove from section"
-            className="absolute top-2.5 right-2.5 p-2 rounded-xl bg-deep-blue-950/80 hover:bg-rose-600/90 text-gray-300 hover:text-white border border-deep-blue-700 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all cursor-pointer shadow-md hover:scale-105"
+            className="absolute top-2.5 right-2.5 p-2 rounded-lg bg-deep-blue-950/80 hover:bg-rose-600/90 text-gray-300 hover:text-white border border-deep-blue-700 backdrop-blur-md opacity-0 group-hover:opacity-100 transition-all cursor-pointer shadow-md hover:scale-105"
           >
             <TrashIcon className="w-3.5 h-3.5" />
           </button>
@@ -67,7 +67,7 @@ export function AdminSectionGameCard({
       </div>
 
       {/* 3. Game Title */}
-      <h4 className="mt-2 text-xs sm:text-[13px] font-semibold text-gray-50 tracking-normal leading-snug line-clamp-2 title-hover group-hover:text-deep-blue-100 transition-colors">
+      <h4 className="mt-2 text-label-xs sm:text-[13px] font-semibold text-gray-50 tracking-normal leading-snug line-clamp-2 title-hover group-hover:text-deep-blue-100 transition-colors">
         {product.title}
       </h4>
     </div>

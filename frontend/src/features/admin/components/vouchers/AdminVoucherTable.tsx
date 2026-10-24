@@ -224,22 +224,22 @@ export function AdminVoucherTable({
   return (
     <div
       className={cn(
-        "w-full rounded-2xl bg-deep-blue-950 border border-deep-blue-700 overflow-hidden shadow-sm select-none font-sans",
+        "w-full rounded-lg bg-deep-blue-950 border border-deep-blue-700 overflow-hidden shadow-sm select-none font-sans",
         className
       )}
     >
       {/* 1. Card Header */}
       {/* If Draft View (Image 3): [ < Back ] + TOTAL PRODUCT : 105 Vouchers ... [ + Add New ] */}
       {/* If Normal View (Image 2): TOTAL PRODUCT : 105 Vouchers ... [ Draft ] [ + Add New ] */}
-      <div className="flex items-center justify-between px-6 py-4.5 border-b border-deep-blue-700 bg-deep-blue-900">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-6 py-3.5 sm:py-4.5 border-b border-deep-blue-700 bg-deep-blue-900">
         {/* Left Side Header */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0 whitespace-nowrap">
           {/* Back button shown in Draft View (Matching Image 3) */}
           {isDraftViewActive && (
             <button
               type="button"
               onClick={onBackFromDraft}
-              className="h-8 px-3.5 rounded-xl border border-white/10 bg-[#161823] hover:bg-[#1E202E] flex items-center gap-1.5 text-xs font-semibold text-white transition-colors cursor-pointer select-none"
+              className="h-8 px-3.5 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] flex items-center gap-1.5 text-label-xs font-semibold text-white transition-colors cursor-pointer select-none shrink-0"
             >
               <ChevronLeftIcon className="w-4 h-4 text-white shrink-0" />
               <span>Back</span>
@@ -247,24 +247,24 @@ export function AdminVoucherTable({
           )}
 
           {/* TOTAL PRODUCT : 105 Vouchers */}
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold tracking-wider text-gray-400 uppercase">
+          <div className="flex items-center gap-2 select-none shrink-0 whitespace-nowrap">
+            <span className="text-label-xs font-semibold tracking-wider text-gray-400 uppercase whitespace-nowrap">
               TOTAL PRODUCT :
             </span>
-            <span className="text-sm font-bold text-white">
+            <span className="text-sm font-bold text-white whitespace-nowrap">
               {totalVouchersCount} Vouchers
             </span>
           </div>
         </div>
 
         {/* Right Side Header */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0 flex-wrap">
           {/* Delete Batch Button (Shown when items are selected) */}
           {hasSelected && (
             <button
               type="button"
               onClick={onDeleteSelected}
-              className="h-8 px-3.5 rounded-xl border border-rose-500/30 bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 flex items-center gap-1.5 text-xs font-semibold transition-colors cursor-pointer"
+              className="h-8 px-3.5 rounded-lg border border-rose-500/30 bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 flex items-center gap-1.5 text-label-xs font-semibold transition-colors cursor-pointer"
             >
               <TrashIcon className="w-3.5 h-3.5" />
               <span>Hapus ({selectedIds.length})</span>
@@ -276,7 +276,7 @@ export function AdminVoucherTable({
             <button
               type="button"
               onClick={onToggleDraftView}
-              className="h-8 px-3.5 rounded-xl border border-white/10 bg-[#161823] hover:bg-[#1E202E] text-white flex items-center gap-2 text-xs font-semibold transition-colors cursor-pointer select-none"
+              className="h-8 px-3.5 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] text-white flex items-center gap-2 text-label-xs font-semibold transition-colors cursor-pointer select-none"
             >
               <DraftBoxIcon className="w-4 h-4 text-white shrink-0" />
               <span>Draft</span>
@@ -287,7 +287,7 @@ export function AdminVoucherTable({
           <button
             type="button"
             onClick={onAddNew}
-            className="h-8 px-3.5 rounded-xl border border-white/10 bg-[#161823] hover:bg-[#1E202E] flex items-center gap-2 text-xs font-semibold text-white transition-colors cursor-pointer select-none"
+            className="h-8 px-3.5 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] flex items-center gap-2 text-label-xs font-semibold text-white transition-colors cursor-pointer select-none"
           >
             <PlusIcon className="w-4 h-4 text-white shrink-0" />
             <span>Add New</span>
@@ -386,19 +386,19 @@ export function AdminVoucherTable({
                   {!isDraftViewActive && (
                     <AdminTableCell>
                       {item.status === "active" ? (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#132B20] text-[#22C55E] border border-[#22C55E]/20">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-label-xs font-medium bg-[#132B20] text-[#22C55E] border border-[#22C55E]/20">
                           Active
                         </span>
                       ) : item.status === "draft" ? (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-amber-950/40 text-amber-400 border border-amber-800/30">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-label-xs font-medium bg-amber-950/40 text-amber-400 border border-amber-800/30">
                           Draft
                         </span>
                       ) : item.status === "expired" ? (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-rose-950/40 text-rose-400 border border-rose-800/30">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-label-xs font-medium bg-rose-950/40 text-rose-400 border border-rose-800/30">
                           Expired
                         </span>
                       ) : (
-                        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-gray-800/50 text-gray-400 border border-gray-700/40">
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-label-xs font-medium bg-gray-800/50 text-gray-400 border border-gray-700/40">
                           Inactive
                         </span>
                       )}
@@ -429,11 +429,11 @@ export function AdminVoucherTable({
 
                       {/* Dropdown Menu Popover */}
                       {isMenuOpen && (
-                        <div className="absolute right-0 top-8 z-50 w-44 rounded-xl bg-[#0F111A] border border-deep-blue-700 py-1.5 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+                        <div className="absolute right-0 top-8 z-50 w-44 rounded-lg bg-[#0F111A] border border-deep-blue-700 py-1.5 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
                           <Link
                             href={`/admin/vouchers/analytics?code=${item.code}`}
                             onClick={() => setActiveMenuId(null)}
-                            className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-left"
+                            className="w-full flex items-center gap-2.5 px-3.5 py-2 text-label-xs font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-left"
                           >
                             <AnalyticsIcon className="w-3.5 h-3.5 text-indigo-400" />
                             <span>Lihat Analytics</span>
@@ -444,7 +444,7 @@ export function AdminVoucherTable({
                               setActiveMenuId(null);
                               onEditItem?.(item);
                             }}
-                            className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-left"
+                            className="w-full flex items-center gap-2.5 px-3.5 py-2 text-label-xs font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-left"
                           >
                             <EditIcon className="w-3.5 h-3.5" />
                             <span>Edit Voucher</span>
@@ -455,7 +455,7 @@ export function AdminVoucherTable({
                               setActiveMenuId(null);
                               onToggleStatus(item.id, !item.isActive);
                             }}
-                            className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-left"
+                            className="w-full flex items-center gap-2.5 px-3.5 py-2 text-label-xs font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-left"
                           >
                             <span className="w-3.5 h-3.5 rounded-full border border-gray-400 inline-block" />
                             <span>
@@ -469,7 +469,7 @@ export function AdminVoucherTable({
                               setActiveMenuId(null);
                               onDeleteItem?.(item.id);
                             }}
-                            className="w-full flex items-center gap-2.5 px-3.5 py-2 text-xs font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors cursor-pointer text-left"
+                            className="w-full flex items-center gap-2.5 px-3.5 py-2 text-label-xs font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors cursor-pointer text-left"
                           >
                             <TrashIcon className="w-3.5 h-3.5" />
                             <span>Hapus Voucher</span>
@@ -487,7 +487,7 @@ export function AdminVoucherTable({
               <td colSpan={colSpanCount} className="py-24 px-6 text-center">
                 <div className="flex flex-col items-center justify-center">
                   {/* Gamepad Icon Box (Matching Image 2) */}
-                  <div className="w-16 h-16 rounded-2xl bg-[#161822] border border-white/5 flex items-center justify-center text-gray-300 mb-5 shadow-inner">
+                  <div className="w-16 h-16 rounded-lg bg-[#161822] border border-white/5 flex items-center justify-center text-gray-300 mb-5 shadow-inner">
                     <GamepadIcon className="w-8 h-8 text-gray-200" />
                   </div>
 
@@ -497,7 +497,7 @@ export function AdminVoucherTable({
                   </h3>
 
                   {/* Description (Matching Image 2: Katalog voucher Anda saat ini masih kosong.) */}
-                  <p className="text-xs sm:text-sm text-gray-400 mb-6">
+                  <p className="text-label-xs sm:text-sm text-gray-400 mb-6">
                     Katalog voucher Anda saat ini masih kosong.
                   </p>
 
@@ -505,7 +505,7 @@ export function AdminVoucherTable({
                   <button
                     type="button"
                     onClick={onAddNew}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#161822] hover:bg-[#1E202B] border border-white/10 text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer select-none"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#161822] hover:bg-[#1E202B] border border-white/10 text-white text-label-xs sm:text-sm font-semibold transition-colors cursor-pointer select-none"
                   >
                     <PlusIcon className="w-4 h-4 text-gray-300" />
                     <span>Tambah Voucher</span>

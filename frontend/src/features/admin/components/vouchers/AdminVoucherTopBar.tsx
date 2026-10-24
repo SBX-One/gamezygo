@@ -100,7 +100,7 @@ export function AdminVoucherTopBar({
             onFilterChange({ ...filters, searchQuery: e.target.value })
           }
           placeholder="Cari voucher"
-          className="w-full h-9 pl-9 pr-8 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-xs text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors select-none"
+          className="w-full h-9 pl-9 pr-8 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-label-xs text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors select-none"
         />
         {filters.searchQuery && (
           <button
@@ -135,11 +135,11 @@ export function AdminVoucherTopBar({
 
         {/* Filter & Sort Dropdown Popover */}
         {isPopoverOpen && (
-          <div className="absolute right-0 top-11 w-64 rounded-xl bg-[#0F111A] border border-deep-blue-700 p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 font-sans">
+          <div className="absolute right-0 top-11 w-64 rounded-lg bg-[#0F111A] border border-deep-blue-700 p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 font-sans">
             <div className="space-y-4">
               {/* Header */}
               <div className="flex items-center justify-between border-b border-deep-blue-700 pb-2">
-                <span className="text-xs font-bold text-white uppercase tracking-wider">
+                <span className="text-label-xs font-bold text-white uppercase tracking-wider">
                   Filter & Sort
                 </span>
                 {hasActiveFilters && (
@@ -181,7 +181,7 @@ export function AdminVoucherTopBar({
                         onFilterChange({ ...filters, status: st.id })
                       }
                       className={cn(
-                        "px-2.5 py-1.5 rounded-lg text-xs font-medium border text-center transition-colors cursor-pointer",
+                        "px-2.5 py-1.5 rounded-lg text-label-xs font-medium border text-center transition-colors cursor-pointer",
                         filters.status === st.id
                           ? "bg-indigo-600/30 border-indigo-500 text-white"
                           : "bg-deep-blue-900 border-deep-blue-700 text-gray-300 hover:text-white"
@@ -214,7 +214,7 @@ export function AdminVoucherTopBar({
                         onFilterChange({ ...filters, sortBy: srt.id })
                       }
                       className={cn(
-                        "w-full px-2.5 py-1.5 rounded-lg text-xs text-left transition-colors cursor-pointer",
+                        "w-full px-2.5 py-1.5 rounded-lg text-label-xs text-left transition-colors cursor-pointer",
                         filters.sortBy === srt.id
                           ? "bg-indigo-600/20 text-white font-semibold"
                           : "text-gray-400 hover:text-white hover:bg-white/5"

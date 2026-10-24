@@ -129,7 +129,7 @@ export function AdminCommunityTopBar({
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
             placeholder="Cari komunitas"
-            className="w-56 sm:w-68 md:w-76 h-10 pl-9.5 pr-8 bg-[#181A26] border border-white/10 rounded-lg text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
+            className="w-56 sm:w-68 md:w-76 h-10 pl-9.5 pr-8 bg-[#181A26] border border-white/10 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
           />
           {searchQuery && (
             <button
@@ -166,7 +166,7 @@ export function AdminCommunityTopBar({
 
           {/* Filter Popover Dropdown */}
           {isFilterOpen && (
-            <div className="absolute left-0 mt-2 w-44 rounded-xl bg-[#181A26] border border-white/10 shadow-2xl p-1.5 z-40 animate-in fade-in zoom-in-95 duration-150">
+            <div className="absolute left-0 mt-2 w-44 rounded-lg bg-[#181A26] border border-white/10 shadow-2xl p-1.5 z-40 animate-in fade-in zoom-in-95 duration-150">
               <div className="px-3 py-1.5 text-[10px] uppercase font-bold tracking-wider text-gray-400 border-b border-white/5 mb-1">
                 Filter Platform
               </div>
@@ -181,7 +181,7 @@ export function AdminCommunityTopBar({
                       setIsFilterOpen(false);
                     }}
                     className={cn(
-                      "w-full flex items-center justify-between px-3 py-2 rounded-lg text-xs font-medium transition-colors text-left cursor-pointer",
+                      "w-full flex items-center justify-between px-3 py-2 rounded-lg text-label-xs font-medium transition-colors text-left cursor-pointer",
                       isSelected
                         ? "bg-[#DF3848]/20 text-[#DF3848] font-semibold"
                         : "text-gray-300 hover:bg-white/5 hover:text-white"
@@ -203,7 +203,7 @@ export function AdminCommunityTopBar({
       <button
         type="button"
         onClick={onAddNew}
-        className="inline-flex items-center gap-1.5 px-4 sm:px-5 h-10 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer shrink-0"
+        className="inline-flex items-center gap-1.5 px-4 sm:px-5 h-10 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer shrink-0"
       >
         <PlusIcon />
         <span>Add New</span>

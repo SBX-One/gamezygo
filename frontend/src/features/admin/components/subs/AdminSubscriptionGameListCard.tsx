@@ -50,13 +50,13 @@ export function AdminSubscriptionGameListCard({
   return (
     <div
       className={cn(
-        "rounded-2xl bg-deep-blue-950 border border-deep-blue-700 shadow-lg select-none overflow-hidden",
+        "rounded-lg bg-deep-blue-950 border border-deep-blue-700 shadow-lg select-none overflow-hidden",
         className
       )}
     >
       {/* Top Section Header Bar (Matching Image 1) */}
       <div className="px-6 py-4.5 bg-deep-blue-900 border-b border-deep-blue-700">
-        <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
+        <span className="text-label-xs font-semibold text-gray-400 uppercase tracking-widest">
           TOTAL LIST GAME
         </span>
       </div>
@@ -69,7 +69,7 @@ export function AdminSubscriptionGameListCard({
             <h2 className="text-2xl sm:text-3xl font-extrabold text-gray-50 tracking-tight">
               {totalGames} Games
             </h2>
-            <p className="text-xs font-semibold text-gray-400 uppercase tracking-widest mt-1">
+            <p className="text-label-xs font-semibold text-gray-400 uppercase tracking-widest mt-1">
               VALUE : {totalValue}
             </p>
           </div>
@@ -77,14 +77,14 @@ export function AdminSubscriptionGameListCard({
           {/* Right: Search, Filter, and Edit Buttons (Matching Image 1) */}
           <div className="flex items-center gap-2.5 sm:gap-3 flex-wrap">
             {/* Search Input */}
-            <div className="relative flex items-center bg-deep-blue-900 border border-deep-blue-700 focus-within:border-deep-blue-500 rounded-xl px-3.5 py-2 w-48 sm:w-64 transition-colors">
+            <div className="relative flex items-center bg-deep-blue-900 border border-deep-blue-700 focus-within:border-deep-blue-500 rounded-lg px-3.5 py-2 w-48 sm:w-64 transition-colors">
               <SearchIcon className="w-4 h-4 text-gray-400 mr-2.5 shrink-0" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Cari di toko"
-                className="w-full bg-transparent text-gray-50 text-xs sm:text-sm placeholder:text-gray-500 focus:outline-none"
+                className="w-full bg-transparent text-gray-50 text-label-xs sm:text-sm placeholder:text-gray-500 focus:outline-none"
               />
               {searchQuery && (
                 <button
@@ -103,7 +103,7 @@ export function AdminSubscriptionGameListCard({
               onClick={() => setIsFilterOpen(!isFilterOpen)}
               title="Filter"
               className={cn(
-                "p-2.5 rounded-xl border transition-colors cursor-pointer shrink-0",
+                "p-2.5 rounded-lg border transition-colors cursor-pointer shrink-0",
                 isFilterOpen || selectedCategory !== "All"
                   ? "bg-deep-blue-800 border-deep-blue-500 text-gray-50"
                   : "bg-deep-blue-900 border-deep-blue-700 text-gray-400 hover:text-gray-50 hover:bg-deep-blue-850"
@@ -135,7 +135,7 @@ export function AdminSubscriptionGameListCard({
                 type="button"
                 onClick={() => setSelectedCategory(cat)}
                 className={cn(
-                  "px-3 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer shrink-0",
+                  "px-3 py-1 rounded-full text-label-xs font-medium transition-colors cursor-pointer shrink-0",
                   selectedCategory === cat
                     ? "bg-deep-blue-800 text-gray-50 font-semibold border border-deep-blue-500"
                     : "bg-deep-blue-900 hover:bg-deep-blue-850 text-gray-400 hover:text-gray-50 border border-deep-blue-700"

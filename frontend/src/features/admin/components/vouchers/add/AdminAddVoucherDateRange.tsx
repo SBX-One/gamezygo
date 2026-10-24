@@ -293,7 +293,7 @@ export function AdminAddVoucherDateRange({
       {/* Content Layout: Left Calendar Widget (deep blue 950 content + deep blue 900 header) + Right Date Inputs */}
       <div className="flex flex-col lg:flex-row items-start gap-8 w-full">
         {/* Left: Interactive Calendar Picker Widget */}
-        <div className="w-full sm:w-110 rounded-2xl bg-deep-blue-950 border border-deep-blue-700/80 overflow-hidden flex flex-row shadow-sm shrink-0">
+        <div className="w-full sm:w-110 rounded-lg bg-deep-blue-950 border border-deep-blue-700/80 overflow-hidden flex flex-row shadow-sm shrink-0">
           {/* Preset Sidebar (1 Hari, 2 Hari, 1 Minggu, 2 minggu, 1 Bulan) */}
           <div className="w-30 shrink-0 p-3 border-r border-deep-blue-700/80 flex flex-col gap-1.5 bg-deep-blue-900/40">
             {DURATION_PRESETS.map((preset) => {
@@ -306,7 +306,7 @@ export function AdminAddVoucherDateRange({
                     size="xs"
                     fullWidth
                     onClick={() => handleSelectPreset(preset)}
-                    className="w-full justify-start px-3 py-2 text-xs font-semibold text-white [&_.button-main-text]:text-white! hover:[&_.button-main-text]:text-white! active:[&_.button-main-text]:text-white! rounded-xl border border-deep-blue-700 bg-(image:--gradient-surface-secondary-default) shadow-xs"
+                    className="w-full justify-start px-3 py-2 text-label-xs font-semibold text-white [&_.button-main-text]:text-white! hover:[&_.button-main-text]:text-white! active:[&_.button-main-text]:text-white! rounded-lg border border-deep-blue-700 bg-(image:--gradient-surface-secondary-default) shadow-xs"
                   >
                     <span className="text-white! font-semibold">{preset.label}</span>
                   </Button>
@@ -318,7 +318,7 @@ export function AdminAddVoucherDateRange({
                   key={preset.id}
                   type="button"
                   onClick={() => handleSelectPreset(preset)}
-                  className="w-full px-3 py-2 text-left text-xs font-medium text-gray-400 hover:text-white hover:bg-white/5 rounded-xl flex items-center transition-colors cursor-pointer select-none"
+                  className="w-full px-3 py-2 text-left text-label-xs font-medium text-gray-400 hover:text-white hover:bg-white/5 rounded-lg flex items-center transition-colors cursor-pointer select-none"
                 >
                   {preset.label}
                 </button>
@@ -355,7 +355,7 @@ export function AdminAddVoucherDateRange({
               <button
                 type="button"
                 onClick={handleClearCalendar}
-                className="px-4 py-1 rounded-full border border-[#263148] bg-transparent hover:bg-white/10 text-xs font-semibold text-white transition-all cursor-pointer"
+                className="px-4 py-1 rounded-full border border-[#263148] bg-transparent hover:bg-white/10 text-label-xs font-semibold text-white transition-all cursor-pointer"
               >
                 Clear
               </button>
@@ -375,7 +375,7 @@ export function AdminAddVoucherDateRange({
               </div>
 
               {/* Days Matrix with Connected Range Bar (deep-blue-900 selected dates) */}
-              <div className="grid grid-cols-7 text-center text-xs gap-y-1">
+              <div className="grid grid-cols-7 text-center text-label-xs gap-y-1">
                 {calendarCells.map((item, idx) => {
                   const colIndex = idx % 7; // 0 = Su, 6 = Sa
                   const cellDate = new Date(item.year, item.month, item.day);
@@ -419,17 +419,17 @@ export function AdminAddVoucherDateRange({
                         type="button"
                         onClick={() => handleDateClick(cellDate)}
                         className={cn(
-                          "w-9 h-9 flex items-center justify-center text-xs transition-all relative z-10 select-none cursor-pointer",
+                          "w-9 h-9 flex items-center justify-center text-label-xs transition-all relative z-10 select-none cursor-pointer",
                           !item.isCurrentMonth && "text-[#3D4760] hover:text-slate-400",
                           item.isCurrentMonth &&
                             !isStart &&
                             !isEnd &&
                             !inRange &&
-                            "text-slate-200 hover:text-white hover:bg-white/5 rounded-xl font-normal",
+                            "text-slate-200 hover:text-white hover:bg-white/5 rounded-lg font-normal",
                           inRange &&
                             "text-white font-bold bg-transparent",
                           (isStart || isEnd) &&
-                            "rounded-xl border border-deep-blue-700 bg-deep-blue-900 text-white font-bold shadow-xs"
+                            "rounded-lg border border-deep-blue-700 bg-deep-blue-900 text-white font-bold shadow-xs"
                         )}
                       >
                         {item.day}
@@ -446,10 +446,10 @@ export function AdminAddVoucherDateRange({
         <div className="flex-1 w-full max-w-105 space-y-4">
           {/* Start Date */}
           <div>
-            <label className="block text-xs font-semibold text-gray-400 tracking-wider uppercase mb-2">
+            <label className="block text-label-xs font-semibold text-gray-400 tracking-wider uppercase mb-2">
               START DATE
             </label>
-            <div className="h-11 px-4 bg-deep-blue-950 border border-deep-blue-700 rounded-xl text-sm font-medium text-white flex items-center justify-between cursor-pointer">
+            <div className="h-11 px-4 bg-deep-blue-950 border border-deep-blue-700 rounded-lg text-sm font-medium text-white flex items-center justify-between cursor-pointer">
               <span>{formData.startDate || "Pilih tanggal mulai"}</span>
               <ChevronDownIcon className="text-gray-400" />
             </div>
@@ -457,10 +457,10 @@ export function AdminAddVoucherDateRange({
 
           {/* End Date */}
           <div>
-            <label className="block text-xs font-semibold text-gray-400 tracking-wider uppercase mb-2">
+            <label className="block text-label-xs font-semibold text-gray-400 tracking-wider uppercase mb-2">
               END DATE
             </label>
-            <div className="h-11 px-4 bg-deep-blue-950 border border-deep-blue-700 rounded-xl text-sm font-medium text-white flex items-center justify-between cursor-pointer">
+            <div className="h-11 px-4 bg-deep-blue-950 border border-deep-blue-700 rounded-lg text-sm font-medium text-white flex items-center justify-between cursor-pointer">
               <span>{formData.endDate || "Pilih tanggal berakhir"}</span>
               <ChevronDownIcon className="text-gray-400" />
             </div>

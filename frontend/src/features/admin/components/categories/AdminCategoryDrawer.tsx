@@ -265,7 +265,7 @@ export function AdminCategoryDrawer({
         <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-6 sm:p-8">
           {/* CATEGORY TITLE */}
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
+            <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
               CATEGORY TITLE
             </label>
             <input
@@ -280,7 +280,7 @@ export function AdminCategoryDrawer({
 
           {/* ADD SUB with Drag & Drop Reordering (Matching Image 3) */}
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
+            <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
               ADD SUB
             </label>
 
@@ -306,7 +306,7 @@ export function AdminCategoryDrawer({
                     onDrop={(e) => handleSubDrop(idx, e)}
                     onDragEnd={handleSubDragEnd}
                     className={cn(
-                      "relative flex items-center bg-[#15161E] border border-white/10 rounded-xl px-4 py-3 gap-3 transition-all select-none group cursor-grab active:cursor-grabbing",
+                      "relative flex items-center bg-[#15161E] border border-white/10 rounded-lg px-4 py-3 gap-3 transition-all select-none group cursor-grab active:cursor-grabbing",
                       isDragging &&
                         "opacity-35 border-dashed border-indigo-500 scale-[0.99] bg-[#1a1c29]",
                       isOver &&
@@ -361,7 +361,7 @@ export function AdminCategoryDrawer({
               {/* Dashed button: [ + TAMBAH SUB ] */}
               <div
                 onClick={handleAddSubField}
-                className="w-full h-12 rounded-xl border border-dashed border-white/15 bg-[#181A26]/40 hover:bg-[#181A26]/70 hover:border-white/30 flex items-center justify-center gap-2 cursor-pointer transition-all text-xs font-semibold text-gray-400 hover:text-white uppercase tracking-wider select-none mt-1"
+                className="w-full h-12 rounded-lg border border-dashed border-white/15 bg-[#181A26]/40 hover:bg-[#181A26]/70 hover:border-white/30 flex items-center justify-center gap-2 cursor-pointer transition-all text-label-xs font-semibold text-gray-400 hover:text-white uppercase tracking-wider select-none mt-1"
               >
                 <PlusIcon />
                 <span>TAMBAH SUB</span>
@@ -381,7 +381,7 @@ export function AdminCategoryDrawer({
             </Button>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
+              className="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
             >
               Simpan
             </button>

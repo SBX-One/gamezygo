@@ -166,23 +166,23 @@ export function AdminCatalogTable({
       : (totalGamesCount !== undefined ? totalGamesCount : items.length);
 
   const cardHeaderTitle = (
-    <div className="flex items-center gap-2 select-none">
-      <span className="text-xs font-semibold tracking-wider text-gray-400 uppercase">
+    <div className="flex items-center gap-2 select-none shrink-0 whitespace-nowrap">
+      <span className="text-label-xs font-semibold tracking-wider text-gray-400 uppercase whitespace-nowrap">
         TOTAL PRODUCT :
       </span>
-      <span className="text-sm font-bold text-white">
+      <span className="text-sm font-bold text-white whitespace-nowrap">
         {displayTotal} Games Listed
       </span>
     </div>
   );
 
   const cardHeaderRight = (
-    <div className="flex items-center gap-3">
+    <div className="flex items-center gap-3 shrink-0 flex-wrap">
       {/* 1. Add New Button */}
       <button
         type="button"
         onClick={onAddNew}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E202B] hover:bg-[#252837] border border-deep-blue-700 text-xs font-medium text-white transition-colors cursor-pointer shadow-sm select-none"
+        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E202B] hover:bg-[#252837] border border-deep-blue-700 text-label-xs font-medium text-white transition-colors cursor-pointer shadow-sm select-none shrink-0"
       >
         <PlusIcon className="w-3.5 h-3.5" />
         <span>Add New</span>
@@ -195,7 +195,7 @@ export function AdminCatalogTable({
           onClick={onDeleteSelected}
           disabled={!hasSelected}
           className={cn(
-            "px-3 py-1.5 rounded-lg border text-xs font-medium transition-colors select-none",
+            "px-3 py-1.5 rounded-lg border text-label-xs font-medium transition-colors select-none shrink-0",
             hasSelected
               ? "bg-rose-500/15 border-rose-500/30 text-rose-300 hover:bg-rose-500/25 cursor-pointer"
               : "bg-[#1E202B] border-deep-blue-700 text-gray-400 opacity-60 cursor-not-allowed"
@@ -211,6 +211,7 @@ export function AdminCatalogTable({
     <AdminCard
       title={cardHeaderTitle}
       headerRight={cardHeaderRight}
+      headerResponsive={true}
       className={cn("w-full shadow-lg", className)}
       bodyClassName="p-0 overflow-x-auto"
     >
@@ -335,7 +336,7 @@ export function AdminCatalogTable({
                       {isMenuOpen && (
                         <div
                           ref={menuRef}
-                          className="absolute right-0 top-8 z-30 min-w-37.5 rounded-2xl bg-[#13151F] border border-white/10 p-3 shadow-2xl animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-2 text-left"
+                          className="absolute right-0 top-8 z-30 min-w-37.5 rounded-lg bg-[#13151F] border border-white/10 p-3 shadow-2xl animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-2 text-left"
                         >
                           <button
                             type="button"
@@ -343,7 +344,7 @@ export function AdminCatalogTable({
                               onEditItem?.(item);
                               setActiveMenuId(null);
                             }}
-                            className="flex items-center gap-3 w-full px-2 py-1.5 rounded-xl text-sm font-medium text-white hover:bg-white/5 text-left transition-colors cursor-pointer select-none"
+                            className="flex items-center gap-3 w-full px-2 py-1.5 rounded-lg text-sm font-medium text-white hover:bg-white/5 text-left transition-colors cursor-pointer select-none"
                           >
                             <EditIcon className="w-4.5 h-4.5 text-white shrink-0" strokeWidth={2} />
                             <span>Edit</span>
@@ -354,7 +355,7 @@ export function AdminCatalogTable({
                               onDeleteItem?.(item.id);
                               setActiveMenuId(null);
                             }}
-                            className="flex items-center gap-3 w-full px-2 py-1.5 rounded-xl text-sm font-medium text-white hover:bg-white/5 text-left transition-colors cursor-pointer select-none"
+                            className="flex items-center gap-3 w-full px-2 py-1.5 rounded-lg text-sm font-medium text-white hover:bg-white/5 text-left transition-colors cursor-pointer select-none"
                           >
                             <TrashIcon className="w-4.5 h-4.5 text-white shrink-0" strokeWidth={2} />
                             <span>Delete</span>
@@ -372,7 +373,7 @@ export function AdminCatalogTable({
               <td colSpan={5} className="py-20 px-6 text-center">
                 <div className="flex flex-col items-center justify-center text-center mx-auto select-none">
                   {/* Gamepad Icon container with 16px radius */}
-                  <div className="w-16 h-16 rounded-2xl bg-[#161822] border border-white/5 flex items-center justify-center text-gray-300 mb-5 shadow-inner">
+                  <div className="w-16 h-16 rounded-lg bg-[#161822] border border-white/5 flex items-center justify-center text-gray-300 mb-5 shadow-inner">
                     <GamepadIcon className="w-8 h-8 text-gray-200" />
                   </div>
 
@@ -382,7 +383,7 @@ export function AdminCatalogTable({
                   </h4>
 
                   {/* Subtitle */}
-                  <p className="text-xs sm:text-sm text-gray-400 mb-6 font-normal whitespace-nowrap">
+                  <p className="text-label-xs sm:text-sm text-gray-400 mb-6 font-normal whitespace-nowrap">
                     Katalog toko Anda saat ini masih kosong.
                   </p>
 
@@ -390,7 +391,7 @@ export function AdminCatalogTable({
                   <button
                     type="button"
                     onClick={onAddNew}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1E202B] hover:bg-[#252837] border border-deep-blue-700 text-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-all shadow-sm cursor-pointer whitespace-nowrap"
+                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1E202B] hover:bg-[#252837] border border-deep-blue-700 text-label-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-all shadow-sm cursor-pointer whitespace-nowrap"
                   >
                     <PlusIcon className="w-4 h-4 shrink-0" />
                     <span>Tambah Produk</span>

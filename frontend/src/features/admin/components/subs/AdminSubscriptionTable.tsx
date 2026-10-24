@@ -30,13 +30,13 @@ export function AdminSubscriptionTable({
   return (
     <div
       className={cn(
-        "rounded-2xl bg-deep-blue-950 border border-deep-blue-700 shadow-lg select-none overflow-hidden",
+        "rounded-lg bg-deep-blue-950 border border-deep-blue-700 shadow-lg select-none overflow-hidden",
         className
       )}
     >
       {/* Top Header Bar (Matching Image 3 & Image 4) */}
       <div className="px-6 py-4.5 bg-deep-blue-900 border-b border-deep-blue-700">
-        <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
+        <span className="text-label-xs font-semibold text-gray-400 uppercase tracking-widest">
           TOTAL ACTIVE SUBS :{" "}
           <span className="text-gray-50 font-bold tracking-normal">
             {totalActiveCount} Accounts
@@ -49,7 +49,7 @@ export function AdminSubscriptionTable({
         <table className="w-full text-left text-sm text-gray-300 border-collapse">
           {/* Table Header */}
           <thead className="bg-deep-blue-900">
-            <tr className="border-b border-deep-blue-700 text-xs font-semibold text-gray-300 select-none">
+            <tr className="border-b border-deep-blue-700 text-label-xs font-semibold text-gray-300 select-none">
               <th className="py-4 px-6 font-semibold">User ID</th>
               <th className="py-4 px-6 font-semibold">User Email</th>
               <th className="py-4 px-6 font-semibold">Account Created</th>
@@ -66,22 +66,22 @@ export function AdminSubscriptionTable({
                 className="transition-colors hover:bg-deep-blue-900/30"
               >
                 {/* Column 1: User ID */}
-                <td className="py-4 px-6 font-semibold text-gray-100 text-xs sm:text-sm">
+                <td className="py-4 px-6 font-semibold text-gray-100 text-label-xs sm:text-sm">
                   {sub.id}
                 </td>
 
                 {/* Column 2: User Email */}
-                <td className="py-4 px-6 text-gray-300 text-xs sm:text-sm">
+                <td className="py-4 px-6 text-gray-300 text-label-xs sm:text-sm">
                   {sub.email}
                 </td>
 
                 {/* Column 3: Account Created */}
-                <td className="py-4 px-6 text-gray-400 text-xs sm:text-sm font-mono">
+                <td className="py-4 px-6 text-gray-400 text-label-xs sm:text-sm font-mono">
                   {sub.accountCreated}
                 </td>
 
                 {/* Column 4: Subs End */}
-                <td className="py-4 px-6 text-gray-400 text-xs sm:text-sm font-mono">
+                <td className="py-4 px-6 text-gray-400 text-label-xs sm:text-sm font-mono">
                   {sub.subsEnd}
                 </td>
 

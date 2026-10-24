@@ -66,7 +66,7 @@ export function AdminVoucherTargetSection({
     >
       {/* 1. Left Column: TARGET GAME */}
       <div className="flex flex-col w-full">
-        <h3 className="text-[11px] sm:text-xs font-semibold tracking-wider text-gray-400 uppercase">
+        <h3 className="text-[11px] sm:text-label-xs font-semibold tracking-wider text-gray-400 uppercase">
           TARGET GAME
         </h3>
         <div className="w-full h-px bg-deep-blue-700/60 my-3" />
@@ -74,13 +74,13 @@ export function AdminVoucherTargetSection({
         {isGamesEmpty ? (
           /* Empty State for Target Game (Matching Image 3) */
           <div className="py-14 sm:py-16 flex flex-col items-center justify-center text-center">
-            <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-slate-300 shadow-inner mb-4">
+            <div className="w-14 h-14 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-slate-300 shadow-inner mb-4">
               <GamepadEmptyIcon className="w-7 h-7 text-slate-200" />
             </div>
             <h4 className="text-xl sm:text-2xl font-bold text-white mb-1.5">
               Anda Tidak Menambahkan
             </h4>
-            <p className="text-xs sm:text-sm text-slate-400 font-normal">
+            <p className="text-label-xs sm:text-sm text-slate-400 font-normal">
               Anda tidak menambahkan game apapun.
             </p>
           </div>
@@ -89,7 +89,7 @@ export function AdminVoucherTargetSection({
             {games.map((game) => (
               <div
                 key={game.id}
-                className="rounded-xl bg-deep-blue-950 border border-deep-blue-700/80 p-3 sm:p-3.5 flex items-center justify-between gap-4 transition-all duration-150 hover:border-deep-blue-600 shadow-xs"
+                className="rounded-lg bg-deep-blue-950 border border-deep-blue-700/80 p-3 sm:p-3.5 flex items-center justify-between gap-4 transition-all duration-150 hover:border-deep-blue-600 shadow-xs"
               >
                 {/* Left: Thumbnail & Title + Discount Badge */}
                 <div className="flex items-center gap-3.5 min-w-0">
@@ -117,7 +117,7 @@ export function AdminVoucherTargetSection({
 
                 {/* Right: Price with strike-through original price */}
                 <div className="flex flex-col items-end shrink-0">
-                  <span className="text-[11px] sm:text-xs text-gray-500 line-through">
+                  <span className="text-[11px] sm:text-label-xs text-gray-500 line-through">
                     {game.originalPrice}
                   </span>
                   <span className="text-sm sm:text-base font-semibold text-white">
@@ -132,7 +132,7 @@ export function AdminVoucherTargetSection({
 
       {/* 2. Right Column: TARGET USER */}
       <div className="flex flex-col w-full">
-        <h3 className="text-[11px] sm:text-xs font-semibold tracking-wider text-gray-400 uppercase">
+        <h3 className="text-[11px] sm:text-label-xs font-semibold tracking-wider text-gray-400 uppercase">
           TARGET USER
         </h3>
         <div className="w-full h-px bg-deep-blue-700/60 my-3" />
@@ -140,13 +140,13 @@ export function AdminVoucherTargetSection({
         {isUsersEmpty ? (
           /* Empty State for Target User (Matching Image 3) */
           <div className="py-14 sm:py-16 flex flex-col items-center justify-center text-center">
-            <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-slate-300 shadow-inner mb-4">
+            <div className="w-14 h-14 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-slate-300 shadow-inner mb-4">
               <FluentBookIcon className="w-7 h-7 text-slate-200" />
             </div>
             <h4 className="text-xl sm:text-2xl font-bold text-white mb-1.5">
               Anda Tidak Menambahkan
             </h4>
-            <p className="text-xs sm:text-sm text-slate-400 font-normal">
+            <p className="text-label-xs sm:text-sm text-slate-400 font-normal">
               Anda tidak menambahkan email siapapun.
             </p>
           </div>
@@ -155,7 +155,7 @@ export function AdminVoucherTargetSection({
             {users.map((user) => (
               <div
                 key={user.id}
-                className="rounded-xl bg-deep-blue-950 border border-deep-blue-700/80 px-4 py-3 sm:py-3.5 flex items-center gap-3.5 transition-all duration-150 hover:border-deep-blue-600 shadow-xs h-18 sm:h-20.5"
+                className="rounded-lg bg-deep-blue-950 border border-deep-blue-700/80 px-4 py-3 sm:py-3.5 flex items-center gap-3.5 transition-all duration-150 hover:border-deep-blue-600 shadow-xs h-18 sm:h-20.5"
               >
                 <div className="w-8 h-8 rounded-lg bg-deep-blue-900/80 border border-white/5 flex items-center justify-center shrink-0">
                   <UserOutlineIcon className="w-4 h-4 text-gray-400" />

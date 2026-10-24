@@ -136,7 +136,7 @@ export function AdminCatalogFilterPopover({
     <div
       ref={popoverRef}
       className={cn(
-        "absolute right-0 top-12 z-50 w-80 sm:w-96 rounded-2xl bg-deep-blue-950 border border-deep-blue-700 shadow-2xl p-6 select-none animate-in fade-in zoom-in-95 duration-150 text-gray-200",
+        "absolute right-0 top-12 z-50 w-80 sm:w-96 rounded-lg bg-deep-blue-950 border border-deep-blue-700 shadow-2xl p-6 select-none animate-in fade-in zoom-in-95 duration-150 text-gray-200",
         className
       )}
     >
@@ -156,7 +156,7 @@ export function AdminCatalogFilterPopover({
       <div className="py-4 space-y-6">
         {/* 2. CATEGORY Section */}
         <div className="space-y-3">
-          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          <label className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
             CATEGORY
           </label>
           <div className="flex flex-wrap gap-2">
@@ -168,7 +168,7 @@ export function AdminCatalogFilterPopover({
                   type="button"
                   onClick={() => toggleCategory(cat)}
                   className={cn(
-                    "px-3 py-1.5 rounded-lg text-xs font-medium transition-all duration-150 border cursor-pointer",
+                    "px-3 py-1.5 rounded-lg text-label-xs font-medium transition-all duration-150 border cursor-pointer",
                     isSelected
                       ? "bg-[#1E202B] text-white border-gray-400 shadow-sm"
                       : "bg-deep-blue-900 text-gray-300 border-deep-blue-700 hover:border-gray-500 hover:text-white"
@@ -183,7 +183,7 @@ export function AdminCatalogFilterPopover({
 
         {/* 3. STATUS Section */}
         <div className="space-y-3">
-          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          <label className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
             STATUS
           </label>
           <div>
@@ -192,7 +192,7 @@ export function AdminCatalogFilterPopover({
               onClick={() =>
                 setLocalStatusActive(localStatusActive === true ? null : true)
               }
-              className="inline-flex items-center gap-2 text-xs font-medium text-gray-200 hover:text-white cursor-pointer select-none"
+              className="inline-flex items-center gap-2 text-label-xs font-medium text-gray-200 hover:text-white cursor-pointer select-none"
             >
               <div
                 className={cn(
@@ -213,10 +213,10 @@ export function AdminCatalogFilterPopover({
 
         {/* 4. PRICE RANGE Section */}
         <div className="space-y-3">
-          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          <label className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
             PRICE RANGE
           </label>
-          <div className="flex items-center justify-between text-xs font-medium text-gray-200 mb-2">
+          <div className="flex items-center justify-between text-label-xs font-medium text-gray-200 mb-2">
             <span>RP 0</span>
             <span className="text-white font-semibold">
               RP {localMaxPrice.toLocaleString("id-ID")}
@@ -239,7 +239,7 @@ export function AdminCatalogFilterPopover({
 
         {/* 5. SORT BY Section */}
         <div className="space-y-3">
-          <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+          <label className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
             SORT BY
           </label>
           <div className="grid grid-cols-2 gap-3">
@@ -247,7 +247,7 @@ export function AdminCatalogFilterPopover({
               type="button"
               onClick={() => setLocalSortBy("terbaru")}
               className={cn(
-                "py-2 px-3 rounded-lg text-xs font-medium transition-all border cursor-pointer text-center",
+                "py-2 px-3 rounded-lg text-label-xs font-medium transition-all border cursor-pointer text-center",
                 localSortBy === "terbaru"
                   ? "bg-[#1E202B] text-white border-gray-400 font-semibold"
                   : "bg-deep-blue-900 text-gray-300 border-deep-blue-700 hover:text-white hover:border-gray-500"
@@ -259,7 +259,7 @@ export function AdminCatalogFilterPopover({
               type="button"
               onClick={() => setLocalSortBy("name_asc")}
               className={cn(
-                "py-2 px-3 rounded-lg text-xs font-medium transition-all border cursor-pointer text-center",
+                "py-2 px-3 rounded-lg text-label-xs font-medium transition-all border cursor-pointer text-center",
                 localSortBy === "name_asc"
                   ? "bg-[#1E202B] text-white border-gray-400 font-semibold"
                   : "bg-deep-blue-900 text-gray-300 border-deep-blue-700 hover:text-white hover:border-gray-500"
@@ -276,14 +276,14 @@ export function AdminCatalogFilterPopover({
         <button
           type="button"
           onClick={handleResetClick}
-          className="px-4 py-2 rounded-lg bg-[#1E202B] hover:bg-[#252837] border border-deep-blue-700 text-xs font-medium text-gray-300 hover:text-white transition-colors cursor-pointer"
+          className="px-4 py-2 rounded-lg bg-[#1E202B] hover:bg-[#252837] border border-deep-blue-700 text-label-xs font-medium text-gray-300 hover:text-white transition-colors cursor-pointer"
         >
           Reset
         </button>
         <button
           type="button"
           onClick={handleApplyClick}
-          className="px-5 py-2 rounded-lg bg-gradient-primary text-white hover:brightness-110 active:scale-98 text-xs font-semibold shadow-sm transition-all cursor-pointer"
+          className="px-5 py-2 rounded-lg bg-gradient-primary text-white hover:brightness-110 active:scale-98 text-label-xs font-semibold shadow-sm transition-all cursor-pointer"
         >
           Apply
         </button>

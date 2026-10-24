@@ -187,7 +187,7 @@ export function AdminInstructionCreateModal({
         <form onSubmit={handleSubmit} className="flex flex-col gap-5 pt-5">
           {/* Title */}
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
               Judul Template
             </label>
             <input
@@ -196,21 +196,21 @@ export function AdminInstructionCreateModal({
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Contoh: Panduan Download Game"
-              className="w-full h-11 px-4 bg-deep-blue-950 border border-deep-blue-700 rounded-lg text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-deep-blue-500"
+              className="w-full h-11 px-4 bg-deep-blue-950 border border-deep-blue-700 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-deep-blue-500"
             />
           </div>
 
           {/* Steps Builder */}
           <div className="flex flex-col gap-3.5">
             <div className="flex items-center justify-between">
-              <label className="text-xs font-semibold text-gray-400 uppercase tracking-wider">
+              <label className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
                 Langkah-Langkah Instruksi
               </label>
 
               <button
                 type="button"
                 onClick={handleAddStep}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-deep-blue-950 hover:bg-deep-blue-800 text-xs font-medium text-white border border-deep-blue-700 transition-colors cursor-pointer"
+                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-deep-blue-950 hover:bg-deep-blue-800 text-label-xs font-medium text-white border border-deep-blue-700 transition-colors cursor-pointer"
               >
                 <PlusIcon className="w-3.5 h-3.5 text-gray-300" />
                 <span>Tambah Langkah</span>
@@ -247,7 +247,7 @@ export function AdminInstructionCreateModal({
                       handleStepChange(idx, "title", e.target.value)
                     }
                     placeholder="Judul langkah (misal: Cari game di katalog)"
-                    className="w-full h-9 px-3 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-xs text-white placeholder-gray-500 focus:outline-none focus:border-deep-blue-500"
+                    className="w-full h-9 px-3 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-label-xs text-white placeholder-gray-500 focus:outline-none focus:border-deep-blue-500"
                   />
 
                   <textarea
@@ -258,7 +258,7 @@ export function AdminInstructionCreateModal({
                       handleStepChange(idx, "description", e.target.value)
                     }
                     placeholder="Deskripsi langkah detail..."
-                    className="w-full p-2.5 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-xs text-white placeholder-gray-500 focus:outline-none focus:border-deep-blue-500 resize-none leading-relaxed"
+                    className="w-full p-2.5 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-label-xs text-white placeholder-gray-500 focus:outline-none focus:border-deep-blue-500 resize-none leading-relaxed"
                   />
                 </div>
               ))}
@@ -270,13 +270,13 @@ export function AdminInstructionCreateModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-deep-blue-950 hover:bg-deep-blue-800 border border-deep-blue-700 text-white text-xs sm:text-sm font-medium transition-colors cursor-pointer"
+              className="px-4 py-2 rounded-lg bg-deep-blue-950 hover:bg-deep-blue-800 border border-deep-blue-700 text-white text-label-xs sm:text-sm font-medium transition-colors cursor-pointer"
             >
               Batal
             </button>
             <button
               type="submit"
-              className="px-5 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
+              className="px-5 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
             >
               Simpan Template
             </button>

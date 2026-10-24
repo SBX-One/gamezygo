@@ -92,27 +92,27 @@ export function AdminPreOrderTable({
   return (
     <div
       className={cn(
-        "rounded-2xl bg-deep-blue-950 border border-deep-blue-700 shadow-lg select-none overflow-hidden",
+        "rounded-lg bg-deep-blue-950 border border-deep-blue-700 shadow-lg select-none overflow-hidden",
         className
       )}
     >
       {/* Top Header Bar (Matching Image 2 & Image 3) */}
-      <div className="px-6 py-4.5 bg-deep-blue-900 border-b border-deep-blue-700 flex flex-wrap items-center justify-between gap-4">
+      <div className="px-6 py-3.5 sm:py-4.5 bg-deep-blue-900 border-b border-deep-blue-700 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         {/* Left: Total Product Count */}
-        <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
+        <span className="text-label-xs font-semibold text-gray-400 uppercase tracking-widest shrink-0 whitespace-nowrap">
           TOTAL PRODUCT :{" "}
-          <span className="text-gray-50 font-bold tracking-normal">
+          <span className="text-gray-50 font-bold tracking-normal whitespace-nowrap">
             {totalCount} Games Listed
           </span>
         </span>
 
         {/* Right: Actions (+ Add New & Delete Selected - Matching Image 4) */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 shrink-0 flex-wrap">
           {/* Add New Button (Image 4) */}
           <button
             type="button"
             onClick={onAddNew}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-colors cursor-pointer select-none"
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-label-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-colors cursor-pointer select-none"
           >
             <PlusIcon className="w-3.5 h-3.5" />
             <span>Add New</span>
@@ -124,7 +124,7 @@ export function AdminPreOrderTable({
             onClick={selectedIds.length > 0 ? onDeleteSelected : undefined}
             disabled={selectedIds.length === 0}
             className={cn(
-              "px-4 py-2 rounded-xl border border-white/10 text-xs sm:text-sm font-medium transition-colors select-none",
+              "px-4 py-2 rounded-lg border border-white/10 text-label-xs sm:text-sm font-medium transition-colors select-none",
               selectedIds.length > 0
                 ? "bg-white/5 hover:bg-rose-500/10 text-gray-200 hover:text-rose-300 border-white/10 hover:border-rose-500/40 cursor-pointer"
                 : "bg-white/2 text-gray-500 border-white/5 cursor-not-allowed"
@@ -141,7 +141,7 @@ export function AdminPreOrderTable({
           <table className="w-full text-left text-sm text-gray-300 border-collapse">
             {/* Table Header */}
             <thead className="bg-deep-blue-900">
-              <tr className="border-b border-deep-blue-700 text-xs font-semibold text-gray-300 select-none">
+              <tr className="border-b border-deep-blue-700 text-label-xs font-semibold text-gray-300 select-none">
                 {/* Column 1: Checkbox + Product Name */}
                 <th className="py-4 px-6 font-semibold w-[45%] min-w-70">
                   <div className="flex items-center gap-3">
@@ -207,7 +207,7 @@ export function AdminPreOrderTable({
                               className="object-cover group-hover:scale-105 transition-transform duration-200"
                             />
                           </div>
-                          <span className="font-semibold text-gray-100 group-hover:text-white group-hover:underline text-xs sm:text-sm whitespace-nowrap transition-colors">
+                          <span className="font-semibold text-gray-100 group-hover:text-white group-hover:underline text-label-xs sm:text-sm whitespace-nowrap transition-colors">
                             {item.title}
                           </span>
                         </button>
@@ -240,7 +240,7 @@ export function AdminPreOrderTable({
                     </td>
 
                     {/* Column 3: Price (Rp 480.000) */}
-                    <td className="py-3.5 px-6 text-gray-300 text-xs sm:text-sm font-medium">
+                    <td className="py-3.5 px-6 text-gray-300 text-label-xs sm:text-sm font-medium">
                       {item.formattedPrice ||
                         `Rp ${item.price.toLocaleString("id-ID")}`}
                     </td>
@@ -271,7 +271,7 @@ export function AdminPreOrderTable({
                           <div
                             ref={menuRef}
                             className={cn(
-                              "absolute right-0 z-40 w-52 rounded-2xl bg-[#13151F] border border-deep-blue-700 shadow-2xl p-2 text-left animate-in fade-in zoom-in-95 duration-100 space-y-1.5 select-none",
+                              "absolute right-0 z-40 w-52 rounded-lg bg-[#13151F] border border-deep-blue-700 shadow-2xl p-2 text-left animate-in fade-in zoom-in-95 duration-100 space-y-1.5 select-none",
                               idx === 0 ? "top-full mt-1.5" : "bottom-full mb-1.5"
                             )}
                           >
@@ -282,7 +282,7 @@ export function AdminPreOrderTable({
                                 setActiveMenuId(null);
                                 onContinueToList?.(item);
                               }}
-                              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-xl bg-white/6 hover:bg-white/10 border border-white/10 text-white font-semibold text-xs sm:text-sm transition-colors cursor-pointer group"
+                              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg bg-white/6 hover:bg-white/10 border border-white/10 text-white font-semibold text-label-xs sm:text-sm transition-colors cursor-pointer group"
                             >
                               <span>Continue to List</span>
                               <ArrowRightThinIcon className="w-4 h-4 text-white/90 group-hover:translate-x-0.5 transition-transform" />
@@ -295,7 +295,7 @@ export function AdminPreOrderTable({
                                 setActiveMenuId(null);
                                 onEditItem?.(item);
                               }}
-                              className="w-full flex items-center gap-3 px-3.5 py-2 rounded-xl hover:bg-white/5 text-gray-200 hover:text-white text-xs sm:text-sm font-medium transition-colors cursor-pointer"
+                              className="w-full flex items-center gap-3 px-3.5 py-2 rounded-lg hover:bg-white/5 text-gray-200 hover:text-white text-label-xs sm:text-sm font-medium transition-colors cursor-pointer"
                             >
                               <EditPencilIcon className="w-4 h-4 text-gray-300" />
                               <span>Edit</span>
@@ -308,7 +308,7 @@ export function AdminPreOrderTable({
                                 setActiveMenuId(null);
                                 onDeleteItem?.(item.id);
                               }}
-                              className="w-full flex items-center gap-3 px-3.5 py-2 rounded-xl hover:bg-white/5 text-gray-200 hover:text-white text-xs sm:text-sm font-medium transition-colors cursor-pointer"
+                              className="w-full flex items-center gap-3 px-3.5 py-2 rounded-lg hover:bg-white/5 text-gray-200 hover:text-white text-label-xs sm:text-sm font-medium transition-colors cursor-pointer"
                             >
                               <TrashIcon className="w-4 h-4 text-gray-300" />
                               <span>Delete</span>
@@ -327,7 +327,7 @@ export function AdminPreOrderTable({
           <div className="w-full">
             <table className="w-full text-left text-sm text-gray-300 border-collapse">
               <thead className="bg-deep-blue-900">
-                <tr className="border-b border-deep-blue-700 text-xs font-semibold text-gray-300 select-none">
+                <tr className="border-b border-deep-blue-700 text-label-xs font-semibold text-gray-300 select-none">
                   <th className="py-4 px-6 font-semibold w-[45%] min-w-70">
                     <div className="flex items-center gap-3">
                       <AdminCheckbox
@@ -351,19 +351,19 @@ export function AdminPreOrderTable({
 
             {/* Empty State Centered Box (Matching Image 4) */}
             <div className="py-24 px-6 flex flex-col items-center justify-center text-center">
-              <div className="w-16 h-16 rounded-2xl bg-[#161822] border border-white/5 flex items-center justify-center text-gray-300 mb-5 shadow-inner">
+              <div className="w-16 h-16 rounded-lg bg-[#161822] border border-white/5 flex items-center justify-center text-gray-300 mb-5 shadow-inner">
                 <GamepadIcon className="w-8 h-8 text-gray-200" />
               </div>
               <h3 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
                 Belum Ada Data Game
               </h3>
-              <p className="text-xs sm:text-sm text-gray-400 mt-2 font-normal">
+              <p className="text-label-xs sm:text-sm text-gray-400 mt-2 font-normal">
                 Katalog toko Anda saat ini masih kosong.
               </p>
               <button
                 type="button"
                 onClick={onAddNew}
-                className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#1E202B] hover:bg-[#252837] border border-white/10 text-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-all shadow-sm cursor-pointer whitespace-nowrap"
+                className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1E202B] hover:bg-[#252837] border border-white/10 text-label-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-all shadow-sm cursor-pointer whitespace-nowrap"
               >
                 <PlusIcon className="w-4 h-4" />
                 <span>Tambah Produk</span>

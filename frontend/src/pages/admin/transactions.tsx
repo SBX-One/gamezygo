@@ -63,7 +63,7 @@ export default function AdminTransactionsPage() {
 
   // Switcher toggle in headerRight for previewing both Filled State (Gambar 1) and Empty State (Gambar 2-3)
   const headerRight = (
-    <div className="flex items-center gap-1.5 p-1 rounded-lg bg-deep-blue-900 border border-deep-blue-700/60 text-xs">
+    <div className="flex items-center gap-1.5 p-1 rounded-lg bg-deep-blue-900 border border-deep-blue-700/60 text-label-xs">
       <button
         type="button"
         onClick={() => setIsEmptyManual(false)}

@@ -116,13 +116,13 @@ export function AdminProductSectionBlock({
           {/* Top Bar: Title Input + 3 Action Buttons (Images 2 & 3) */}
           <div className="flex flex-wrap items-center justify-between gap-3">
             {/* Title Input Pill Container */}
-            <div className="relative flex items-center bg-deep-blue-900 border border-deep-blue-700 hover:border-deep-blue-600 focus-within:border-deep-blue-500 rounded-xl px-3.5 py-1.5 transition-colors">
+            <div className="relative flex items-center bg-deep-blue-900 border border-deep-blue-700 hover:border-deep-blue-600 focus-within:border-deep-blue-500 rounded-lg px-3.5 py-1.5 transition-colors">
               <input
                 type="text"
                 value={section.title}
                 onChange={(e) => onTitleChange(e.target.value)}
                 placeholder="Section header"
-                className="bg-transparent text-gray-50 text-xs sm:text-sm font-semibold focus:outline-none pr-6 placeholder:text-gray-500 w-[180px] sm:w-[240px]"
+                className="bg-transparent text-gray-50 text-label-xs sm:text-sm font-semibold focus:outline-none pr-6 placeholder:text-gray-500 w-[180px] sm:w-[240px]"
               />
               {section.title && (
                 <button

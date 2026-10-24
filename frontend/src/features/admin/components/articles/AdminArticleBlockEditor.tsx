@@ -690,7 +690,7 @@ export function AdminArticleBlockEditor({
                 {/* Numbered List */}
                 {block.type === "numbered-list" && (
                   <div className="flex items-start gap-2 w-full font-sans">
-                    <span className="text-xs font-semibold text-gray-400 pt-1 select-none shrink-0">
+                    <span className="text-label-xs font-semibold text-gray-400 pt-1 select-none shrink-0">
                       {index + 1}.
                     </span>
                     <input
@@ -724,7 +724,7 @@ export function AdminArticleBlockEditor({
                           className="w-full h-auto max-h-115 object-cover rounded-lg"
                         />
                         <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 group-hover/img:opacity-100 transition-opacity">
-                          <label className="px-3 py-1.5 rounded-lg bg-deep-blue-950/85 hover:bg-deep-blue-950 border border-white/20 text-xs font-medium text-white cursor-pointer backdrop-blur-md">
+                          <label className="px-3 py-1.5 rounded-lg bg-deep-blue-950/85 hover:bg-deep-blue-950 border border-white/20 text-label-xs font-medium text-white cursor-pointer backdrop-blur-md">
                             Ganti Gambar
                             <input
                               type="file"
@@ -740,14 +740,14 @@ export function AdminArticleBlockEditor({
                       <div className="p-8 border-2 border-dashed border-[#2F3241] rounded-lg bg-[#11121A] flex flex-col items-center justify-center gap-3">
                         <ImageIcon className="w-8 h-8 text-gray-400" />
                         <div className="text-center space-y-1">
-                          <p className="text-xs font-medium text-gray-300">
+                          <p className="text-label-xs font-medium text-gray-300">
                             Unggah Gambar Konten
                           </p>
                           <p className="text-[11px] text-gray-500">
                             PNG, JPG, WebP hingga 10MB
                           </p>
                         </div>
-                        <label className="px-4 py-2 rounded-lg bg-[#181A26] hover:bg-[#222534] border border-white/10 text-xs font-medium text-white cursor-pointer transition-colors">
+                        <label className="px-4 py-2 rounded-lg bg-[#181A26] hover:bg-[#222534] border border-white/10 text-label-xs font-medium text-white cursor-pointer transition-colors">
                           Pilih File Gambar
                           <input
                             type="file"
@@ -773,7 +773,7 @@ export function AdminArticleBlockEditor({
                         )
                       }
                       placeholder="Tambahkan keterangan / caption gambar..."
-                      className="w-full text-center font-sans text-xs text-gray-400 placeholder-gray-600 bg-transparent border-none outline-none"
+                      className="w-full text-center font-sans text-label-xs text-gray-400 placeholder-gray-600 bg-transparent border-none outline-none"
                     />
                   </div>
                 )}
@@ -823,7 +823,7 @@ export function AdminArticleBlockEditor({
                       onKeyDown={(e) => handleKeyDown(e, index, block)}
                       placeholder="// Tulis kode atau snippet di sini..."
                       rows={3}
-                      className="w-full p-0 m-0 bg-transparent resize-none border-none outline-none text-xs sm:text-sm text-indigo-300 placeholder-gray-600 leading-relaxed font-mono block"
+                      className="w-full p-0 m-0 bg-transparent resize-none border-none outline-none text-label-xs sm:text-sm text-indigo-300 placeholder-gray-600 leading-relaxed font-mono block"
                     />
                   </div>
                 )}
@@ -849,7 +849,7 @@ export function AdminArticleBlockEditor({
                       onKeyDown={(e) => handleKeyDown(e, index, block)}
                       placeholder="Kotak info / catatan penting..."
                       rows={1}
-                      className="w-full p-0 m-0 bg-transparent resize-none border-none outline-none font-sans text-xs sm:text-sm text-gray-200 placeholder-gray-500 leading-relaxed overflow-hidden block"
+                      className="w-full p-0 m-0 bg-transparent resize-none border-none outline-none font-sans text-label-xs sm:text-sm text-gray-200 placeholder-gray-500 leading-relaxed overflow-hidden block"
                     />
                   </div>
                 )}

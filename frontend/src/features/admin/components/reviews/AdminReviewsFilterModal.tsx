@@ -472,7 +472,7 @@ export function AdminReviewsFilterModal({
               type="button"
               onClick={() => setSortBy("terbaru")}
               className={cn(
-                "w-full h-11 rounded-lg border text-xs sm:text-sm font-semibold flex items-center justify-center transition-all cursor-pointer",
+                "w-full h-11 rounded-lg border text-label-xs sm:text-sm font-semibold flex items-center justify-center transition-all cursor-pointer",
                 sortBy === "terbaru"
                   ? "bg-deep-blue-900 border-deep-blue-600 text-white"
                   : "bg-deep-blue-950 hover:bg-deep-blue-900 border-deep-blue-700 text-gray-400 hover:text-white"
@@ -484,7 +484,7 @@ export function AdminReviewsFilterModal({
               type="button"
               onClick={() => setSortBy("name_asc")}
               className={cn(
-                "w-full h-11 rounded-lg border text-xs sm:text-sm font-semibold flex items-center justify-center transition-all cursor-pointer",
+                "w-full h-11 rounded-lg border text-label-xs sm:text-sm font-semibold flex items-center justify-center transition-all cursor-pointer",
                 sortBy === "name_asc"
                   ? "bg-deep-blue-900 border-deep-blue-600 text-white"
                   : "bg-deep-blue-950 hover:bg-deep-blue-900 border-deep-blue-700 text-gray-400 hover:text-white"

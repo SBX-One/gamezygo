@@ -142,7 +142,7 @@ export function AdminInstructionTableBlock({
       )}
     >
       <div className="inline-block min-w-full align-middle">
-        <table className="w-full border-collapse border border-deep-blue-700 bg-deep-blue-900/60 rounded-lg overflow-hidden text-xs">
+        <table className="w-full border-collapse border border-deep-blue-700 bg-deep-blue-900/60 rounded-lg overflow-hidden text-label-xs">
           <thead>
             <tr className="bg-deep-blue-950 border-b border-deep-blue-700">
               {tableData[0]?.map((_, colIdx) => (
@@ -202,7 +202,7 @@ export function AdminInstructionTableBlock({
                         }
                         onKeyDown={(e) => handleKeyDown(e, rowIdx, colIdx)}
                         placeholder="..."
-                        className="w-full bg-transparent px-2 py-1 text-xs text-gray-200 placeholder-gray-600 border-none outline-none focus:bg-deep-blue-800/40 rounded transition-colors"
+                        className="w-full bg-transparent px-2 py-1 text-label-xs text-gray-200 placeholder-gray-600 border-none outline-none focus:bg-deep-blue-800/40 rounded transition-colors"
                       />
                     </td>
                   );

@@ -9,6 +9,7 @@ export interface AdminCatalogTopBarProps {
   onFilterChange: (filters: AdminCatalogFilterState) => void;
   showStatusCheckboxes?: boolean;
   className?: string;
+  isMobileInline?: boolean;
 }
 
 const SearchIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -86,6 +87,7 @@ export function AdminCatalogTopBar({
   onFilterChange,
   showStatusCheckboxes = true,
   className,
+  isMobileInline = false,
 }: AdminCatalogTopBarProps) {
   const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
 
@@ -98,9 +100,15 @@ export function AdminCatalogTopBar({
     filters.sortBy !== "terbaru";
 
   return (
-    <div className={cn("relative flex items-center gap-3 sm:gap-4", className)}>
+    <div
+      className={cn(
+        "relative flex items-center gap-3 sm:gap-4",
+        isMobileInline && "w-full",
+        className
+      )}
+    >
       {/* 1. Checkboxes Group: Pre-order, Draft, Unlisted */}
-      {showStatusCheckboxes && (
+      {showStatusCheckboxes && !isMobileInline && (
         <div className="hidden md:flex items-center gap-4 mr-1">
           <AdminCheckbox
             label="Pre-order"
@@ -127,7 +135,12 @@ export function AdminCatalogTopBar({
       )}
 
       {/* 2. Search Field */}
-      <div className="relative flex items-center w-48 sm:w-64">
+      <div
+        className={cn(
+          "relative flex items-center",
+          isMobileInline ? "flex-1 w-full" : "w-48 sm:w-64"
+        )}
+      >
         <div className="absolute left-3 text-gray-400 pointer-events-none flex items-center">
           <SearchIcon className="w-4 h-4" />
         </div>
@@ -138,7 +151,7 @@ export function AdminCatalogTopBar({
             onFilterChange({ ...filters, searchQuery: e.target.value })
           }
           placeholder="Cari produk"
-          className="w-full h-9 pl-9 pr-8 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-xs text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors"
+          className="w-full h-10 pl-9 pr-8 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-label-xs text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors"
         />
         {filters.searchQuery && (
           <button
@@ -153,13 +166,13 @@ export function AdminCatalogTopBar({
       </div>
 
       {/* 3. Filter Icon Button */}
-      <div className="relative z-50">
+      <div className={cn("relative shrink-0", isPopoverOpen && "z-30")}>
         <button
           type="button"
           onClick={() => setIsPopoverOpen(!isPopoverOpen)}
           aria-label="Filter & Sort"
           className={cn(
-            "h-9 w-9 rounded-lg border flex items-center justify-center transition-all cursor-pointer relative",
+            "h-10 w-10 rounded-lg border flex items-center justify-center transition-all cursor-pointer relative shrink-0",
             isPopoverOpen || hasActiveFilters
               ? "bg-[#1E202B] border-gray-400 text-white"
               : "bg-deep-blue-900 border-deep-blue-700 text-gray-300 hover:text-white hover:border-gray-500"

@@ -44,7 +44,7 @@ export function AdminUserMetricsGrid({
       {/* Card 1: LIFETIME VALUE */}
       <div className="rounded-lg border border-deep-blue-700 bg-deep-blue-950 p-5 flex flex-col justify-between">
         <div className="border-b border-deep-blue-700/60 pb-3 mb-4">
-          <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+          <span className="text-label-xs font-medium text-gray-400 uppercase tracking-wider">
             LIFETIME VALUE
           </span>
         </div>
@@ -58,7 +58,7 @@ export function AdminUserMetricsGrid({
       {/* Card 2: CURRENT POINTS */}
       <div className="rounded-lg border border-deep-blue-700 bg-deep-blue-950 p-5 flex flex-col justify-between">
         <div className="border-b border-deep-blue-700/60 pb-3 mb-4">
-          <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+          <span className="text-label-xs font-medium text-gray-400 uppercase tracking-wider">
             CURRENT POINTS
           </span>
         </div>
@@ -80,7 +80,7 @@ export function AdminUserMetricsGrid({
       {/* Card 3: SUBS DURATION */}
       <div className="rounded-lg border border-deep-blue-700 bg-deep-blue-950 p-5 flex flex-col justify-between">
         <div className="border-b border-deep-blue-700/60 pb-3 mb-4">
-          <span className="text-xs font-medium text-gray-400 uppercase tracking-wider">
+          <span className="text-label-xs font-medium text-gray-400 uppercase tracking-wider">
             SUBS DURATION
           </span>
         </div>

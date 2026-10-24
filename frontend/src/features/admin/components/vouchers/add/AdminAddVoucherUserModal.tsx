@@ -175,7 +175,7 @@ export function AdminAddVoucherUserModal({
     >
       <div
         className={cn(
-          "w-[760px] max-w-[95vw] rounded-2xl bg-[#0D0F18] border border-white/10 p-6 shadow-2xl space-y-4 text-left",
+          "w-[760px] max-w-[95vw] rounded-lg bg-[#0D0F18] border border-white/10 p-6 shadow-2xl space-y-4 text-left",
           className
         )}
       >
@@ -205,7 +205,7 @@ export function AdminAddVoucherUserModal({
               value={search}
               onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari di toko"
-              className="w-full h-11 pl-10 pr-10 bg-[#12141F] border border-deep-blue-700/80 rounded-xl text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/20 transition-colors"
+              className="w-full h-11 pl-10 pr-10 bg-[#12141F] border border-deep-blue-700/80 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/20 transition-colors"
             />
             {search && (
               <button
@@ -223,16 +223,16 @@ export function AdminAddVoucherUserModal({
           <button
             type="button"
             aria-label="Filter user"
-            className="w-11 h-11 rounded-xl bg-[#12141F] border border-deep-blue-700/80 flex items-center justify-center text-gray-400 hover:text-white transition-colors cursor-pointer shrink-0"
+            className="w-11 h-11 rounded-lg bg-[#12141F] border border-deep-blue-700/80 flex items-center justify-center text-gray-400 hover:text-white transition-colors cursor-pointer shrink-0"
           >
             <FilterFunnelIcon className="w-4 h-4" />
           </button>
         </div>
 
         {/* Users Table Card (Matching Image 2) */}
-        <div className="rounded-2xl border border-white/10 bg-[#0B0D14] overflow-hidden">
+        <div className="rounded-lg border border-white/10 bg-[#0B0D14] overflow-hidden">
           {/* Table Header: Checkbox + Customer Email | Points */}
-          <div className="h-11 px-4 border-b border-white/10 flex items-center justify-between text-xs font-semibold text-gray-400 select-none bg-[#0E101A]">
+          <div className="h-11 px-4 border-b border-white/10 flex items-center justify-between text-label-xs font-semibold text-gray-400 select-none bg-[#0E101A]">
             <div className="flex items-center gap-3 min-w-0">
               <button
                 type="button"
@@ -278,14 +278,14 @@ export function AdminAddVoucherUserModal({
                       >
                         {isSelected && <CheckIcon />}
                       </div>
-                      <span className="text-xs sm:text-sm font-medium text-gray-200 truncate">
+                      <span className="text-label-xs sm:text-sm font-medium text-gray-200 truncate">
                         {user.email}
                       </span>
                     </div>
 
                     {/* Right: Points */}
                     <div className="text-right shrink-0">
-                      <span className="text-xs sm:text-sm font-semibold text-gray-200">
+                      <span className="text-label-xs sm:text-sm font-semibold text-gray-200">
                         {user.points}
                       </span>
                     </div>
@@ -293,7 +293,7 @@ export function AdminAddVoucherUserModal({
                 );
               })
             ) : (
-              <div className="py-12 text-center text-xs text-gray-400">
+              <div className="py-12 text-center text-label-xs text-gray-400">
                 Tidak ada user yang sesuai pencarian &quot;{search}&quot;
               </div>
             )}
@@ -305,14 +305,14 @@ export function AdminAddVoucherUserModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-xl bg-[#161822] hover:bg-[#1E202B] border border-white/10 text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer select-none"
+            className="px-5 py-2.5 rounded-lg bg-[#161822] hover:bg-[#1E202B] border border-white/10 text-white text-label-xs sm:text-sm font-semibold transition-colors cursor-pointer select-none"
           >
             Batalkan
           </button>
           <button
             type="button"
             onClick={handleSave}
-            className="px-6 py-2.5 rounded-xl bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-md select-none"
+            className="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-md select-none"
           >
             Simpan
           </button>

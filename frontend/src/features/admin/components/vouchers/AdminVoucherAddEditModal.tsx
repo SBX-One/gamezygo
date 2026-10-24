@@ -121,7 +121,7 @@ export function AdminVoucherAddEditModal({
     >
       <div
         className={cn(
-          "w-125 max-w-[95vw] rounded-2xl bg-[#0F111A] border border-white/10 p-6 sm:p-7 shadow-2xl select-none animate-in zoom-in-95 duration-150 text-left space-y-6",
+          "w-125 max-w-[95vw] rounded-lg bg-[#0F111A] border border-white/10 p-6 sm:p-7 shadow-2xl select-none animate-in zoom-in-95 duration-150 text-left space-y-6",
           className
         )}
       >
@@ -149,7 +149,7 @@ export function AdminVoucherAddEditModal({
           {/* Row 1: Voucher Code & Discount Value */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wide">
+              <label className="block text-label-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wide">
                 Kode Voucher
               </label>
               <input
@@ -158,12 +158,12 @@ export function AdminVoucherAddEditModal({
                 value={code}
                 onChange={(e) => setCode(e.target.value.toUpperCase())}
                 placeholder="Contoh: SUMMER26"
-                className="w-full h-10 px-3.5 bg-deep-blue-900 border border-deep-blue-700 rounded-xl text-sm font-semibold text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors uppercase tracking-wider"
+                className="w-full h-10 px-3.5 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm font-semibold text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors uppercase tracking-wider"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wide">
+              <label className="block text-label-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wide">
                 Nilai Diskon (Rp)
               </label>
               <input
@@ -174,7 +174,7 @@ export function AdminVoucherAddEditModal({
                 value={discountAmount}
                 onChange={(e) => setDiscountAmount(e.target.value)}
                 placeholder="Contoh: 480000"
-                className="w-full h-10 px-3.5 bg-deep-blue-900 border border-deep-blue-700 rounded-xl text-sm font-semibold text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full h-10 px-3.5 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm font-semibold text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors"
               />
             </div>
           </div>
@@ -182,7 +182,7 @@ export function AdminVoucherAddEditModal({
           {/* Row 2: Usage Limit & Validity Period */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div>
-              <label className="block text-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wide">
+              <label className="block text-label-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wide">
                 Batas Penggunaan (Limit)
               </label>
               <input
@@ -191,12 +191,12 @@ export function AdminVoucherAddEditModal({
                 value={usageLimit}
                 onChange={(e) => setUsageLimit(e.target.value)}
                 placeholder="Contoh: 100"
-                className="w-full h-10 px-3.5 bg-deep-blue-900 border border-deep-blue-700 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full h-10 px-3.5 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors"
               />
             </div>
 
             <div>
-              <label className="block text-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wide">
+              <label className="block text-label-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wide">
                 Periode Berlaku (DD/MM/YYYY)
               </label>
               <input
@@ -204,14 +204,14 @@ export function AdminVoucherAddEditModal({
                 value={validityPeriod}
                 onChange={(e) => setValidityPeriod(e.target.value)}
                 placeholder="Contoh: 22/07/2026"
-                className="w-full h-10 px-3.5 bg-deep-blue-900 border border-deep-blue-700 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors"
+                className="w-full h-10 px-3.5 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors"
               />
             </div>
           </div>
 
           {/* Row 3: Minimum Purchase */}
           <div>
-            <label className="block text-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wide">
+            <label className="block text-label-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wide">
               Minimal Belanja (Rp)
             </label>
             <input
@@ -221,13 +221,13 @@ export function AdminVoucherAddEditModal({
               value={minPurchase}
               onChange={(e) => setMinPurchase(e.target.value)}
               placeholder="Contoh: 500000"
-              className="w-full h-10 px-3.5 bg-deep-blue-900 border border-deep-blue-700 rounded-xl text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors"
+              className="w-full h-10 px-3.5 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors"
             />
           </div>
 
           {/* Row 4: Description */}
           <div>
-            <label className="block text-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wide">
+            <label className="block text-label-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wide">
               Deskripsi Voucher
             </label>
             <textarea
@@ -235,13 +235,13 @@ export function AdminVoucherAddEditModal({
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Keterangan singkat mengenai voucher ini..."
-              className="w-full p-3 bg-deep-blue-900 border border-deep-blue-700 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors resize-none"
+              className="w-full p-3 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-label-xs text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors resize-none"
             />
           </div>
 
           {/* Options: Draft & Active toggle */}
           <div className="flex items-center gap-6 pt-2 border-t border-deep-blue-700/60">
-            <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-300 select-none">
+            <label className="flex items-center gap-2 cursor-pointer text-label-xs text-gray-300 select-none">
               <input
                 type="checkbox"
                 checked={isDraft}
@@ -252,7 +252,7 @@ export function AdminVoucherAddEditModal({
             </label>
 
             {!isDraft && (
-              <label className="flex items-center gap-2 cursor-pointer text-xs text-gray-300 select-none">
+              <label className="flex items-center gap-2 cursor-pointer text-label-xs text-gray-300 select-none">
                 <input
                   type="checkbox"
                   checked={isActive}
@@ -269,13 +269,13 @@ export function AdminVoucherAddEditModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-xl bg-[#181A22] hover:bg-[#222533] border border-white/10 text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer select-none"
+              className="px-5 py-2.5 rounded-lg bg-[#181A22] hover:bg-[#222533] border border-white/10 text-white text-label-xs sm:text-sm font-semibold transition-colors cursor-pointer select-none"
             >
               Batal
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-sm select-none"
+              className="px-6 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-label-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-sm select-none"
             >
               {item ? "Simpan Perubahan" : "Buat Voucher"}
             </button>

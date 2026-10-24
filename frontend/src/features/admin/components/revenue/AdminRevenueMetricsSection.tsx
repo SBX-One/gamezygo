@@ -17,7 +17,7 @@ export function AdminRevenueMetricsSection({
   return (
     <div className={`space-y-6 ${className || ""}`}>
       {/* 1. Hero Revenue Card (Gambar 2 Top & Gambar 1 Empty State) */}
-      <div className="relative z-20">
+      <div className="relative z-20 has-[[aria-expanded='true']]:z-40">
         <AdminHeroStatCard
           title="TOTAL PENDAPATAN"
           value={isEmpty ? "IDR 0" : "IDR 350,000"}
@@ -42,17 +42,15 @@ export function AdminRevenueMetricsSection({
           className="h-full"
         />
 
-        {/* Card 2: Total Order with Dropdown (z-20 so dropdown is elevated above siblings) */}
-        <div className="relative z-20 h-full">
-          <AdminStatCard
-            title="TOTAL ORDER"
-            value={isEmpty ? "0 Order" : "80 Order"}
-            timeframes={ADMIN_TIMEFRAMES}
-            selectedTimeframe={orderTimeframe}
-            onTimeframeChange={setOrderTimeframe}
-            className="h-full"
-          />
-        </div>
+        {/* Card 2: Total Order with Dropdown (elevates to z-50 when open) */}
+        <AdminStatCard
+          title="TOTAL ORDER"
+          value={isEmpty ? "0 Order" : "80 Order"}
+          timeframes={ADMIN_TIMEFRAMES}
+          selectedTimeframe={orderTimeframe}
+          onTimeframeChange={setOrderTimeframe}
+          className="h-full"
+        />
 
         {/* Card 3: Voucher Burn with Info Icon */}
         <AdminStatCard

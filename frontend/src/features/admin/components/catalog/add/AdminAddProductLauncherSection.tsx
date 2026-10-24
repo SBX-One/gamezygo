@@ -40,11 +40,11 @@ export function AdminAddProductLauncherSection({
 
   return (
     <div className={cn("flex flex-col gap-6 w-full", className)}>
-      {/* 1. Launcher & Promotion Section Row */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-start">
-        {/* Launcher selector */}
-        <div className="flex flex-col gap-2.5">
-          <label className="text-xs font-semibold tracking-wider text-gray-400 uppercase select-none">
+      {/* 1. Launcher & Promotion Section Row (Berdampingan) */}
+      <div className="flex flex-col md:flex-row gap-6 lg:gap-8 w-full items-start relative z-20 has-[[aria-expanded='true']]:z-30">
+        {/* Launcher selector (kiri, shrink-0) */}
+        <div className="flex flex-col gap-2.5 shrink-0">
+          <label className="text-label-xs text-gray-400 uppercase">
             LAUNCHER
           </label>
           <div className="flex flex-wrap items-center gap-2">
@@ -66,9 +66,9 @@ export function AdminAddProductLauncherSection({
           </div>
         </div>
 
-        {/* Promotion section dropdown */}
-        <div className="flex flex-col gap-2.5">
-          <label className="text-xs font-semibold tracking-wider text-gray-400 uppercase select-none">
+        {/* Promotion section dropdown (kanan, flex-1 membentang panjang memenuhi sisa ruang) */}
+        <div className="flex flex-col gap-2.5 flex-1 w-full min-w-0">
+          <label className="text-label-xs text-gray-400 uppercase">
             PROMOTION SECTION
           </label>
           <div className="w-full">
@@ -77,17 +77,16 @@ export function AdminAddProductLauncherSection({
               selectedValue={formData.promotionSection}
               onSelect={(value) => onChange({ promotionSection: value })}
               placeholder="Pilih section"
+              fullWidth
               className="w-full"
-              buttonClassName="w-full h-10 px-4 bg-[#15161D] border-deep-blue-700 text-xs sm:text-sm text-gray-300 hover:text-white justify-between rounded-lg"
-              menuClassName="w-full bg-deep-blue-950 border-deep-blue-700"
             />
           </div>
         </div>
       </div>
 
       {/* 2. Store URL Input Card (Matching Image 3) */}
-      <div className="w-full rounded-xl border border-deep-blue-700 bg-deep-blue-950 p-5 sm:p-6 flex flex-col gap-3 shadow-sm">
-        <label className="text-xs font-medium text-gray-400 select-none">
+      <div className="w-full rounded-lg border border-deep-blue-700 bg-deep-blue-950 p-5 sm:p-6 flex flex-col gap-3 shadow-sm">
+        <label className="text-body-xs text-gray-400 select-none">
           URL Input ({formData.launcher})
         </label>
 
@@ -102,10 +101,10 @@ export function AdminAddProductLauncherSection({
                 onChange({ storeUrl: e.target.value });
               }}
               placeholder="Link store"
-              className="w-full h-10 px-4 pr-10 bg-[#15161D] border border-deep-blue-700 rounded-lg text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
+              className="w-full h-10 px-4 pr-10 bg-deep-blue-900  rounded-lg text-label-xs sm:text-body-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
             />
             {formData.storeUrl && (
-              <button
+              <button 
                 type="button"
                 onClick={() => onChange({ storeUrl: "" })}
                 aria-label="Clear link store"
@@ -117,13 +116,16 @@ export function AdminAddProductLauncherSection({
           </div>
 
           {/* Done Button (Matching Image 3) */}
-          <button
+          <Button
+          variant={"primary"}
+          size={"sm"}
+            disabled={!formData.storeUrl}
+          
             type="button"
             onClick={() => setIsUrlSaved(true)}
-            className="h-10 px-6 rounded-lg bg-gradient-to-r from-[#DF3848] to-[#FF5364] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold shadow-sm transition-all select-none cursor-pointer shrink-0"
-          >
+            >
             {isUrlSaved ? "Saved" : "Done"}
-          </button>
+          </Button>
         </div>
       </div>
     </div>

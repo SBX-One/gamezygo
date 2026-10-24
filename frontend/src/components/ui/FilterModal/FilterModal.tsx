@@ -1,4 +1,5 @@
 import * as React from "react";
+import { createPortal } from "react-dom";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import type { FilterModalProps } from "./FilterModal.types";
@@ -130,6 +131,11 @@ export function FilterModal({
     propPriceRange ?? internalPriceRange;
 
   const trackRef = React.useRef<HTMLDivElement>(null);
+  const [isMounted, setIsMounted] = React.useState(false);
+
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   // Close on Escape key press
   React.useEffect(() => {
@@ -357,20 +363,20 @@ export function FilterModal({
 
   if (isDialog && !isOpen) return null;
 
-  const ModalContent = (
-    <div
-      ref={ref}
-      className={cn(
-        "flex flex-col min-h-0 max-h-full rounded-2xl bg-deep-blue-950 border border-white/10 text-gray-50 select-none w-full overflow-hidden shadow-2xl overscroll-contain",
-        className
+  const renderInnerContent = (isMobileFull = false) => (
+    <>
+      {/* Mobile Sheet Handle (only if not full screen modal) */}
+      {!isMobileFull && (
+        <div className="w-10 h-1 bg-white/25 rounded-full mx-auto mt-3 mb-1 shrink-0 sm:hidden" />
       )}
-      {...props}
-    >
-      {/* Mobile Sheet Handle */}
-      <div className="w-10 h-1 bg-white/25 rounded-full mx-auto mt-3 mb-1 shrink-0 sm:hidden" />
 
       {/* 1. STICKY HEADER (Title & Dismiss Button) */}
-      <div className="shrink-0 sticky top-0 z-20 flex items-center justify-between px-5 sm:px-6 py-3.5 bg-deep-blue-950/95 backdrop-blur-md border-b border-white/10">
+      <div
+        className={cn(
+          "shrink-0 sticky top-0 z-20 flex items-center justify-between px-5 sm:px-6 py-4 bg-deep-blue-950/95 backdrop-blur-md border-b border-white/10",
+          isMobileFull && "pt-4"
+        )}
+      >
         <h4 className="text-body-lg font-semibold text-gray-50 tracking-normal">
           {title}
         </h4>
@@ -493,7 +499,7 @@ export function FilterModal({
             <button
               type="button"
               onClick={() => statusRadio.onChange(!statusRadio.checked)}
-              className="inline-flex items-center gap-2.5 text-xs sm:text-sm font-medium text-gray-200 hover:text-white cursor-pointer select-none"
+              className="inline-flex items-center gap-2.5 text-label-xs sm:text-sm font-medium text-gray-200 hover:text-white cursor-pointer select-none"
             >
               <div
                 className={cn(
@@ -753,6 +759,42 @@ export function FilterModal({
           </div>
         )}
       </div>
+    </>
+  );
+
+  const DesktopModalContent = (
+    <div
+      ref={ref}
+      className={cn(
+        "flex flex-col min-h-0 max-h-full rounded-2xl bg-deep-blue-950 border border-white/10 text-gray-50 select-none w-full overflow-hidden shadow-2xl overscroll-contain",
+        className
+      )}
+      {...props}
+    >
+      {renderInnerContent(false)}
+    </div>
+  );
+
+  const MobileModalContent = (
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="sm:hidden fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/25 backdrop-blur-md animate-fade-in touch-none overscroll-none"
+    >
+      {/* Backdrop overlay (klik di luar untuk menutup) */}
+      <div
+        className="fixed inset-0 touch-none"
+        onClick={onClose}
+        onTouchMove={(e) => {
+          if (e.cancelable) e.preventDefault();
+        }}
+        aria-hidden="true"
+      />
+
+      {/* Floating Card Modal dengan margin, border, rounded-2xl, dan shadow-2xl */}
+      <div className="relative z-10 w-full max-h-[85vh] flex flex-col rounded-2xl bg-deep-blue-950 border border-white/10 text-gray-50 select-none overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+        {renderInnerContent(false)}
+      </div>
     </div>
   );
 
@@ -760,13 +802,13 @@ export function FilterModal({
 
   // Mode: INLINE
   if (variant === "inline") {
-    return ModalContent;
+    return DesktopModalContent;
   }
 
   // Mode: DIALOG (Explicit dialog mode on all screens)
   if (variant === "dialog" || (isDialog && variant !== "dropdown")) {
-    return (
-      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-3 pb-4 sm:p-4 bg-black/80 backdrop-blur-sm animate-fade-in touch-none overscroll-none">
+    const dialogNode = (
+      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/75 backdrop-blur-md animate-fade-in touch-none overscroll-none">
         <div
           className="fixed inset-0 touch-none"
           onClick={onClose}
@@ -775,39 +817,32 @@ export function FilterModal({
           }}
           aria-hidden="true"
         />
-        <div className="relative z-10 w-full sm:max-w-lg max-h-[75vh] sm:max-h-[84vh] flex flex-col overflow-hidden rounded-2xl shadow-2xl animate-in fade-in slide-in-from-bottom-6 sm:zoom-in-95 duration-200">
-          {ModalContent}
+        <div className="relative z-10 w-full sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden rounded-2xl bg-deep-blue-950 border border-white/10 shadow-2xl animate-in zoom-in-95 duration-200">
+          {DesktopModalContent}
         </div>
       </div>
     );
+
+    return isMounted && typeof document !== "undefined"
+      ? createPortal(dialogNode, document.body)
+      : null;
   }
 
   // Mode: DROPDOWN (Default)
-  // Pada mobile (< sm): Otomatis menjadi MODAL bottom-sheet dialog dengan backdrop overlay gelap
+  // Pada mobile (< sm): Otomatis menjadi MODAL CARD dengan margin dan backdrop blur via Portal ke document.body
   // Pada desktop (sm+): Menjadi floating dropdown popover di samping trigger/navbar
   const isNavbar = placement === "navbar";
+  const mobilePortalNode =
+    isMounted && typeof document !== "undefined"
+      ? createPortal(MobileModalContent, document.body)
+      : null;
 
   return (
     <>
       {/* ========================================================
-          1. MOBILE VIEWPORT (< sm): MODAL DIALOG DENGAN BACKDROP OVERLAY
+          1. MOBILE VIEWPORT (< sm): MODAL PENUH KE DOCUMENT.BODY
          ======================================================== */}
-      <div className="sm:hidden fixed inset-0 z-50 flex items-center justify-center bg-black/80 backdrop-blur-sm animate-fade-in p-4 pb-4 touch-none overscroll-none">
-        {/* Backdrop overlay (klik di luar untuk menutup) */}
-        <div
-          className="fixed inset-0 touch-none"
-          onClick={onClose}
-          onTouchMove={(e) => {
-            if (e.cancelable) e.preventDefault();
-          }}
-          aria-hidden="true"
-        />
-
-        {/* Modal Card Sheet */}
-        <div className="relative z-10 w-full max-h-[75vh] flex flex-col overflow-hidden rounded-2xl shadow-2xl animate-in fade-in slide-in-from-bottom-6 duration-200">
-          {ModalContent}
-        </div>
-      </div>
+      {mobilePortalNode}
 
       {/* ========================================================
           2. DESKTOP VIEWPORT (sm+): FLOATING DROPDOWN POPOVER
@@ -831,7 +866,7 @@ export function FilterModal({
             popoverClassName
           )}
         >
-          {ModalContent}
+          {DesktopModalContent}
         </div>
       </div>
     </>

@@ -27,7 +27,7 @@ export function AdminBadge({
   }[variant];
 
   const sizeStyles = {
-    sm: "text-xs px-2.5 py-0.5 rounded-full font-medium",
+    sm: "text-label-xs px-2.5 py-0.5 rounded-full font-medium",
     md: "text-sm px-3 py-1 rounded-full font-medium",
   }[size];
 

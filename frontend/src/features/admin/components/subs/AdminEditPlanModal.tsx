@@ -143,7 +143,7 @@ export function AdminEditPlanModal({
               onChange={(e) => setName(e.target.value)}
               placeholder="Paket 1"
               required
-              className="w-full px-4 py-2.5 rounded-xl bg-deep-blue-900 border border-deep-blue-700 text-gray-50 text-sm placeholder:text-gray-500 focus:outline-none focus:border-deep-blue-500 transition-colors"
+              className="w-full px-4 py-2.5 rounded-lg bg-deep-blue-900 border border-deep-blue-700 text-gray-50 text-sm placeholder:text-gray-500 focus:outline-none focus:border-deep-blue-500 transition-colors"
             />
           </div>
 
@@ -157,7 +157,7 @@ export function AdminEditPlanModal({
               value={price}
               onChange={(e) => setPrice(e.target.value)}
               placeholder="ex. IDR 450,000"
-              className="w-full px-4 py-2.5 rounded-xl bg-deep-blue-900 border border-deep-blue-700 text-gray-50 text-sm placeholder:text-gray-500 focus:outline-none focus:border-deep-blue-500 transition-colors"
+              className="w-full px-4 py-2.5 rounded-lg bg-deep-blue-900 border border-deep-blue-700 text-gray-50 text-sm placeholder:text-gray-500 focus:outline-none focus:border-deep-blue-500 transition-colors"
             />
           </div>
 
@@ -166,7 +166,7 @@ export function AdminEditPlanModal({
             <label className="block text-[11px] font-semibold text-gray-400 uppercase tracking-wider mb-2">
               PERIOD
             </label>
-            <div className="inline-flex items-center bg-deep-blue-900 border border-deep-blue-700 rounded-xl px-3 py-1.5 gap-3 text-sm text-gray-200">
+            <div className="inline-flex items-center bg-deep-blue-900 border border-deep-blue-700 rounded-lg px-3 py-1.5 gap-3 text-sm text-gray-200">
               <button
                 type="button"
                 onClick={() => setPeriodMonths((prev) => Math.max(1, prev - 1))}
@@ -176,7 +176,7 @@ export function AdminEditPlanModal({
               >
                 <MinusIcon className="w-3.5 h-3.5" />
               </button>
-              <span className="font-semibold select-none min-w-16 text-center text-xs sm:text-sm">
+              <span className="font-semibold select-none min-w-16 text-center text-label-xs sm:text-sm">
                 {periodMonths} {periodMonths === 1 ? "month" : "months"}
               </span>
               <button
@@ -199,7 +199,7 @@ export function AdminEditPlanModal({
               {benefits.map((benefit, idx) => (
                 <div
                   key={idx}
-                  className="flex items-center gap-2.5 bg-deep-blue-900 border border-deep-blue-700 rounded-xl px-3.5 py-2.5 focus-within:border-deep-blue-500 transition-colors"
+                  className="flex items-center gap-2.5 bg-deep-blue-900 border border-deep-blue-700 rounded-lg px-3.5 py-2.5 focus-within:border-deep-blue-500 transition-colors"
                 >
                   <GripSixDotsIcon className="w-4 h-4 text-gray-500 shrink-0 cursor-grab" />
                   <input
@@ -207,7 +207,7 @@ export function AdminEditPlanModal({
                     value={benefit}
                     onChange={(e) => handleBenefitChange(idx, e.target.value)}
                     placeholder="ex. Membuka 1000+ Game"
-                    className="w-full bg-transparent text-gray-50 text-xs sm:text-sm placeholder:text-gray-500 focus:outline-none"
+                    className="w-full bg-transparent text-gray-50 text-label-xs sm:text-sm placeholder:text-gray-500 focus:outline-none"
                   />
                   {benefits.length > 1 && (
                     <button
@@ -226,7 +226,7 @@ export function AdminEditPlanModal({
               <button
                 type="button"
                 onClick={handleAddBenefit}
-                className="w-full py-2.5 rounded-xl border border-dashed border-deep-blue-700/80 hover:border-deep-blue-500 text-gray-400 hover:text-gray-200 text-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer"
+                className="w-full py-2.5 rounded-lg border border-dashed border-deep-blue-700/80 hover:border-deep-blue-500 text-gray-400 hover:text-gray-200 text-label-xs font-semibold uppercase tracking-wider flex items-center justify-center gap-2 transition-colors cursor-pointer"
               >
                 <PlusIcon className="w-3.5 h-3.5" />
                 <span>TAMBAH BENEFIT</span>

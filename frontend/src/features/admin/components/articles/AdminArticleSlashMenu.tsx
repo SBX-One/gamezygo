@@ -26,7 +26,7 @@ const SLASH_MENU_ITEMS: SlashMenuItem[] = [
     type: "h1",
     title: "Heading 1",
     description: "Judul bagian besar",
-    icon: <span className="font-bold text-xs">H1</span>,
+    icon: <span className="font-bold text-label-xs">H1</span>,
     keywords: ["h1", "heading", "judul", "besar", "header"],
   },
   {
@@ -34,7 +34,7 @@ const SLASH_MENU_ITEMS: SlashMenuItem[] = [
     type: "h2",
     title: "Heading 2",
     description: "Judul bagian sedang",
-    icon: <span className="font-bold text-xs">H2</span>,
+    icon: <span className="font-bold text-label-xs">H2</span>,
     keywords: ["h2", "heading", "judul", "sedang", "subjudul"],
   },
   {
@@ -42,7 +42,7 @@ const SLASH_MENU_ITEMS: SlashMenuItem[] = [
     type: "h3",
     title: "Heading 3",
     description: "Subjudul bagian kecil",
-    icon: <span className="font-bold text-xs">H3</span>,
+    icon: <span className="font-bold text-label-xs">H3</span>,
     keywords: ["h3", "heading", "subjudul", "kecil"],
   },
   {
@@ -296,7 +296,7 @@ export function AdminArticleSlashMenu({
                 {item.icon}
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-xs font-medium text-white truncate">
+                <div className="text-label-xs font-medium text-white truncate">
                   {item.title}
                 </div>
                 <div className="text-[11px] text-gray-400 truncate">

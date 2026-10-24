@@ -47,7 +47,7 @@ export function AdminDeleteSectionModal({
     >
       <div
         className={cn(
-          "w-[420px] max-w-[95vw] rounded-2xl bg-deep-blue-950 border border-deep-blue-700 p-6 shadow-2xl select-none animate-in zoom-in-95 duration-150 text-left",
+          "w-[420px] max-w-[95vw] rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-6 shadow-2xl select-none animate-in zoom-in-95 duration-150 text-left",
           className
         )}
       >
@@ -55,7 +55,7 @@ export function AdminDeleteSectionModal({
           Hapus section &quot;{sectionTitle}&quot;?
         </h3>
 
-        <p className="text-xs sm:text-sm text-gray-400 mt-2 font-normal leading-relaxed">
+        <p className="text-label-xs sm:text-sm text-gray-400 mt-2 font-normal leading-relaxed">
           Section ini beserta susunan game di dalamnya akan dihapus dari halaman toko dan landing page.
         </p>
 

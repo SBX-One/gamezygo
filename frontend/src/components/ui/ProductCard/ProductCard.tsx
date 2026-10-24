@@ -93,7 +93,7 @@ export function ProductCard({
           type="button"
           variant="outline"
           size="md" 
-          className="w-full justify-center cursor-pointer text-xs sm:text-sm"
+          className="w-full justify-center cursor-pointer text-label-xs sm:text-sm"
           onClick={onActionClick}
         >
           {buttonText || "Tambah Keranjang"}
@@ -107,7 +107,7 @@ export function ProductCard({
         type="button"
         variant="secondary"
         size="md"
-        className="w-full justify-center cursor-pointer text-xs "
+        className="w-full justify-center cursor-pointer text-label-xs "
         onClick={onActionClick}
       >
         {buttonText || "Tambah Keranjang"}
@@ -216,12 +216,12 @@ export function ProductCard({
             {href ? (
               <Link
                 href={href}
-                className="text-xs sm:text-h6 font-semibold text-gray-50 hover:text-gray-50 line-clamp-2 transition-colors outline-none leading-tight sm:leading-snug"
+                className="text-label-xs sm:text-h6 font-semibold text-gray-50 hover:text-gray-50 line-clamp-2 transition-colors outline-none leading-tight sm:leading-snug"
               >
                 {title}
               </Link>
             ) : (
-              <h4 className="text-xs sm:text-h6 font-semibold text-gray-50 leading-tight sm:leading-[120%] line-clamp-2">
+              <h4 className="text-label-xs sm:text-h6 font-semibold text-gray-50 leading-tight sm:leading-[120%] line-clamp-2">
                 {title}
               </h4>
             )}
@@ -306,12 +306,12 @@ export function ProductCard({
         {href ? (
           <Link
             href={href}
-            className="text-xs sm:text-body-sm font-semibold text-gray-50 hover:text-gray-50 line-clamp-2 transition-colors outline-none leading-tight sm:leading-snug"
+            className="text-label-xs sm:text-body-sm font-semibold text-gray-50 hover:text-gray-50 line-clamp-2 transition-colors outline-none leading-tight sm:leading-snug"
           >
             {title}
           </Link>
         ) : (
-          <h4 className="text-xs sm:text-body-sm font-semibold text-gray-50 line-clamp-2 leading-tight sm:leading-snug">
+          <h4 className="text-label-xs sm:text-body-sm font-semibold text-gray-50 line-clamp-2 leading-tight sm:leading-snug">
             {title}
           </h4>
         )}

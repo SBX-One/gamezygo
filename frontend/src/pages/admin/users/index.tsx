@@ -146,7 +146,7 @@ export default function AdminUsersPage() {
 
           {/* Toast Notification */}
           {toastMessage && (
-            <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 bg-deep-blue-950 border border-emerald-500/50 rounded-lg text-xs text-emerald-400">
+            <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 bg-deep-blue-950 border border-emerald-500/50 rounded-lg text-label-xs text-emerald-400">
               <svg
                 className="w-4 h-4 shrink-0 text-emerald-400"
                 fill="none"

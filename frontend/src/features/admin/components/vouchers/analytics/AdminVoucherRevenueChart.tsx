@@ -92,13 +92,14 @@ export function AdminVoucherRevenueChart({
   return (
     <div
       className={cn(
-        "rounded-2xl bg-deep-blue-950 border border-deep-blue-700/80 overflow-visible shadow-xs select-none relative",
+        "rounded-lg bg-deep-blue-950 border border-deep-blue-700/80 overflow-visible shadow-xs select-none relative",
+        isDatePickerOpen && "z-50",
         className
       )}
     >
       {/* 1. Header: REVENUE CHART + Tanggal Popover Button */}
       <div className="flex items-center justify-between px-6 py-4 border-b border-deep-blue-700/80 bg-deep-blue-900/40 rounded-t-2xl relative">
-        <h3 className="text-xs font-semibold tracking-wider text-gray-400 uppercase">
+        <h3 className="text-label-xs font-semibold tracking-wider text-gray-400 uppercase">
           REVENUE CHART
         </h3>
 
@@ -107,7 +108,7 @@ export function AdminVoucherRevenueChart({
           <button
             type="button"
             onClick={() => setIsDatePickerOpen((prev) => !prev)}
-            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-deep-blue-900 hover:bg-deep-blue-800 border border-deep-blue-700 text-xs sm:text-sm font-semibold text-white transition-all cursor-pointer shadow-xs"
+            className="inline-flex items-center gap-2 px-3.5 py-2 rounded-lg bg-deep-blue-900 hover:bg-deep-blue-800 border border-deep-blue-700 text-label-xs sm:text-sm font-semibold text-white transition-all cursor-pointer shadow-xs"
           >
             <CalendarIcon className="w-4 h-4 text-gray-400" />
             <span>{selectedRangeLabel}</span>
@@ -128,13 +129,13 @@ export function AdminVoucherRevenueChart({
       {/* 2. Chart Area Canvas OR Empty State (Matching Image 4) */}
       {isEmpty ? (
         <div className="py-16 sm:py-20 px-6 flex flex-col items-center justify-center text-center">
-          <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-slate-300 mb-4 shadow-inner">
+          <div className="w-14 h-14 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-slate-300 mb-4 shadow-inner">
             <FluentBookIcon className="w-7 h-7 text-slate-200" />
           </div>
           <h4 className="text-xl sm:text-2xl font-bold text-white mb-1.5">
             Tidak ada Riwayat
           </h4>
-          <p className="text-xs sm:text-sm text-slate-400 font-normal">
+          <p className="text-label-xs sm:text-sm text-slate-400 font-normal">
             Tidak ditemukan riwayat untuk kategori Revenue Chart.
           </p>
         </div>
@@ -142,7 +143,7 @@ export function AdminVoucherRevenueChart({
         <div className="p-6 pt-7 pb-6 relative overflow-hidden rounded-b-2xl">
           <div className="relative flex">
             {/* Y-Axis Scale Ticks */}
-            <div className="flex flex-col justify-between items-end pr-5 text-[11px] sm:text-xs font-medium text-gray-500 h-65 select-none shrink-0 w-12">
+            <div className="flex flex-col justify-between items-end pr-5 text-[11px] sm:text-label-xs font-medium text-gray-500 h-65 select-none shrink-0 w-12">
               {yTicks.map((val) => (
                 <span key={val} className="leading-none">
                   {val}
@@ -234,7 +235,7 @@ export function AdminVoucherRevenueChart({
                   <div className="text-[10px] text-gray-400 font-medium">
                     {points[hoveredIdx].item.day}
                   </div>
-                  <div className="text-xs font-bold text-white">
+                  <div className="text-label-xs font-bold text-white">
                     Rp {points[hoveredIdx].item.revenue.toLocaleString("id-ID")}.000
                   </div>
                 </div>
@@ -243,7 +244,7 @@ export function AdminVoucherRevenueChart({
           </div>
 
           {/* X-Axis Labels (Senin to Minggu) */}
-          <div className="flex justify-between items-center pl-12 pr-4 mt-3 text-xs font-medium text-gray-400 select-none">
+          <div className="flex justify-between items-center pl-12 pr-4 mt-3 text-label-xs font-medium text-gray-400 select-none">
             {data.map((item, idx) => (
               <span
                 key={item.day}

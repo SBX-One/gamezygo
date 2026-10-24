@@ -47,7 +47,7 @@ export function AdminUserProfileCard({
           <h2 className="text-lg font-bold text-white tracking-normal leading-tight">
             {user.username || user.name || "Cihuy67"}
           </h2>
-          <span className="text-xs text-gray-400 mt-1">{user.email}</span>
+          <span className="text-label-xs text-gray-400 mt-1">{user.email}</span>
         </div>
       </div>
 
@@ -73,21 +73,21 @@ export function AdminUserProfileCard({
           <button
             type="button"
             onClick={onSuspend}
-            className="px-4 py-2 rounded-lg text-xs font-semibold border border-deep-blue-700 bg-deep-blue-900/60 hover:bg-deep-blue-800 text-gray-300 hover:text-white transition-colors cursor-pointer"
+            className="px-4 py-2 rounded-lg text-label-xs font-semibold border border-deep-blue-700 bg-deep-blue-900/60 hover:bg-deep-blue-800 text-gray-300 hover:text-white transition-colors cursor-pointer"
           >
             Suspend
           </button>
           <button
             type="button"
             onClick={onBan}
-            className="px-4 py-2 rounded-lg text-xs font-semibold border border-deep-blue-700 bg-deep-blue-900/60 hover:bg-deep-blue-800 text-gray-300 hover:text-white transition-colors cursor-pointer"
+            className="px-4 py-2 rounded-lg text-label-xs font-semibold border border-deep-blue-700 bg-deep-blue-900/60 hover:bg-deep-blue-800 text-gray-300 hover:text-white transition-colors cursor-pointer"
           >
             Ban
           </button>
           <button
             type="button"
             onClick={onWipe}
-            className="px-4 py-2 rounded-lg text-xs font-semibold border border-deep-blue-700 bg-deep-blue-900/60 hover:bg-deep-blue-800 text-gray-300 hover:text-white transition-colors cursor-pointer"
+            className="px-4 py-2 rounded-lg text-label-xs font-semibold border border-deep-blue-700 bg-deep-blue-900/60 hover:bg-deep-blue-800 text-gray-300 hover:text-white transition-colors cursor-pointer"
           >
             Wipe
           </button>

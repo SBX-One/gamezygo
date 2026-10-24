@@ -145,7 +145,7 @@ export function AdminUsersFilterDropdown({
                   </div>
                   <span
                     className={cn(
-                      "text-xs font-medium transition-colors",
+                      "text-label-xs font-medium transition-colors",
                       isSelected ? "text-white" : "text-gray-300 group-hover:text-white"
                     )}
                   >
@@ -185,7 +185,7 @@ export function AdminUsersFilterDropdown({
                   </div>
                   <span
                     className={cn(
-                      "text-xs font-medium transition-colors",
+                      "text-label-xs font-medium transition-colors",
                       isSelected ? "text-white" : "text-gray-300 group-hover:text-white"
                     )}
                   >
@@ -211,7 +211,7 @@ export function AdminUsersFilterDropdown({
                   type="button"
                   onClick={() => handleLoginTypeToggle(type)}
                   className={cn(
-                    "px-4 py-2 rounded-lg text-xs font-medium border transition-colors cursor-pointer",
+                    "px-4 py-2 rounded-lg text-label-xs font-medium border transition-colors cursor-pointer",
                     isSelected
                       ? "bg-deep-blue-900 border-white/40 text-white font-semibold"
                       : "bg-deep-blue-900 border-deep-blue-700 text-gray-300 hover:text-white hover:border-gray-500"
@@ -230,7 +230,7 @@ export function AdminUsersFilterDropdown({
             POINTS
           </span>
           <div className="flex items-center justify-between gap-3">
-            <span className="text-xs font-bold text-white shrink-0 min-w-10">
+            <span className="text-label-xs font-bold text-white shrink-0 min-w-10">
               {draftFilters.minPoints} pts
             </span>
 
@@ -289,7 +289,7 @@ export function AdminUsersFilterDropdown({
               />
             </div>
 
-            <span className="text-xs font-bold text-white shrink-0 min-w-12 text-right">
+            <span className="text-label-xs font-bold text-white shrink-0 min-w-12 text-right">
               {draftFilters.maxPoints} pts
             </span>
           </div>
@@ -314,7 +314,7 @@ export function AdminUsersFilterDropdown({
                   type="button"
                   onClick={() => handleSortToggle(s.id)}
                   className={cn(
-                    "flex-1 py-2.5 px-3 rounded-lg text-xs font-medium border text-center transition-colors cursor-pointer",
+                    "flex-1 py-2.5 px-3 rounded-lg text-label-xs font-medium border text-center transition-colors cursor-pointer",
                     isSelected
                       ? "bg-deep-blue-900 border-white/40 text-white font-semibold"
                       : "bg-deep-blue-900 border-deep-blue-700 text-gray-400 hover:text-white hover:border-gray-500"
@@ -332,14 +332,14 @@ export function AdminUsersFilterDropdown({
           <button
             type="button"
             onClick={handleReset}
-            className="px-4 py-2 rounded-lg text-xs font-semibold bg-deep-blue-900 hover:bg-deep-blue-800 border border-deep-blue-700 text-gray-300 hover:text-white transition-colors cursor-pointer"
+            className="px-4 py-2 rounded-lg text-label-xs font-semibold bg-deep-blue-900 hover:bg-deep-blue-800 border border-deep-blue-700 text-gray-300 hover:text-white transition-colors cursor-pointer"
           >
             Reset
           </button>
           <button
             type="button"
             onClick={handleApply}
-            className="px-5 py-2 rounded-lg text-xs font-semibold bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white transition-all cursor-pointer"
+            className="px-5 py-2 rounded-lg text-label-xs font-semibold bg-gradient-to-r from-red-600 to-rose-600 hover:from-red-500 hover:to-rose-500 text-white transition-all cursor-pointer"
           >
             Apply
           </button>

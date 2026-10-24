@@ -69,21 +69,23 @@ export function AdminHeroStatCard({
   ref,
   ...props
 }: AdminHeroStatCardProps) {
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+
   const headerRight = (
     <AdminDropdown
       options={timeframes}
       selectedValue={selectedTimeframe}
       onSelect={onTimeframeChange}
+      onOpenChange={setIsDropdownOpen}
     />
   );
-
 
   return (
     <AdminCard
       ref={ref}
       title={title}
       headerRight={headerRight}
-      className={cn("w-full", className)}
+      className={cn("w-full", isDropdownOpen && "z-50 relative", className)}
       bodyClassName="flex flex-col gap-6 py-8 px-6"
       {...props}
     >
@@ -103,7 +105,7 @@ export function AdminHeroStatCard({
                 <ArrowUpIcon className="w-3.5 h-3.5" />
               )
             }
-            className="h-5.5 px-2 py-0 text-xs font-semibold"
+            className="h-5.5 px-2 py-0 text-label-xs font-semibold"
           >
             {badge.text}
           </Pill>

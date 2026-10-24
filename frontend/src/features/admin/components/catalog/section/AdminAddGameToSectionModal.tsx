@@ -149,7 +149,7 @@ export function AdminAddGameToSectionModal({
     >
       <div
         className={cn(
-          "w-[840px] max-w-[95vw] rounded-2xl bg-deep-blue-950 border border-deep-blue-700 shadow-2xl select-none animate-in zoom-in-95 duration-150 overflow-hidden flex flex-col",
+          "w-[840px] max-w-[95vw] rounded-lg bg-deep-blue-950 border border-deep-blue-700 shadow-2xl select-none animate-in zoom-in-95 duration-150 overflow-hidden flex flex-col",
           className
         )}
       >
@@ -172,14 +172,14 @@ export function AdminAddGameToSectionModal({
         <div className="px-7 pt-5 pb-3">
           <div className="flex items-center gap-3">
             {/* Search Input Field */}
-            <div className="relative flex-1 flex items-center bg-deep-blue-900 border border-deep-blue-700 focus-within:border-deep-blue-500 rounded-xl px-3.5 py-2.5 transition-colors">
+            <div className="relative flex-1 flex items-center bg-deep-blue-900 border border-deep-blue-700 focus-within:border-deep-blue-500 rounded-lg px-3.5 py-2.5 transition-colors">
               <SearchIcon className="w-4 h-4 text-gray-400 mr-3 shrink-0" />
               <input
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
                 placeholder="Cari di toko"
-                className="w-full bg-transparent text-gray-50 text-xs sm:text-sm placeholder:text-gray-500 focus:outline-none"
+                className="w-full bg-transparent text-gray-50 text-label-xs sm:text-sm placeholder:text-gray-500 focus:outline-none"
               />
               {searchQuery && (
                 <button
@@ -198,7 +198,7 @@ export function AdminAddGameToSectionModal({
               onClick={() => setIsFilterDropdownOpen(!isFilterDropdownOpen)}
               title="Filter Kategori"
               className={cn(
-                "p-2.5 rounded-xl border transition-colors cursor-pointer shrink-0",
+                "p-2.5 rounded-lg border transition-colors cursor-pointer shrink-0",
                 isFilterDropdownOpen || selectedCategory !== "All"
                   ? "bg-deep-blue-800 border-deep-blue-500 text-gray-50"
                   : "bg-deep-blue-900 border-deep-blue-700 text-gray-400 hover:text-gray-50 hover:bg-deep-blue-850"
@@ -217,7 +217,7 @@ export function AdminAddGameToSectionModal({
                   type="button"
                   onClick={() => setSelectedCategory(cat)}
                   className={cn(
-                    "px-3 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer shrink-0",
+                    "px-3 py-1 rounded-full text-label-xs font-medium transition-colors cursor-pointer shrink-0",
                     selectedCategory === cat
                       ? "bg-deep-blue-800 text-gray-50 font-semibold border border-deep-blue-500"
                       : "bg-deep-blue-900 hover:bg-deep-blue-850 text-gray-400 hover:text-gray-50 border border-deep-blue-700"
@@ -231,9 +231,9 @@ export function AdminAddGameToSectionModal({
         </div>
 
         {/* 3. Table Card Panel (Matching Screenshots 1, 2, 3) */}
-        <div className="mx-7 my-3 rounded-2xl bg-deep-blue-950 border border-deep-blue-700 overflow-hidden">
+        <div className="mx-7 my-3 rounded-lg bg-deep-blue-950 border border-deep-blue-700 overflow-hidden">
           {/* Table Header */}
-          <div className="grid grid-cols-[1.5fr_1fr_1fr] px-6 py-3.5 bg-deep-blue-900/70 border-b border-deep-blue-700 items-center select-none text-xs text-gray-300 font-semibold">
+          <div className="grid grid-cols-[1.5fr_1fr_1fr] px-6 py-3.5 bg-deep-blue-900/70 border-b border-deep-blue-700 items-center select-none text-label-xs text-gray-300 font-semibold">
             {/* Col 1: Checkbox + Product Name */}
             <div className="flex items-center gap-3">
               <AdminCheckbox
@@ -295,7 +295,7 @@ export function AdminAddGameToSectionModal({
                           className="object-cover"
                         />
                       </div>
-                      <span className="text-xs sm:text-sm font-semibold text-gray-50 truncate">
+                      <span className="text-label-xs sm:text-sm font-semibold text-gray-50 truncate">
                         {game.title}
                       </span>
                     </div>
@@ -322,7 +322,7 @@ export function AdminAddGameToSectionModal({
                     </div>
 
                     {/* Col 3: Price */}
-                    <div className="text-xs sm:text-sm font-semibold text-gray-50 text-right sm:text-left sm:pl-8">
+                    <div className="text-label-xs sm:text-sm font-semibold text-gray-50 text-right sm:text-left sm:pl-8">
                       Rp {(game.price || 480000).toLocaleString("id-ID")}
                     </div>
                   </div>
@@ -332,13 +332,13 @@ export function AdminAddGameToSectionModal({
           ) : (
             /* Empty State (Matching Screenshot 2 exactly) */
             <div className="py-20 flex flex-col items-center justify-center text-center px-4 select-none">
-              <div className="w-14 h-14 rounded-2xl bg-deep-blue-900 border border-deep-blue-700 flex items-center justify-center text-gray-300 mb-4 shadow-inner">
+              <div className="w-14 h-14 rounded-lg bg-deep-blue-900 border border-deep-blue-700 flex items-center justify-center text-gray-300 mb-4 shadow-inner">
                 <GamepadIcon className="w-7 h-7 text-gray-300" />
               </div>
               <h4 className="text-base sm:text-lg font-bold text-gray-50 tracking-tight">
                 Belum Ada Data Game
               </h4>
-              <p className="text-xs sm:text-sm text-gray-400 mt-1 max-w-[320px]">
+              <p className="text-label-xs sm:text-sm text-gray-400 mt-1 max-w-[320px]">
                 Katalog toko Anda saat ini masih kosong.
               </p>
               <Button

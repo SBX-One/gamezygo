@@ -116,7 +116,7 @@ export function AdminFaqModal({
         <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-6 sm:p-8">
           {/* QUESTION */}
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
+            <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
               QUESTION
             </label>
             <input
@@ -131,7 +131,7 @@ export function AdminFaqModal({
 
           {/* ANSWER */}
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
+            <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
               ANSWER
             </label>
             <textarea
@@ -149,13 +149,13 @@ export function AdminFaqModal({
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-lg bg-[#181A26] hover:bg-[#222534] border border-white/10 text-white text-xs sm:text-sm font-medium transition-colors cursor-pointer"
+              className="px-5 py-2.5 rounded-lg bg-[#181A26] hover:bg-[#222534] border border-white/10 text-white text-label-xs sm:text-sm font-medium transition-colors cursor-pointer"
             >
               Batalkan
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
+              className="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
             >
               Simpan
             </button>

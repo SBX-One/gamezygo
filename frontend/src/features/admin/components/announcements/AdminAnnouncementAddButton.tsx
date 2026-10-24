@@ -32,13 +32,13 @@ export function AdminAnnouncementAddButton({
       type="button"
       onClick={onClick}
       className={cn(
-        "w-full rounded-2xl border-2 border-dashed border-deep-blue-700/80 hover:border-white/25 bg-deep-blue-900/10 hover:bg-deep-blue-900/20 h-52 sm:h-60 md:h-64 flex flex-col items-center justify-center gap-2.5 cursor-pointer transition-all group focus:outline-none",
+        "w-full rounded-lg border-2 border-dashed border-deep-blue-700/80 hover:border-white/25 bg-deep-blue-900/10 hover:bg-deep-blue-900/20 h-52 sm:h-60 md:h-64 flex flex-col items-center justify-center gap-2.5 cursor-pointer transition-all group focus:outline-none",
         className
       )}
       aria-label="Add Announcement"
     >
       <PlusIcon className="w-6 h-6 text-gray-400 group-hover:text-white transition-colors" />
-      <span className="text-xs font-semibold text-gray-400 group-hover:text-white uppercase tracking-wider transition-colors">
+      <span className="text-label-xs font-semibold text-gray-400 group-hover:text-white uppercase tracking-wider transition-colors">
         ADD ANNOUNCEMENT
       </span>
     </button>

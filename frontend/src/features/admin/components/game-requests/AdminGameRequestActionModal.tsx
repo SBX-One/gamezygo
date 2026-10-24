@@ -78,14 +78,14 @@ export function AdminGameRequestActionModal({
     >
       <div
         className={cn(
-          "w-115 max-w-[95vw] rounded-2xl bg-[#0F111A] border border-white/10 p-6 sm:p-7 shadow-2xl select-none animate-in zoom-in-95 duration-150 text-left font-sans",
+          "w-115 max-w-[95vw] rounded-lg bg-[#0F111A] border border-white/10 p-6 sm:p-7 shadow-2xl select-none animate-in zoom-in-95 duration-150 text-left font-sans",
           className
         )}
       >
         <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight leading-snug">
           {getTitle()}
         </h3>
-        <p className="text-xs sm:text-sm text-gray-400 mt-2 leading-relaxed">
+        <p className="text-label-xs sm:text-sm text-gray-400 mt-2 leading-relaxed">
           {getDescription()}
         </p>
 
@@ -93,7 +93,7 @@ export function AdminGameRequestActionModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-xl bg-[#181A22] hover:bg-[#222533] border border-white/10 text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer select-none"
+            className="px-5 py-2.5 rounded-lg bg-[#181A22] hover:bg-[#222533] border border-white/10 text-white text-label-xs sm:text-sm font-semibold transition-colors cursor-pointer select-none"
           >
             Batal
           </button>
@@ -103,7 +103,7 @@ export function AdminGameRequestActionModal({
               onConfirm();
               onClose();
             }}
-            className="px-6 py-2.5 rounded-xl bg-[#BA343C] hover:bg-[#CF3C45] active:scale-95 text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-sm select-none"
+            className="px-6 py-2.5 rounded-lg bg-[#BA343C] hover:bg-[#CF3C45] active:scale-95 text-white text-label-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-sm select-none"
           >
             {isAccept ? "Accept" : actionType === "cancel" ? "Cancel Product" : "Decline"}
           </button>

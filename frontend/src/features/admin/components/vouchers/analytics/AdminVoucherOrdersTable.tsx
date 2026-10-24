@@ -45,7 +45,7 @@ export function AdminVoucherOrdersTable({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-deep-blue-700/80 bg-deep-blue-950 overflow-hidden shadow-xs select-none font-sans",
+        "rounded-lg border border-deep-blue-700/80 bg-deep-blue-950 overflow-hidden shadow-xs select-none font-sans",
         className
       )}
     >
@@ -53,19 +53,19 @@ export function AdminVoucherOrdersTable({
         <AdminTable className="w-full text-left">
           <AdminTableHeader>
             <tr className="border-b border-deep-blue-700/80 bg-deep-blue-900/40">
-              <AdminTableHead className="pl-6 py-4.5 text-xs font-semibold text-gray-300 tracking-wider">
+              <AdminTableHead className="pl-6 py-4.5 text-label-xs font-semibold text-gray-300 tracking-wider">
                 Order ID
               </AdminTableHead>
-              <AdminTableHead className="py-4.5 text-xs font-semibold text-gray-300 tracking-wider">
+              <AdminTableHead className="py-4.5 text-label-xs font-semibold text-gray-300 tracking-wider">
                 Customer Email
               </AdminTableHead>
-              <AdminTableHead className="py-4.5 text-xs font-semibold text-gray-300 tracking-wider">
+              <AdminTableHead className="py-4.5 text-label-xs font-semibold text-gray-300 tracking-wider">
                 Status
               </AdminTableHead>
-              <AdminTableHead className="py-4.5 text-xs font-semibold text-gray-300 tracking-wider">
+              <AdminTableHead className="py-4.5 text-label-xs font-semibold text-gray-300 tracking-wider">
                 Price
               </AdminTableHead>
-              <AdminTableHead className="pr-6 py-4.5 text-xs font-semibold text-gray-300 tracking-wider">
+              <AdminTableHead className="pr-6 py-4.5 text-label-xs font-semibold text-gray-300 tracking-wider">
                 Date
               </AdminTableHead>
             </tr>
@@ -77,7 +77,7 @@ export function AdminVoucherOrdersTable({
               <tr className="border-b-0">
                 <td colSpan={5} className="py-16 sm:py-20 px-6 text-center">
                   <div className="flex flex-col items-center justify-center">
-                    <div className="w-14 h-14 rounded-2xl bg-white/5 border border-white/5 flex items-center justify-center text-slate-300 mb-4 shadow-inner">
+                    <div className="w-14 h-14 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-slate-300 mb-4 shadow-inner">
                       <FluentBookIcon className="w-7 h-7 text-slate-200" />
                     </div>
 
@@ -85,7 +85,7 @@ export function AdminVoucherOrdersTable({
                       Tidak ada Riwayat
                     </h4>
 
-                    <p className="text-xs sm:text-sm text-slate-400 font-normal mb-5">
+                    <p className="text-label-xs sm:text-sm text-slate-400 font-normal mb-5">
                       Tidak ditemukan riwayat untuk kategori Product List.
                     </p>
 
@@ -93,7 +93,7 @@ export function AdminVoucherOrdersTable({
                     <Link
                       href="/admin/catalog"
                       onClick={onAddProduct}
-                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-xl bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-xs sm:text-sm font-medium text-white transition-all cursor-pointer shadow-xs"
+                      className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 active:scale-95 border border-white/10 text-label-xs sm:text-sm font-medium text-white transition-all cursor-pointer shadow-xs"
                     >
                       <PlusIcon className="w-4 h-4 text-slate-300" />
                       <span>Tambah Produk</span>
@@ -108,18 +108,18 @@ export function AdminVoucherOrdersTable({
                   className="border-b border-deep-blue-700/40 hover:bg-white/2 transition-colors"
                 >
                   {/* Order ID */}
-                  <AdminTableCell className="pl-6 py-4.5 font-mono text-xs sm:text-sm text-gray-200">
+                  <AdminTableCell className="pl-6 py-4.5 font-mono text-label-xs sm:text-sm text-gray-200">
                     {item.orderId}
                   </AdminTableCell>
 
                   {/* Customer Email */}
-                  <AdminTableCell className="py-4.5 text-xs sm:text-sm text-gray-200 font-medium">
+                  <AdminTableCell className="py-4.5 text-label-xs sm:text-sm text-gray-200 font-medium">
                     {item.customerEmail}
                   </AdminTableCell>
 
                   {/* Status Badge (Matching Image 5: Amber Pending badge) */}
                   <AdminTableCell className="py-4.5">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-[#312010] text-amber-500 border border-amber-500/35">
+                    <span className="inline-flex items-center px-3 py-1 rounded-full text-label-xs font-medium bg-[#312010] text-amber-500 border border-amber-500/35">
                       {item.status === "pending"
                         ? "Pending"
                         : item.status === "completed"
@@ -129,12 +129,12 @@ export function AdminVoucherOrdersTable({
                   </AdminTableCell>
 
                   {/* Price */}
-                  <AdminTableCell className="py-4.5 text-xs sm:text-sm font-semibold text-white">
+                  <AdminTableCell className="py-4.5 text-label-xs sm:text-sm font-semibold text-white">
                     {item.price}
                   </AdminTableCell>
 
                   {/* Date */}
-                  <AdminTableCell className="pr-6 py-4.5 text-xs sm:text-sm text-gray-400 font-mono">
+                  <AdminTableCell className="pr-6 py-4.5 text-label-xs sm:text-sm text-gray-400 font-mono">
                     {item.date}
                   </AdminTableCell>
                 </AdminTableRow>

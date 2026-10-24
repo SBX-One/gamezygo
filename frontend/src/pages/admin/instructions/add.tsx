@@ -301,7 +301,7 @@ export default function AdminAddNewInstructionPage() {
 
   // Header Title: Breadcrumb "Instruksi > Add New Instruction" (Matching Image 1)
   const headerTitle = (
-    <div className="flex items-center gap-2 select-none text-xs">
+    <div className="flex items-center gap-2 select-none text-label-xs">
       <Link
         href="/admin/instructions"
         className="text-gray-400 hover:text-white transition-colors"
@@ -319,7 +319,7 @@ export default function AdminAddNewInstructionPage() {
       <button
         type="button"
         onClick={handleSaveDraft}
-        className="px-4 py-2 rounded-lg bg-deep-blue-900 hover:bg-[#1E202B] border border-white/10 text-xs sm:text-sm font-medium text-white transition-colors cursor-pointer select-none"
+        className="px-4 py-2 rounded-lg bg-deep-blue-900 hover:bg-[#1E202B] border border-white/10 text-label-xs sm:text-sm font-medium text-white transition-colors cursor-pointer select-none"
       >
         Save Draft
       </button>
@@ -327,7 +327,7 @@ export default function AdminAddNewInstructionPage() {
       <button
         type="button"
         onClick={handlePublish}
-        className="px-5 py-2 rounded-lg bg-linear-to-r from-[#DF3848] to-[#FF5364] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer select-none"
+        className="px-5 py-2 rounded-lg bg-linear-to-r from-[#DF3848] to-[#FF5364] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold transition-all cursor-pointer select-none"
       >
         Publish
       </button>
@@ -351,7 +351,7 @@ export default function AdminAddNewInstructionPage() {
       >
         {/* Toast Alert */}
         {toastMessage && (
-          <div className="fixed top-20 right-8 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-[#181A26] border border-emerald-500/40 text-emerald-300 text-xs sm:text-sm font-medium shadow-none animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="fixed top-20 right-8 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-[#181A26] border border-emerald-500/40 text-emerald-300 text-label-xs sm:text-sm font-medium shadow-none animate-in fade-in slide-in-from-top-2 duration-150">
             <CheckCircleIcon className="w-4 h-4 text-emerald-400" />
             <span>{toastMessage}</span>
           </div>

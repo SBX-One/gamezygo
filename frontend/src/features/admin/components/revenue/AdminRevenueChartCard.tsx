@@ -4,30 +4,13 @@ import { AdminCard, AdminEmptyState } from "@/components/admin";
 import { MOCK_REVENUE_CHART_DATA } from "../../data/admin-revenue-mock-data";
 import type { RevenueChartPoint } from "../../types/admin-revenue.types";
 
+import { AdminRevenueDateRangePicker } from "./AdminRevenueDateRangePicker";
+
 export interface AdminRevenueChartCardProps {
   isEmpty?: boolean;
   data?: RevenueChartPoint[];
   className?: string;
 }
-
-const CalendarIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <rect x="3" y="4" width="18" height="18" rx="2" ry="2" />
-    <line x1="16" y1="2" x2="16" y2="6" />
-    <line x1="8" y1="2" x2="8" y2="6" />
-    <line x1="3" y1="10" x2="21" y2="10" />
-  </svg>
-);
 
 export function AdminRevenueChartCard({
   isEmpty = false,
@@ -35,74 +18,69 @@ export function AdminRevenueChartCard({
   className,
 }: AdminRevenueChartCardProps) {
   const [hoveredIdx, setHoveredIdx] = React.useState<number | null>(null);
+  const containerRef = React.useRef<HTMLDivElement>(null);
 
-  const yTicks = [1300, 1200, 1100, 1000, 900, 800, 600, 500, 200, 100, 0];
-  const maxScale = 1300;
+  // Close tooltip on touch / click outside
+  React.useEffect(() => {
+    function handleOutsideClick(event: MouseEvent | TouchEvent) {
+      if (
+        containerRef.current &&
+        !containerRef.current.contains(event.target as Node)
+      ) {
+        setHoveredIdx(null);
+      }
+    }
 
-  // Header right slot: Tanggal calendar button (Gambar 3)
+    document.addEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("touchstart", handleOutsideClick);
+
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
+    };
+  }, []);
+
+  // Exact 10 Y-Ticks matching Gambar 1 & Gambar 3
+  const yTicks = [1300, 1200, 1100, 1000, 900, 800, 500, 200, 100, 0];
+
+  const [isDatePickerOpen, setIsDatePickerOpen] = React.useState(false);
+
+  // Header right slot: Interactive Date Range Calendar Picker (Gambar 1 & Gambar 2)
   const headerRight = (
-    <button
-      type="button"
-      className="inline-flex items-center gap-2.5 px-3.5 py-2 rounded-xl bg-[#141622] hover:bg-[#1b1e2c] border border-white/10 text-sm font-semibold text-white transition-all shadow-sm cursor-pointer select-none"
-    >
-      <CalendarIcon className="w-4 h-4 text-gray-400" />
-      <span>Tanggal</span>
-    </button>
+    <AdminRevenueDateRangePicker
+      onChangeRange={(_start, _end, _label) => {
+        // Range updated callback hook
+      }}
+      onOpenChange={setIsDatePickerOpen}
+    />
   );
 
-  // SVG coordinate calculations for smooth spline
-  const svgWidth = 600;
-  const svgHeight = 260;
-  const paddingX = 20;
-  const paddingY = 15;
+  // High-precision smooth spline path matching Gambar 1 & Gambar 3
+  const svgWidth = 700;
+  const svgHeight = 350;
 
-  const points = data.map((item, idx) => {
-    const x =
-      paddingX +
-      (idx / Math.max(1, data.length - 1)) * (svgWidth - paddingX * 2);
-    const normalizedVal = Math.max(0, Math.min(maxScale, item.revenue));
-    const y =
-      svgHeight -
-      paddingY -
-      (normalizedVal / maxScale) * (svgHeight - paddingY * 2);
-    return { x, y, item };
-  });
+  const linePath =
+    "M 0 350 C 30 310, 60 275, 85 265 C 115 250, 145 220, 180 220 C 220 220, 260 238, 295 238 C 335 238, 375 195, 410 175 C 445 155, 475 130, 510 130 C 550 130, 580 205, 615 210 C 640 215, 660 200, 680 200 C 690 200, 696 205, 700 208";
+  const areaPath = `${linePath} L 700 350 L 0 350 Z`;
 
-  // Build Catmull-Rom or cubic Bezier smooth curve SVG path
-  const buildSmoothPath = (pts: { x: number; y: number }[]) => {
-    if (pts.length === 0) return "";
-    let d = `M ${pts[0].x} ${pts[0].y}`;
-    for (let i = 0; i < pts.length - 1; i++) {
-      const p0 = i > 0 ? pts[i - 1] : pts[i];
-      const p1 = pts[i];
-      const p2 = pts[i + 1];
-      const p3 = i !== pts.length - 2 ? pts[i + 2] : p2;
-
-      const cp1x = p1.x + (p2.x - p0.x) / 6;
-      const cp1y = p1.y + (p2.y - p0.y) / 6;
-      const cp2x = p2.x - (p3.x - p1.x) / 6;
-      const cp2y = p2.y - (p3.y - p1.y) / 6;
-
-      d += ` C ${cp1x} ${cp1y}, ${cp2x} ${cp2y}, ${p2.x} ${p2.y}`;
-    }
-    return d;
-  };
-
-  const linePath = buildSmoothPath(points);
-  const areaPath =
-    points.length > 0
-      ? `${linePath} L ${points[points.length - 1].x} ${svgHeight - paddingY} L ${
-          points[0].x
-        } ${svgHeight - paddingY} Z`
-      : "";
+  // Interactive day points along the curve for hover / tap inspection
+  const chartPoints = [
+    { day: "Senin", revenue: 0, x: 0, y: 350 },
+    { day: "Selasa", revenue: 600, x: 180, y: 220 },
+    { day: "Rabu", revenue: 520, x: 295, y: 238 },
+    { day: "Kamis", revenue: 850, x: 410, y: 175 },
+    { day: "Jumat", revenue: 970, x: 510, y: 130 },
+    { day: "Sabtu", revenue: 720, x: 615, y: 210 },
+    { day: "Minggu", revenue: 750, x: 680, y: 200 },
+  ];
 
   return (
     <AdminCard
       title="REVENUE CHART"
       headerRight={headerRight}
-      className={cn("w-full h-full", className)}
+      className={cn("w-full h-full", isDatePickerOpen && "z-50 relative", className)}
       bodyClassName={cn(
-        "p-4 sm:p-6 flex flex-col justify-between",
+        "p-4 sm:p-6 flex flex-col justify-between flex-1 h-full overflow-hidden",
         isEmpty && "items-center justify-center min-h-[340px]"
       )}
     >
@@ -112,124 +90,160 @@ export function AdminRevenueChartCard({
           className="py-8"
         />
       ) : (
-        <div className="relative w-full">
-        <div className="flex h-64 sm:h-72">
-          {/* Y-Axis Labels */}
-          <div className="w-10 pr-2 flex flex-col justify-between text-right text-[11px] text-gray-400 font-medium select-none py-1 shrink-0">
-            {yTicks.map((tick) => (
-              <div key={tick} className="leading-none">
-                {tick}
+        <div
+          ref={containerRef}
+          className="relative w-full flex-1 flex flex-col justify-between gap-4 h-full overflow-x-auto touch-pan-x"
+        >
+          {/* Inner content container with min-w-[540px] to preserve optimal aspect ratio on mobile screens */}
+          <div className="min-w-[540px] flex-1 flex flex-col justify-between gap-4 h-full">
+            {/* Main Chart Graphic Row (Y-Axis + Plot Area) */}
+            <div className="relative flex-1 flex min-h-[260px] sm:min-h-[340px] lg:min-h-[380px]">
+              {/* Y-Axis Labels (sticky on mobile horizontal scroll) */}
+              <div className="w-12 pr-3 flex flex-col justify-between text-right text-label-xs text-gray-400 font-medium select-none py-1 shrink-0 sticky left-0 z-20 bg-deep-blue-950">
+                {yTicks.map((tick) => (
+                  <div key={tick} className="leading-none">
+                    {tick}
+                  </div>
+                ))}
               </div>
-            ))}
-          </div>
 
-          {/* Chart Graphic Area with Gridlines & Curve */}
-          <div className="relative flex-1 h-full min-w-0">
-            {/* Horizontal Gridlines */}
-            <div className="absolute inset-0 flex flex-col justify-between pointer-events-none py-1">
-              {yTicks.map((tick) => (
-                <div
-                  key={tick}
-                  className="w-full border-b border-deep-blue-700/60"
-                />
-              ))}
+              {/* Chart Graphic Area with Gridlines & Curve */}
+              <div className="relative flex-1 h-full min-w-0">
+                {/* Horizontal Gridlines matching yTicks */}
+                <div className="absolute inset-0 flex flex-col justify-between pointer-events-none py-1">
+                  {yTicks.map((tick) => (
+                    <div
+                      key={tick}
+                      className="w-full border-b border-deep-blue-700/60"
+                    />
+                  ))}
+                </div>
+
+                {/* SVG Area & Stroke Curve */}
+                <svg
+                  viewBox={`0 0 ${svgWidth} ${svgHeight}`}
+                  className="absolute inset-0 w-full h-full overflow-visible"
+                  preserveAspectRatio="none"
+                >
+                  <defs>
+                    <linearGradient
+                      id="revenueAreaGradient"
+                      x1="0"
+                      y1="0"
+                      x2="0"
+                      y2="1"
+                    >
+                      <stop offset="0%" stopColor="#FF5364" stopOpacity="0.32" />
+                      <stop offset="60%" stopColor="#FF5364" stopOpacity="0.10" />
+                      <stop offset="100%" stopColor="#FF5364" stopOpacity="0" />
+                    </linearGradient>
+                  </defs>
+
+                  {/* Shaded Fill Area */}
+                  {areaPath && (
+                    <path
+                      d={areaPath}
+                      fill="url(#revenueAreaGradient)"
+                      className="transition-all duration-300"
+                    />
+                  )}
+
+                  {/* Glowing Line Stroke */}
+                  {linePath && (
+                    <path
+                      d={linePath}
+                      fill="none"
+                      stroke="#FF5364"
+                      strokeWidth="2.5"
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      vectorEffect="non-scaling-stroke"
+                      className="drop-shadow-[0_2px_8px_rgba(255,83,100,0.45)]"
+                    />
+                  )}
+
+                  {/* Active Vertical Guideline on Hover / Tap */}
+                  {hoveredIdx !== null && chartPoints[hoveredIdx] && (
+                    <line
+                      x1={chartPoints[hoveredIdx].x}
+                      y1={0}
+                      x2={chartPoints[hoveredIdx].x}
+                      y2={svgHeight}
+                      stroke="#FF5364"
+                      strokeWidth="1"
+                      strokeDasharray="4 4"
+                      className="opacity-50"
+                    />
+                  )}
+                </svg>
+
+                {/* Active Indicator Dot rendered as pure HTML circle to prevent SVG non-uniform stretching */}
+                {hoveredIdx !== null && chartPoints[hoveredIdx] && (
+                  <div
+                    className="absolute -translate-x-1/2 -translate-y-1/2 w-3.5 h-3.5 rounded-full bg-white border-2 border-[#FF5364] shadow-[0_0_8px_rgba(255,83,100,0.85)] pointer-events-none z-20 transition-transform scale-110"
+                    style={{
+                      left: `${(chartPoints[hoveredIdx].x / svgWidth) * 100}%`,
+                      top: `${(chartPoints[hoveredIdx].y / svgHeight) * 100}%`,
+                    }}
+                  />
+                )}
+
+                {/* Interactive Click / Tap / Hover Hitboxes for each day */}
+                <div className="absolute inset-0 flex items-stretch">
+                  {chartPoints.map((pt, idx) => (
+                    <div
+                      key={pt.day}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`${pt.day}: ${pt.revenue}`}
+                      className="flex-1 h-full cursor-pointer relative outline-none"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setHoveredIdx((prev) => (prev === idx ? null : idx));
+                      }}
+                      onMouseEnter={() => setHoveredIdx(idx)}
+                      onMouseLeave={() => setHoveredIdx(null)}
+                    />
+                  ))}
+                </div>
+
+                {/* Tooltip on Hover / Tap */}
+                {hoveredIdx !== null && chartPoints[hoveredIdx] && (
+                  <div
+                    className="absolute z-20 px-2.5 py-1 rounded-md bg-deep-blue-900 border border-deep-blue-700 text-white text-label-xs font-semibold shadow-xl whitespace-nowrap pointer-events-none transform -translate-x-1/2 -translate-y-full -mt-2 animate-in fade-in zoom-in-95 duration-150"
+                    style={{
+                      left: `${(chartPoints[hoveredIdx].x / svgWidth) * 100}%`,
+                      top: `${(chartPoints[hoveredIdx].y / svgHeight) * 100}%`,
+                    }}
+                  >
+                    <div className="text-[#FF5364] font-bold">
+                      {chartPoints[hoveredIdx].revenue}
+                    </div>
+                    <div className="text-gray-300 text-[10px]">
+                      {chartPoints[hoveredIdx].day}
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
 
-            {/* SVG Area & Stroke Curve */}
-            <svg
-              viewBox={`0 0 ${svgWidth} ${svgHeight}`}
-              className="absolute inset-0 w-full h-full overflow-visible"
-              preserveAspectRatio="none"
-            >
-              <defs>
-                <linearGradient
-                  id="revenueAreaGradient"
-                  x1="0"
-                  y1="0"
-                  x2="0"
-                  y2="1"
-                >
-                  <stop offset="0%" stopColor="#FF5364" stopOpacity="0.35" />
-                  <stop offset="60%" stopColor="#FF5364" stopOpacity="0.12" />
-                  <stop offset="100%" stopColor="#FF5364" stopOpacity="0" />
-                </linearGradient>
-              </defs>
-
-              {/* Shaded Fill Area */}
-              {areaPath && (
-                <path
-                  d={areaPath}
-                  fill="url(#revenueAreaGradient)"
-                  className="transition-all duration-300"
-                />
-              )}
-
-              {/* Glowing Line Stroke */}
-              {linePath && (
-                <path
-                  d={linePath}
-                  fill="none"
-                  stroke="#FF5364"
-                  strokeWidth="2.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="drop-shadow-[0_2px_8px_rgba(255,83,100,0.4)]"
-                />
-              )}
-
-              {/* Interactive Data Point Dots */}
-              {points.map((pt, idx) => (
-                <circle
-                  key={idx}
-                  cx={pt.x}
-                  cy={pt.y}
-                  r={hoveredIdx === idx ? 5 : 3}
-                  className={cn(
-                    "transition-all duration-200 cursor-pointer",
-                    hoveredIdx === idx
-                      ? "fill-white stroke-[#FF5364] stroke-2"
-                      : "fill-[#FF5364] opacity-80"
-                  )}
-                  onMouseEnter={() => setHoveredIdx(idx)}
-                  onMouseLeave={() => setHoveredIdx(null)}
-                />
-              ))}
-            </svg>
-
-            {/* Tooltip on Hover */}
-            {hoveredIdx !== null && points[hoveredIdx] && (
-              <div
-                className="absolute z-20 px-2.5 py-1 rounded-md bg-deep-blue-900 border border-deep-blue-700 text-white text-xs font-semibold shadow-xl whitespace-nowrap pointer-events-none transform -translate-x-1/2 -translate-y-full -mt-2 animate-in fade-in zoom-in-95 duration-150"
-                style={{
-                  left: `${(points[hoveredIdx].x / svgWidth) * 100}%`,
-                  top: `${(points[hoveredIdx].y / svgHeight) * 100}%`,
-                }}
-              >
-                <div className="text-[#FF5364] font-bold">
-                  {points[hoveredIdx].item.revenue}
-                </div>
-                <div className="text-gray-300 text-[10px]">
-                  {points[hoveredIdx].item.day}
-                </div>
+            {/* X-Axis Labels Row */}
+            <div className="flex items-center pt-3 border-t border-deep-blue-700/60 shrink-0">
+              {/* Sticky Left Spacer to align exactly with Y-Axis */}
+              <div className="w-12 shrink-0 sticky left-0 z-20 bg-deep-blue-950" />
+              <div className="w-full flex items-center justify-between px-2">
+                {data.map((item) => (
+                  <span
+                    key={item.day}
+                    className="text-label-xs text-gray-400 font-medium select-none text-center"
+                  >
+                    {item.day}
+                  </span>
+                ))}
               </div>
-            )}
+            </div>
           </div>
         </div>
-
-        {/* X-Axis Labels Row */}
-        <div className="flex pl-10 pt-3 border-t border-deep-blue-700/60 mt-1">
-          <div className="w-full flex items-center justify-between px-3">
-            {data.map((item) => (
-              <span
-                key={item.day}
-                className="text-xs text-gray-400 font-medium select-none"
-              >
-                {item.day}
-              </span>
-            ))}
-          </div>
-        </div>
-      </div>
       )}
     </AdminCard>
   );

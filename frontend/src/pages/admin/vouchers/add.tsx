@@ -76,7 +76,7 @@ export default function AdminAddVoucherPage() {
 
   // Header Left Breadcrumb Title: "Voucher > Add Voucher" (Matching Image 1)
   const headerTitle = (
-    <div className="flex items-center gap-2 select-none text-xs">
+    <div className="flex items-center gap-2 select-none text-label-xs">
       <Link
         href="/admin/vouchers"
         className="text-gray-400 hover:text-white transition-colors"
@@ -95,7 +95,7 @@ export default function AdminAddVoucherPage() {
         type="button"
         disabled={isSaving}
         onClick={handleSaveAndList}
-        className="px-5 py-2 rounded-xl bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-sm select-none"
+        className="px-5 py-2 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-sm select-none"
       >
         Save and List
       </button>
@@ -104,7 +104,7 @@ export default function AdminAddVoucherPage() {
         type="button"
         disabled={isSaving}
         onClick={handleSaveDraft}
-        className="px-5 py-2 rounded-xl bg-[#181A22] hover:bg-[#222533] border border-white/10 text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer select-none"
+        className="px-5 py-2 rounded-lg bg-[#181A22] hover:bg-[#222533] border border-white/10 text-white text-label-xs sm:text-sm font-semibold transition-colors cursor-pointer select-none"
       >
         Save Draft
       </button>
@@ -112,7 +112,7 @@ export default function AdminAddVoucherPage() {
       <Link
         href="/admin/vouchers"
         aria-label="Tutup form dan kembali ke daftar voucher"
-        className="w-9 h-9 rounded-xl bg-[#181A22] hover:bg-[#222533] border border-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer select-none"
+        className="w-9 h-9 rounded-lg bg-[#181A22] hover:bg-[#222533] border border-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer select-none"
       >
         <CloseIcon className="w-4 h-4" />
       </Link>

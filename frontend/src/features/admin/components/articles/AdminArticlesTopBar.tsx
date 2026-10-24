@@ -117,7 +117,7 @@ export function AdminArticlesTopBar({
             onFilterChange({ ...filters, searchQuery: e.target.value })
           }
           placeholder="Cari artikel"
-          className="w-full h-9 pl-9 pr-8 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-xs text-white placeholder-gray-400 focus:outline-none focus:border-gray-500 transition-colors"
+          className="w-full h-9 pl-9 pr-8 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-label-xs text-white placeholder-gray-400 focus:outline-none focus:border-gray-500 transition-colors"
         />
         {filters.searchQuery && (
           <button

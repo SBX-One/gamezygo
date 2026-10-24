@@ -166,12 +166,14 @@ export default function AdminCatalogPage() {
     }
   };
 
-  // HeaderRight content for top bar
+  // HeaderRight content for top bar (desktop only)
   const headerRight = (
-    <AdminCatalogTopBar
-      filters={filters}
-      onFilterChange={setFilters}
-    />
+    <div className="hidden sm:flex items-center">
+      <AdminCatalogTopBar
+        filters={filters}
+        onFilterChange={setFilters}
+      />
+    </div>
   );
 
   return (
@@ -202,7 +204,17 @@ export default function AdminCatalogPage() {
             }
           />
 
-          {/* 2. Catalog Table Card (Figma Image 3 & Image 4) */}
+          {/* 2. Mobile-Only Search & Filter Bar (Placed below the 3 Action Buttons per user request) */}
+          <div className="sm:hidden w-full">
+            <AdminCatalogTopBar
+              filters={filters}
+              onFilterChange={setFilters}
+              showStatusCheckboxes={false}
+              isMobileInline
+            />
+          </div>
+
+          {/* 3. Catalog Table Card (Figma Image 3 & Image 4) */}
           <AdminCatalogTable
             items={filteredItems}
             totalGamesCount={90}

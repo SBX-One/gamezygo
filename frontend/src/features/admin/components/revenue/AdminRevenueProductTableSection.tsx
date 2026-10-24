@@ -66,11 +66,11 @@ export function AdminRevenueProductTableSection({
   const activeProducts = isEmpty ? [] : products;
 
   const cardTitle = (
-    <div className="flex items-center gap-2">
-      <span className="text-xs font-semibold text-gray-400 uppercase">
+    <div className="flex items-center gap-2 shrink-0 whitespace-nowrap">
+      <span className="text-body-sm text-gray-400 uppercase whitespace-nowrap">
         TOTAL PRODUCT :
       </span>
-      <span className="text-xs font-bold text-white">
+      <span className="text-label-sm font-semibold text-white whitespace-nowrap">
         {displayCount} Games Listed
       </span>
     </div>
@@ -79,6 +79,7 @@ export function AdminRevenueProductTableSection({
   return (
     <AdminCard
       title={cardTitle}
+      headerResponsive={true}
       className={className}
       bodyClassName="p-0"
     >
@@ -115,13 +116,13 @@ export function AdminRevenueProductTableSection({
                 <AdminTableCell className="pl-6 font-semibold text-white">
                   {item.name}
                 </AdminTableCell>
-                <AdminTableCell className="text-gray-300 font-medium">
+                <AdminTableCell className="text-gray-400">
                   {item.totalSell}
                 </AdminTableCell>
-                <AdminTableCell className="text-gray-300 font-medium">
+                <AdminTableCell className="text-gray-400">
                   {item.totalRevenue}
                 </AdminTableCell>
-                <AdminTableCell className="text-gray-400 text-xs">
+                <AdminTableCell className="text-gray-400">
                   {item.date}
                 </AdminTableCell>
                 <AdminTableCell>

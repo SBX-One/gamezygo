@@ -248,13 +248,12 @@ export function AdminVoucherDateRangePicker({
     <div
       ref={containerRef}
       className={cn(
-        "absolute right-0 top-12 z-50 rounded-2xl bg-deep-blue-950 border border-deep-blue-700/80 shadow-2xl flex flex-row overflow-hidden select-none animate-in fade-in zoom-in-95 duration-150 font-sans",
+        "absolute right-0 top-12 z-50 rounded-lg bg-deep-blue-950 border border-deep-blue-700/80 shadow-2xl flex flex-col lg:flex-row overflow-hidden select-none animate-in fade-in zoom-in-95 duration-150 font-sans w-[min(300px,calc(100vw-2rem))] sm:w-[320px] lg:w-[475px] max-w-[calc(100vw-2rem)]",
         className
       )}
-      style={{ width: "475px", maxWidth: "95vw" }}
     >
-      {/* 1. Left Column: Presets (Hari Ini, Kemarin, Minggu ini, Bulan ini, Tahun ini) */}
-      <div className="w-34.5 shrink-0 p-3.5 border-r border-deep-blue-700/80 bg-deep-blue-900/40 flex flex-col justify-center gap-1.5">
+      {/* 1. Left Column / Top Row: Presets (Hari Ini, Kemarin, Minggu ini, Bulan ini, Tahun ini) */}
+      <div className="flex flex-row lg:flex-col overflow-x-auto lg:overflow-visible p-2 sm:p-2.5 lg:p-3.5 gap-1.5 border-b lg:border-b-0 lg:border-r border-deep-blue-700/80 bg-deep-blue-900/40 shrink-0 lg:w-34.5 lg:justify-center [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         {PRESET_OPTIONS.map((preset) => {
           const isActive = activePreset === preset.id;
           if (isActive) {
@@ -265,7 +264,7 @@ export function AdminVoucherDateRangePicker({
                 size="xs"
                 fullWidth
                 onClick={() => handleSelectPreset(preset)}
-                className="w-full justify-start px-3 py-2 text-xs font-semibold text-white [&_.button-main-text]:text-white! hover:[&_.button-main-text]:text-white! active:[&_.button-main-text]:text-white! rounded-xl border border-deep-blue-700 bg-(image:--gradient-surface-secondary-default) shadow-xs"
+                className="whitespace-nowrap px-3 py-1.5 lg:py-2 text-left text-label-xs font-semibold text-white [&_.button-main-text]:text-white! hover:[&_.button-main-text]:text-white! active:[&_.button-main-text]:text-white! rounded-lg border border-deep-blue-700 bg-(image:--gradient-surface-secondary-default) shadow-xs shrink-0"
               >
                 <span className="text-white! font-semibold">{preset.label}</span>
               </Button>
@@ -277,7 +276,7 @@ export function AdminVoucherDateRangePicker({
               key={preset.id}
               type="button"
               onClick={() => handleSelectPreset(preset)}
-              className="w-full px-3 py-2 text-left text-xs font-medium text-gray-400 hover:text-white hover:bg-white/5 rounded-xl flex items-center transition-colors cursor-pointer select-none"
+              className="whitespace-nowrap px-3 py-1.5 lg:py-2 text-left text-label-xs font-medium text-gray-400 hover:text-white hover:bg-white/5 rounded-lg flex items-center transition-colors cursor-pointer select-none shrink-0"
             >
               {preset.label}
             </button>
@@ -285,11 +284,11 @@ export function AdminVoucherDateRangePicker({
         })}
       </div>
 
-      {/* 2. Right Column: Calendar Grid View with deep-blue-900 Header & deep-blue-950 Content */}
-      <div className="flex-1 flex flex-col bg-deep-blue-950">
+      {/* 2. Calendar Grid View with deep-blue-900 Header & deep-blue-950 Content */}
+      <div className="flex-1 flex flex-col bg-deep-blue-950 min-w-0">
         {/* Header: < Month > & Clear Button (deep blue 900 background) */}
-        <div className="bg-deep-blue-900 px-4 py-3 border-b border-deep-blue-700/80 flex items-center justify-between">
-          <div className="flex items-center gap-2">
+        <div className="bg-deep-blue-900 px-3 sm:px-4 py-2.5 sm:py-3 border-b border-deep-blue-700/80 flex items-center justify-between">
+          <div className="flex items-center gap-1.5 sm:gap-2">
             <button
               type="button"
               onClick={handlePrevMonth}
@@ -315,16 +314,16 @@ export function AdminVoucherDateRangePicker({
           <button
             type="button"
             onClick={handleClear}
-            className="px-4 py-1 rounded-full border border-[#263148] bg-transparent hover:bg-white/10 text-xs font-semibold text-white transition-all cursor-pointer"
+            className="px-3 py-1 rounded-full border border-[#263148] bg-transparent hover:bg-white/10 text-label-xs font-semibold text-white transition-all cursor-pointer"
           >
             Clear
           </button>
         </div>
 
         {/* Content: Days Header & Grid (deep blue 950 background) */}
-        <div className="p-4 sm:p-5 flex flex-col gap-3.5 bg-deep-blue-950">
+        <div className="p-2.5 sm:p-3 lg:p-4 flex flex-col gap-2 sm:gap-3 bg-deep-blue-950">
           {/* Day of Week Headers: Su Mo Tu We Th Fr Sa */}
-          <div className="grid grid-cols-7 text-center text-[12px] font-medium text-[#7C88A2]">
+          <div className="grid grid-cols-7 text-center text-label-xs font-medium text-[#7C88A2]">
             <span>Su</span>
             <span>Mo</span>
             <span>Tu</span>
@@ -335,7 +334,7 @@ export function AdminVoucherDateRangePicker({
           </div>
 
           {/* Calendar Days Matrix with Connected Range Bar (deep-blue-900 selected dates) */}
-          <div className="grid grid-cols-7 text-center text-xs gap-y-1">
+          <div className="grid grid-cols-7 text-center text-label-xs gap-y-1">
             {calendarCells.map((item, idx) => {
               const colIndex = idx % 7;
               const cellDate = new Date(item.year, item.month, item.day);
@@ -380,17 +379,17 @@ export function AdminVoucherDateRangePicker({
                     type="button"
                     onClick={() => handleDayClick(cellDate)}
                     className={cn(
-                      "w-9 h-9 flex items-center justify-center text-xs transition-all relative z-10 select-none cursor-pointer",
+                      "w-9 h-9 flex items-center justify-center text-label-xs transition-all relative z-10 select-none cursor-pointer",
                       !item.isCurrentMonth && "text-[#3D4760] hover:text-slate-400",
                       item.isCurrentMonth &&
                         !isStart &&
                         !isEnd &&
                         !inRange &&
-                        "text-slate-200 hover:text-white hover:bg-white/5 rounded-xl font-normal",
+                        "text-slate-200 hover:text-white hover:bg-white/5 rounded-lg font-normal",
                       inRange &&
                         "text-white font-bold bg-transparent",
                       (isStart || isEnd) &&
-                        "rounded-xl border border-deep-blue-700 bg-deep-blue-900 text-white font-bold shadow-xs"
+                        "rounded-lg border border-deep-blue-700 bg-deep-blue-900 text-white font-bold shadow-xs"
                     )}
                   >
                     {item.day}

@@ -67,11 +67,11 @@ export function AdminGameRequestsSection({
       : activeRequests.length || 40;
 
   const cardTitle = (
-    <div className="flex items-center gap-3">
-      <span className="text-xs font-semibold tracking-wider text-gray-400 uppercase">
+    <div className="flex items-center gap-3 shrink-0 whitespace-nowrap">
+      <span className="text-label-xs font-semibold tracking-wider text-gray-400 uppercase whitespace-nowrap">
         GAME REQUEST
       </span>
-      <span className="text-sm font-bold text-white">
+      <span className="hidden sm:block text-sm font-bold text-white whitespace-nowrap">
         {displayCount} Permintaan
       </span>
     </div>
@@ -80,7 +80,7 @@ export function AdminGameRequestsSection({
   const headerRight = (
     <Link
       href={viewAllHref}
-      className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-200 hover:text-white transition-colors group"
+      className="inline-flex items-center gap-1.5 text-label-xs font-medium text-gray-200 hover:text-white transition-colors group shrink-0 whitespace-nowrap"
     >
       <span>Lihat Semua</span>
       <ArrowRightIcon className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />

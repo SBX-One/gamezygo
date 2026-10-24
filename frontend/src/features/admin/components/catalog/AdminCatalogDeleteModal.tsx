@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui";
 
 export interface AdminCatalogDeleteModalProps {
   isOpen: boolean;
@@ -40,7 +41,7 @@ export function AdminCatalogDeleteModal({
       role="dialog"
       aria-modal="true"
       aria-labelledby="delete-dialog-title"
-      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-150"
+      className="fixed w-full inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-150"
       onClick={(e) => {
         if (e.target === e.currentTarget) {
           onClose();
@@ -49,42 +50,47 @@ export function AdminCatalogDeleteModal({
     >
       <div
         className={cn(
-          "w-full max-w-[420px] rounded-2xl bg-[#13151F] border border-white/10 p-6 shadow-2xl select-none animate-in zoom-in-95 duration-150 text-left",
+          "w-fit  rounded-lg bg-deep-blue-950 border border-white/10 p-6 shadow-2xl select-none animate-in zoom-in-95 duration-150 ",
           className
         )}
       >
+        <div className="flex flex-col gap-2">
+
         {/* Title */}
         <h3
           id="delete-dialog-title"
-          className="text-lg sm:text-xl font-bold text-white tracking-tight leading-snug"
+          className="text-h3 sm:text-h4 font-semibold text-white"
         >
           {title}
         </h3>
 
         {/* Subtitle / Warning Note */}
-        <p className="text-xs sm:text-sm text-gray-400 mt-2 font-normal leading-relaxed">
+        <p className="text-label-xs sm:text-body-md text-gray-400 ">
           {description}
         </p>
+        </div>
 
         {/* Actions */}
-        <div className="flex items-center justify-end gap-3 mt-6">
-          <button
-            type="button"
+        <div className="flex items-center justify-end gap-3 mt-8 ">
+          <Button
+            variant="secondary"
+            size="sm"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-xl bg-[#1E202B] hover:bg-[#272A38] text-white text-xs sm:text-sm font-medium transition-colors cursor-pointer select-none"
+            className=""
           >
             Batal
-          </button>
-          <button
-            type="button"
+          </Button>
+          <Button
+            variant={"primary"}
+            size={"sm"}
             onClick={() => {
               onConfirm();
               onClose();
             }}
-            className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#DF3848] to-[#FF5364] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold shadow-sm transition-all cursor-pointer select-none"
+            className="px-7"
           >
             Delete
-          </button>
+          </Button>
         </div>
       </div>
     </div>

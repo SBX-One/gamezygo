@@ -273,7 +273,7 @@ export default function AdminArticlesPage() {
                 <button
                   type="button"
                   onClick={handleDeleteSelected}
-                  className="px-4 py-2 rounded-lg border border-rose-500/40 bg-rose-500/10 hover:bg-rose-500/20 text-xs sm:text-sm font-medium text-rose-300 transition-colors cursor-pointer select-none"
+                  className="px-4 py-2 rounded-lg border border-rose-500/40 bg-rose-500/10 hover:bg-rose-500/20 text-label-xs sm:text-sm font-medium text-rose-300 transition-colors cursor-pointer select-none"
                 >
                   Delete ({selectedIds.length})
                 </button>
@@ -282,7 +282,7 @@ export default function AdminArticlesPage() {
               {/* Add New Button: Always shown (Matching Image 1) */}
               <Link
                 href="/admin/articles/add"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-colors cursor-pointer select-none"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-label-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-colors cursor-pointer select-none"
               >
                 <PlusIcon className="w-3.5 h-3.5" />
                 <span>Add New</span>
@@ -308,14 +308,14 @@ export default function AdminArticlesPage() {
               </h3>
 
               {/* Subtitle */}
-              <p className="text-xs sm:text-sm text-gray-400 mb-6 font-normal">
+              <p className="text-label-xs sm:text-sm text-gray-400 mb-6 font-normal">
                 Katalog artikel Anda saat ini masih kosong.
               </p>
 
               {/* Action Button: + Tambah Artikel */}
               <Link
                 href="/admin/articles/add"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1E202B] hover:bg-[#252837] border border-deep-blue-700 text-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-all cursor-pointer"
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1E202B] hover:bg-[#252837] border border-deep-blue-700 text-label-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-all cursor-pointer"
               >
                 <PlusIcon className="w-4 h-4 shrink-0" />
                 <span>Tambah Artikel</span>

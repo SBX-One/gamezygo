@@ -108,7 +108,7 @@ export function Pagination({
         disabled={currentPage <= 1}
         onClick={() => onPageChange(currentPage - 1)}
         aria-label="Previous Page"
-        className="h-9 min-w-9 sm:h-12 sm:min-w-12 p-1 sm:p-4 text-xs sm:text-label-md font-semibold shrink-0"
+        className="h-9 min-w-9 sm:h-12 sm:min-w-12 p-1 sm:p-4 text-label-xs sm:text-label-md font-semibold shrink-0"
       >
         <ArrowLeftIcon className="w-4 h-4 sm:w-5 sm:h-5" />
       </Button>
@@ -122,7 +122,7 @@ export function Pagination({
               variant="inactive"
               size="md"
               aria-hidden="true"
-              className="h-9 min-w-9 sm:h-12 sm:min-w-12 p-1 sm:p-4 text-xs sm:text-label-md font-semibold shrink-0 cursor-default"
+              className="h-9 min-w-9 sm:h-12 sm:min-w-12 p-1 sm:p-4 text-label-xs sm:text-label-md font-semibold shrink-0 cursor-default"
             >
               ...
             </Button>
@@ -146,7 +146,7 @@ export function Pagination({
             onClick={() => onPageChange(page)}
             aria-current={isCurrent ? "page" : undefined}
             className={cn(
-              "h-9 min-w-9 sm:h-12 sm:min-w-12 p-1 sm:p-4 text-xs sm:text-label-md font-semibold shrink-0",
+              "h-9 min-w-9 sm:h-12 sm:min-w-12 p-1 sm:p-4 text-label-xs sm:text-label-md font-semibold shrink-0",
               !isVisibleOnMobile && "hidden sm:inline-flex"
             )}
           >
@@ -162,7 +162,7 @@ export function Pagination({
         disabled={currentPage >= totalPages}
         onClick={() => onPageChange(currentPage + 1)}
         aria-label="Next Page"
-        className="h-9 min-w-9 sm:h-12 sm:min-w-12 p-1 sm:p-4 text-xs sm:text-label-md font-semibold shrink-0"
+        className="h-9 min-w-9 sm:h-12 sm:min-w-12 p-1 sm:p-4 text-label-xs sm:text-label-md font-semibold shrink-0"
       >
         <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5" />
       </Button>

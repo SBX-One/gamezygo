@@ -22,7 +22,7 @@ export function AdminProductOrdersTableSection({
 }: AdminProductOrdersTableSectionProps) {
   return (
     <div
-      className={`rounded-xl border border-deep-blue-700 bg-deep-blue-950 overflow-hidden ${
+      className={`rounded-lg border border-deep-blue-700 bg-deep-blue-950 overflow-hidden ${
         className || ""
       }`}
     >
@@ -39,7 +39,7 @@ export function AdminProductOrdersTableSection({
         <AdminTableBody>
           {orders.map((item, idx) => (
             <AdminTableRow key={`${item.orderId}-${idx}`}>
-              <AdminTableCell className="pl-6 font-mono text-xs text-gray-300">
+              <AdminTableCell className="pl-6 font-mono text-label-xs text-gray-300">
                 {item.orderId}
               </AdminTableCell>
               <AdminTableCell className="font-semibold text-white">
@@ -65,7 +65,7 @@ export function AdminProductOrdersTableSection({
               <AdminTableCell className="font-semibold text-white">
                 {item.price}
               </AdminTableCell>
-              <AdminTableCell className="pr-6 text-gray-400 text-xs">
+              <AdminTableCell className="pr-6 text-gray-400 text-label-xs">
                 {item.date}
               </AdminTableCell>
             </AdminTableRow>

@@ -131,7 +131,7 @@ export function AdminAnnouncementCard({
               })
             }
             placeholder="Page Link"
-            className="h-9 w-52 sm:w-64 px-3.5 pr-8 bg-[#181A26] border border-white/10 rounded-lg text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
+            className="h-9 w-52 sm:w-64 px-3.5 pr-8 bg-[#181A26] border border-white/10 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
           />
           {item.pageLink && (
             <button
@@ -157,7 +157,7 @@ export function AdminAnnouncementCard({
           <button
             type="button"
             onClick={() => onDelete(item)}
-            className="px-4 py-1.5 rounded-lg bg-[#181A26] hover:bg-[#222534] border border-white/10 text-white text-xs sm:text-sm font-medium transition-colors cursor-pointer"
+            className="px-4 py-1.5 rounded-lg bg-[#181A26] hover:bg-[#222534] border border-white/10 text-white text-label-xs sm:text-sm font-medium transition-colors cursor-pointer"
           >
             Delete
           </button>
@@ -190,7 +190,7 @@ export function AdminAnnouncementCard({
                 )}
               />
             </div>
-            <span className="text-xs sm:text-sm font-medium text-white">
+            <span className="text-label-xs sm:text-sm font-medium text-white">
               Publish
             </span>
           </div>
@@ -227,11 +227,11 @@ export function AdminAnnouncementCard({
         </div>
 
         {/* Banner image with 'Change Image' button */}
-        <div className="relative flex-1 rounded-2xl overflow-hidden border border-white/10 bg-black/40 group shadow-lg">
+        <div className="relative flex-1 rounded-lg overflow-hidden border border-white/10 bg-black/40 group shadow-lg">
           <img
             src={item.imageUrl}
             alt="Announcement Banner"
-            className="w-full h-44 sm:h-56 md:h-64 object-cover object-center rounded-2xl"
+            className="w-full h-44 sm:h-56 md:h-64 object-cover object-center rounded-lg"
           />
 
           {/* Hidden File Input for Change Image */}
@@ -247,7 +247,7 @@ export function AdminAnnouncementCard({
           <button
             type="button"
             onClick={() => fileInputRef.current?.click()}
-            className="absolute top-3.5 right-3.5 px-3.5 py-1.5 rounded-lg bg-black/70 hover:bg-black/90 backdrop-blur-xs border border-white/15 text-white text-xs font-medium transition-all shadow-md cursor-pointer"
+            className="absolute top-3.5 right-3.5 px-3.5 py-1.5 rounded-lg bg-black/70 hover:bg-black/90 backdrop-blur-xs border border-white/15 text-white text-label-xs font-medium transition-all shadow-md cursor-pointer"
           >
             Change Image
           </button>

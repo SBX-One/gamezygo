@@ -50,7 +50,7 @@ export function AdminGameRequestDetailModal({
     >
       <div
         className={cn(
-          "w-125 max-w-[95vw] rounded-2xl bg-[#0F111A] border border-white/10 p-6 sm:p-7 shadow-2xl select-none animate-in zoom-in-95 duration-150 text-left font-sans space-y-6",
+          "w-125 max-w-[95vw] rounded-lg bg-[#0F111A] border border-white/10 p-6 sm:p-7 shadow-2xl select-none animate-in zoom-in-95 duration-150 text-left font-sans space-y-6",
           className
         )}
       >
@@ -78,7 +78,7 @@ export function AdminGameRequestDetailModal({
         <div className="space-y-4">
           {/* Metadata Grid */}
           <div className="grid grid-cols-2 gap-3">
-            <div className="p-3.5 rounded-xl bg-deep-blue-900/60 border border-deep-blue-700">
+            <div className="p-3.5 rounded-lg bg-deep-blue-900/60 border border-deep-blue-700">
               <span className="text-[11px] font-medium text-gray-400 block mb-1">
                 Total Request
               </span>
@@ -87,22 +87,22 @@ export function AdminGameRequestDetailModal({
               </span>
             </div>
 
-            <div className="p-3.5 rounded-xl bg-deep-blue-900/60 border border-deep-blue-700">
+            <div className="p-3.5 rounded-lg bg-deep-blue-900/60 border border-deep-blue-700">
               <span className="text-[11px] font-medium text-gray-400 block mb-1">
                 First Request
               </span>
-              <span className="text-xs font-mono font-medium text-gray-200">
+              <span className="text-label-xs font-mono font-medium text-gray-200">
                 {item.firstRequest}
               </span>
             </div>
           </div>
 
           {/* Steam Store Link Box */}
-          <div className="p-3.5 rounded-xl bg-deep-blue-900/40 border border-deep-blue-700 flex items-center justify-between gap-3">
+          <div className="p-3.5 rounded-lg bg-deep-blue-900/40 border border-deep-blue-700 flex items-center justify-between gap-3">
             <div className="flex items-center gap-2.5 min-w-0">
               <SteamIcon className="w-5 h-5 text-white shrink-0" />
               <div className="min-w-0">
-                <span className="text-xs font-semibold text-white block truncate">
+                <span className="text-label-xs font-semibold text-white block truncate">
                   Steam Store Page
                 </span>
                 <span className="text-[11px] text-gray-400 block truncate font-mono">
@@ -119,7 +119,7 @@ export function AdminGameRequestDetailModal({
               }
               target="_blank"
               rel="noopener noreferrer"
-              className="px-3 py-1.5 rounded-lg bg-[#161823] hover:bg-[#1E202E] border border-white/10 text-xs font-medium text-white transition-colors shrink-0 cursor-pointer"
+              className="px-3 py-1.5 rounded-lg bg-[#161823] hover:bg-[#1E202E] border border-white/10 text-label-xs font-medium text-white transition-colors shrink-0 cursor-pointer"
             >
               Buka Steam ↗
             </a>
@@ -131,7 +131,7 @@ export function AdminGameRequestDetailModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-4 py-2 rounded-xl bg-[#181A22] hover:bg-[#222533] border border-white/10 text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer select-none"
+            className="px-4 py-2 rounded-lg bg-[#181A22] hover:bg-[#222533] border border-white/10 text-white text-label-xs sm:text-sm font-semibold transition-colors cursor-pointer select-none"
           >
             Tutup
           </button>
@@ -157,7 +157,7 @@ export function AdminGameRequestDetailModal({
                   onAccept(item);
                   onClose();
                 }}
-                className="px-5 py-2 rounded-xl bg-[#BA343C] hover:bg-[#CF3C45] active:scale-95 text-white text-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-sm select-none"
+                className="px-5 py-2 rounded-lg bg-[#BA343C] hover:bg-[#CF3C45] active:scale-95 text-white text-label-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-sm select-none"
               >
                 Accept
               </button>

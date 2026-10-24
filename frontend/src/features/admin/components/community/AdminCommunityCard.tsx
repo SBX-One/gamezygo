@@ -96,7 +96,7 @@ export function AdminCommunityCard({
       )}
 
       {/* Main Card Row matching Image 3 */}
-      <div className="w-full flex items-center justify-between gap-4 p-3 sm:p-4 rounded-xl sm:rounded-2xl bg-[#141622] border border-white/5 hover:border-white/10 transition-colors shadow-xs">
+      <div className="w-full flex items-center justify-between gap-4 p-3 sm:p-4 rounded-lg sm:rounded-lg bg-[#141622] border border-white/5 hover:border-white/10 transition-colors shadow-xs">
         {/* Left Side: Drag Handle + Cover Image + Community Info */}
         <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
           {/* Drag Handle with drag image set to full card */}
@@ -149,7 +149,7 @@ export function AdminCommunityCard({
               {tagsList.map((tag) => (
                 <span
                   key={tag}
-                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#181A26] border border-white/10 text-gray-300 w-fit"
+                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-label-xs font-medium bg-[#181A26] border border-white/10 text-gray-300 w-fit"
                 >
                   {tag}
                 </span>

@@ -342,7 +342,7 @@ export default function AdminReviewsPage() {
       >
         {/* Floating Toast Feedback */}
         {toastMessage && (
-          <div className="fixed top-20 right-8 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-deep-blue-900 border border-emerald-500/40 text-emerald-300 text-xs sm:text-sm font-medium animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="fixed top-20 right-8 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-deep-blue-900 border border-emerald-500/40 text-emerald-300 text-label-xs sm:text-sm font-medium animate-in fade-in slide-in-from-top-2 duration-150">
             <CheckCircleIcon className="w-4 h-4 text-emerald-400" />
             <span>{toastMessage}</span>
           </div>
@@ -378,7 +378,7 @@ export default function AdminReviewsPage() {
               <h3 className="text-lg font-bold text-white mb-1 tracking-tight">
                 Tidak Ada Ulasan Ditemukan
               </h3>
-              <p className="text-xs sm:text-sm text-gray-400 mb-6">
+              <p className="text-label-xs sm:text-sm text-gray-400 mb-6">
                 Tidak ada ulasan yang sesuai dengan kriteria pencarian atau filter Anda.
               </p>
               <button
@@ -387,7 +387,7 @@ export default function AdminReviewsPage() {
                   setFilters(DEFAULT_FILTERS);
                   setIsPostedViewOnly(false);
                 }}
-                className="px-5 py-2.5 rounded-lg bg-deep-blue-900 hover:bg-deep-blue-850 border border-deep-blue-700 text-white text-xs sm:text-sm font-semibold transition-colors cursor-pointer"
+                className="px-5 py-2.5 rounded-lg bg-deep-blue-900 hover:bg-deep-blue-850 border border-deep-blue-700 text-white text-label-xs sm:text-sm font-semibold transition-colors cursor-pointer"
               >
                 Reset Semua Filter
               </button>

@@ -79,7 +79,7 @@ function AdminArticleForm({
     <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto p-6 space-y-4.5">
       {/* Title */}
       <div>
-        <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+        <label className="block text-label-xs font-semibold text-gray-300 mb-1.5">
           Judul Artikel <span className="text-red-400">*</span>
         </label>
         <textarea
@@ -94,7 +94,7 @@ function AdminArticleForm({
 
       {/* Cover Image URL */}
       <div>
-        <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+        <label className="block text-label-xs font-semibold text-gray-300 mb-1.5">
           URL Cover Banner
         </label>
         <input
@@ -119,7 +119,7 @@ function AdminArticleForm({
 
       {/* Status Radio Buttons */}
       <div>
-        <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+        <label className="block text-label-xs font-semibold text-gray-300 mb-1.5">
           Status Artikel
         </label>
         <div className="grid grid-cols-3 gap-2.5">
@@ -131,7 +131,7 @@ function AdminArticleForm({
                 type="button"
                 onClick={() => setStatus(s)}
                 className={cn(
-                  "h-10 rounded-lg border text-xs font-semibold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center",
+                  "h-10 rounded-lg border text-label-xs font-semibold uppercase tracking-wider transition-all cursor-pointer flex items-center justify-center",
                   isSelected
                     ? s === "published"
                       ? "bg-[#0f291e] border-emerald-500/60 text-emerald-400"
@@ -151,7 +151,7 @@ function AdminArticleForm({
       {/* Published At (Only if status is published) */}
       {status === "published" && (
         <div>
-          <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+          <label className="block text-label-xs font-semibold text-gray-300 mb-1.5">
             Tanggal Publikasi (DD/MM/YYYY)
           </label>
           <input
@@ -166,7 +166,7 @@ function AdminArticleForm({
 
       {/* Category */}
       <div>
-        <label className="block text-xs font-semibold text-gray-300 mb-1.5">
+        <label className="block text-label-xs font-semibold text-gray-300 mb-1.5">
           Kategori
         </label>
         <select
@@ -191,7 +191,7 @@ function AdminArticleForm({
           variant="secondary"
           size="sm"
           onClick={onClose}
-          className="h-10! px-5 text-xs font-semibold"
+          className="h-10! px-5 text-label-xs font-semibold"
         >
           Batal
         </Button>
@@ -199,7 +199,7 @@ function AdminArticleForm({
           type="submit"
           variant="primary"
           size="sm"
-          className="h-10! px-6 text-xs font-semibold"
+          className="h-10! px-6 text-label-xs font-semibold"
         >
           {initialData ? "Simpan Perubahan" : "Tambah Artikel"}
         </Button>

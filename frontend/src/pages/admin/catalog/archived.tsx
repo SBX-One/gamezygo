@@ -136,7 +136,7 @@ export default function AdminArchivedProductPage() {
 
   // Header Title: Breadcrumb "Katalog > Archived Product" (Image 1 & 5)
   const headerTitle = (
-    <div className="flex items-center gap-2 select-none text-xs">
+    <div className="flex items-center gap-2 select-none text-label-xs">
       <Link
         href="/admin/catalog"
         className="text-gray-400 hover:text-white transition-colors"
@@ -148,13 +148,15 @@ export default function AdminArchivedProductPage() {
     </div>
   );
 
-  // Top Bar Search & Filter (Image 1 & Image 4)
+  // Top Bar Search & Filter (desktop only)
   const headerRight = (
-    <AdminCatalogTopBar
-      filters={filters}
-      onFilterChange={setFilters}
-      showStatusCheckboxes={false}
-    />
+    <div className="hidden sm:flex items-center">
+      <AdminCatalogTopBar
+        filters={filters}
+        onFilterChange={setFilters}
+        showStatusCheckboxes={false}
+      />
+    </div>
   );
 
   return (
@@ -182,7 +184,17 @@ export default function AdminArchivedProductPage() {
             }}
           />
 
-          {/* 2. Archived Catalog Table (Matching Image 2, 3, 5) */}
+          {/* 2. Mobile-Only Search & Filter Bar (Placed below the 3 Action Buttons per user request) */}
+          <div className="sm:hidden w-full">
+            <AdminCatalogTopBar
+              filters={filters}
+              onFilterChange={setFilters}
+              showStatusCheckboxes={false}
+              isMobileInline
+            />
+          </div>
+
+          {/* 3. Archived Catalog Table (Matching Image 2, 3, 5) */}
           <AdminArchivedCatalogTable
             items={filteredItems}
             totalGamesCount={90}

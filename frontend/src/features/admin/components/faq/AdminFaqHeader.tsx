@@ -65,7 +65,7 @@ export function AdminFaqHeader({
             {title}
           </h2>
           {lastEdit && (
-            <p className="text-xs text-gray-400 mt-1 font-normal">
+            <p className="text-label-xs text-gray-400 mt-1 font-normal">
               {lastEdit}
             </p>
           )}
@@ -105,7 +105,7 @@ export function AdminFaqHeader({
                       setIsOpen(false);
                     }}
                     className={cn(
-                      "w-full text-left px-3 py-2 rounded-md text-xs font-medium transition-colors cursor-pointer",
+                      "w-full text-left px-3 py-2 rounded-md text-label-xs font-medium transition-colors cursor-pointer",
                       isSelected
                         ? "bg-deep-blue-800 text-white font-semibold"
                         : "text-gray-300 hover:bg-deep-blue-800/60 hover:text-white"

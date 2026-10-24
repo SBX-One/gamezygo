@@ -27,7 +27,7 @@ export function AdminTransactionsTableSection({
 
   return (
     <div
-      className={`rounded-xl border border-deep-blue-700 bg-deep-blue-950 overflow-hidden ${
+      className={`rounded-lg border border-deep-blue-700 bg-deep-blue-950 overflow-hidden ${
         className || ""
       }`}
     >
@@ -53,13 +53,13 @@ export function AdminTransactionsTableSection({
           ) : (
             activeTransactions.map((tx, idx) => (
               <AdminTableRow key={`${tx.id}-${idx}`}>
-                <AdminTableCell className="pl-6 font-mono text-xs text-gray-300">
+                <AdminTableCell className="pl-6 font-mono text-label-xs text-gray-300">
                   {tx.id}
                 </AdminTableCell>
                 <AdminTableCell className="font-semibold text-white">
                   {tx.customerEmail}
                 </AdminTableCell>
-                <AdminTableCell className="font-mono text-xs text-gray-400">
+                <AdminTableCell className="font-mono text-label-xs text-gray-400">
                   {tx.productId}
                 </AdminTableCell>
                 <AdminTableCell className="text-gray-300">
@@ -68,7 +68,7 @@ export function AdminTransactionsTableSection({
                 <AdminTableCell className="font-semibold text-white">
                   {tx.amount}
                 </AdminTableCell>
-                <AdminTableCell className="text-gray-400 text-xs">
+                <AdminTableCell className="text-gray-400 text-label-xs">
                   {tx.date}
                 </AdminTableCell>
                 <AdminTableCell className="pr-6">

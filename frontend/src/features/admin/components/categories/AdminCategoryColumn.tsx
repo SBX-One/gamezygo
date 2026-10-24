@@ -71,7 +71,7 @@ export function AdminCategoryColumn({
         <button
           type="button"
           onClick={() => onAddNewCategory(scope)}
-          className="inline-flex items-center gap-1.5 px-4 sm:px-5 h-10 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer shrink-0"
+          className="inline-flex items-center gap-1.5 px-4 sm:px-5 h-10 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer shrink-0"
         >
           <PlusIcon />
           <span>Add New Category</span>
@@ -84,7 +84,7 @@ export function AdminCategoryColumn({
           /* Empty State matching Image 2 */
           <div className="flex-1 flex flex-col items-center justify-center text-center p-8 sm:p-12 select-none mx-auto w-full min-h-[460px]">
             {/* Rounded book icon container matching Image 2 */}
-            <div className="w-14 h-14 rounded-2xl bg-[#141622] border border-white/5 flex items-center justify-center text-gray-200 mb-4 shadow-xs">
+            <div className="w-14 h-14 rounded-lg bg-[#141622] border border-white/5 flex items-center justify-center text-gray-200 mb-4 shadow-xs">
               <FluentBookIcon className="w-7 h-7 text-gray-300" />
             </div>
 
@@ -94,7 +94,7 @@ export function AdminCategoryColumn({
             </h4>
 
             {/* Subtitle matching Image 2 */}
-            <p className="text-xs sm:text-sm text-gray-400 font-normal text-center mb-6 leading-relaxed w-full">
+            <p className="text-label-xs sm:text-sm text-gray-400 font-normal text-center mb-6 leading-relaxed w-full">
               Katalog Subscription Anda saat ini masih kosong.
             </p>
 

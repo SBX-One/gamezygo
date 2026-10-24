@@ -39,7 +39,7 @@ export function AdminLayout({
       {/* 2. Mobile Drawer Backdrop Overlay */}
       {isMobileOpen && (
         <div
-          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-40 lg:hidden"
+          className="fixed inset-0 bg-black/70 backdrop-blur-sm z-60 lg:hidden"
           onClick={() => setIsMobileOpen(false)}
         />
       )}
@@ -47,7 +47,7 @@ export function AdminLayout({
       {/* 3. Mobile Slide-Over Drawer Sidebar */}
       <div
         className={cn(
-          "fixed inset-y-0 left-0 z-50 lg:hidden transition-transform duration-300 ease-in-out h-full",
+          "fixed inset-y-0 left-0 z-70 lg:hidden transition-transform duration-300 ease-in-out h-full",
           isMobileOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
@@ -60,7 +60,7 @@ export function AdminLayout({
       {/* 4. Main Admin View Area - Fixed scroll container with min-h-0 */}
       <div className="flex-1 h-full min-w-0 min-h-0 flex flex-col overflow-y-auto py-2.5 px-3">
         {/* Main Panel Container with 16px Rounded Corners (Figma Image 1, 2, 3) */}
-        <div className="w-full bg-deep-blue-950 border border-deep-blue-700 rounded-2xl flex flex-col mb-4 shrink-0 overflow-hidden">
+        <div className="w-full bg-deep-blue-950 border border-deep-blue-700 rounded-lg flex flex-col mb-4 shrink-0 overflow-hidden">
           {/* Top Navbar Header (Figma Image 2, 3, 4) */}
           <AdminHeader
             title={title}

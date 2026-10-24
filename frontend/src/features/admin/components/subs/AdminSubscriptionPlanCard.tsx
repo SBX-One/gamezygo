@@ -46,7 +46,7 @@ export function AdminSubscriptionPlanCard({
   return (
     <div
       className={cn(
-        "rounded-2xl bg-deep-blue-950 border border-deep-blue-700 p-[24px] flex flex-col justify-between shadow-lg select-none transition-all duration-200 hover:border-deep-blue-600",
+        "rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-[24px] flex flex-col justify-between shadow-lg select-none transition-all duration-200 hover:border-deep-blue-600",
         className
       )}
     >
@@ -62,7 +62,7 @@ export function AdminSubscriptionPlanCard({
             </h3>
           </div>
 
-          <span className="text-xs font-semibold text-gray-400 uppercase tracking-widest">
+          <span className="text-label-xs font-semibold text-gray-400 uppercase tracking-widest">
             {plan.duration}
           </span>
         </div>
@@ -81,7 +81,7 @@ export function AdminSubscriptionPlanCard({
         <div className="mt-[32px] space-y-[16px]">
           {plan.benefits.map((benefit, index) => (
             <div key={index} className="space-y-[16px]">
-              <div className="flex items-center gap-[10px] text-xs sm:text-sm text-gray-300">
+              <div className="flex items-center gap-[10px] text-label-xs sm:text-sm text-gray-300">
                 <CheckIcon className="w-3.5 h-3.5 text-gray-300 shrink-0" />
                 <span>{benefit}</span>
               </div>

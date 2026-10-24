@@ -51,7 +51,7 @@ export function AdminRecentTransactionsSection({
   const headerRight = (
     <Link
       href={viewAllHref}
-      className="inline-flex items-center gap-1.5 text-xs font-medium text-gray-200 hover:text-white transition-colors group"
+      className="inline-flex items-center gap-1.5 text-label-xs font-medium text-gray-200 hover:text-white transition-colors group shrink-0 whitespace-nowrap"
     >
       <span>Lihat Semua</span>
       <ArrowRightIcon className="w-3.5 h-3.5 group-hover:translate-x-0.5 transition-transform" />
@@ -100,7 +100,7 @@ export function AdminRecentTransactionsSection({
                 <AdminTableCell className="text-gray-300 font-medium">
                   {tx.totalRevenue}
                 </AdminTableCell>
-                <AdminTableCell className="text-gray-400 text-xs">
+                <AdminTableCell className="text-gray-400 text-label-xs">
                   {tx.date}
                 </AdminTableCell>
                 <AdminTableCell className="pr-6">

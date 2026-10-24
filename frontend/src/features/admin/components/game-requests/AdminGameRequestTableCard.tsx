@@ -87,7 +87,7 @@ export function AdminGameRequestTableCard({
   const renderRequestBadge = (count: number) => {
     if (count >= 100) {
       return (
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#2a141b] text-rose-400 border border-rose-800/40">
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-label-xs font-semibold bg-[#2a141b] text-rose-400 border border-rose-800/40">
           {count} Request
         </span>
       );
@@ -95,14 +95,14 @@ export function AdminGameRequestTableCard({
 
     if (count >= 20) {
       return (
-        <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#2a1d13] text-amber-400 border border-amber-700/40">
+        <span className="inline-flex items-center px-3 py-1 rounded-full text-label-xs font-semibold bg-[#2a1d13] text-amber-400 border border-amber-700/40">
           {count} Request
         </span>
       );
     }
 
     return (
-      <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold bg-[#0f291e] text-green-400 border border-green-800/40">
+      <span className="inline-flex items-center px-3 py-1 rounded-full text-label-xs font-semibold bg-[#0f291e] text-green-400 border border-green-800/40">
         {count} Request
       </span>
     );
@@ -116,20 +116,20 @@ export function AdminGameRequestTableCard({
       </h2>
 
       {/* 2. Main Card Container (Figma Dark Card with 16px radius) */}
-      <div className="w-full rounded-2xl bg-deep-blue-950 border border-deep-blue-700 overflow-hidden shadow-sm">
+      <div className="w-full rounded-lg bg-deep-blue-950 border border-deep-blue-700 overflow-hidden shadow-sm">
         {/* Card Header: TOTAL PRODUCT : count + Accept All & Decline All */}
-        <div className="flex items-center justify-between px-6 py-4.5 border-b border-deep-blue-700 bg-deep-blue-900">
-          <div className="flex items-center gap-2">
-            <span className="text-xs font-semibold tracking-wider text-gray-400 uppercase">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-6 py-3.5 sm:py-4.5 border-b border-deep-blue-700 bg-deep-blue-900">
+          <div className="flex items-center gap-2 select-none shrink-0 whitespace-nowrap">
+            <span className="text-label-xs font-semibold tracking-wider text-gray-400 uppercase whitespace-nowrap">
               TOTAL PRODUCT :
             </span>
-            <span className="text-xs font-semibold text-white">
+            <span className="text-label-xs font-semibold text-white whitespace-nowrap">
               {totalCount} {totalLabel}
             </span>
           </div>
 
           {showCardHeaderActions && (onAcceptAll || onDeclineAll) && (
-            <div className="flex items-center gap-2.5">
+            <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
               {onAcceptAll && (
                 <AdminButton
                   variant="dark"
@@ -215,7 +215,7 @@ export function AdminGameRequestTableCard({
                     </AdminTableCell>
 
                     {/* Column 3: First Request Date & Time */}
-                    <AdminTableCell className="py-4 px-4 text-xs text-white font-mono">
+                    <AdminTableCell className="py-4 px-4 text-label-xs text-white font-mono">
                       {item.firstRequest}
                     </AdminTableCell>
 
@@ -235,7 +235,7 @@ export function AdminGameRequestTableCard({
                               }
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="h-8 px-3.5 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] flex items-center gap-2 text-xs font-semibold text-white transition-colors cursor-pointer select-none"
+                              className="h-8 px-3.5 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] flex items-center gap-2 text-label-xs font-semibold text-white transition-colors cursor-pointer select-none"
                             >
                               <SteamIcon className="w-4 h-4 text-white shrink-0" />
                               <span>View on Steam</span>
@@ -246,7 +246,7 @@ export function AdminGameRequestTableCard({
                               variant="dark"
                               size="sm"
                               onClick={() => onAddProduct?.(item)}
-                              className="h-8 border-white/10 bg-[#161823] hover:bg-[#1E202E] text-white px-3.5 rounded-lg font-semibold text-xs"
+                              className="h-8 border-white/10 bg-[#161823] hover:bg-[#1E202E] text-white px-3.5 rounded-lg font-semibold text-label-xs"
                             >
                               Add Product
                             </AdminButton>
@@ -256,7 +256,7 @@ export function AdminGameRequestTableCard({
                               variant="dark"
                               size="sm"
                               onClick={() => onCancelItem?.(item)}
-                              className="h-8 border-white/10 bg-[#161823] hover:bg-[#1E202E] text-white px-3.5 rounded-lg font-semibold text-xs"
+                              className="h-8 border-white/10 bg-[#161823] hover:bg-[#1E202E] text-white px-3.5 rounded-lg font-semibold text-label-xs"
                             >
                               Cancel
                             </AdminButton>
@@ -274,7 +274,7 @@ export function AdminGameRequestTableCard({
                               }
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="h-8 px-3.5 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] flex items-center gap-2 text-xs font-semibold text-white transition-colors cursor-pointer select-none"
+                              className="h-8 px-3.5 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] flex items-center gap-2 text-label-xs font-semibold text-white transition-colors cursor-pointer select-none"
                             >
                               <SteamIcon className="w-4 h-4 text-white shrink-0" />
                               <span>View on Steam</span>
@@ -285,7 +285,7 @@ export function AdminGameRequestTableCard({
                               variant="dark"
                               size="sm"
                               onClick={() => onCancelItem?.(item)}
-                              className="h-8 border-white/10 bg-[#161823] hover:bg-[#1E202E] text-white px-3.5 rounded-lg font-semibold text-xs"
+                              className="h-8 border-white/10 bg-[#161823] hover:bg-[#1E202E] text-white px-3.5 rounded-lg font-semibold text-label-xs"
                             >
                               Cancel
                             </AdminButton>
@@ -314,7 +314,7 @@ export function AdminGameRequestTableCard({
                               }
                               target="_blank"
                               rel="noopener noreferrer"
-                              className="h-8 px-3.5 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] flex items-center gap-2 text-xs font-semibold text-white transition-colors cursor-pointer select-none"
+                              className="h-8 px-3.5 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] flex items-center gap-2 text-label-xs font-semibold text-white transition-colors cursor-pointer select-none"
                             >
                               <SteamIcon className="w-4 h-4 text-white shrink-0" />
                               <span>View on Steam</span>
@@ -325,7 +325,7 @@ export function AdminGameRequestTableCard({
                               variant="dark"
                               size="sm"
                               onClick={() => onAcceptItem?.(item)}
-                              className="h-8 border-white/10 bg-[#161823] hover:bg-[#1E202E] text-white px-3.5 rounded-lg font-semibold text-xs"
+                              className="h-8 border-white/10 bg-[#161823] hover:bg-[#1E202E] text-white px-3.5 rounded-lg font-semibold text-label-xs"
                             >
                               Accept
                             </AdminButton>
@@ -335,7 +335,7 @@ export function AdminGameRequestTableCard({
                               variant="dark"
                               size="sm"
                               onClick={() => onDeclineItem?.(item)}
-                              className="h-8 border-white/10 bg-[#161823] hover:bg-[#1E202E] text-white px-3.5 rounded-lg font-semibold text-xs"
+                              className="h-8 border-white/10 bg-[#161823] hover:bg-[#1E202E] text-white px-3.5 rounded-lg font-semibold text-label-xs"
                             >
                               Decline
                             </AdminButton>

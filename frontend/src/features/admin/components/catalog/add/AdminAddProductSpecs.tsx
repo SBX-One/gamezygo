@@ -5,6 +5,7 @@ import type {
   SpecItem,
   AdminAddProductFormData,
 } from "../../../types/admin-add-product.types";
+import { Button } from "@/components/ui";
 
 export interface AdminAddProductSpecsProps {
   formData: AdminAddProductFormData;
@@ -177,7 +178,7 @@ export function AdminAddProductSpecs({
   return (
     <div className={cn("flex flex-col gap-3.5 w-full", className)}>
       {/* Section Title */}
-      <h3 className="text-base sm:text-lg font-bold text-white tracking-tight select-none">
+      <h3 className="text-h3 sm:text-h5 font-semibold text-white select-none">
         Detail Spesifikasi
       </h3>
 
@@ -186,20 +187,22 @@ export function AdminAddProductSpecs({
         {/* ========================================================
             CARD 1: MINIMUM SPECS
            ======================================================== */}
-        <div className="rounded-xl border border-deep-blue-700 bg-deep-blue-950 overflow-hidden flex flex-col shadow-sm">
+        <div className="rounded-lg border border-deep-blue-700 bg-deep-blue-950 overflow-hidden flex flex-col shadow-sm">
           {/* Header (Matching Image 1: MINIMUM + Add New) */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-deep-blue-700/80 bg-deep-blue-900/60 select-none">
-            <h4 className="text-xs sm:text-sm font-bold text-white tracking-wider uppercase">
-              MINIMUM
+            <h4 className="text-body-xs sm:text-h6 font-semibold text-white ">
+              Minimum Specs
             </h4>
-            <button
+            <Button
+            variant={"outline"}
+            size={"xs"}
               type="button"
               onClick={() => handleOpenAdd("minimum")}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E202B] hover:bg-[#272A38] border border-deep-blue-700 text-xs font-medium text-white transition-colors cursor-pointer select-none"
-            >
+              className="px-3 py-2 flex gap-1 "
+         >
               <PlusIcon className="w-3.5 h-3.5" />
-              <span>Add New</span>
-            </button>
+              <span>Add</span>
+            </Button>
           </div>
 
           {/* Body Items List */}
@@ -208,27 +211,30 @@ export function AdminAddProductSpecs({
               {formData.minimumSpecs.map((item) => (
                 <div
                   key={item.id}
-                  className="px-5 py-3.5 flex items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors"
+                  className="p-6 flex items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors"
                 >
                   <div className="flex flex-col gap-0.5 min-w-0 pr-2">
-                    <span className="text-[11px] text-gray-400 font-normal">
+                    <span className="text-body-xs text-gray-400 font-normal">
                       {item.label}
                     </span>
-                    <span className="text-xs sm:text-sm font-semibold text-white truncate sm:whitespace-normal">
+                    <span className="text-label-xs sm:text-body-sm font-semibold text-white truncate sm:whitespace-normal">
                       {item.value}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Button
+                      variant={"outline"}
+                      size={"xs"}
                       type="button"
                       onClick={() => handleOpenEdit("minimum", item)}
-                      className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
                       aria-label={`Edit ${item.label}`}
                     >
                       <EditIcon className="w-3.5 h-3.5" />
-                    </button>
-                    <button
+                    </Button>
+                    <Button 
+                    variant={"outline"}
+                    size={"xs"}
                       type="button"
                       onClick={() =>
                         setDeleteModalState({
@@ -237,11 +243,10 @@ export function AdminAddProductSpecs({
                           item,
                         })
                       }
-                      className="p-1.5 rounded-lg text-gray-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
-                      aria-label={`Hapus ${item.label}`}
+                   aria-label={`Hapus ${item.label}`}
                     >
                       <TrashIcon className="w-3.5 h-3.5" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ))}
@@ -251,13 +256,13 @@ export function AdminAddProductSpecs({
               <h5 className="text-sm font-bold text-white mb-1">
                 Tambahkan Spesifikasi
               </h5>
-              <p className="text-xs text-gray-400 mb-4">
+              <p className="text-label-xs text-gray-400 mb-4">
                 Anda belum menambahkan list spesifikasi minimum.
               </p>
               <button
                 type="button"
                 onClick={() => handleOpenAdd("minimum")}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1E202B] hover:bg-[#272A38] border border-deep-blue-700 text-xs font-medium text-white transition-colors cursor-pointer"
+                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1E202B] hover:bg-[#272A38] border border-deep-blue-700 text-label-xs font-medium text-white transition-colors cursor-pointer"
               >
                 <PlusIcon className="w-3.5 h-3.5" />
                 <span>Tambah Spesifikasi</span>
@@ -269,20 +274,22 @@ export function AdminAddProductSpecs({
         {/* ========================================================
             CARD 2: RECOMMENDATION SPECS
            ======================================================== */}
-        <div className="rounded-xl border border-deep-blue-700 bg-deep-blue-950 overflow-hidden flex flex-col shadow-sm">
+        <div className="rounded-lg border border-deep-blue-700 bg-deep-blue-950 overflow-hidden flex flex-col shadow-sm">
           {/* Header (Matching Image 1: RECOMMENDATION + Add New) */}
           <div className="flex items-center justify-between px-5 py-4 border-b border-deep-blue-700/80 bg-deep-blue-900/60 select-none">
-            <h4 className="text-xs sm:text-sm font-bold text-white tracking-wider uppercase">
-              RECOMMENDATION
+            <h4 className="text-body-xs sm:text-h6 font-semibold text-white">
+              Recommendation Specs
             </h4>
-            <button
+            <Button
+              variant={"outline"}
+              size={"xs"}
               type="button"
               onClick={() => handleOpenAdd("recommendation")}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E202B] hover:bg-[#272A38] border border-deep-blue-700 text-xs font-medium text-white transition-colors cursor-pointer select-none"
+              className="px-3 py-2 flex gap-1"
             >
               <PlusIcon className="w-3.5 h-3.5" />
-              <span>Add New</span>
-            </button>
+              <span>Add</span>
+            </Button>
           </div>
 
           {/* Body */}
@@ -291,26 +298,30 @@ export function AdminAddProductSpecs({
               {formData.recommendationSpecs.map((item) => (
                 <div
                   key={item.id}
-                  className="px-5 py-3.5 flex items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors"
+                  className="p-6 flex items-center justify-between gap-4 hover:bg-white/[0.02] transition-colors"
                 >
                   <div className="flex flex-col gap-0.5 min-w-0 pr-2">
-                    <span className="text-[11px] text-gray-400 font-normal">
+                    <span className="text-body-xs text-gray-400 font-normal">
                       {item.label}
                     </span>
-                    <span className="text-xs sm:text-sm font-semibold text-white truncate sm:whitespace-normal">
+                    <span className="text-label-xs sm:text-body-sm font-semibold text-white truncate sm:whitespace-normal">
                       {item.value}
                     </span>
                   </div>
 
-                  <div className="flex items-center gap-1 shrink-0">
-                    <button
+                  <div className="flex items-center gap-2 shrink-0">
+                    <Button
+                      variant={"outline"}
+                      size={"xs"}
                       type="button"
                       onClick={() => handleOpenEdit("recommendation", item)}
-                      className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                      aria-label={`Edit ${item.label}`}
                     >
                       <EditIcon className="w-3.5 h-3.5" />
-                    </button>
-                    <button
+                    </Button>
+                    <Button
+                      variant={"outline"}
+                      size={"xs"}
                       type="button"
                       onClick={() =>
                         setDeleteModalState({
@@ -319,30 +330,32 @@ export function AdminAddProductSpecs({
                           item,
                         })
                       }
-                      className="p-1.5 rounded-lg text-gray-400 hover:text-rose-400 hover:bg-rose-500/10 transition-colors cursor-pointer"
+                      aria-label={`Hapus ${item.label}`}
                     >
                       <TrashIcon className="w-3.5 h-3.5" />
-                    </button>
+                    </Button>
                   </div>
                 </div>
               ))}
             </div>
           ) : (
             <div className="py-16 px-6 flex flex-col items-center justify-center text-center select-none my-auto">
-              <h5 className="text-base font-bold text-white mb-1 tracking-tight">
+              <h5 className="text-body-sm sm:text-h6 font-semibold text-white mb-1 tracking-tight">
                 Tambahkan Spesifikasi
               </h5>
-              <p className="text-xs sm:text-sm text-gray-400 mb-6 font-normal">
+              <p className="text-body-xs text-gray-400 mb-6 font-normal">
                 Anda belum menambahkan list spesifikasi.
               </p>
-              <button
+              <Button
+                variant={"outline"}
+                size={"sm"}
                 type="button"
                 onClick={() => handleOpenAdd("recommendation")}
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1E202B] hover:bg-[#272A38] border border-deep-blue-700 text-xs sm:text-sm font-medium text-white transition-colors cursor-pointer shadow-sm"
+                className="px-4 py-2 flex items-center gap-2"
               >
                 <PlusIcon className="w-4 h-4" />
                 <span>Tambah Spesifikasi</span>
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -367,7 +380,7 @@ export function AdminAddProductSpecs({
             <div>
               {/* Header */}
               <div className="flex items-center justify-between pb-6 border-b border-deep-blue-700">
-                <h3 className="text-base font-bold text-white tracking-tight">
+                <h3 className="text-h6 sm:text-h5 font-semibold text-white tracking-tight">
                   Detail Spesifikasi
                 </h3>
                 <button
@@ -375,7 +388,7 @@ export function AdminAddProductSpecs({
                   onClick={() =>
                     setDrawerState({ isOpen: false, type: "minimum" })
                   }
-                  className="p-1 text-gray-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+                  className="p-1.5 text-gray-400 hover:text-white rounded-lg hover:bg-white/5 transition-colors cursor-pointer"
                   aria-label="Tutup"
                 >
                   <CloseIcon className="w-4 h-4" />
@@ -390,7 +403,7 @@ export function AdminAddProductSpecs({
               >
                 {/* Field 1: JENIS SPESIFIKASI */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-xs font-semibold tracking-wider text-gray-400 uppercase">
+                  <label className="text-body-xs font-semibold text-gray-400 uppercase">
                     JENIS SPESIFIKASI
                   </label>
                   <input
@@ -399,13 +412,13 @@ export function AdminAddProductSpecs({
                     value={inputLabel}
                     onChange={(e) => setInputLabel(e.target.value)}
                     placeholder="ex. OS version"
-                    className="w-full h-11 px-4 bg-[#15161D] border border-deep-blue-700 rounded-lg text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
+                    className="w-full h-10 px-4 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-body-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
                   />
                 </div>
 
                 {/* Field 2: SPESIFIKASI */}
                 <div className="flex flex-col gap-2">
-                  <label className="text-xs font-semibold tracking-wider text-gray-400 uppercase">
+                  <label className="text-body-xs font-semibold text-gray-400 uppercase">
                     SPESIFIKASI
                   </label>
                   <textarea
@@ -414,30 +427,32 @@ export function AdminAddProductSpecs({
                     value={inputValue}
                     onChange={(e) => setInputValue(e.target.value)}
                     placeholder="ex. Intel® Core™ i7-7700 (quad-core) / AMD® Ryzen™ 5 1600 (hexa-core)"
-                    className="w-full p-4 bg-[#15161D] border border-deep-blue-700 rounded-lg text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors resize-none leading-relaxed"
+                    className="w-full p-4 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-body-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors resize-none leading-relaxed"
                   />
                 </div>
               </form>
             </div>
 
-            {/* Footer Action Buttons (Matching Image 1: Batalkan & Simpan) */}
+            {/* Footer Action Buttons */}
             <div className="flex items-center justify-end gap-3 pt-6 border-t border-deep-blue-700/80">
-              <button
+              <Button
+                variant={"inactive"}
+                size={"sm"}
                 type="button"
                 onClick={() =>
                   setDrawerState({ isOpen: false, type: "minimum" })
                 }
-                className="px-5 py-2.5 rounded-xl text-gray-300 hover:text-white hover:bg-white/5 text-xs sm:text-sm font-medium transition-colors cursor-pointer select-none"
               >
                 Batalkan
-              </button>
-              <button
+              </Button>
+              <Button
+                variant={"primary"}
+                size={"sm"}
                 type="submit"
                 form="spec-drawer-form"
-                className="px-6 py-2.5 rounded-xl bg-gradient-to-r from-[#DF3848] to-[#FF5364] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold shadow-sm transition-all cursor-pointer select-none"
               >
                 Simpan
-              </button>
+              </Button>
             </div>
           </div>
         </div>

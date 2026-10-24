@@ -117,7 +117,7 @@ export function AdminPreOrderAddModal({
     >
       <div
         className={cn(
-          "w-[480px] max-w-[95vw] rounded-2xl bg-deep-blue-950 border border-deep-blue-700 shadow-2xl select-none animate-in zoom-in-95 duration-150 overflow-hidden",
+          "w-[480px] max-w-[95vw] rounded-lg bg-deep-blue-950 border border-deep-blue-700 shadow-2xl select-none animate-in zoom-in-95 duration-150 overflow-hidden",
           className
         )}
       >
@@ -140,7 +140,7 @@ export function AdminPreOrderAddModal({
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Field: Product Name */}
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
               Product Name
             </label>
             <input
@@ -149,13 +149,13 @@ export function AdminPreOrderAddModal({
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Grand Thief Auto VI"
               required
-              className="w-full px-4 py-2.5 rounded-xl bg-deep-blue-900 border border-deep-blue-700 text-gray-50 text-sm placeholder:text-gray-500 focus:outline-none focus:border-deep-blue-500 transition-colors"
+              className="w-full px-4 py-2.5 rounded-lg bg-deep-blue-900 border border-deep-blue-700 text-gray-50 text-sm placeholder:text-gray-500 focus:outline-none focus:border-deep-blue-500 transition-colors"
             />
           </div>
 
           {/* Field: Price */}
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
               Price (IDR)
             </label>
             <input
@@ -164,13 +164,13 @@ export function AdminPreOrderAddModal({
               onChange={(e) => setPrice(e.target.value)}
               placeholder="480000"
               required
-              className="w-full px-4 py-2.5 rounded-xl bg-deep-blue-900 border border-deep-blue-700 text-gray-50 text-sm placeholder:text-gray-500 focus:outline-none focus:border-deep-blue-500 transition-colors"
+              className="w-full px-4 py-2.5 rounded-lg bg-deep-blue-900 border border-deep-blue-700 text-gray-50 text-sm placeholder:text-gray-500 focus:outline-none focus:border-deep-blue-500 transition-colors"
             />
           </div>
 
           {/* Field: Image URL */}
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
               Cover Image URL
             </label>
             <input
@@ -179,13 +179,13 @@ export function AdminPreOrderAddModal({
               onChange={(e) => setImageSrc(e.target.value)}
               placeholder="https://..."
               required
-              className="w-full px-4 py-2.5 rounded-xl bg-deep-blue-900 border border-deep-blue-700 text-gray-50 text-sm placeholder:text-gray-500 focus:outline-none focus:border-deep-blue-500 transition-colors text-xs font-mono"
+              className="w-full px-4 py-2.5 rounded-lg bg-deep-blue-900 border border-deep-blue-700 text-gray-50 text-sm placeholder:text-gray-500 focus:outline-none focus:border-deep-blue-500 transition-colors text-label-xs font-mono"
             />
           </div>
 
           {/* Field: Categories */}
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
+            <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider mb-2">
               Kategori
             </label>
             <div className="flex flex-wrap gap-2">
@@ -197,7 +197,7 @@ export function AdminPreOrderAddModal({
                     type="button"
                     onClick={() => toggleCategory(cat)}
                     className={cn(
-                      "px-3 py-1 rounded-full text-xs font-medium transition-colors cursor-pointer",
+                      "px-3 py-1 rounded-full text-label-xs font-medium transition-colors cursor-pointer",
                       isSelected
                         ? "bg-deep-blue-800 text-gray-50 font-semibold border border-deep-blue-500"
                         : "bg-deep-blue-900 hover:bg-deep-blue-850 text-gray-400 hover:text-gray-50 border border-deep-blue-700"

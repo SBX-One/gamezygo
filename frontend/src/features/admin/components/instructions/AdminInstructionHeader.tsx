@@ -31,7 +31,7 @@ export function AdminInstructionHeader({
   return (
     <div
       className={cn(
-        "w-full rounded-2xl bg-deep-blue-950 border border-deep-blue-700/80 px-6 py-4.5 flex items-center gap-3.5 select-none shadow-xs font-sans",
+        "w-full rounded-lg bg-deep-blue-950 border border-deep-blue-700/80 px-6 py-4.5 flex items-center gap-3.5 select-none shadow-xs font-sans",
         className
       )}
     >

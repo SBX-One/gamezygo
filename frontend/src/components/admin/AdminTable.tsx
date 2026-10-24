@@ -28,7 +28,7 @@ export function AdminTableHeader({
   return (
     <thead
       className={cn(
-        "border-b border-deep-blue-700 text-xs uppercase font-semibold text-gray-400 bg-deep-blue-900",
+        "border-b border-b-gradient-secondary text-label-xs  font-semibold text-gray-100 bg-deep-blue-900",
         className
       )}
       {...props}
@@ -75,7 +75,7 @@ export function AdminTableHead({
 }: React.ThHTMLAttributes<HTMLTableCellElement>) {
   return (
     <th
-      className={cn("py-3.5 px-4 font-semibold text-gray-400 select-none", className)}
+      className={cn("py-4 px-5 text-label-xs font-semibold text-gray-100 select-none", className)}
       {...props}
     >
       {children}
@@ -90,7 +90,7 @@ export function AdminTableCell({
 }: React.TdHTMLAttributes<HTMLTableCellElement>) {
   return (
     <td
-      className={cn("py-4 px-4 align-middle whitespace-nowrap", className)}
+      className={cn("py-4 px-5 align-middle whitespace-nowrap font-semibold text-label-xs", className)}
       {...props}
     >
       {children}

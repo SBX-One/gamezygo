@@ -265,7 +265,7 @@ export function AdminArticleEditorToolbar({
         <div className="h-5 w-px bg-white/10" />
 
         {/* Zoom Controls: — 100% + */}
-        <div className="flex items-center gap-2 text-xs font-semibold text-white">
+        <div className="flex items-center gap-2 text-label-xs font-semibold text-white">
           <button
             type="button"
             onClick={handleZoomOut}
@@ -295,7 +295,7 @@ export function AdminArticleEditorToolbar({
             onClick={() => setIsHeadingMenuOpen(!isHeadingMenuOpen)}
             aria-label="Heading options"
             className={cn(
-              "h-8 min-w-[32px] px-2 rounded-lg border text-xs font-bold transition-colors flex items-center justify-center cursor-pointer",
+              "h-8 min-w-[32px] px-2 rounded-lg border text-label-xs font-bold transition-colors flex items-center justify-center cursor-pointer",
               isHeadingMenuOpen || activeHeading
                 ? "bg-[#1E202E] border-white/30 text-white"
                 : "bg-[#161823] border-white/10 text-gray-300 hover:text-white hover:border-white/20"
@@ -316,7 +316,7 @@ export function AdminArticleEditorToolbar({
                     setIsHeadingMenuOpen(false);
                   }}
                   className={cn(
-                    "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-xs font-medium transition-colors text-left cursor-pointer",
+                    "w-full flex items-center gap-2.5 px-2.5 py-1.5 rounded-lg text-label-xs font-medium transition-colors text-left cursor-pointer",
                     activeHeading === hType
                       ? "bg-white/15 text-white"
                       : "text-gray-300 hover:bg-white/5 hover:text-white"
@@ -357,7 +357,7 @@ export function AdminArticleEditorToolbar({
             onClick={onToggleBold}
             aria-label="Bold"
             className={cn(
-              "h-8 w-8 rounded-lg border text-xs font-bold transition-colors flex items-center justify-center cursor-pointer",
+              "h-8 w-8 rounded-lg border text-label-xs font-bold transition-colors flex items-center justify-center cursor-pointer",
               isBold
                 ? "bg-[#1E202E] border-white/30 text-white"
                 : "bg-[#161823] border-white/10 text-gray-300 hover:text-white hover:border-white/20"
@@ -370,7 +370,7 @@ export function AdminArticleEditorToolbar({
             onClick={onToggleItalic}
             aria-label="Italic"
             className={cn(
-              "h-8 w-8 rounded-lg border text-xs italic font-serif transition-colors flex items-center justify-center cursor-pointer",
+              "h-8 w-8 rounded-lg border text-label-xs italic font-serif transition-colors flex items-center justify-center cursor-pointer",
               isItalic
                 ? "bg-[#1E202E] border-white/30 text-white"
                 : "bg-[#161823] border-white/10 text-gray-300 hover:text-white hover:border-white/20"
@@ -383,7 +383,7 @@ export function AdminArticleEditorToolbar({
             onClick={onToggleUnderline}
             aria-label="Underline"
             className={cn(
-              "h-8 w-8 rounded-lg border text-xs underline transition-colors flex items-center justify-center cursor-pointer",
+              "h-8 w-8 rounded-lg border text-label-xs underline transition-colors flex items-center justify-center cursor-pointer",
               isUnderline
                 ? "bg-[#1E202E] border-white/30 text-white"
                 : "bg-[#161823] border-white/10 text-gray-300 hover:text-white hover:border-white/20"
@@ -396,7 +396,7 @@ export function AdminArticleEditorToolbar({
             onClick={onToggleStrike}
             aria-label="Strikethrough"
             className={cn(
-              "h-8 w-8 rounded-lg border text-xs line-through transition-colors flex items-center justify-center cursor-pointer",
+              "h-8 w-8 rounded-lg border text-label-xs line-through transition-colors flex items-center justify-center cursor-pointer",
               isStrike
                 ? "bg-[#1E202E] border-white/30 text-white"
                 : "bg-[#161823] border-white/10 text-gray-300 hover:text-white hover:border-white/20"

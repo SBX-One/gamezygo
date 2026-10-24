@@ -113,13 +113,13 @@ export function AdminAddVoucherTargetSection({
       <div className="space-y-4">
         {/* Column Header: TARGET GAME + Add New */}
         <div className="flex items-center justify-between pb-2 border-b border-deep-blue-700/60">
-          <span className="text-xs sm:text-sm font-semibold tracking-wider text-gray-400 uppercase">
+          <span className="text-label-xs sm:text-sm font-semibold tracking-wider text-gray-400 uppercase">
             TARGET GAME
           </span>
           <button
             type="button"
             onClick={() => setIsGameModalOpen(true)}
-            className="h-8 px-3 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] flex items-center gap-1.5 text-xs font-semibold text-white transition-colors cursor-pointer select-none"
+            className="h-8 px-3 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] flex items-center gap-1.5 text-label-xs font-semibold text-white transition-colors cursor-pointer select-none"
           >
             <PlusIcon className="w-3.5 h-3.5 text-white shrink-0" />
             <span>Add New</span>
@@ -133,7 +133,7 @@ export function AdminAddVoucherTargetSection({
               {formData.targetGames.map((game) => (
                 <div
                   key={game.id}
-                  className="rounded-xl bg-[#0D0F18] border border-white/10 p-3 flex items-center justify-between gap-3 shadow-xs"
+                  className="rounded-lg bg-[#0D0F18] border border-white/10 p-3 flex items-center justify-between gap-3 shadow-xs"
                 >
                   {/* Left: Thumbnail + Title + Badge */}
                   <div className="flex items-center gap-3 min-w-0">
@@ -151,7 +151,7 @@ export function AdminAddVoucherTargetSection({
                       <h4 className="text-sm font-semibold text-white truncate">
                         {game.title}
                       </h4>
-                      <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full text-xs font-bold bg-[#BA343C] text-white">
+                      <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full text-label-xs font-bold bg-[#BA343C] text-white">
                         -{game.discountPercentage}%
                       </span>
                     </div>
@@ -159,7 +159,7 @@ export function AdminAddVoucherTargetSection({
 
                   {/* Middle: Prices */}
                   <div className="text-right shrink-0 px-2">
-                    <div className="text-xs text-gray-500 line-through">
+                    <div className="text-label-xs text-gray-500 line-through">
                       {formatCurrency(game.originalPrice)},00
                     </div>
                     <div className="text-sm font-bold text-white">
@@ -171,7 +171,7 @@ export function AdminAddVoucherTargetSection({
                   <button
                     type="button"
                     onClick={() => handleRemoveGame(game.id)}
-                    className="h-8 px-3.5 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] text-white text-xs font-semibold transition-colors cursor-pointer shrink-0"
+                    className="h-8 px-3.5 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] text-white text-label-xs font-semibold transition-colors cursor-pointer shrink-0"
                   >
                     Remove
                   </button>
@@ -181,13 +181,13 @@ export function AdminAddVoucherTargetSection({
           ) : (
             /* Empty State (Matching Image 3) */
             <div className="py-12 sm:py-16 flex flex-col items-center justify-center text-center">
-              <div className="w-14 h-14 rounded-2xl bg-[#141622] border border-white/10 flex items-center justify-center text-white shadow-inner">
+              <div className="w-14 h-14 rounded-lg bg-[#141622] border border-white/10 flex items-center justify-center text-white shadow-inner">
                 <GamepadControllerIcon className="w-7 h-7 text-white" />
               </div>
               <h3 className="mt-4 text-base sm:text-lg font-bold text-white tracking-tight">
                 Belum Ada Ditambahkan
               </h3>
-              <p className="mt-1 text-xs sm:text-sm text-gray-400">
+              <p className="mt-1 text-label-xs sm:text-sm text-gray-400">
                 Anda belum menambahkan game apapun.
               </p>
             </div>
@@ -199,13 +199,13 @@ export function AdminAddVoucherTargetSection({
       <div className="space-y-4">
         {/* Column Header: USER + Add New */}
         <div className="flex items-center justify-between pb-2 border-b border-deep-blue-700/60">
-          <span className="text-xs sm:text-sm font-semibold tracking-wider text-gray-400 uppercase">
+          <span className="text-label-xs sm:text-sm font-semibold tracking-wider text-gray-400 uppercase">
             USER
           </span>
           <button
             type="button"
             onClick={() => setIsUserModalOpen(true)}
-            className="h-8 px-3 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] flex items-center gap-1.5 text-xs font-semibold text-white transition-colors cursor-pointer select-none"
+            className="h-8 px-3 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] flex items-center gap-1.5 text-label-xs font-semibold text-white transition-colors cursor-pointer select-none"
           >
             <PlusIcon className="w-3.5 h-3.5 text-white shrink-0" />
             <span>Add New</span>
@@ -219,7 +219,7 @@ export function AdminAddVoucherTargetSection({
               {formData.targetUsers.map((user) => (
                 <div
                   key={user.id}
-                  className="rounded-xl bg-[#0D0F18] border border-white/10 px-4 py-3 flex items-center justify-between gap-3 shadow-xs"
+                  className="rounded-lg bg-[#0D0F18] border border-white/10 px-4 py-3 flex items-center justify-between gap-3 shadow-xs"
                 >
                   {/* Left: Email */}
                   <span className="text-sm font-medium text-gray-200 truncate">
@@ -230,7 +230,7 @@ export function AdminAddVoucherTargetSection({
                   <button
                     type="button"
                     onClick={() => handleRemoveUser(user.id)}
-                    className="h-8 px-3.5 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] text-white text-xs font-semibold transition-colors cursor-pointer shrink-0"
+                    className="h-8 px-3.5 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] text-white text-label-xs font-semibold transition-colors cursor-pointer shrink-0"
                   >
                     Remove
                   </button>
@@ -240,13 +240,13 @@ export function AdminAddVoucherTargetSection({
           ) : (
             /* Empty State (Matching Image 3) */
             <div className="py-12 sm:py-16 flex flex-col items-center justify-center text-center">
-              <div className="w-14 h-14 rounded-2xl bg-[#141622] border border-white/10 flex items-center justify-center text-white shadow-inner">
+              <div className="w-14 h-14 rounded-lg bg-[#141622] border border-white/10 flex items-center justify-center text-white shadow-inner">
                 <UserProfileIcon className="w-7 h-7 text-white" />
               </div>
               <h3 className="mt-4 text-base sm:text-lg font-bold text-white tracking-tight">
                 Belum Ada Ditambahkan
               </h3>
-              <p className="mt-1 text-xs sm:text-sm text-gray-400">
+              <p className="mt-1 text-label-xs sm:text-sm text-gray-400">
                 Anda belum menambahkan akun siapapun.
               </p>
             </div>

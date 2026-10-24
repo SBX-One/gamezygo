@@ -50,7 +50,7 @@ const SLASH_MENU_ITEMS: InstructionSlashMenuItem[] = [
     type: "h1",
     title: "Heading 1",
     description: "Judul bagian besar",
-    icon: <span className="font-bold text-xs text-white">H1</span>,
+    icon: <span className="font-bold text-label-xs text-white">H1</span>,
     keywords: ["h1", "heading", "judul", "besar", "header"],
   },
   {
@@ -58,7 +58,7 @@ const SLASH_MENU_ITEMS: InstructionSlashMenuItem[] = [
     type: "h2",
     title: "Heading 2",
     description: "Judul bagian sedang",
-    icon: <span className="font-bold text-xs text-white">H2</span>,
+    icon: <span className="font-bold text-label-xs text-white">H2</span>,
     keywords: ["h2", "heading", "judul", "sedang", "subjudul"],
   },
   {
@@ -66,7 +66,7 @@ const SLASH_MENU_ITEMS: InstructionSlashMenuItem[] = [
     type: "h3",
     title: "Heading 3",
     description: "Subjudul bagian kecil",
-    icon: <span className="font-bold text-xs text-white">H3</span>,
+    icon: <span className="font-bold text-label-xs text-white">H3</span>,
     keywords: ["h3", "heading", "subjudul", "kecil"],
   },
   {
@@ -275,7 +275,7 @@ export function AdminInstructionSlashMenu({
       </div>
 
       {filteredItems.length === 0 ? (
-        <div className="px-3 py-3 text-xs text-gray-500 text-center">
+        <div className="px-3 py-3 text-label-xs text-gray-500 text-center">
           Tidak ada tipe blok yang cocok
         </div>
       ) : (
@@ -299,7 +299,7 @@ export function AdminInstructionSlashMenu({
                   {item.icon}
                 </div>
                 <div className="flex-1 min-w-0">
-                  <p className="text-xs font-medium text-white truncate">
+                  <p className="text-label-xs font-medium text-white truncate">
                     {item.title}
                   </p>
                   <p className="text-[11px] text-gray-400 truncate">

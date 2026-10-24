@@ -506,7 +506,7 @@ export function AdminInstructionBlockEditor({
                 {/* Step Block (Instruction Steps) */}
                 {block.type === "step" && (
                   <div className="flex items-start gap-3 p-3 rounded-lg bg-deep-blue-900/40 border border-deep-blue-700 w-full my-1">
-                    <span className="w-6 h-6 rounded-md bg-deep-blue-800 border border-deep-blue-600 text-indigo-400 font-bold text-xs flex items-center justify-center shrink-0 mt-0.5">
+                    <span className="w-6 h-6 rounded-md bg-deep-blue-800 border border-deep-blue-600 text-indigo-400 font-bold text-label-xs flex items-center justify-center shrink-0 mt-0.5">
                       {currentStepCounter}
                     </span>
                     <div className="flex-1 min-w-0 space-y-1.5">
@@ -668,7 +668,7 @@ export function AdminInstructionBlockEditor({
                 {/* Numbered List */}
                 {block.type === "numbered-list" && (
                   <div className="flex items-start gap-2.5 w-full font-sans">
-                    <span className="text-xs font-semibold text-gray-400 select-none leading-6 min-w-4.5">
+                    <span className="text-label-xs font-semibold text-gray-400 select-none leading-6 min-w-4.5">
                       {index + 1}.
                     </span>
                     <textarea
@@ -712,7 +712,7 @@ export function AdminInstructionBlockEditor({
                           className="w-full h-auto max-h-96 object-cover rounded-lg"
                         />
                         <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 group-hover/img:opacity-100 transition-opacity">
-                          <label className="px-3 py-1.5 rounded-lg bg-deep-blue-950/90 hover:bg-deep-blue-950 border border-deep-blue-700 text-xs font-medium text-white cursor-pointer backdrop-blur-md">
+                          <label className="px-3 py-1.5 rounded-lg bg-deep-blue-950/90 hover:bg-deep-blue-950 border border-deep-blue-700 text-label-xs font-medium text-white cursor-pointer backdrop-blur-md">
                             Ganti Gambar
                             <input
                               type="file"
@@ -727,14 +727,14 @@ export function AdminInstructionBlockEditor({
                       <div className="p-8 border-2 border-dashed border-deep-blue-700 rounded-lg bg-deep-blue-900/40 flex flex-col items-center justify-center gap-3">
                         <ImageIcon className="w-8 h-8 text-gray-400" />
                         <div className="text-center space-y-1">
-                          <p className="text-xs font-medium text-gray-300">
+                          <p className="text-label-xs font-medium text-gray-300">
                             Unggah Gambar Instruksi
                           </p>
                           <p className="text-[11px] text-gray-500">
                             PNG, JPG, WebP hingga 10MB
                           </p>
                         </div>
-                        <label className="px-4 py-2 rounded-lg bg-deep-blue-900 hover:bg-deep-blue-800 border border-deep-blue-700 text-xs font-medium text-white cursor-pointer transition-colors">
+                        <label className="px-4 py-2 rounded-lg bg-deep-blue-900 hover:bg-deep-blue-800 border border-deep-blue-700 text-label-xs font-medium text-white cursor-pointer transition-colors">
                           Pilih File Gambar
                           <input
                             type="file"
@@ -760,7 +760,7 @@ export function AdminInstructionBlockEditor({
                         )
                       }
                       placeholder="Tambahkan keterangan / caption gambar..."
-                      className="w-full text-center font-sans text-xs text-gray-400 placeholder-gray-600 bg-transparent border-none outline-none"
+                      className="w-full text-center font-sans text-label-xs text-gray-400 placeholder-gray-600 bg-transparent border-none outline-none"
                     />
                   </div>
                 )}
@@ -810,7 +810,7 @@ export function AdminInstructionBlockEditor({
                       onKeyDown={(e) => handleKeyDown(e, index, block)}
                       placeholder="// Tulis perintah terminal atau kode aktivasi..."
                       rows={2}
-                      className="w-full p-0 m-0 bg-transparent resize-none border-none outline-none text-xs sm:text-sm text-indigo-300 placeholder-gray-600 leading-relaxed font-mono block"
+                      className="w-full p-0 m-0 bg-transparent resize-none border-none outline-none text-label-xs sm:text-sm text-indigo-300 placeholder-gray-600 leading-relaxed font-mono block"
                     />
                   </div>
                 )}
@@ -836,7 +836,7 @@ export function AdminInstructionBlockEditor({
                       onKeyDown={(e) => handleKeyDown(e, index, block)}
                       placeholder="Tips penting atau catatan aktivasi..."
                       rows={1}
-                      className="w-full p-0 m-0 bg-transparent resize-none border-none outline-none font-sans text-xs sm:text-sm text-gray-200 placeholder-gray-500 leading-relaxed overflow-hidden block"
+                      className="w-full p-0 m-0 bg-transparent resize-none border-none outline-none font-sans text-label-xs sm:text-sm text-gray-200 placeholder-gray-500 leading-relaxed overflow-hidden block"
                     />
                   </div>
                 )}

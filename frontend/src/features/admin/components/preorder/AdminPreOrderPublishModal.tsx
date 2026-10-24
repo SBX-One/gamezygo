@@ -48,14 +48,14 @@ export function AdminPreOrderPublishModal({
     >
       <div
         className={cn(
-          "w-full max-w-[440px] rounded-2xl bg-[#13151F] border border-white/10 p-6 shadow-2xl select-none animate-in zoom-in-95 duration-150 text-left",
+          "w-full max-w-[440px] rounded-lg bg-[#13151F] border border-white/10 p-6 shadow-2xl select-none animate-in zoom-in-95 duration-150 text-left",
           className
         )}
       >
         <h3 className="text-lg sm:text-xl font-bold text-white tracking-tight leading-snug">
           Continue to List this product?
         </h3>
-        <p className="text-xs sm:text-sm text-gray-400 mt-2 font-normal leading-relaxed">
+        <p className="text-label-xs sm:text-sm text-gray-400 mt-2 font-normal leading-relaxed">
           Produk <span className="text-white font-semibold">{item.title}</span>{" "}
           akan dipindahkan ke katalog toko dan segera aktif untuk pembelian
           pelanggan.
@@ -65,7 +65,7 @@ export function AdminPreOrderPublishModal({
           <button
             type="button"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-xl bg-[#1E202B] hover:bg-[#272A38] text-white text-xs sm:text-sm font-medium transition-colors cursor-pointer select-none"
+            className="px-5 py-2.5 rounded-lg bg-[#1E202B] hover:bg-[#272A38] text-white text-label-xs sm:text-sm font-medium transition-colors cursor-pointer select-none"
           >
             Batal
           </button>
@@ -77,7 +77,7 @@ export function AdminPreOrderPublishModal({
               onConfirm(item);
               onClose();
             }}
-            className="px-6 py-2.5 text-xs sm:text-sm font-semibold shadow-md"
+            className="px-6 py-2.5 text-label-xs sm:text-sm font-semibold shadow-md"
           >
             Continue to List
           </Button>

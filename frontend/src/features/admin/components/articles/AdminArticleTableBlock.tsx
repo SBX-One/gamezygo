@@ -148,7 +148,7 @@ export function AdminArticleTableBlock({
   return (
     <div className={cn("w-full my-4 group/table select-none font-sans", className)}>
       {/* Table Toolbar Header (Hover Actions: Add Col, Add Row, Delete Table) */}
-      <div className="flex items-center justify-between pb-1.5 text-xs text-gray-500 opacity-0 group-hover/table:opacity-100 transition-opacity">
+      <div className="flex items-center justify-between pb-1.5 text-label-xs text-gray-500 opacity-0 group-hover/table:opacity-100 transition-opacity">
         <div className="flex items-center gap-2">
           <button
             type="button"

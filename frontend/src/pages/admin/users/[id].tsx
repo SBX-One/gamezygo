@@ -108,7 +108,7 @@ export default function AdminUserDetailPage() {
 
   // Header Title matching Image 1: "Pengguna > user123@test.com"
   const headerTitle = (
-    <div className="flex items-center gap-2 select-none text-xs">
+    <div className="flex items-center gap-2 select-none text-label-xs">
       <Link
         href="/admin/users"
         className="text-gray-400 hover:text-white transition-colors"
@@ -176,7 +176,7 @@ export default function AdminUserDetailPage() {
 
         {/* Toast Notification */}
         {toastMessage && (
-          <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 bg-deep-blue-950 border border-emerald-500/50 rounded-lg text-xs text-emerald-400">
+          <div className="fixed bottom-6 right-6 z-50 flex items-center gap-2 px-4 py-3 bg-deep-blue-950 border border-emerald-500/50 rounded-lg text-label-xs text-emerald-400">
             <svg
               className="w-4 h-4 shrink-0 text-emerald-400"
               fill="none"

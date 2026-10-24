@@ -48,7 +48,7 @@ export function AdminUserDetailModal({
         <div className="flex items-center justify-between px-6 py-4 border-b border-deep-blue-700 bg-deep-blue-900/60">
           <div className="flex items-center gap-3">
             <h3 className="text-sm font-semibold text-white">Detail Pengguna</h3>
-            <span className="text-xs font-mono text-gray-400 bg-deep-blue-950 px-2 py-0.5 rounded border border-deep-blue-700">
+            <span className="text-label-xs font-mono text-gray-400 bg-deep-blue-950 px-2 py-0.5 rounded border border-deep-blue-700">
               {user.id}
             </span>
           </div>
@@ -75,7 +75,7 @@ export function AdminUserDetailModal({
         </div>
 
         {/* Content */}
-        <div className="p-6 space-y-4 text-xs">
+        <div className="p-6 space-y-4 text-label-xs">
           <div className="grid grid-cols-2 gap-4">
             <div className="bg-deep-blue-900/40 p-3 rounded-lg border border-deep-blue-700/60">
               <span className="text-gray-400 block mb-1">Email Pengguna</span>
@@ -99,7 +99,7 @@ export function AdminUserDetailModal({
 
             <div className="bg-deep-blue-900/40 p-3 rounded-lg border border-deep-blue-700/60">
               <span className="text-gray-400 block mb-1">Paket Langganan</span>
-              <span className="inline-flex items-center text-xs font-medium px-2.5 py-0.5 rounded-full bg-deep-blue-900 border border-deep-blue-700 text-gray-300">
+              <span className="inline-flex items-center text-label-xs font-medium px-2.5 py-0.5 rounded-full bg-deep-blue-900 border border-deep-blue-700 text-gray-300">
                 {user.subscription}
               </span>
             </div>
@@ -142,7 +142,7 @@ export function AdminUserDetailModal({
                   type="button"
                   onClick={() => setSelectedStatus(st)}
                   className={cn(
-                    "flex-1 py-2 text-xs font-medium rounded-lg border transition-colors cursor-pointer",
+                    "flex-1 py-2 text-label-xs font-medium rounded-lg border transition-colors cursor-pointer",
                     selectedStatus === st
                       ? "bg-deep-blue-800 border-indigo-500 text-white"
                       : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-400 hover:text-white"

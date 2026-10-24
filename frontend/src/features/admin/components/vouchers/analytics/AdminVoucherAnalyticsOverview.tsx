@@ -40,7 +40,7 @@ export function AdminVoucherAnalyticsOverview({
     >
       {/* Left: Voucher Name and Optional Discount Percentage Badge (Matching Image 3 & Image 2) */}
       <div className="lg:col-span-6 flex flex-col justify-center py-2">
-        <span className="text-[11px] sm:text-xs font-semibold tracking-wider text-gray-400 uppercase mb-2">
+        <span className="text-[11px] sm:text-label-xs font-semibold tracking-wider text-gray-400 uppercase mb-2">
           VOUCHER NAME :
         </span>
         <div className="flex items-center gap-3.5 flex-wrap">
@@ -49,7 +49,7 @@ export function AdminVoucherAnalyticsOverview({
           </h2>
 
           {showBadge && (
-            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-xs font-semibold bg-[#12281D] text-[#22C55E] border border-[#22C55E]/30 shadow-xs">
+            <span className="inline-flex items-center gap-1 px-3 py-1 rounded-full text-label-xs font-semibold bg-[#12281D] text-[#22C55E] border border-[#22C55E]/30 shadow-xs">
               <ArrowUpIcon className="w-3 h-3 text-[#22C55E]" />
               <span>{summary.discountPercentage}%</span>
             </span>
@@ -60,7 +60,7 @@ export function AdminVoucherAnalyticsOverview({
       {/* Right: Metric Cards (TOTAL USAGE & TOTAL BURN - Matching Image 3 when 0) */}
       <div className="lg:col-span-6 grid grid-cols-1 sm:grid-cols-2 gap-4">
         {/* Card 1: TOTAL USAGE */}
-        <div className="rounded-xl bg-deep-blue-950 border border-deep-blue-700/80 overflow-hidden flex flex-col justify-between shadow-xs">
+        <div className="rounded-lg bg-deep-blue-950 border border-deep-blue-700/80 overflow-hidden flex flex-col justify-between shadow-xs">
           <div className="px-5 py-3 border-b border-deep-blue-700/80 bg-deep-blue-900/40">
             <span className="text-[11px] font-semibold tracking-wider text-gray-400 uppercase">
               TOTAL USAGE
@@ -79,7 +79,7 @@ export function AdminVoucherAnalyticsOverview({
         </div>
 
         {/* Card 2: TOTAL BURN */}
-        <div className="rounded-xl bg-deep-blue-950 border border-deep-blue-700/80 overflow-hidden flex flex-col justify-between shadow-xs">
+        <div className="rounded-lg bg-deep-blue-950 border border-deep-blue-700/80 overflow-hidden flex flex-col justify-between shadow-xs">
           <div className="px-5 py-3 border-b border-deep-blue-700/80 bg-deep-blue-900/40">
             <span className="text-[11px] font-semibold tracking-wider text-gray-400 uppercase">
               TOTAL BURN

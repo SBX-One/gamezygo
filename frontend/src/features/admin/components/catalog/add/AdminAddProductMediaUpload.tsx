@@ -70,7 +70,7 @@ export function AdminAddProductMediaUpload({
     <div
       onClick={() => fileInputRef.current?.click()}
       className={cn(
-        "relative w-full aspect-3/4 rounded-2xl border-2 border-dashed border-deep-blue-700 hover:border-gray-500 bg-deep-blue-900/60 transition-all cursor-pointer flex flex-col items-center justify-center p-6 select-none group overflow-hidden shadow-sm",
+        "relative w-full aspect-3/4 rounded-lg border-2 border-dashed border-deep-blue-700 hover:border-gray-500 bg-deep-blue-900/60 transition-all cursor-pointer flex flex-col items-center justify-center p-6 select-none group overflow-hidden shadow-sm",
         className
       )}
     >
@@ -83,7 +83,7 @@ export function AdminAddProductMediaUpload({
       />
 
       {value ? (
-        <div className="relative w-full h-full rounded-xl overflow-hidden">
+        <div className="relative w-full h-full rounded-lg overflow-hidden">
           <Image
             src={value}
             alt="Product cover preview"
@@ -93,7 +93,7 @@ export function AdminAddProductMediaUpload({
           />
           {/* Overlay hover actions */}
           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">
-            <span className="text-xs font-medium text-white px-3.5 py-1.5 rounded-lg bg-[#1E202B] border border-deep-blue-700 shadow-md">
+            <span className="text-label-xs font-medium text-white px-3.5 py-1.5 rounded-lg bg-[#1E202B] border border-deep-blue-700 shadow-md">
               Ganti Gambar
             </span>
             <button
@@ -109,7 +109,7 @@ export function AdminAddProductMediaUpload({
       ) : (
         <div className="flex flex-col items-center justify-center text-gray-400 group-hover:text-gray-200 transition-colors">
           <PlusIcon className="w-10 h-10 mb-3 text-gray-400 group-hover:text-white transition-colors" />
-          <span className="text-xs sm:text-sm font-bold tracking-wider uppercase text-gray-400 group-hover:text-gray-200">
+          <span className="text-label-xs sm:text-sm font-bold tracking-wider uppercase text-gray-400 group-hover:text-gray-200">
             ADD IMAGE
           </span>
         </div>

@@ -121,7 +121,7 @@ export function AdminUsersHeaderSearch({
           value={activeSearch}
           onChange={(e) => handleSearchChange(e.target.value)}
           placeholder={placeholder}
-          className="w-full h-full pl-10 pr-9 bg-[#111622] hover:bg-[#141A29] focus:bg-[#141A29] border border-deep-blue-700/80 focus:border-deep-blue-600 rounded-lg text-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none transition-colors"
+          className="w-full h-full pl-10 pr-9 bg-[#111622] hover:bg-[#141A29] focus:bg-[#141A29] border border-deep-blue-700/80 focus:border-deep-blue-600 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none transition-colors"
         />
         {activeSearch ? (
           <button
@@ -145,7 +145,7 @@ export function AdminUsersHeaderSearch({
       </div>
 
       {/* 2. Filter Icon Button with Shared FilterModal from Katalog */}
-      <div className="relative z-50">
+      <div className={cn("relative", isFilterOpen && "z-30")}>
         <button
           type="button"
           onClick={() => setIsFilterOpen(!isFilterOpen)}

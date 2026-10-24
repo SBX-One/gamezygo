@@ -9,6 +9,8 @@ export interface AdminCardProps
   headerRight?: React.ReactNode;
   /** If true, omits the top header and divider line */
   noHeader?: boolean;
+  /** If true, stacks title and headerRight on small screens (flex-col) and row on tablet/desktop (sm:flex-row) */
+  headerResponsive?: boolean;
   /** ClassName for the header wrapper */
   headerClassName?: string;
   /** ClassName for the content body wrapper */
@@ -21,6 +23,7 @@ export function AdminCard({
   title,
   headerRight,
   noHeader = false,
+  headerResponsive = false,
   headerClassName,
   bodyClassName,
   className,
@@ -34,7 +37,7 @@ export function AdminCard({
     <div
       ref={ref}
       className={cn(
-        "rounded-xl border border-deep-blue-700 text-gray-100 shadow-sm transition-all flex flex-col relative h-full",
+        "rounded-lg border border-deep-blue-700 text-gray-100 shadow-sm transition-all flex flex-col relative h-full",
         className
       )}
       {...props}
@@ -42,12 +45,15 @@ export function AdminCard({
       {hasHeader && (
         <div
           className={cn(
-            "rounded-t-xl bg-deep-blue-900 flex items-center justify-between px-6 py-4 border-b border-deep-blue-700 shrink-0 relative z-20 min-h-18 h-18",
+            "rounded-t-xl bg-deep-blue-900 border-b border-deep-blue-700 shrink-0 relative px-6",
+            headerResponsive
+              ? "flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 h-auto min-h-18 py-3.5 sm:py-4"
+              : "flex items-center justify-between min-h-18 h-18 py-4",
             headerClassName
           )}
         >
           {typeof title === "string" ? (
-            <h3 className="text-xs font-semibold tracking-wider text-gray-400 uppercase">
+            <h3 className="text-body-sm  text-gray-400 uppercase">
               {title}
             </h3>
           ) : (
@@ -55,7 +61,7 @@ export function AdminCard({
           )}
 
           {headerRight && (
-            <div className="flex items-center gap-2 relative z-30">
+            <div className="flex items-center gap-2 relative">
               {headerRight}
             </div>
           )}
@@ -64,8 +70,8 @@ export function AdminCard({
 
       <div
         className={cn(
-          "bg-deep-blue-950 flex-1 px-6 py-8 relative z-10 flex flex-col justify-between",
-          hasHeader ? "rounded-b-xl" : "rounded-xl",
+          "bg-deep-blue-950 flex-1 px-6 py-8 relative flex flex-col justify-between",
+          hasHeader ? "rounded-b-xl" : "rounded-lg",
           bodyClassName
         )}
       >

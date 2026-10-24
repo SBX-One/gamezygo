@@ -35,13 +35,13 @@ export function InputField({
       {label && (
         <label
           htmlFor={inputId}
-          className="text-body-xs text-gray-400 font-normal leading-relaxed tracking-normal"
+          className="text-body-xs text-gray-400 font-normal "
         >
           {label}
         </label>
       )}
 
-      {/* 2. Main Field Component */}
+      {/* 2. Main Field Component */} 
       <Field
         id={inputId}
         disabled={disabled}
@@ -56,11 +56,11 @@ export function InputField({
 
       {/* 3. Bottom Error Message or Helper Text */}
       {errorMessage ? (
-        <p className="text-body-xs text-rose-400 font-normal leading-tight tracking-normal">
+        <p className="text-body-xs text-rose-400">
           {errorMessage}
         </p>
       ) : helperText ? (
-        <p className="text-body-xs text-gray-400 font-normal leading-tight">
+        <p className="text-body-xs text-gray-400">
           {helperText}
         </p>
       ) : null}

@@ -129,7 +129,7 @@ export default function CheckoutSuccessPage() {
             </h2>
 
             {/* Subtitle / Description */}
-            <p className="text-xs sm:text-sm text-gray-400 font-normal leading-relaxed mb-7 ">
+            <p className="text-label-xs sm:text-sm text-gray-400 font-normal leading-relaxed mb-7 ">
               Game sudah masuk di Game Library kamu!
               <br />
               Selamat Bermain

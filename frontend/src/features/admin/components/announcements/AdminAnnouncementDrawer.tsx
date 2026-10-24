@@ -151,7 +151,7 @@ export function AdminAnnouncementDrawer({
         <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-6 sm:p-8">
           {/* PAGE LINK */}
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
+            <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
               PAGE LINK
             </label>
             <input
@@ -165,7 +165,7 @@ export function AdminAnnouncementDrawer({
 
           {/* ANSWER / IMAGE UPLOAD */}
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
+            <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
               ANSWER
             </label>
 
@@ -179,7 +179,7 @@ export function AdminAnnouncementDrawer({
 
             <div
               onClick={() => fileInputRef.current?.click()}
-              className="w-full min-h-[160px] rounded-xl border border-dashed border-white/15 bg-[#181A26]/40 hover:bg-[#181A26]/70 hover:border-white/30 p-6 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all group overflow-hidden relative"
+              className="w-full min-h-[160px] rounded-lg border border-dashed border-white/15 bg-[#181A26]/40 hover:bg-[#181A26]/70 hover:border-white/30 p-6 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all group overflow-hidden relative"
             >
               {imageUrl ? (
                 <div className="relative w-full h-36 rounded-lg overflow-hidden border border-white/10 group-hover:opacity-90 transition-opacity">
@@ -189,7 +189,7 @@ export function AdminAnnouncementDrawer({
                     className="w-full h-full object-cover object-center"
                   />
                   <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                    <span className="px-3 py-1.5 rounded-lg bg-black/70 text-xs font-medium text-white border border-white/20">
+                    <span className="px-3 py-1.5 rounded-lg bg-black/70 text-label-xs font-medium text-white border border-white/20">
                       Ganti Gambar
                     </span>
                   </div>
@@ -197,7 +197,7 @@ export function AdminAnnouncementDrawer({
               ) : (
                 <>
                   <PlusIcon className="w-6 h-6 text-gray-400 group-hover:text-white transition-colors" />
-                  <span className="text-xs font-semibold text-gray-400 group-hover:text-white uppercase tracking-wider transition-colors">
+                  <span className="text-label-xs font-semibold text-gray-400 group-hover:text-white uppercase tracking-wider transition-colors">
                     ADD IMAGE
                   </span>
                 </>
@@ -233,7 +233,7 @@ export function AdminAnnouncementDrawer({
                 )}
               />
             </div>
-            <span className="text-xs sm:text-sm font-medium text-white">
+            <span className="text-label-xs sm:text-sm font-medium text-white">
               Publish
             </span>
           </div>
@@ -243,13 +243,13 @@ export function AdminAnnouncementDrawer({
             <button
               type="button"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-lg bg-[#181A26] hover:bg-[#222534] border border-white/10 text-white text-xs sm:text-sm font-medium transition-colors cursor-pointer"
+              className="px-5 py-2.5 rounded-lg bg-[#181A26] hover:bg-[#222534] border border-white/10 text-white text-label-xs sm:text-sm font-medium transition-colors cursor-pointer"
             >
               Batalkan
             </button>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
+              className="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
             >
               Simpan
             </button>

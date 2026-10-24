@@ -93,6 +93,8 @@ export function AdminStatCard({
   ref,
   ...props
 }: AdminStatCardProps) {
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
+
   // Compute header right slot if options provided
   const computedHeaderRight =
     headerRight ||
@@ -101,6 +103,7 @@ export function AdminStatCard({
         options={timeframes}
         selectedValue={selectedTimeframe}
         onSelect={onTimeframeChange}
+        onOpenChange={setIsDropdownOpen}
       />
     ) : hasInfoIcon ? (
 
@@ -126,7 +129,11 @@ export function AdminStatCard({
       ref={ref}
       title={title}
       headerRight={computedHeaderRight}
-      className={cn("h-full flex flex-col justify-between", className)}
+      className={cn(
+        "h-full flex flex-col justify-between",
+        isDropdownOpen && "z-50 relative",
+        className
+      )}
       bodyClassName="flex-1 px-6 py-8 flex flex-col justify-between gap-6"
       {...props}
     >
@@ -152,7 +159,7 @@ export function AdminStatCard({
                   <ArrowUpIcon className="w-3.5 h-3.5" />
                 )
               }
-              className="h-5.5 px-2 py-0 text-xs font-semibold"
+              className="h-5.5 px-2 py-0 text-label-xs font-semibold"
             >
               {badge.text}
             </Pill>

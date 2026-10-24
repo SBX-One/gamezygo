@@ -238,7 +238,7 @@ export function AdminCommunityDrawer({
         <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-6 sm:p-8">
           {/* NAMA */}
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
+            <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
               NAMA
             </label>
             <input
@@ -252,7 +252,7 @@ export function AdminCommunityDrawer({
 
           {/* PAGE LINK */}
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
+            <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
               PAGE LINK
             </label>
             <input
@@ -266,7 +266,7 @@ export function AdminCommunityDrawer({
 
           {/* LINK TAGS (Matching Image 4 with interactive tag chips inside input + buttons below) */}
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
+            <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
               LINK TAGS
             </label>
 
@@ -275,7 +275,7 @@ export function AdminCommunityDrawer({
               {tags.map((t) => (
                 <span
                   key={t}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-xs font-medium bg-[#13151F] border border-white/10 text-white"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-label-xs font-medium bg-[#13151F] border border-white/10 text-white"
                 >
                   <span>{t}</span>
                   <button
@@ -315,7 +315,7 @@ export function AdminCommunityDrawer({
                     type="button"
                     onClick={() => handleToggleQuickTag(quickTag)}
                     className={cn(
-                      "px-4 py-2 rounded-lg text-xs sm:text-sm font-medium border transition-colors cursor-pointer",
+                      "px-4 py-2 rounded-lg text-label-xs sm:text-sm font-medium border transition-colors cursor-pointer",
                       isActive
                         ? "bg-[#181A26] border-[#DF3848] text-white ring-1 ring-[#DF3848]/40"
                         : "bg-[#181A26] hover:bg-[#222534] border-white/10 text-gray-300 hover:text-white"
@@ -330,7 +330,7 @@ export function AdminCommunityDrawer({
 
           {/* IMAGE DROPZONE (Matching Image 3 & Image 4) */}
           <div>
-            <label className="block text-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
+            <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
               IMAGE
             </label>
 
@@ -346,7 +346,7 @@ export function AdminCommunityDrawer({
               /* Image 4 State: Uploaded Image Card + Adjacent Add Image button */
               <div className="flex items-center gap-3 w-full">
                 {/* Uploaded Image Card */}
-                <div className="relative w-36 h-40 rounded-xl bg-[#141622] border border-white/10 p-2.5 flex flex-col justify-between shrink-0 group">
+                <div className="relative w-36 h-40 rounded-lg bg-[#141622] border border-white/10 p-2.5 flex flex-col justify-between shrink-0 group">
                   <div className="relative w-full h-24 rounded-lg overflow-hidden border border-white/5 bg-black/30">
                     <img
                       src={imageUrl}
@@ -368,7 +368,7 @@ export function AdminCommunityDrawer({
 
                   <div className="flex flex-col min-w-0 mt-1.5">
                     <span
-                      className="text-xs font-medium text-white truncate"
+                      className="text-label-xs font-medium text-white truncate"
                       title={imageMeta.name || "cover_image.png"}
                     >
                       {imageMeta.name || "cover_image.png"}
@@ -382,7 +382,7 @@ export function AdminCommunityDrawer({
                 {/* Adjacent Dashed Add Image Card matching Image 4 */}
                 <div
                   onClick={() => fileInputRef.current?.click()}
-                  className="w-32 h-40 rounded-xl border border-dashed border-white/15 bg-[#181A26]/40 hover:bg-[#181A26]/70 hover:border-white/30 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all group shrink-0"
+                  className="w-32 h-40 rounded-lg border border-dashed border-white/15 bg-[#181A26]/40 hover:bg-[#181A26]/70 hover:border-white/30 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all group shrink-0"
                 >
                   <PlusIcon className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
                   <span className="text-[10px] font-semibold text-gray-400 group-hover:text-white uppercase tracking-wider transition-colors text-center">
@@ -394,10 +394,10 @@ export function AdminCommunityDrawer({
               /* Image 3 State: Full-width Dashed Dropzone */
               <div
                 onClick={() => fileInputRef.current?.click()}
-                className="w-full min-h-[160px] rounded-xl border border-dashed border-white/15 bg-[#181A26]/40 hover:bg-[#181A26]/70 hover:border-white/30 p-6 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all group overflow-hidden relative"
+                className="w-full min-h-[160px] rounded-lg border border-dashed border-white/15 bg-[#181A26]/40 hover:bg-[#181A26]/70 hover:border-white/30 p-6 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all group overflow-hidden relative"
               >
                 <PlusIcon className="w-6 h-6 text-gray-400 group-hover:text-white transition-colors" />
-                <span className="text-xs font-semibold text-gray-400 group-hover:text-white uppercase tracking-wider transition-colors">
+                <span className="text-label-xs font-semibold text-gray-400 group-hover:text-white uppercase tracking-wider transition-colors">
                   ADD IMAGE
                 </span>
               </div>
@@ -416,7 +416,7 @@ export function AdminCommunityDrawer({
             </Button>
             <button
               type="submit"
-              className="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
+              className="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
             >
               Simpan
             </button>

@@ -1,5 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
+import { InputField } from "@/components/ui/InputField";
 import type { AdminAddVoucherFormData } from "../../../types/admin-voucher.types";
 
 export interface AdminAddVoucherIdentitiesProps {
@@ -23,79 +25,63 @@ export function AdminAddVoucherIdentities({
       {/* Row 1: Voucher Name and Voucher Code (Matching Image 2) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
         {/* Voucher Name */}
-        <div>
-          <label className="block text-label-xs font-semibold text-gray-400 tracking-wider uppercase mb-2">
-            VOUCHER NAME
-          </label>
-          <input
-            type="text"
-            value={formData.name}
-            onChange={(e) => onChange({ name: e.target.value })}
-            placeholder="Nama voucher"
-            className="w-full h-11 px-4 bg-[#0D0F18] border border-deep-blue-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
-          />
-        </div>
+        <InputField
+          label="VOUCHER NAME"
+          type="text"
+          value={formData.name}
+          onChange={(e) => onChange({ name: e.target.value })}
+          placeholder="Nama voucher"
+          className="bg-deep-blue-900 border border-deep-blue-700 hover:border-gray-500 text-white"
+        />
 
         {/* Voucher Code */}
-        <div>
-          <label className="block text-label-xs font-semibold text-gray-400 tracking-wider uppercase mb-2">
-            VOUCHER CODE
-          </label>
-          <input
-            type="text"
-            value={formData.code}
-            onChange={(e) => onChange({ code: e.target.value.toUpperCase() })}
-            placeholder="Kode voucher"
-            className="w-full h-11 px-4 bg-[#0D0F18] border border-deep-blue-700 rounded-lg text-sm text-white placeholder-gray-500 uppercase tracking-wider focus:outline-none focus:border-gray-400 transition-colors"
-          />
-        </div>
+        <InputField
+          label="VOUCHER CODE"
+          type="text"
+          value={formData.code}
+          onChange={(e) => onChange({ code: e.target.value.toUpperCase() })}
+          placeholder="Kode voucher"
+          className="bg-deep-blue-900 border border-deep-blue-700 hover:border-gray-500 text-white uppercase tracking-wider"
+        />
       </div>
 
       {/* Row 2: Discount Type (Percentage vs Fixed) & Value Input (Matching Image 2) */}
       <div>
-        <label className="block text-label-xs font-semibold text-gray-400 tracking-wider uppercase mb-2">
+        <label className="block text-body-xs font-normal text-gray-400 mb-2">
           DISCOUNT TYPE
         </label>
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
           {/* Toggle Buttons: Percentage | Fixed */}
           <div className="flex items-center gap-2 shrink-0">
-            <button
+            <Button
               type="button"
+              variant={formData.discountType === "percentage" ? "active" : "inactive"}
+              size="sm"
               onClick={() => onChange({ discountType: "percentage" })}
-              className={cn(
-                "px-5 py-2.5 rounded-lg border text-label-xs sm:text-sm font-semibold transition-colors cursor-pointer select-none",
-                formData.discountType === "percentage"
-                  ? "bg-[#131520] border-white/20 text-white shadow-sm"
-                  : "bg-[#0D0E16] border-deep-blue-700 text-gray-400 hover:text-white"
-              )}
             >
               Percentage
-            </button>
+            </Button>
 
-            <button
+            <Button
               type="button"
+              variant={formData.discountType === "fixed" ? "active" : "inactive"}
+              size="sm"
               onClick={() => onChange({ discountType: "fixed" })}
-              className={cn(
-                "px-5 py-2.5 rounded-lg border text-label-xs sm:text-sm font-semibold transition-colors cursor-pointer select-none",
-                formData.discountType === "fixed"
-                  ? "bg-[#131520] border-white/20 text-white shadow-sm"
-                  : "bg-[#0D0E16] border-deep-blue-700 text-gray-400 hover:text-white"
-              )}
             >
               Fixed
-            </button>
+            </Button>
           </div>
 
           {/* Discount Value Input */}
           <div className="flex-1 min-w-0">
-            <input
+            <InputField
               type="text"
               value={formData.discountValue}
               onChange={(e) => onChange({ discountValue: e.target.value })}
               placeholder={
                 formData.discountType === "percentage" ? "10%" : "IDR 150,000"
               }
-              className="w-full h-11 px-4 bg-[#0D0F18] border border-deep-blue-700 rounded-lg text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
+              className="bg-deep-blue-900 border border-deep-blue-700 hover:border-gray-500 text-white font-medium"
             />
           </div>
         </div>

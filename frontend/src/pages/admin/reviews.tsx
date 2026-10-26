@@ -1,9 +1,9 @@
 import * as React from "react";
 import Head from "next/head";
 import { AdminLayout } from "@/components/layout/AdminLayout";
+import { Button } from "@/components/ui/Button";
 import {
   AdminReviewCard,
-  AdminReviewsFilterModal,
   AdminReviewReplyModal,
   AdminReviewPostConfirmModal,
   AdminReviewPostModal,
@@ -78,7 +78,6 @@ const DEFAULT_FILTERS: AdminReviewFilterState = {
 export default function AdminReviewsPage() {
   const [reviews, setReviews] = React.useState<AdminReviewItem[]>(MOCK_ADMIN_REVIEWS);
   const [filters, setFilters] = React.useState<AdminReviewFilterState>(DEFAULT_FILTERS);
-  const [isFilterModalOpen, setIsFilterModalOpen] = React.useState(false);
   const [isPostedViewOnly, setIsPostedViewOnly] = React.useState(false);
 
   // Post review modal state (Full modal matching the user reference image)
@@ -334,8 +333,8 @@ export default function AdminReviewsPage() {
             onSearchChange={(search) =>
               setFilters((prev) => ({ ...prev, search }))
             }
-            onOpenFilter={() => setIsFilterModalOpen(true)}
-            isFilterActive={isFilterActive}
+            filters={filters}
+            onFilterChange={setFilters}
           />
         }
         className="!p-0 !pt-0 !pb-0 !space-y-0 w-full bg-deep-blue-950 min-h-screen"
@@ -381,16 +380,16 @@ export default function AdminReviewsPage() {
               <p className="text-label-xs sm:text-sm text-gray-400 mb-6">
                 Tidak ada ulasan yang sesuai dengan kriteria pencarian atau filter Anda.
               </p>
-              <button
-                type="button"
+              <Button
+                variant="outline"
+                size="sm"
                 onClick={() => {
                   setFilters(DEFAULT_FILTERS);
                   setIsPostedViewOnly(false);
                 }}
-                className="px-5 py-2.5 rounded-lg bg-deep-blue-900 hover:bg-deep-blue-850 border border-deep-blue-700 text-white text-label-xs sm:text-sm font-semibold transition-colors cursor-pointer"
               >
                 Reset Semua Filter
-              </button>
+              </Button>
             </div>
           ) : (
             /* 3-Column Responsive Grid matching Image 3 & 4 */
@@ -429,17 +428,7 @@ export default function AdminReviewsPage() {
           onConfirm={handleConfirmPost}
         />
 
-        {/* Filter & Sort Modal */}
-        <AdminReviewsFilterModal
-          isOpen={isFilterModalOpen}
-          onClose={() => setIsFilterModalOpen(false)}
-          filters={filters}
-          onApply={(newFilters) => setFilters(newFilters)}
-          onReset={() => {
-            setFilters(DEFAULT_FILTERS);
-            setIsPostedViewOnly(false);
-          }}
-        />
+
 
         {/* Reply Modal */}
         <AdminReviewReplyModal

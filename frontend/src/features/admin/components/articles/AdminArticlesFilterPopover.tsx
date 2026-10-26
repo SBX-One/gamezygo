@@ -156,7 +156,7 @@ export function AdminArticlesFilterPopover({
     <div
       ref={popoverRef}
       className={cn(
-        "absolute right-0 top-11 z-50 w-80 sm:w-96 rounded-lg bg-[#13151F] border border-white/10 p-6 select-none animate-in fade-in zoom-in-95 duration-150 text-gray-200 shadow-none",
+        "absolute right-0 top-11 z-50 w-80 sm:w-96 rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-6 select-none animate-in fade-in zoom-in-95 duration-150 text-gray-200 shadow-none",
         className
       )}
     >

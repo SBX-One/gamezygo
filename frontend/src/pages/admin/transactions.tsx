@@ -3,6 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { AdminLayout } from "@/components/layout/AdminLayout";
+import { Button } from "@/components/ui/Button";
 import {
   AdminTransactionMetricsSection,
   AdminTransactionsTableSection,
@@ -64,28 +65,22 @@ export default function AdminTransactionsPage() {
   // Switcher toggle in headerRight for previewing both Filled State (Gambar 1) and Empty State (Gambar 2-3)
   const headerRight = (
     <div className="flex items-center gap-1.5 p-1 rounded-lg bg-deep-blue-900 border border-deep-blue-700/60 text-label-xs">
-      <button
-        type="button"
+      <Button
+        variant={!isEmptyState ? "active" : "inactive"}
+        size="xs"
         onClick={() => setIsEmptyManual(false)}
-        className={`px-2.5 py-1 rounded-md font-medium transition-colors cursor-pointer ${
-          !isEmptyState
-            ? "bg-indigo-600 text-white shadow-sm"
-            : "text-gray-400 hover:text-white"
-        }`}
+        className="px-3 py-2"
       >
         Data Terisi
-      </button>
-      <button
-        type="button"
+      </Button>
+      <Button
+        variant={isEmptyState ? "active" : "inactive"}
+        size="xs"
         onClick={() => setIsEmptyManual(true)}
-        className={`px-2.5 py-1 rounded-md font-medium transition-colors cursor-pointer ${
-          isEmptyState
-            ? "bg-indigo-600 text-white shadow-sm"
-            : "text-gray-400 hover:text-white"
-        }`}
+        className="px-3 py-2"
       >
         Empty State
-      </button>
+      </Button>
     </div>
   );
 

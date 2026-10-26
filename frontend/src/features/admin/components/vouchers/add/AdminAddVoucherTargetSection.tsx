@@ -1,6 +1,7 @@
 import * as React from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 import { AdminAddVoucherGameModal } from "./AdminAddVoucherGameModal";
 import { AdminAddVoucherUserModal } from "./AdminAddVoucherUserModal";
 import type {
@@ -8,6 +9,7 @@ import type {
   VoucherTargetGame,
   VoucherTargetUser,
 } from "../../../types/admin-voucher.types";
+import { Pill } from "@/components/ui";
 
 export interface AdminAddVoucherTargetSectionProps {
   formData: AdminAddVoucherFormData;
@@ -116,14 +118,16 @@ export function AdminAddVoucherTargetSection({
           <span className="text-label-xs sm:text-sm font-semibold tracking-wider text-gray-400 uppercase">
             TARGET GAME
           </span>
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="xs"
             onClick={() => setIsGameModalOpen(true)}
-            className="h-8 px-3 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] flex items-center gap-1.5 text-label-xs font-semibold text-white transition-colors cursor-pointer select-none"
+            leftIcon={<PlusIcon className="w-3.5 h-3.5 text-white shrink-0" />}
+            className="px-3 py-2"
           >
-            <PlusIcon className="w-3.5 h-3.5 text-white shrink-0" />
             <span>Add New</span>
-          </button>
+          </Button>
         </div>
 
         {/* Content: List or Empty State (Matching Image 3) */}
@@ -133,7 +137,7 @@ export function AdminAddVoucherTargetSection({
               {formData.targetGames.map((game) => (
                 <div
                   key={game.id}
-                  className="rounded-lg bg-[#0D0F18] border border-white/10 p-3 flex items-center justify-between gap-3 shadow-xs"
+                  className="rounded-lg bg-deep-blue-900 border border-deep-blue-700 p-3 flex items-center justify-between gap-3 shadow-xs"
                 >
                   {/* Left: Thumbnail + Title + Badge */}
                   <div className="flex items-center gap-3 min-w-0">
@@ -151,11 +155,12 @@ export function AdminAddVoucherTargetSection({
                       <h4 className="text-sm font-semibold text-white truncate">
                         {game.title}
                       </h4>
-                      <span className="inline-block mt-1 px-2.5 py-0.5 rounded-full text-label-xs font-bold bg-[#BA343C] text-white">
+                      <Pill size={"xs"} className="px-3 py-0.5">
                         -{game.discountPercentage}%
-                      </span>
+                      </Pill>
                     </div>
                   </div>
+<div className="flex gap-3 items-end">
 
                   {/* Middle: Prices */}
                   <div className="text-right shrink-0 px-2">
@@ -168,14 +173,16 @@ export function AdminAddVoucherTargetSection({
                   </div>
 
                   {/* Right: Remove Button */}
-                  <button
+                  <Button
                     type="button"
+                    variant="inactive"
+                    size="sm"
                     onClick={() => handleRemoveGame(game.id)}
-                    className="h-8 px-3.5 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] text-white text-label-xs font-semibold transition-colors cursor-pointer shrink-0"
-                  >
+                    >
                     Remove
-                  </button>
+                  </Button>
                 </div>
+                    </div>
               ))}
             </div>
           ) : (
@@ -202,14 +209,16 @@ export function AdminAddVoucherTargetSection({
           <span className="text-label-xs sm:text-sm font-semibold tracking-wider text-gray-400 uppercase">
             USER
           </span>
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="xs"
             onClick={() => setIsUserModalOpen(true)}
-            className="h-8 px-3 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] flex items-center gap-1.5 text-label-xs font-semibold text-white transition-colors cursor-pointer select-none"
+            leftIcon={<PlusIcon className="w-3.5 h-3.5 text-white shrink-0" />}
+            className="px-3 py-2"
           >
-            <PlusIcon className="w-3.5 h-3.5 text-white shrink-0" />
             <span>Add New</span>
-          </button>
+          </Button>
         </div>
 
         {/* Content: List or Empty State (Matching Image 3) */}
@@ -219,7 +228,7 @@ export function AdminAddVoucherTargetSection({
               {formData.targetUsers.map((user) => (
                 <div
                   key={user.id}
-                  className="rounded-lg bg-[#0D0F18] border border-white/10 px-4 py-3 flex items-center justify-between gap-3 shadow-xs"
+                  className="rounded-lg bg-deep-blue-900 border border-deep-blue-700 px-4 py-3 flex items-center justify-between gap-3 shadow-xs"
                 >
                   {/* Left: Email */}
                   <span className="text-sm font-medium text-gray-200 truncate">
@@ -227,13 +236,14 @@ export function AdminAddVoucherTargetSection({
                   </span>
 
                   {/* Right: Remove Button */}
-                  <button
+                  <Button
                     type="button"
+                    variant="inactive"
+                    size="sm"
                     onClick={() => handleRemoveUser(user.id)}
-                    className="h-8 px-3.5 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] text-white text-label-xs font-semibold transition-colors cursor-pointer shrink-0"
                   >
                     Remove
-                  </button>
+                  </Button>
                 </div>
               ))}
             </div>

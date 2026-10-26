@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 import type { AdminAnnouncementItem } from "../../types/admin-announcement.types";
 
 export interface AdminAnnouncementDrawerProps {
@@ -125,12 +126,12 @@ export function AdminAnnouncementDrawer({
       {/* Right Slide-over Drawer Panel (Matching Image 4) */}
       <div
         className={cn(
-          "fixed inset-y-0 right-0 z-10 w-[500px] max-w-[95vw] h-full bg-[#13151F] border-l border-white/10 shadow-2xl flex flex-col justify-start animate-in slide-in-from-right duration-200 overflow-y-auto",
+          "fixed inset-y-0 right-0 z-10 w-[500px] max-w-[95vw] h-full bg-deep-blue-950 border-l border-deep-blue-700 shadow-2xl flex flex-col justify-start animate-in slide-in-from-right duration-200 overflow-y-auto",
           className
         )}
       >
         {/* Header with Title and Close Button */}
-        <div className="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-white/10">
+        <div className="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-deep-blue-700">
           <h3
             id="announcement-drawer-title"
             className="text-lg sm:text-xl font-bold text-white tracking-tight"
@@ -240,19 +241,21 @@ export function AdminAnnouncementDrawer({
 
           {/* Action Buttons: [ Batalkan ] & [ Simpan ] */}
           <div className="flex items-center justify-end gap-3 mt-4">
-            <button
+            <Button
               type="button"
+              variant="inactive"
+              size="sm"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-lg bg-[#181A26] hover:bg-[#222534] border border-white/10 text-white text-label-xs sm:text-sm font-medium transition-colors cursor-pointer"
             >
               Batalkan
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
+              variant="primary"
+              size="sm"
             >
               Simpan
-            </button>
+            </Button>
           </div>
         </form>
       </div>

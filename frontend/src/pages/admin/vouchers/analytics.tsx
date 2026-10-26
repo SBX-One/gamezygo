@@ -10,6 +10,7 @@ import {
   AdminVoucherOrdersTable,
 } from "@/features/admin/components/vouchers/analytics";
 import { Pagination } from "@/components/ui/Pagination";
+import { Button } from "@/components/ui/Button";
 import {
   MOCK_VOUCHER_ANALYTICS_DATA,
   MOCK_VOUCHER_ANALYTICS_EMPTY_DATA,
@@ -114,21 +115,22 @@ export default function AdminVoucherAnalyticsPage() {
   // Right Header Buttons: Toggle Empty State demo + [Export CSV]
   const headerRight = (
     <div className="flex items-center gap-3 select-none">
-      <button
-        type="button"
+      <Button
+        variant="outline"
+        size="xs"
         onClick={() => setIsEmptyMode((prev) => !prev)}
-        className="px-3 py-1.5 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-label-xs font-medium text-slate-300 hover:text-white transition-all cursor-pointer shadow-xs"
+        className="px-3 py-2"
       >
         {isEmptyMode ? "Preview Data" : "Preview Empty State"}
-      </button>
+      </Button>
 
-      <button
-        type="button"
+      <Button
+        variant="primary"
+        size="sm"
         onClick={handleExportCSV}
-        className="px-5 py-2 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-sm select-none"
       >
         Export CSV
-      </button>
+      </Button>
     </div>
   );
 

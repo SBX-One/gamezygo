@@ -259,14 +259,15 @@ export function AdminAddProductSpecs({
               <p className="text-label-xs text-gray-400 mb-4">
                 Anda belum menambahkan list spesifikasi minimum.
               </p>
-              <button
+              <Button
+                variant="outline"
+                size="sm"
                 type="button"
                 onClick={() => handleOpenAdd("minimum")}
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-[#1E202B] hover:bg-[#272A38] border border-deep-blue-700 text-label-xs font-medium text-white transition-colors cursor-pointer"
+                leftIcon={<PlusIcon className="w-3.5 h-3.5" />}
               >
-                <PlusIcon className="w-3.5 h-3.5" />
                 <span>Tambah Spesifikasi</span>
-              </button>
+              </Button>
             </div>
           )}
         </div>
@@ -376,7 +377,7 @@ export function AdminAddProductSpecs({
             onClick={() => setDrawerState({ isOpen: false, type: "minimum" })}
           />
 
-          <div className="relative z-10 w-[420px] max-w-full h-full bg-[#13151F] border-l border-deep-blue-700 shadow-2xl p-6 sm:p-7 flex flex-col justify-between select-none animate-in slide-in-from-right duration-200">
+          <div className="relative z-10 w-[420px] max-w-full h-full bg-deep-blue-950 border-l border-deep-blue-700 shadow-2xl p-6 sm:p-7 flex flex-col justify-between select-none animate-in slide-in-from-right duration-200">
             <div>
               {/* Header */}
               <div className="flex items-center justify-between pb-6 border-b border-deep-blue-700">

@@ -68,7 +68,7 @@ export function AdminReviewReplyModal({
       {/* Modal Dialog */}
       <div
         className={cn(
-          "relative z-10 w-[500px] max-w-[95vw] bg-deep-blue-900 border border-deep-blue-700 rounded-lg p-6 sm:p-7 flex flex-col gap-5 animate-in zoom-in-95 duration-150",
+          "relative z-10 w-[500px] max-w-[95vw] bg-deep-blue-950 border border-deep-blue-700 rounded-lg p-6 sm:p-7 flex flex-col gap-5 animate-in zoom-in-95 duration-150",
           className
         )}
       >

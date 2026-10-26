@@ -97,23 +97,25 @@ export function AdminInstructionTopBar({
         className
       )}
     >
-      {/* Left: Search Bar with Clear X and Filter Button (Matching Image 2) */}
-      <div className="flex items-center gap-2.5">
+      {/* Left: Search Bar with Clear X and Filter Button (Matching Catalog Design) */}
+      <div className="flex items-center gap-3 sm:gap-4">
         {/* Search Input Box */}
-        <div className="relative w-64 sm:w-72 flex items-center">
-          <SearchIcon className="absolute left-3.5 w-4 h-4 text-gray-400 pointer-events-none" />
+        <div className="relative w-48 sm:w-64 flex items-center">
+          <div className="absolute left-3 text-gray-400 pointer-events-none flex items-center">
+            <SearchIcon className="w-4 h-4" />
+          </div>
           <input
             type="text"
             value={searchQuery}
             onChange={(e) => onSearchChange(e.target.value)}
-            placeholder="Cari di toko"
-            className="w-full h-10 pl-10 pr-9 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-deep-blue-500 transition-colors shadow-xs"
+            placeholder="Cari instruksi"
+            className="w-full h-10 pl-9 pr-8 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-label-xs text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors"
           />
           {searchQuery && (
             <button
               type="button"
               onClick={() => onSearchChange("")}
-              className="absolute right-3 p-0.5 text-gray-400 hover:text-white transition-colors cursor-pointer"
+              className="absolute right-2.5 text-gray-400 hover:text-white transition-colors cursor-pointer"
               aria-label="Hapus pencarian"
             >
               <CloseIcon className="w-3.5 h-3.5" />
@@ -121,15 +123,17 @@ export function AdminInstructionTopBar({
           )}
         </div>
 
-        {/* Filter Button (with FilterTaperIcon matching Image 2) */}
-        <button
-          type="button"
-          onClick={onFilterClick}
-          aria-label="Filter"
-          className="w-10 h-10 rounded-lg bg-deep-blue-900 hover:bg-deep-blue-800 border border-deep-blue-700 flex items-center justify-center text-gray-300 hover:text-white transition-all cursor-pointer shadow-xs shrink-0"
-        >
-          <FilterTaperIcon className="w-4 h-4 text-gray-300" />
-        </button>
+        {/* Filter Button */}
+        <div className="relative shrink-0">
+          <button
+            type="button"
+            onClick={onFilterClick}
+            aria-label="Filter"
+            className="h-10 w-10 rounded-lg border border-deep-blue-700 bg-deep-blue-900 text-gray-300 hover:text-white hover:border-gray-500 flex items-center justify-center transition-all cursor-pointer relative shrink-0"
+          >
+            <FilterTaperIcon className="w-4 h-4" />
+          </button>
+        </div>
       </div>
 
       {/* Right: + Add New Button (Matching Image 1: Button, Type: Primary, Size: sm) */}

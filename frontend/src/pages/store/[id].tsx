@@ -406,7 +406,18 @@ export default function GameStoreDetailPage() {
   const [isWishlisted, setIsWishlisted] = React.useState(false);
   const [steamData, setSteamData] = React.useState<SteamGameDetails | null>(null);
   const [activeMediaIndex, setActiveMediaIndex] = React.useState(0);
-  const [toastMessage, setToastMessage] = React.useState<string | null>(null);
+  const [toast, setToast] = React.useState<{
+    title: string;
+    variant: "success" | "error" | "warning";
+  } | null>(null);
+
+  const showToast = (
+    title: string,
+    variant: "success" | "error" | "warning" = "success"
+  ) => {
+    setToast({ title, variant });
+    setTimeout(() => setToast(null), 3000);
+  };
   const [opinionInput, setOpinionInput] = React.useState("");
 
   const thumbnailsRef = React.useRef<HTMLDivElement>(null);
@@ -627,8 +638,7 @@ export default function GameStoreDetailPage() {
       (matchedProduct as { id?: string | number } | null)?.id || id || appId
     );
     addItem(prodId, 1);
-    setToastMessage(`"${gameTitle}" berhasil ditambahkan ke keranjang!`);
-    setTimeout(() => setToastMessage(null), 3000);
+    showToast(`"${gameTitle}" berhasil ditambahkan ke keranjang!`, "success");
     setTimeout(() => {
       toggleCart(true);
     }, 400);
@@ -638,12 +648,12 @@ export default function GameStoreDetailPage() {
   const handleToggleWishlist = () => {
     setIsWishlisted((prev) => {
       const next = !prev;
-      setToastMessage(
+      showToast(
         next
           ? `"${gameTitle}" berhasil ditambahkan ke Wishlist!`
-          : `"${gameTitle}" dihapus dari Wishlist.`
+          : `"${gameTitle}" dihapus dari Wishlist.`,
+        next ? "success" : "error"
       );
-      setTimeout(() => setToastMessage(null), 3000);
       return next;
     });
   };
@@ -698,7 +708,20 @@ export default function GameStoreDetailPage() {
           >
             Beli Sekarang
           </Button>
-          <Button variant="outline" size="sm" className="w-12 sm:w-fit px-3 py-3 shrink-0 flex items-center justify-center">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={() => {
+              const prodId = String(
+                (matchedProduct as { id?: string | number } | null)?.id || id || appId
+              );
+              addItem(prodId, 1);
+              showToast("Added to Cart", "success");
+            }}
+            className="w-12 sm:w-fit px-3 py-3 shrink-0 flex items-center justify-center cursor-pointer"
+            aria-label="Tambah ke Keranjang"
+          >
             <CartIcon className="size-4 text-deep-blue-100" />
           </Button>
         </div>
@@ -1121,13 +1144,12 @@ export default function GameStoreDetailPage() {
         </div>
 
         {/* Global Floating Toast */}
-        {toastMessage && (
-          <div className="fixed bottom-4 right-4 sm:bottom-8 sm:right-8 z-50 animate-fade-in max-w-[calc(100vw-2rem)]">
+        {toast && (
+          <div className="fixed top-4 left-4 right-4 md:top-auto md:left-auto md:bottom-6 md:right-6 z-50 md:w-auto md:min-w-80 md:max-w-105 animate-fade-in">
             <Toast
-              variant="success"
-              title="Berhasil"
-              description={toastMessage}
-              onClose={() => setToastMessage(null)}
+              variant={toast.variant}
+              title={toast.title}
+              onClose={() => setToast(null)}
             />
           </div>
         )}

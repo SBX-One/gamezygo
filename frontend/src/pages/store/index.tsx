@@ -1066,11 +1066,12 @@ export default function StorePage() {
           CART ACTION TOAST FEEDBACK
          ======================================================== */}
       {cartToast && (
-        <div className="fixed bottom-6 right-6 z-50 animate-slide-in-right">
+        <div className="fixed top-4 left-4 right-4 md:top-auto md:left-auto md:bottom-6 md:right-6 z-50 md:w-auto md:min-w-80 md:max-w-105 animate-fade-in">
           <Toast
             variant="success"
-            title="Berhasil Ditambahkan!"
+            title="Added to Cart"
             description={`${cartToast} telah masuk ke keranjang belanja Anda.`}
+            onClose={() => setCartToast(null)}
           />
         </div>
       )}

@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 
 export interface AdminInstructionDeleteModalProps {
   isOpen: boolean;
@@ -40,7 +41,7 @@ export function AdminInstructionDeleteModal({
       {/* Modal Card (rounded-lg, bg-deep-blue-900) */}
       <div
         className={cn(
-          "relative z-10 w-105 max-w-[95vw] rounded-lg bg-deep-blue-900 border border-deep-blue-700 p-6 shadow-2xl flex flex-col animate-in zoom-in-95 duration-150",
+          "relative z-10 w-105 max-w-[95vw] rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-6 shadow-2xl flex flex-col animate-in zoom-in-95 duration-150",
           className
         )}
       >
@@ -57,21 +58,23 @@ export function AdminInstructionDeleteModal({
 
         {/* Action Buttons: [ Batal ] & [ Delete ] */}
         <div className="flex items-center justify-end gap-3 mt-6">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-deep-blue-950 hover:bg-deep-blue-800 active:scale-95 border border-deep-blue-700 text-white text-label-xs sm:text-sm font-medium transition-all cursor-pointer shadow-xs"
           >
             Batal
-          </button>
+          </Button>
 
-          <button
+          <Button
             type="button"
+            variant="primary"
+            size="sm"
             onClick={onConfirm}
-            className="px-5 py-2 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-xs"
           >
             Delete
-          </button>
+          </Button>
         </div>
       </div>
     </div>

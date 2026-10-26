@@ -229,13 +229,14 @@ export function AdminEditSubscriptionGamesModal({
                   )}
                 </div>
 
-                <button
+                <Button
                   type="button"
+                  variant="inactive"
+                  size="xs"
                   onClick={() => setAddedSearch("")}
-                  className="px-3.5 py-2 rounded-lg border border-deep-blue-700 bg-deep-blue-900 hover:bg-deep-blue-850 text-label-xs font-semibold text-gray-300 hover:text-white transition-colors cursor-pointer"
                 >
                   Clear
-                </button>
+                </Button>
               </div>
 
               {/* List or Empty State */}
@@ -273,13 +274,14 @@ export function AdminEditSubscriptionGamesModal({
                       </div>
 
                       {/* Right: Remove Button */}
-                      <button
+                      <Button
                         type="button"
+                        variant="inactive"
+                        size="xs"
                         onClick={() => handleRemoveGame(game)}
-                        className="px-3 py-1.5 rounded-lg border border-deep-blue-700 bg-deep-blue-950 hover:bg-deep-blue-850 text-gray-300 hover:text-rose-300 text-label-xs font-semibold transition-colors cursor-pointer shrink-0"
                       >
                         Remove
-                      </button>
+                      </Button>
                     </div>
                   ))
                 ) : (
@@ -371,13 +373,14 @@ export function AdminEditSubscriptionGamesModal({
                       </div>
 
                       {/* Right: Add Button */}
-                      <button
+                      <Button
                         type="button"
+                        variant="outline"
+                        size="xs"
                         onClick={() => handleAddGame(game)}
-                        className="px-3.5 py-1.5 rounded-lg border border-deep-blue-700 bg-deep-blue-950 hover:bg-deep-blue-850 text-gray-300 hover:text-white text-label-xs font-semibold transition-colors cursor-pointer shrink-0"
                       >
                         Add
-                      </button>
+                      </Button>
                     </div>
                   ))
                 ) : (
@@ -392,14 +395,16 @@ export function AdminEditSubscriptionGamesModal({
                     <p className="text-label-xs text-gray-400 mt-1 max-w-[220px]">
                       Katalog toko Anda saat ini masih kosong.
                     </p>
-                    <button
+                    <Button
                       type="button"
+                      variant="outline"
+                      size="xs"
                       onClick={() => setAvailableGames(DEFAULT_AVAILABLE_GAMES)}
-                      className="mt-4 px-4 py-2 rounded-lg border border-deep-blue-700 bg-deep-blue-900 hover:bg-deep-blue-850 text-label-xs font-semibold text-gray-300 hover:text-white transition-colors cursor-pointer flex items-center gap-1.5"
+                      leftIcon={<PlusIcon className="w-3.5 h-3.5" />}
+                      className="mt-4"
                     >
-                      <PlusIcon className="w-3.5 h-3.5" />
                       <span>Tambah Produk</span>
-                    </button>
+                    </Button>
                   </div>
                 )}
               </div>

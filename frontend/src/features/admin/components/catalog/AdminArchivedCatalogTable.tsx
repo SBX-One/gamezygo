@@ -12,6 +12,7 @@ import {
 } from "@/components/admin/AdminTable";
 import { AdminCheckbox } from "@/components/admin/AdminCheckbox";
 import { Pill } from "@/components/ui/Pill";
+import { Button } from "@/components/ui/Button";
 import type { AdminCatalogItem } from "../../types/admin-catalog.types";
 
 export interface AdminArchivedCatalogTableProps {
@@ -117,30 +118,33 @@ export function AdminArchivedCatalogTable({
   const cardHeaderRight = (
     <div className="flex items-center gap-3 shrink-0 flex-wrap">
       {/* 1. Unarchived All Button */}
-      <button
+      <Button
         type="button"
+        variant="outline"
+        size="xs"
         onClick={onUnarchiveAll}
-        className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-[#1E202B] hover:bg-[#252837] border border-deep-blue-700 text-label-xs font-medium text-white transition-colors cursor-pointer shadow-sm select-none shrink-0"
+        leftIcon={<UnarchiveIcon className="w-3.5 h-3.5" />}
+        className="px-3 py-2"
       >
-        <UnarchiveIcon className="w-3.5 h-3.5" />
         <span>Unarchived All</span>
-      </button>
+      </Button>
 
       {/* 2. Delete All Button */}
       {(hasSelected || items.length > 0) && (
-        <button
+        <Button
           type="button"
+          variant="inactive"
+          size="xs"
           onClick={onDeleteSelected}
           disabled={!hasSelected}
           className={cn(
-            "px-3.5 py-1.5 rounded-lg border text-label-xs font-medium transition-colors select-none shrink-0",
-            hasSelected
-              ? "bg-rose-500/15 border-rose-500/30 text-rose-300 hover:bg-rose-500/25 cursor-pointer"
-              : "bg-[#1E202B] border-deep-blue-700 text-gray-400 opacity-60 cursor-not-allowed"
+            "px-3 py-2",
+            hasSelected &&
+              "bg-rose-500/15 border-rose-500/30 text-rose-300 hover:bg-rose-500/25"
           )}
         >
           Delete All
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -236,14 +240,15 @@ export function AdminArchivedCatalogTable({
 
                   {/* Column 4: Unarchived Action Button */}
                   <AdminTableCell className="text-right pr-6">
-                    <button
+                    <Button
                       type="button"
+                      variant="outline"
+                      size="xs"
                       onClick={() => onUnarchiveItem?.(item.id)}
-                      className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-lg bg-[#1E202B] hover:bg-[#272A38] border border-deep-blue-700 text-label-xs font-medium text-white transition-colors cursor-pointer select-none"
+                      leftIcon={<UnarchiveIcon className="w-3.5 h-3.5 text-gray-300" />}
                     >
-                      <UnarchiveIcon className="w-3.5 h-3.5 text-gray-300" />
                       <span>Unarchived</span>
-                    </button>
+                    </Button>
                   </AdminTableCell>
                 </AdminTableRow>
               );

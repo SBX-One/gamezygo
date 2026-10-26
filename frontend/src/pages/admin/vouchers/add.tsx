@@ -9,6 +9,7 @@ import {
   AdminAddVoucherRules,
   AdminAddVoucherDateRange,
 } from "@/features/admin/components/vouchers";
+import { Button } from "@/components/ui/Button";
 import {
   DEFAULT_ADD_VOUCHER_FORM,
   type AdminAddVoucherFormData,
@@ -91,23 +92,23 @@ export default function AdminAddVoucherPage() {
   // Header Right Action Buttons: [Save and List] [Save Draft] [✕] (Matching Image 1)
   const headerRight = (
     <div className="flex items-center gap-3 select-none">
-      <button
-        type="button"
+      <Button
+        variant="primary"
+        size="sm"
         disabled={isSaving}
         onClick={handleSaveAndList}
-        className="px-5 py-2 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-sm select-none"
       >
         Save and List
-      </button>
+      </Button>
 
-      <button
-        type="button"
+      <Button
+        variant="inactive"
+        size="sm"
         disabled={isSaving}
         onClick={handleSaveDraft}
-        className="px-5 py-2 rounded-lg bg-[#181A22] hover:bg-[#222533] border border-white/10 text-white text-label-xs sm:text-sm font-semibold transition-colors cursor-pointer select-none"
       >
         Save Draft
-      </button>
+      </Button>
 
       <Link
         href="/admin/vouchers"

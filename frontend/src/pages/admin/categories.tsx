@@ -1,6 +1,7 @@
 import * as React from "react";
 import Head from "next/head";
 import { AdminLayout } from "@/components/layout/AdminLayout";
+import { Button } from "@/components/ui/Button";
 import {
   AdminCategoryColumn,
   AdminCategoryDrawer,
@@ -306,23 +307,25 @@ export default function AdminCategoriesPage() {
         headerRight={
           <div className="flex items-center gap-2">
             {categories.length > 0 ? (
-              <button
-                type="button"
+              <Button
+                variant="outline"
+                size="xs"
                 onClick={() => saveToStorage([])}
-                className="px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 text-label-xs text-gray-300 hover:text-white transition-all cursor-pointer"
                 title="Kosongkan data untuk melihat Empty State"
+                className="px-3 py-2"
               >
                 Reset Kosong
-              </button>
+              </Button>
             ) : (
-              <button
-                type="button"
+              <Button
+                variant="outline"
+                size="xs"
                 onClick={() => saveToStorage(MOCK_ADMIN_CATEGORIES)}
-                className="px-3 py-1.5 rounded-lg border border-white/10 hover:border-white/20 bg-white/5 hover:bg-white/10 text-label-xs text-gray-300 hover:text-white transition-all cursor-pointer"
                 title="Muat data contoh"
+                className="px-3 py-2"
               >
                 Muat Contoh
-              </button>
+              </Button>
             )}
           </div>
         }

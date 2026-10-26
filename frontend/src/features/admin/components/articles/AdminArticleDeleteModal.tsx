@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 
 export interface AdminArticleDeleteModalProps {
   isOpen: boolean;
@@ -49,7 +50,7 @@ export function AdminArticleDeleteModal({
     >
       <div
         className={cn(
-          "w-full max-w-105 rounded-lg bg-[#13151F] border border-white/10 p-6 select-none animate-in zoom-in-95 duration-150 text-left",
+          "w-full max-w-105 rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-6 select-none animate-in zoom-in-95 duration-150 text-left",
           className
         )}
       >
@@ -68,23 +69,25 @@ export function AdminArticleDeleteModal({
 
         {/* Actions (Matching Image 4) */}
         <div className="flex items-center justify-end gap-3 mt-6">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-lg bg-[#1E202B] hover:bg-[#272A38] text-white text-label-xs sm:text-sm font-medium transition-colors cursor-pointer select-none"
           >
             Batal
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="primary"
+            size="sm"
             onClick={() => {
               onConfirm();
               onClose();
             }}
-            className="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#FF5364] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold transition-all cursor-pointer select-none"
           >
             Delete
-          </button>
+          </Button>
         </div>
       </div>
     </div>

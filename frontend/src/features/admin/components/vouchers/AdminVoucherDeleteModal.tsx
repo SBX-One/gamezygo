@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 
 export interface AdminVoucherDeleteModalProps {
   isOpen: boolean;
@@ -60,7 +61,7 @@ export function AdminVoucherDeleteModal({
     >
       <div
         className={cn(
-          "w-115 max-w-[95vw] rounded-lg bg-[#0F111A] border border-white/10 p-6 sm:p-7 shadow-2xl select-none animate-in zoom-in-95 duration-150 text-left",
+          "w-115 max-w-[95vw] rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-6 sm:p-7 shadow-2xl select-none animate-in zoom-in-95 duration-150 text-left",
           className
         )}
       >
@@ -73,23 +74,25 @@ export function AdminVoucherDeleteModal({
 
         {/* Action Buttons (Matching Image 1: [Batal] [Delete]) */}
         <div className="flex items-center justify-end gap-3 mt-7">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-lg bg-[#181A22] hover:bg-[#222533] border border-white/10 text-white text-label-xs sm:text-sm font-semibold transition-colors cursor-pointer select-none"
           >
             Batal
-          </button>
-          <button
+          </Button>
+          <Button
             type="button"
+            variant="primary"
+            size="sm"
             onClick={() => {
               onConfirm();
               onClose();
             }}
-            className="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-sm select-none"
           >
             Delete
-          </button>
+          </Button>
         </div>
       </div>
     </div>

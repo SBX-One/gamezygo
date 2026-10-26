@@ -296,10 +296,20 @@ export default function ProfilePage() {
   const [showNewPassword, setShowNewPassword] = React.useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
 
-  const handleToast = (msg: string) => {
-    setToastMessage(msg);
+  const [toast, setToast] = React.useState<{
+    title: string;
+    description: string;
+    variant: "success" | "error" | "warning";
+  } | null>(null);
+
+  const handleToast = (
+    msg: string,
+    variant: "success" | "error" | "warning" = "success",
+    title = variant === "error" ? "Gagal" : "Berhasil"
+  ) => {
+    setToast({ title, description: msg, variant });
     setTimeout(() => {
-      setToastMessage(null);
+      setToast(null);
     }, 3000);
   };
 
@@ -315,14 +325,14 @@ export default function ProfilePage() {
   const handlePasswordChange = (e: React.FormEvent) => {
     e.preventDefault();
     if (!oldPassword || !newPassword || !confirmPassword) {
-      handleToast("Mohon lengkapi semua kolom password!");
+      handleToast("Mohon lengkapi semua kolom password!", "error");
       return;
     }
     if (newPassword !== confirmPassword) {
-      handleToast("Password baru dan konfirmasi tidak cocok!");
+      handleToast("Password baru dan konfirmasi tidak cocok!", "error");
       return;
     }
-    handleToast("Password Anda berhasil diperbarui!");
+    handleToast("Password Anda berhasil diperbarui!", "success");
     setOldPassword("");
     setNewPassword("");
     setConfirmPassword("");
@@ -332,7 +342,7 @@ export default function ProfilePage() {
     e.preventDefault();
     const trimmedName = editName.trim();
     if (!trimmedName) {
-      handleToast("Nama tidak boleh kosong!");
+      handleToast("Nama tidak boleh kosong!", "error");
       return;
     }
     const trimmedAvatar = editAvatarUrl?.trim() || "";
@@ -1013,9 +1023,14 @@ export default function ProfilePage() {
         )}
 
         {/* TOAST FEEDBACK */}
-        {toastMessage && (
-          <div className="fixed bottom-6 right-6 z-50 animate-slide-in-right">
-            <Toast variant="success" title="Notifikasi" description={toastMessage} />
+        {toast && (
+          <div className="fixed top-4 left-4 right-4 md:top-auto md:left-auto md:bottom-6 md:right-6 z-50 md:w-auto md:min-w-80 md:max-w-105 animate-fade-in">
+            <Toast
+              variant={toast.variant}
+              title={toast.title}
+              description={toast.description}
+              onClose={() => setToast(null)}
+            />
           </div>
         )}
       </StoreLayout>

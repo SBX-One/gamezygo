@@ -11,6 +11,7 @@ import {
 } from "@/components/admin/AdminTable";
 import { AdminSwitch } from "@/components/admin/AdminSwitch";
 import { AdminCheckbox } from "@/components/admin/AdminCheckbox";
+import { Button } from "@/components/ui/Button";
 import type { AdminVoucherItem } from "../../types/admin-voucher.types";
 
 export interface AdminVoucherTableProps {
@@ -236,14 +237,16 @@ export function AdminVoucherTable({
         <div className="flex items-center gap-3 shrink-0 whitespace-nowrap">
           {/* Back button shown in Draft View (Matching Image 3) */}
           {isDraftViewActive && (
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="xs"
               onClick={onBackFromDraft}
-              className="h-8 px-3.5 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] flex items-center gap-1.5 text-label-xs font-semibold text-white transition-colors cursor-pointer select-none shrink-0"
+              leftIcon={<ChevronLeftIcon className="w-4 h-4 text-white shrink-0" />}
+              className="px-3 py-2"
             >
-              <ChevronLeftIcon className="w-4 h-4 text-white shrink-0" />
               <span>Back</span>
-            </button>
+            </Button>
           )}
 
           {/* TOTAL PRODUCT : 105 Vouchers */}
@@ -261,37 +264,43 @@ export function AdminVoucherTable({
         <div className="flex items-center gap-3 shrink-0 flex-wrap">
           {/* Delete Batch Button (Shown when items are selected) */}
           {hasSelected && (
-            <button
+            <Button
               type="button"
+              variant="inactive"
+              size="xs"
               onClick={onDeleteSelected}
-              className="h-8 px-3.5 rounded-lg border border-rose-500/30 bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 flex items-center gap-1.5 text-label-xs font-semibold transition-colors cursor-pointer"
+              leftIcon={<TrashIcon className="w-3.5 h-3.5" />}
+              className="bg-rose-500/15 border-rose-500/30 text-rose-300 hover:bg-rose-500/25 px-3 py-2"
             >
-              <TrashIcon className="w-3.5 h-3.5" />
               <span>Hapus ({selectedIds.length})</span>
-            </button>
+            </Button>
           )}
 
           {/* Draft Button (Only shown in Normal View, omitted in Draft View per Image 3) */}
           {!isDraftViewActive && (
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="xs"
               onClick={onToggleDraftView}
-              className="h-8 px-3.5 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] text-white flex items-center gap-2 text-label-xs font-semibold transition-colors cursor-pointer select-none"
+              leftIcon={<DraftBoxIcon className="w-4 h-4 text-white shrink-0" />}
+              className="px-3 py-2"
             >
-              <DraftBoxIcon className="w-4 h-4 text-white shrink-0" />
               <span>Draft</span>
-            </button>
+            </Button>
           )}
 
           {/* Add New Button (Matching Image 2 & Image 3) */}
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="xs"
             onClick={onAddNew}
-            className="h-8 px-3.5 rounded-lg border border-white/10 bg-[#161823] hover:bg-[#1E202E] flex items-center gap-2 text-label-xs font-semibold text-white transition-colors cursor-pointer select-none"
+            leftIcon={<PlusIcon className="w-4 h-4 text-white shrink-0" />}
+            className="px-3 py-2"
           >
-            <PlusIcon className="w-4 h-4 text-white shrink-0" />
             <span>Add New</span>
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -429,7 +438,7 @@ export function AdminVoucherTable({
 
                       {/* Dropdown Menu Popover */}
                       {isMenuOpen && (
-                        <div className="absolute right-0 top-8 z-50 w-44 rounded-lg bg-[#0F111A] border border-deep-blue-700 py-1.5 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+                        <div className="absolute right-0 top-8 z-50 w-44 rounded-lg bg-deep-blue-950 border border-deep-blue-700 py-1.5 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
                           <Link
                             href={`/admin/vouchers/analytics?code=${item.code}`}
                             onClick={() => setActiveMenuId(null)}
@@ -502,14 +511,15 @@ export function AdminVoucherTable({
                   </p>
 
                   {/* Button (Matching Image 2: + Tambah Voucher) */}
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
+                    size="sm"
                     onClick={onAddNew}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#161822] hover:bg-[#1E202B] border border-white/10 text-white text-label-xs sm:text-sm font-semibold transition-colors cursor-pointer select-none"
+                    leftIcon={<PlusIcon className="w-4 h-4 text-gray-300" />}
                   >
-                    <PlusIcon className="w-4 h-4 text-gray-300" />
                     <span>Tambah Voucher</span>
-                  </button>
+                  </Button>
                 </div>
               </td>
             </tr>

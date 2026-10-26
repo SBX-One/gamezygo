@@ -1,8 +1,17 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { AdminCheckbox } from "@/components/admin/AdminCheckbox";
-import { AdminArticlesFilterPopover } from "./AdminArticlesFilterPopover";
+import { FilterModal } from "@/components/ui/FilterModal";
 import type { AdminArticleFilterState } from "../../types/admin-article.types";
+
+const ARTICLE_CATEGORIES = [
+  "Tutorials",
+  "Review & Recommendations",
+  "Game Guides",
+  "News & Update",
+];
+
+const ARTICLE_STATUS_OPTIONS = ["Published", "Draft", "Unpublished"];
 
 export interface AdminArticlesTopBarProps {
   filters: AdminArticleFilterState;
@@ -105,7 +114,7 @@ export function AdminArticlesTopBar({
         />
       </div>
 
-      {/* 2. Search Field: Magnifying glass + 'Cari di toko' placeholder + clear icon (Matching Image 1) */}
+      {/* 2. Search Field: Magnifying glass + 'Cari artikel' placeholder + clear icon (Matching Catalog Design) */}
       <div className="relative flex items-center w-48 sm:w-64">
         <div className="absolute left-3 text-gray-400 pointer-events-none flex items-center">
           <SearchIcon className="w-4 h-4 text-gray-400" />
@@ -117,7 +126,7 @@ export function AdminArticlesTopBar({
             onFilterChange({ ...filters, searchQuery: e.target.value })
           }
           placeholder="Cari artikel"
-          className="w-full h-9 pl-9 pr-8 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-label-xs text-white placeholder-gray-400 focus:outline-none focus:border-gray-500 transition-colors"
+          className="w-full h-10 pl-9 pr-8 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-label-xs text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors"
         />
         {filters.searchQuery && (
           <button
@@ -131,14 +140,14 @@ export function AdminArticlesTopBar({
         )}
       </div>
 
-      {/* 3. Filter Button (Matching Image 3 trigger) */}
-      <div className="relative">
+      {/* 3. Filter Button (Matching Catalog Design) */}
+      <div className={cn("relative shrink-0", isFilterOpen && "z-30")}>
         <button
           type="button"
           onClick={() => setIsFilterOpen(!isFilterOpen)}
           aria-label="Filter & Sort"
           className={cn(
-            "h-9 w-9 rounded-lg border flex items-center justify-center transition-all cursor-pointer relative",
+            "h-10 w-10 rounded-lg border flex items-center justify-center transition-all cursor-pointer relative shrink-0",
             isFilterOpen || hasActiveFilters
               ? "bg-[#1E202B] border-gray-400 text-white"
               : "bg-deep-blue-900 border-deep-blue-700 text-gray-300 hover:text-white hover:border-gray-500"
@@ -150,31 +159,91 @@ export function AdminArticlesTopBar({
           )}
         </button>
 
-        {/* 4. Filter & Sort Popover (Matching Image 3) */}
-        {isFilterOpen && (
-          <AdminArticlesFilterPopover
-            key={JSON.stringify(filters)}
-            isOpen={isFilterOpen}
-            onClose={() => setIsFilterOpen(false)}
-            filters={filters}
-            onApply={(newFilters) => {
-              onFilterChange(newFilters);
-              setIsFilterOpen(false);
-            }}
-            onReset={() => {
+        {/* 4. Filter & Sort Dropdown using Base FilterModal (Matching Gambar 1) */}
+        <FilterModal
+          isOpen={isFilterOpen}
+          variant="dropdown"
+          placement="content"
+          onClose={() => setIsFilterOpen(false)}
+          title="Filter & Sort"
+          categories={ARTICLE_CATEGORIES}
+          selectedCategories={filters.categories || []}
+          onToggleCategory={(cat) => {
+            const current = filters.categories || [];
+            const next = current.includes(cat)
+              ? current.filter((c) => c !== cat)
+              : [...current, cat];
+            onFilterChange({ ...filters, categories: next });
+          }}
+          genres={[]}
+          launchers={[]}
+          statusOptions={ARTICLE_STATUS_OPTIONS}
+          selectedStatus={[
+            ...(filters.isPublished ? ["Published"] : []),
+            ...(filters.isDraft ? ["Draft"] : []),
+            ...(filters.isUnpublished ? ["Unpublished"] : []),
+          ]}
+          onToggleStatus={(status) => {
+            if (status === "Published") {
+              onFilterChange({ ...filters, isPublished: !filters.isPublished });
+            } else if (status === "Draft") {
+              onFilterChange({ ...filters, isDraft: !filters.isDraft });
+            } else if (status === "Unpublished") {
+              onFilterChange({ ...filters, isUnpublished: !filters.isUnpublished });
+            }
+          }}
+          showPriceRange={true}
+          minPrice={0}
+          maxPrice={200000}
+          priceRange={
+            filters.priceRange && filters.priceRange[1] <= 200000
+              ? filters.priceRange
+              : [0, 200000]
+          }
+          onPriceRangeChange={(range) =>
+            onFilterChange({ ...filters, priceRange: range })
+          }
+          sortOptions={["Terbaru", "Nama (A - Z)"]}
+          selectedSort={
+            filters.sortBy === "name_asc" ? "Nama (A - Z)" : "Terbaru"
+          }
+          onSelectSort={(sort) =>
+            onFilterChange({
+              ...filters,
+              sortBy: sort === "Nama (A - Z)" ? "name_asc" : "terbaru",
+            })
+          }
+          showCancelButton={false}
+          onReset={() => {
+            onFilterChange({
+              ...filters,
+              searchQuery: "",
+              isPublished: false,
+              isDraft: false,
+              isUnpublished: false,
+              categories: [],
+              priceRange: [0, 200000],
+              sortBy: "terbaru",
+            });
+            setIsFilterOpen(false);
+          }}
+          onApply={(values) => {
+            if (values) {
+              const selectedSt = values.status ?? [];
               onFilterChange({
-                searchQuery: "",
-                isPublished: false,
-                isDraft: false,
-                isUnpublished: false,
-                categories: [],
-                priceRange: [0, 200000],
-                sortBy: "terbaru",
+                ...filters,
+                categories: values.categories ?? filters.categories ?? [],
+                isPublished: selectedSt.includes("Published"),
+                isDraft: selectedSt.includes("Draft"),
+                isUnpublished: selectedSt.includes("Unpublished"),
+                priceRange: values.priceRange ?? filters.priceRange ?? [0, 200000],
+                sortBy: values.sort === "Nama (A - Z)" ? "name_asc" : "terbaru",
               });
-              setIsFilterOpen(false);
-            }}
-          />
-        )}
+            }
+            setIsFilterOpen(false);
+          }}
+          popoverClassName="w-80 sm:w-96 !h-auto max-h-[90vh] top-11 right-0 shadow-2xl"
+        />
       </div>
     </div>
   );

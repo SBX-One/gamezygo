@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 import type { InstructionTemplate } from "../../types/admin-instruction.types";
 
 export interface AdminInstructionChangeModalProps {
@@ -72,7 +73,7 @@ export function AdminInstructionChangeModal({
 
       <div
         className={cn(
-          "relative z-10 w-140 max-w-[95vw] rounded-lg bg-deep-blue-900 border border-deep-blue-700 p-6 sm:p-7 shadow-2xl flex flex-col gap-4 animate-in zoom-in-95 duration-150",
+          "relative z-10 w-140 max-w-[95vw] rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-6 sm:p-7 shadow-2xl flex flex-col gap-4 animate-in zoom-in-95 duration-150",
           className
         )}
       >
@@ -135,17 +136,13 @@ export function AdminInstructionChangeModal({
                   </div>
                 </div>
 
-                <button
+                <Button
                   type="button"
-                  className={cn(
-                    "px-3 py-1.5 rounded-lg text-label-xs font-medium transition-all shrink-0",
-                    isCurrent
-                      ? "bg-deep-blue-900 text-white border border-deep-blue-500"
-                      : "bg-deep-blue-900 hover:bg-deep-blue-800 text-gray-300 border border-deep-blue-700"
-                  )}
+                  variant={isCurrent ? "active" : "outline"}
+                  size="xs"
                 >
                   {isCurrent ? "Active" : "Pilih"}
-                </button>
+                </Button>
               </div>
             );
           })}

@@ -109,29 +109,32 @@ export function AdminPreOrderTable({
         {/* Right: Actions (+ Add New & Delete Selected - Matching Image 4) */}
         <div className="flex items-center gap-3 shrink-0 flex-wrap">
           {/* Add New Button (Image 4) */}
-          <button
+          <Button
             type="button"
+            variant="outline"
+            size="xs"
             onClick={onAddNew}
-            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-label-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-colors cursor-pointer select-none"
+            leftIcon={<PlusIcon className="w-3.5 h-3.5" />}
+            className="px-3 py-2"
           >
-            <PlusIcon className="w-3.5 h-3.5" />
             <span>Add New</span>
-          </button>
+          </Button>
 
           {/* Delete Selected Button (Image 4) */}
-          <button
+          <Button
             type="button"
+            variant="inactive"
+            size="xs"
             onClick={selectedIds.length > 0 ? onDeleteSelected : undefined}
             disabled={selectedIds.length === 0}
             className={cn(
-              "px-4 py-2 rounded-lg border border-white/10 text-label-xs sm:text-sm font-medium transition-colors select-none",
-              selectedIds.length > 0
-                ? "bg-white/5 hover:bg-rose-500/10 text-gray-200 hover:text-rose-300 border-white/10 hover:border-rose-500/40 cursor-pointer"
-                : "bg-white/2 text-gray-500 border-white/5 cursor-not-allowed"
+              "px-3 py-2",
+              selectedIds.length > 0 &&
+                "hover:bg-rose-500/10 text-rose-300 border-rose-500/40"
             )}
           >
             Delete Selected
-          </button>
+          </Button>
         </div>
       </div>
 
@@ -271,7 +274,7 @@ export function AdminPreOrderTable({
                           <div
                             ref={menuRef}
                             className={cn(
-                              "absolute right-0 z-40 w-52 rounded-lg bg-[#13151F] border border-deep-blue-700 shadow-2xl p-2 text-left animate-in fade-in zoom-in-95 duration-100 space-y-1.5 select-none",
+                              "absolute right-0 z-40 w-52 rounded-lg bg-deep-blue-950 border border-deep-blue-700 shadow-2xl p-2 text-left animate-in fade-in zoom-in-95 duration-100 space-y-1.5 select-none",
                               idx === 0 ? "top-full mt-1.5" : "bottom-full mb-1.5"
                             )}
                           >
@@ -360,14 +363,16 @@ export function AdminPreOrderTable({
               <p className="text-label-xs sm:text-sm text-gray-400 mt-2 font-normal">
                 Katalog toko Anda saat ini masih kosong.
               </p>
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                size="sm"
                 onClick={onAddNew}
-                className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1E202B] hover:bg-[#252837] border border-white/10 text-label-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-all shadow-sm cursor-pointer whitespace-nowrap"
+                leftIcon={<PlusIcon className="w-4 h-4" />}
+                className="mt-6"
               >
-                <PlusIcon className="w-4 h-4" />
                 <span>Tambah Produk</span>
-              </button>
+              </Button>
             </div>
           </div>
         )}

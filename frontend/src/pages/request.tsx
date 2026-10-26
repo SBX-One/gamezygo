@@ -19,13 +19,21 @@ import {
 } from "@/hooks/use-requests";
 import productsData from "@/json/products.json";
 
+// Storage Keys for Local Persistence
+const LOCAL_STORAGE_KEY_MY_REQUESTS = "gamezygo_my_requests";
+const LOCAL_STORAGE_KEY_COMMUNITY_REQUESTS = "gamezygo_community_requests";
+const LOCAL_STORAGE_KEY_UPVOTED = "gamezygo_upvoted_requests";
+
 // Helper to extract Steam App ID from various Steam URL patterns
 function extractSteamAppId(url: string): number | null {
   const trimmed = url.trim();
   if (/^\d+$/.test(trimmed)) {
     return parseInt(trimmed, 10);
   }
-  const match = trimmed.match(/store\.steampowered\.com\/app\/(\d+)/i);
+  const match =
+    trimmed.match(/\/app\/(\d+)/i) ||
+    trimmed.match(/store\.steampowered\.com\/app\/(\d+)/i) ||
+    trimmed.match(/appids?=(\d+)/i);
   if (match && match[1]) {
     return parseInt(match[1], 10);
   }
@@ -315,6 +323,7 @@ export default function RequestGamePage() {
 
   // Pagination State
   const [currentPage, setCurrentPage] = React.useState<number>(1);
+  const ITEMS_PER_PAGE = 6;
 
   // TanStack Query: Game Requests API
   const scope = activeTab === "my-requests" ? "mine" : "all";
@@ -323,10 +332,7 @@ export default function RequestGamePage() {
   const voteMutation = useVoteGameRequest();
   const unvoteMutation = useUnvoteGameRequest();
 
-  // Toast Feedback State
-  const [toastMessage, setToastMessage] = React.useState<string | null>(null);
-
-  // Request Datasets
+  // Request Datasets with initial defaults
   const [myRequests, setMyRequests] =
     React.useState<RequestGameData[]>(INITIAL_MY_REQUESTS);
   const [communityRequests, setCommunityRequests] =
@@ -334,14 +340,79 @@ export default function RequestGamePage() {
   const [addedRequests] =
     React.useState<RequestGameData[]>(INITIAL_ADDED_REQUESTS);
 
-  const handleToast = (msg: string) => {
-    setToastMessage(msg);
+  // Hydrate from localStorage on client mount
+  React.useEffect(() => {
+    try {
+      // 1. My Requests
+      const savedMy = localStorage.getItem(LOCAL_STORAGE_KEY_MY_REQUESTS);
+      if (savedMy) {
+        const parsed = JSON.parse(savedMy);
+        if (Array.isArray(parsed)) {
+          setMyRequests(parsed);
+        }
+      } else {
+        localStorage.setItem(
+          LOCAL_STORAGE_KEY_MY_REQUESTS,
+          JSON.stringify(INITIAL_MY_REQUESTS)
+        );
+      }
+
+      // 2. Upvoted Request IDs
+      const savedUpvotes = localStorage.getItem(LOCAL_STORAGE_KEY_UPVOTED);
+      const upvotedIds: string[] = savedUpvotes ? JSON.parse(savedUpvotes) : [];
+
+      // 3. Community Requests
+      const savedCommunity = localStorage.getItem(LOCAL_STORAGE_KEY_COMMUNITY_REQUESTS);
+      if (savedCommunity) {
+        const parsedComm = JSON.parse(savedCommunity);
+        if (Array.isArray(parsedComm)) {
+          setCommunityRequests(
+            parsedComm.map((item: RequestGameData) => ({
+              ...item,
+              isUpvoted: upvotedIds.includes(item.id),
+            }))
+          );
+        }
+      } else {
+        const initialWithUpvotes = INITIAL_COMMUNITY_REQUESTS.map((item) => ({
+          ...item,
+          isUpvoted: upvotedIds.includes(item.id) || Boolean(item.isUpvoted),
+        }));
+        setCommunityRequests(initialWithUpvotes);
+        localStorage.setItem(
+          LOCAL_STORAGE_KEY_COMMUNITY_REQUESTS,
+          JSON.stringify(initialWithUpvotes)
+        );
+      }
+    } catch (err) {
+      console.error("Gagal membaca request dari localStorage:", err);
+    }
+  }, []);
+
+  const [toast, setToast] = React.useState<{
+    title: string;
+    description: string;
+    variant: "success" | "error" | "warning";
+  } | null>(null);
+
+  const handleToast = (
+    msg: string,
+    variant: "success" | "error" | "warning" = "success",
+    title = variant === "error" ? "Dibatalkan" : "Berhasil"
+  ) => {
+    setToast({ title, description: msg, variant });
     setTimeout(() => {
-      setToastMessage(null);
+      setToast(null);
     }, 3000);
   };
 
-  // Submit Steam Store URL with validation & Steam API lookup
+  const handleTabChange = (tabId: TabId) => {
+    setActiveTab(tabId);
+    setCurrentPage(1);
+    setForceEmptyState(false);
+  };
+
+  // Submit Steam Store URL with validation, Steam API lookup, & LocalStorage persistence
   const handleStoreUrlSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setInputError(null);
@@ -361,28 +432,72 @@ export default function RequestGamePage() {
     setIsSubmitting(true);
 
     try {
-      const res = await fetch(`/api/steam/game/${appId}`);
-      if (!res.ok) {
-        // Item tidak ditemukan di Steam (404) atau error Steam API
-        setInputError("*Link steam salah silahkan masukan kembali");
+      let gameTitle = "";
+      let gameImage = `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${appId}/library_600x900_2x.jpg`;
+
+      // 1. Try fetching live Steam game details from our internal proxy route
+      try {
+        const res = await fetch(`/api/steam/game/${appId}`);
+        if (res.ok) {
+          const gameData = await res.json();
+          if (gameData && gameData.name) {
+            gameTitle = gameData.name;
+            if (gameData.hero_capsule) {
+              gameImage = gameData.hero_capsule;
+            }
+          }
+        }
+      } catch (err) {
+        console.warn("Gagal mengambil data dari Steam API:", err);
+      }
+
+      // 2. If Steam API didn't return a name, try slug extraction from URL
+      if (!gameTitle) {
+        const slugMatch = trimmedUrl.match(/\/app\/\d+\/([^/?#]+)/i);
+        if (slugMatch && slugMatch[1]) {
+          gameTitle = decodeURIComponent(slugMatch[1]).replace(/_/g, " ");
+        }
+      }
+
+      // 3. Fallback to existing products database if known
+      if (!gameTitle) {
+        const allKnown = [...productsData.tawaranKhusus, ...productsData.semuaProduk];
+        const existing = allKnown.find((p) => p.imageSrc?.includes(String(appId)));
+        if (existing) {
+          gameTitle = existing.title;
+          gameImage = existing.imageSrc;
+        }
+      }
+
+      // If still unable to find game name
+      if (!gameTitle) {
+        setInputError("*Link steam salah atau game tidak ditemukan di Steam.");
         setIsSubmitting(false);
         return;
       }
 
-      const gameData = await res.json();
-      if (!gameData || !gameData.name) {
-        setInputError("*Link steam salah silahkan masukan kembali");
+      // Check if already requested in My Requests
+      const isAlreadyRequested = myRequests.some(
+        (item) => item.title.toLowerCase() === gameTitle.toLowerCase()
+      );
+      if (isAlreadyRequested) {
+        setActiveTab("my-requests");
+        setStoreUrl("");
+        setInputError(null);
+        handleToast(
+          `Kamu sudah mengajukan request untuk "${gameTitle}".`,
+          "warning",
+          "Sudah Diajukan"
+        );
         setIsSubmitting(false);
         return;
       }
 
-      // Add new request to "Request saya"
+      // Create new request item
       const newRequest: RequestGameData = {
-        id: `mr-${Date.now()}`,
-        title: gameData.name,
-        imageSrc:
-          gameData.hero_capsule ||
-          `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${appId}/library_600x900_2x.jpg`,
+        id: `mr-${appId}-${Date.now()}`,
+        title: gameTitle,
+        imageSrc: gameImage,
         requestDate: new Date().toLocaleDateString("id-ID", {
           day: "2-digit",
           month: "2-digit",
@@ -391,21 +506,77 @@ export default function RequestGamePage() {
         requestCount: 1,
       };
 
+      // 1. Save to "Request Saya" and persist to localStorage
+      setMyRequests((prev) => {
+        const updated = [newRequest, ...prev];
+        try {
+          localStorage.setItem(
+            LOCAL_STORAGE_KEY_MY_REQUESTS,
+            JSON.stringify(updated)
+          );
+        } catch (storageErr) {
+          console.error("Gagal menyimpan ke localStorage:", storageErr);
+        }
+        return updated;
+      });
+
+      // 2. Also add to "Request Komunitas" so other users can see and vote
+      setCommunityRequests((prev) => {
+        const exists = prev.some(
+          (item) => item.title.toLowerCase() === gameTitle.toLowerCase()
+        );
+        if (!exists) {
+          const newCommunityItem: RequestGameData = {
+            id: `cr-${appId}-${Date.now()}`,
+            title: gameTitle,
+            imageSrc: gameImage,
+            requestDate: new Date().toLocaleDateString("id-ID", {
+              day: "2-digit",
+              month: "2-digit",
+              year: "numeric",
+            }),
+            requestCount: 1,
+            isUpvoted: true,
+          };
+          const updatedCommunity = [newCommunityItem, ...prev];
+          try {
+            localStorage.setItem(
+              LOCAL_STORAGE_KEY_COMMUNITY_REQUESTS,
+              JSON.stringify(updatedCommunity)
+            );
+            const savedUpvotes = localStorage.getItem(LOCAL_STORAGE_KEY_UPVOTED);
+            const currentUpvotes: string[] = savedUpvotes
+              ? JSON.parse(savedUpvotes)
+              : [];
+            const nextUpvotes = Array.from(
+              new Set([...currentUpvotes, newCommunityItem.id])
+            );
+            localStorage.setItem(
+              LOCAL_STORAGE_KEY_UPVOTED,
+              JSON.stringify(nextUpvotes)
+            );
+          } catch (storageErr) {}
+          return updatedCommunity;
+        }
+        return prev;
+      });
+
+      // 3. Optional: sync to backend API if available
       try {
         await createRequestMutation.mutateAsync({
-          name: gameData.name,
+          name: gameTitle,
           steam_url: trimmedUrl,
         });
       } catch {
-        // Continue with local update
+        // Backend offline or guest - ignore
       }
 
-      setMyRequests((prev) => [newRequest, ...prev]);
       setStoreUrl("");
       setInputError(null);
       setActiveTab("my-requests");
+      setCurrentPage(1);
       setForceEmptyState(false);
-      handleToast(`Request "${gameData.name}" berhasil dikirim!`);
+      handleToast(`Request "${gameTitle}" berhasil dikirim!`);
     } catch {
       setInputError("*Link steam salah silahkan masukan kembali");
     } finally {
@@ -416,27 +587,40 @@ export default function RequestGamePage() {
   // Handle Card Action based on active tab
   const handleCardAction = (id: string) => {
     if (activeTab === "my-requests") {
-      // Cancel request
-      setMyRequests((prev) => prev.filter((item) => item.id !== id));
-      handleToast("Request game berhasil dibatalkan.");
+      // Cancel request from My Requests and localStorage
+      setMyRequests((prev) => {
+        const updated = prev.filter((item) => item.id !== id);
+        try {
+          localStorage.setItem(
+            LOCAL_STORAGE_KEY_MY_REQUESTS,
+            JSON.stringify(updated)
+          );
+        } catch (e) {
+          console.error("Gagal mengupdate localStorage:", e);
+        }
+        return updated;
+      });
+      handleToast("Request game berhasil dibatalkan.", "error");
     } else if (activeTab === "community") {
-      // Toggle Upvote / Unvote
+      // Toggle Upvote / Unvote and update localStorage
       const targetItem = communityRequests.find((item) => item.id === id);
-      const isCurrentlyUpvoted = Boolean(targetItem?.isUpvoted);
+      const wasUpvoted = Boolean(targetItem?.isUpvoted);
       const numericId = parseInt(id.replace(/\D/g, ""), 10);
 
       if (numericId && !isNaN(numericId)) {
-        if (isCurrentlyUpvoted) {
+        if (wasUpvoted) {
           unvoteMutation.mutate(numericId);
         } else {
           voteMutation.mutate(numericId);
         }
       }
 
-      setCommunityRequests((prev) =>
-        prev.map((item) => {
+      setCommunityRequests((prev) => {
+        let isNowUpvoted = false;
+        const updated = prev.map((item) => {
           if (item.id === id) {
             const nextUpvoted = !item.isUpvoted;
+            isNowUpvoted = nextUpvoted;
             return {
               ...item,
               isUpvoted: nextUpvoted,
@@ -446,10 +630,36 @@ export default function RequestGamePage() {
             };
           }
           return item;
-        })
-      );
+        });
+
+        try {
+          localStorage.setItem(
+            LOCAL_STORAGE_KEY_COMMUNITY_REQUESTS,
+            JSON.stringify(updated)
+          );
+          const savedUpvotes = localStorage.getItem(LOCAL_STORAGE_KEY_UPVOTED);
+          const currentUpvotes: string[] = savedUpvotes
+            ? JSON.parse(savedUpvotes)
+            : [];
+          let nextUpvotes: string[];
+          if (isNowUpvoted) {
+            nextUpvotes = Array.from(new Set([...currentUpvotes, id]));
+          } else {
+            nextUpvotes = currentUpvotes.filter((x: string) => x !== id);
+          }
+          localStorage.setItem(
+            LOCAL_STORAGE_KEY_UPVOTED,
+            JSON.stringify(nextUpvotes)
+          );
+        } catch (e) {
+          console.error("Gagal menyimpan vote ke localStorage:", e);
+        }
+
+        return updated;
+      });
+
       handleToast(
-        isCurrentlyUpvoted
+        wasUpvoted
           ? "Dukungan vote berhasil dibatalkan."
           : "Dukungan vote berhasil ditambahkan!"
       );
@@ -459,30 +669,88 @@ export default function RequestGamePage() {
     }
   };
 
-  // Determine current display list based on active tab
+  // Determine current display list based on active tab with API fallback
   const currentItems = React.useMemo(() => {
     if (forceEmptyState) return [];
-    if (requestsApiRes?.data && requestsApiRes.data.length > 0) {
-      return requestsApiRes.data.map((r, index) => {
-        const fallback = productsData.tawaranKhusus[index % productsData.tawaranKhusus.length];
-        const steamAppId = extractSteamAppId(r.steam_url);
-        return {
-          id: String(r.id),
-          title: r.name,
-          imageSrc: steamAppId
-            ? `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${steamAppId}/library_600x900_2x.jpg`
-            : fallback?.imageSrc || "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-          requestDate: new Date(r.created_at || Date.now()).toLocaleDateString("id-ID"),
-          requestCount: r.request_count || 1,
-          isUpvoted: false,
-        };
-      });
+
+    if (activeTab === "my-requests") {
+      if (requestsApiRes?.data && requestsApiRes.data.length > 0 && scope === "mine") {
+        const apiItems: RequestGameData[] = requestsApiRes.data.map((r, index) => {
+          const fallback = productsData.tawaranKhusus[index % productsData.tawaranKhusus.length];
+          const steamAppId = extractSteamAppId(r.steam_url);
+          return {
+            id: String(r.id),
+            title: r.name,
+            imageSrc: steamAppId
+              ? `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${steamAppId}/library_600x900_2x.jpg`
+              : fallback?.imageSrc ||
+                "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+            requestDate: new Date(r.created_at || Date.now()).toLocaleDateString("id-ID"),
+            requestCount: r.request_count || 1,
+            isUpvoted: false,
+          };
+        });
+        const localOnly = myRequests.filter(
+          (m) => !apiItems.some((a) => a.title.toLowerCase() === m.title.toLowerCase())
+        );
+        return [...localOnly, ...apiItems];
+      }
+      return myRequests;
     }
-    if (activeTab === "my-requests") return myRequests;
-    if (activeTab === "community") return communityRequests;
-    if (activeTab === "added") return addedRequests;
+
+    if (activeTab === "community") {
+      if (requestsApiRes?.data && requestsApiRes.data.length > 0 && scope === "all") {
+        const apiItems: RequestGameData[] = requestsApiRes.data.map((r, index) => {
+          const fallback = productsData.tawaranKhusus[index % productsData.tawaranKhusus.length];
+          const steamAppId = extractSteamAppId(r.steam_url);
+          return {
+            id: String(r.id),
+            title: r.name,
+            imageSrc: steamAppId
+              ? `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${steamAppId}/library_600x900_2x.jpg`
+              : fallback?.imageSrc ||
+                "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+            requestDate: new Date(r.created_at || Date.now()).toLocaleDateString("id-ID"),
+            requestCount: r.request_count || 1,
+            isUpvoted: false,
+          };
+        });
+        const localOnly = communityRequests.filter(
+          (c) => !apiItems.some((a) => a.title.toLowerCase() === c.title.toLowerCase())
+        );
+        return [...localOnly, ...apiItems];
+      }
+      return communityRequests;
+    }
+
+    if (activeTab === "added") {
+      return addedRequests;
+    }
+
     return [];
-  }, [activeTab, forceEmptyState, requestsApiRes, myRequests, communityRequests, addedRequests]);
+  }, [
+    activeTab,
+    forceEmptyState,
+    requestsApiRes,
+    scope,
+    myRequests,
+    communityRequests,
+    addedRequests,
+  ]);
+
+  // Paginated items
+  const totalPages = Math.max(1, Math.ceil(currentItems.length / ITEMS_PER_PAGE));
+  const paginatedItems = React.useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return currentItems.slice(start, start + ITEMS_PER_PAGE);
+  }, [currentItems, currentPage]);
+
+  // Safeguard page bounds
+  React.useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
 
   const currentVariant: RequestCardVariant = React.useMemo(() => {
     if (activeTab === "my-requests") return "my-request";
@@ -594,11 +862,8 @@ export default function RequestGamePage() {
                   <button
                     key={tab.id}
                     type="button"
-                    onClick={() => {
-                      setActiveTab(tab.id);
-                      setForceEmptyState(false);
-                    }}
-                    className={`relative pb-3 pt-2 sm:text-center text-label-xs sm:text-label-sm font-medium transition-all duration-150 cursor-pointer  sm:px-5 ${
+                    onClick={() => handleTabChange(tab.id)}
+                    className={`relative pb-3 pt-2 sm:text-center text-label-xs sm:text-label-sm font-medium transition-all duration-150 cursor-pointer sm:px-5 ${
                       isActive
                         ? "text-gray-50 font-semibold"
                         : "text-gray-400 hover:text-gray-50"
@@ -622,7 +887,7 @@ export default function RequestGamePage() {
             <div className="flex flex-col gap-16">
               {/* 2-Column Grid matching Screenshot 1, 2, 3 */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {currentItems.map((game) => (
+                {paginatedItems.map((game) => (
                   <RequestListItem
                     key={game.id}
                     id={game.id}
@@ -641,7 +906,7 @@ export default function RequestGamePage() {
               <div className="flex justify-center pt-4 pb-8">
                 <Pagination
                   currentPage={currentPage}
-                  totalPages={25}
+                  totalPages={totalPages}
                   onPageChange={setCurrentPage}
                 />
               </div>
@@ -675,6 +940,12 @@ export default function RequestGamePage() {
                   onClick={() => {
                     setForceEmptyState(false);
                     setMyRequests(INITIAL_MY_REQUESTS);
+                    try {
+                      localStorage.setItem(
+                        LOCAL_STORAGE_KEY_MY_REQUESTS,
+                        JSON.stringify(INITIAL_MY_REQUESTS)
+                      );
+                    } catch (e) {}
                   }}
                   className=" px-5 py-3 cursor-pointer "
                 >
@@ -695,9 +966,14 @@ export default function RequestGamePage() {
         </div>
 
         {/* TOAST FEEDBACK */}
-        {toastMessage && (
-          <div className="fixed bottom-6 right-6 z-50 animate-slide-in-right">
-            <Toast variant="success" title="Notifikasi" description={toastMessage} />
+        {toast && (
+          <div className="fixed top-4 left-4 right-4 md:top-auto md:left-auto md:bottom-6 md:right-6 z-50 md:w-auto md:min-w-80 md:max-w-105 animate-fade-in">
+            <Toast
+              variant={toast.variant}
+              title={toast.title}
+              description={toast.description}
+              onClose={() => setToast(null)}
+            />
           </div>
         )}
       </StoreLayout>

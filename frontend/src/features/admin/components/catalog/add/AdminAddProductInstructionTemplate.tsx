@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
+import { InputField } from "@/components/ui/InputField";
 import {
   DEFAULT_INSTRUCTION_TEMPLATES,
   type InstructionTemplateItem,
@@ -259,17 +260,18 @@ export function AdminAddProductInstructionTemplate({
               Anda belum mengisi template untuk instruksi.
             </p>
 
-            <button
+            <Button
               type="button"
+              variant="outline"
+              size="sm"
               onClick={() => {
                 setSearchQuery("");
                 setIsChooseModalOpen(true);
               }}
-              className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1E202B] hover:bg-[#272A38] border border-deep-blue-700 text-label-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-all shadow-sm cursor-pointer whitespace-nowrap"
+              leftIcon={<PlusIcon className="w-3.5 h-3.5" />}
             >
-              <PlusIcon className="w-3.5 h-3.5 shrink-0" />
               <span>Create New Template</span>
-            </button>
+            </Button>
           </div>
         </div>
       )}
@@ -290,7 +292,7 @@ export function AdminAddProductInstructionTemplate({
             onClick={() => setIsChooseModalOpen(false)}
           />
 
-          <div className="relative z-10 w-[760px] max-w-[95vw] rounded-lg bg-[#13151F] border border-deep-blue-700 p-6 select-none animate-in zoom-in-95 duration-150 text-gray-200 flex flex-col gap-5 shadow-2xl">
+          <div className="relative z-10 w-[760px] max-w-[95vw] rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-6 select-none animate-in zoom-in-95 duration-150 text-gray-200 flex flex-col gap-5 shadow-2xl">
             {/* Header: Title + Close Button */}
             <div className="flex items-center justify-between pb-3 border-b border-deep-blue-700/80">
               <h3
@@ -320,7 +322,7 @@ export function AdminAddProductInstructionTemplate({
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
                     placeholder="Cari di toko"
-                    className="w-full h-10 pl-9 pr-8 bg-[#15161D] border border-deep-blue-700 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
+                    className="w-full h-10 pl-9 pr-8 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
                   />
                   {searchQuery && (
                     <button
@@ -337,7 +339,7 @@ export function AdminAddProductInstructionTemplate({
                 {/* Filter Funnel Button */}
                 <button
                   type="button"
-                  className="h-10 px-3 rounded-lg bg-[#15161D] hover:bg-[#1E202B] border border-deep-blue-700 text-gray-400 hover:text-white transition-colors cursor-pointer shrink-0"
+                  className="h-10 px-3 rounded-lg bg-deep-blue-900 hover:bg-[#1E202B] border border-deep-blue-700 text-gray-400 hover:text-white transition-colors cursor-pointer shrink-0"
                   aria-label="Filter template"
                 >
                   <FilterIcon className="w-4 h-4" />
@@ -345,14 +347,15 @@ export function AdminAddProductInstructionTemplate({
               </div>
 
               {/* Create New Template Button */}
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                size="sm"
                 onClick={handleOpenCreateFromChoose}
-                className="inline-flex items-center gap-2 h-10 px-4 rounded-lg bg-[#1E202B] hover:bg-[#272A38] border border-deep-blue-700 text-label-xs sm:text-sm font-medium text-white transition-colors cursor-pointer shrink-0"
+                leftIcon={<PlusIcon className="w-3.5 h-3.5" />}
               >
-                <PlusIcon className="w-3.5 h-3.5" />
                 <span>Create New Template</span>
-              </button>
+              </Button>
             </div>
 
             {/* Body: List or Empty State */}
@@ -362,7 +365,7 @@ export function AdminAddProductInstructionTemplate({
                 {filteredTemplates.map((tpl) => (
                   <div
                     key={tpl.id}
-                    className="w-full rounded-lg bg-[#15161D] border border-deep-blue-700/80 p-4 flex items-center justify-between gap-4 hover:border-gray-500 transition-colors"
+                    className="w-full rounded-lg bg-deep-blue-900 border border-deep-blue-700 p-4 flex items-center justify-between gap-4 hover:border-gray-500 transition-colors"
                   >
                     {/* Left: Red Accent Strip + Info */}
                     <div className="flex items-start gap-3.5 border-l-2 border-[#DF3848] pl-3.5 min-w-0">
@@ -386,13 +389,14 @@ export function AdminAddProductInstructionTemplate({
                       <span className="text-label-xs text-gray-400 hidden sm:inline">
                         {tpl.lastEdit}
                       </span>
-                      <button
+                      <Button
                         type="button"
+                        variant="outline"
+                        size="xs"
                         onClick={() => handleSelectTemplate(tpl)}
-                        className="px-4 py-1.5 rounded-lg bg-[#1E202B] hover:bg-[#272A38] border border-deep-blue-700 text-label-xs font-medium text-white transition-colors cursor-pointer"
                       >
                         Choose
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 ))}
@@ -409,14 +413,15 @@ export function AdminAddProductInstructionTemplate({
                 <p className="text-label-xs sm:text-sm text-gray-400 mb-6 font-normal">
                   Tidak ditemukan template untuk kategori instruksi.
                 </p>
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={handleOpenCreateFromChoose}
-                  className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1E202B] hover:bg-[#272A38] border border-deep-blue-700 text-label-xs sm:text-sm font-medium text-white transition-colors cursor-pointer shadow-sm"
+                  leftIcon={<PlusIcon className="w-3.5 h-3.5" />}
                 >
-                  <PlusIcon className="w-3.5 h-3.5" />
                   <span>Create New Template</span>
-                </button>
+                </Button>
               </div>
             )}
           </div>
@@ -439,7 +444,7 @@ export function AdminAddProductInstructionTemplate({
             onClick={() => setIsCreateModalOpen(false)}
           />
 
-          <div className="relative z-10 w-[540px] max-w-[95vw] rounded-lg bg-[#13151F] border border-deep-blue-700 shadow-2xl p-6 select-none animate-in zoom-in-95 duration-150 text-gray-200">
+          <div className="relative z-10 w-[540px] max-w-[95vw] rounded-lg bg-deep-blue-950 border border-deep-blue-700 shadow-2xl p-6 select-none animate-in zoom-in-95 duration-150 text-gray-200">
             <div className="flex items-center justify-between pb-4 border-b border-deep-blue-700">
               <h4
                 id="create-template-title"
@@ -458,22 +463,17 @@ export function AdminAddProductInstructionTemplate({
             </div>
 
             <form onSubmit={handleSaveNewTemplate} className="py-4 space-y-4">
-              <div>
-                <label className="block text-label-xs font-semibold text-gray-400 uppercase mb-1.5">
-                  Nama Template
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={newTitle}
-                  onChange={(e) => setNewTitle(e.target.value)}
-                  placeholder="Contoh: Panduan Download Steam Offline"
-                  className="w-full h-10 px-3 bg-[#15161D] border border-deep-blue-700 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400"
-                />
-              </div>
+              <InputField
+                label="NAMA TEMPLATE"
+                required
+                value={newTitle}
+                onChange={(e) => setNewTitle(e.target.value)}
+                placeholder="Contoh: Panduan Download Steam Offline"
+                className="bg-deep-blue-900 hover:border-gray-500 text-white"
+              />
 
-              <div>
-                <label className="block text-label-xs font-semibold text-gray-400 uppercase mb-1.5">
+              <div className="flex flex-col gap-2">
+                <label className="text-body-xs font-normal text-gray-400">
                   Instruksi / Langkah-Langkah
                 </label>
                 <textarea
@@ -481,24 +481,26 @@ export function AdminAddProductInstructionTemplate({
                   value={newDescription}
                   onChange={(e) => setNewDescription(e.target.value)}
                   placeholder="1. Login Steam menggunakan kredensial akun&#10;2. Masuk ke library dan mulai unduh game&#10;3. Aktifkan offline mode setelah selesai..."
-                  className="w-full p-3 bg-[#15161D] border border-deep-blue-700 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 resize-none"
+                  className="w-full p-3 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-label-xs sm:text-body-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 resize-none transition-colors"
                 />
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-3 border-t border-deep-blue-700/80">
-                <button
+                <Button
                   type="button"
+                  variant="inactive"
+                  size="sm"
                   onClick={() => setIsCreateModalOpen(false)}
-                  className="px-4 py-2 rounded-lg text-gray-300 hover:text-white hover:bg-white/5 text-label-xs sm:text-sm font-medium transition-colors cursor-pointer"
                 >
                   Batalkan
-                </button>
-                <button
+                </Button>
+                <Button
                   type="submit"
-                  className="px-6 py-2.5 rounded-lg bg-gradient-to-r from-[#DF3848] to-[#FF5364] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold shadow-sm transition-all cursor-pointer"
+                  variant="primary"
+                  size="sm"
                 >
                   Simpan Template
-                </button>
+                </Button>
               </div>
             </form>
           </div>

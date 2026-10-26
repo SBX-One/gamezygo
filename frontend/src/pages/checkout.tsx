@@ -657,7 +657,7 @@ export default function CheckoutPage() {
         {/* ========================================================
             1. PAGE TITLE & FULL-WIDTH DIVIDER (With Back Button)
            ======================================================== */}
-        <div className="w-full border-b-gradient-secondary py-10 pb-4 mb-20 flex items-center justify-between">
+        <div className="w-full border-b-gradient-secondary py-10 pb-4 mb-10 lg:mb-20 flex items-center justify-between">
           <div className="w-full mx-auto px-4 sm:px-0 flex items-center gap-3">
             <button
               type="button"
@@ -678,7 +678,7 @@ export default function CheckoutPage() {
         {/* ========================================================
             2. TWO-COLUMN LAYOUT: Left (Item List) & Right (Detail Transaksi)
            ======================================================== */}
-        <div className="grid grid-cols-1 lg:grid-cols-14 gap-8 lg:gap-12 items-start w-full mb-24">
+        <div className="flex flex-col-reverse lg:grid lg:grid-cols-14 gap-8 lg:gap-12 items-start w-full mb-24">
           {/* ======================================================
               LEFT COLUMN: Subheader (Total: N Items) + Items List
              ====================================================== */}
@@ -732,7 +732,7 @@ export default function CheckoutPage() {
           {/* ======================================================
               RIGHT COLUMN: "Detail Transaksi" Checkout Summary Card
              ====================================================== */}
-          <div className="lg:col-span-6 w-full sticky top-28">
+          <div className="lg:col-span-6 w-full lg:sticky top-28">
             <div className="rounded-lg border-gradient-secondary p-6 flex flex-col gap-8 bg-surface-secondary-default/50 backdrop-blur-md">
               {/* VOUCHER SECTION */}
               <div className="flex flex-col gap-3">
@@ -1010,11 +1010,12 @@ export default function CheckoutPage() {
 
         {/* Toast Feedback Notification */}
         {toastMessage && (
-          <div className="fixed bottom-6 right-6 z-50 animate-slide-in-right">
+          <div className="fixed top-4 left-4 right-4 md:top-auto md:left-auto md:bottom-6 md:right-6 z-50 md:w-auto md:min-w-80 md:max-w-105 animate-fade-in">
             <Toast
               variant={toastMessage.type === "success" ? "success" : "error"}
               title={toastMessage.title}
               description={toastMessage.description}
+              onClose={() => setToastMessage(null)}
             />
           </div>
         )}

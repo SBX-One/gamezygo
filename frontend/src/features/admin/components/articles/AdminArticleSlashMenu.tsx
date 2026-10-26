@@ -260,7 +260,7 @@ export function AdminArticleSlashMenu({
           : undefined
       }
       className={cn(
-        "z-50 w-72 max-h-80 overflow-y-auto rounded-lg bg-[#13151F] border border-white/10 p-1.5 shadow-none select-none animate-in fade-in zoom-in-95 duration-100",
+        "z-50 w-72 max-h-80 overflow-y-auto rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-1.5 shadow-none select-none animate-in fade-in zoom-in-95 duration-100",
         position ? "absolute" : "relative mt-1",
         className
       )}

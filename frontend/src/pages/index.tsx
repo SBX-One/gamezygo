@@ -1,4 +1,4 @@
-import * as React from "react";
+﻿import * as React from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -1829,7 +1829,7 @@ export default function LandingPage() {
 
         {/* Notification Toast */}
         {toastMessage && (
-          <div className="fixed bottom-6 right-6 z-50 max-w-sm">
+          <div className="fixed top-4 left-4 right-4 md:top-auto md:left-auto md:bottom-6 md:right-6 z-50 md:w-auto md:min-w-80 md:max-w-105 animate-fade-in">
             <Toast
               variant="success"
               title="Berhasil"

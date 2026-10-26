@@ -101,7 +101,7 @@ export function AdminAddProductLauncherSection({
                 onChange({ storeUrl: e.target.value });
               }}
               placeholder="Link store"
-              className="w-full h-10 px-4 pr-10 bg-deep-blue-900  rounded-lg text-label-xs sm:text-body-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
+              className="w-full h-10 px-4 pr-10 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-label-xs sm:text-body-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
             />
             {formData.storeUrl && (
               <button 

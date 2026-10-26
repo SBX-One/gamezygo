@@ -449,7 +449,7 @@ export function AdminAddVoucherDateRange({
             <label className="block text-label-xs font-semibold text-gray-400 tracking-wider uppercase mb-2">
               START DATE
             </label>
-            <div className="h-11 px-4 bg-deep-blue-950 border border-deep-blue-700 rounded-lg text-sm font-medium text-white flex items-center justify-between cursor-pointer">
+            <div className="h-11 px-4 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm font-medium text-white flex items-center justify-between cursor-pointer hover:border-gray-500 transition-colors">
               <span>{formData.startDate || "Pilih tanggal mulai"}</span>
               <ChevronDownIcon className="text-gray-400" />
             </div>
@@ -460,7 +460,7 @@ export function AdminAddVoucherDateRange({
             <label className="block text-label-xs font-semibold text-gray-400 tracking-wider uppercase mb-2">
               END DATE
             </label>
-            <div className="h-11 px-4 bg-deep-blue-950 border border-deep-blue-700 rounded-lg text-sm font-medium text-white flex items-center justify-between cursor-pointer">
+            <div className="h-11 px-4 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm font-medium text-white flex items-center justify-between cursor-pointer hover:border-gray-500 transition-colors">
               <span>{formData.endDate || "Pilih tanggal berakhir"}</span>
               <ChevronDownIcon className="text-gray-400" />
             </div>

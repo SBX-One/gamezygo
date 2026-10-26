@@ -104,7 +104,7 @@ export function Toast({
       {/* 2. Main Content (Title & Description) */}
       <div className="flex-1 flex flex-col gap-1 min-w-0 pr-2">
         {title && (
-          <h4 className="toast-title font-semibold text-body-lg ">
+          <h4 className="toast-title font-semibold text-body-sm ">
             {title}
           </h4>
         )}

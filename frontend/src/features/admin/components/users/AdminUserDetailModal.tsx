@@ -137,19 +137,16 @@ export function AdminUserDetailModal({
             </label>
             <div className="flex gap-2">
               {(["Pending", "Active", "Suspended"] as UserStatus[]).map((st) => (
-                <button
+                <Button
                   key={st}
                   type="button"
+                  variant={selectedStatus === st ? "active" : "inactive"}
+                  size="xs"
                   onClick={() => setSelectedStatus(st)}
-                  className={cn(
-                    "flex-1 py-2 text-label-xs font-medium rounded-lg border transition-colors cursor-pointer",
-                    selectedStatus === st
-                      ? "bg-deep-blue-800 border-indigo-500 text-white"
-                      : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-400 hover:text-white"
-                  )}
+                  className="flex-1 justify-center"
                 >
                   {st}
-                </button>
+                </Button>
               ))}
             </div>
           </div>

@@ -13,6 +13,7 @@ import {
 import { AdminSwitch } from "@/components/admin/AdminSwitch";
 import { AdminCheckbox } from "@/components/admin/AdminCheckbox";
 import { Pill } from "@/components/ui/Pill";
+import { Button } from "@/components/ui/Button";
 import type { AdminCatalogItem } from "../../types/admin-catalog.types";
 
 export interface AdminCatalogTableProps {
@@ -179,30 +180,33 @@ export function AdminCatalogTable({
   const cardHeaderRight = (
     <div className="flex items-center gap-3 shrink-0 flex-wrap">
       {/* 1. Add New Button */}
-      <button
+      <Button
         type="button"
+        variant="outline"
+        size="xs"
         onClick={onAddNew}
-        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[#1E202B] hover:bg-[#252837] border border-deep-blue-700 text-label-xs font-medium text-white transition-colors cursor-pointer shadow-sm select-none shrink-0"
+        leftIcon={<PlusIcon className="w-3.5 h-3.5" />}
+        className="px-3 py-2"
       >
-        <PlusIcon className="w-3.5 h-3.5" />
         <span>Add New</span>
-      </button>
+      </Button>
 
       {/* 2. Delete Button (shown when items are selected or in filled state matching Image 3) */}
       {(hasSelected || items.length > 0) && (
-        <button
+        <Button
           type="button"
+          variant="inactive"
+          size="xs"
           onClick={onDeleteSelected}
           disabled={!hasSelected}
           className={cn(
-            "px-3 py-1.5 rounded-lg border text-label-xs font-medium transition-colors select-none shrink-0",
-            hasSelected
-              ? "bg-rose-500/15 border-rose-500/30 text-rose-300 hover:bg-rose-500/25 cursor-pointer"
-              : "bg-[#1E202B] border-deep-blue-700 text-gray-400 opacity-60 cursor-not-allowed"
+            "px-3 py-2",
+            hasSelected &&
+              "bg-rose-500/15 border-rose-500/30 text-rose-300 hover:bg-rose-500/25"
           )}
         >
           Delete
-        </button>
+        </Button>
       )}
     </div>
   );
@@ -336,7 +340,7 @@ export function AdminCatalogTable({
                       {isMenuOpen && (
                         <div
                           ref={menuRef}
-                          className="absolute right-0 top-8 z-30 min-w-37.5 rounded-lg bg-[#13151F] border border-white/10 p-3 shadow-2xl animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-2 text-left"
+                          className="absolute right-0 top-8 z-30 min-w-37.5 rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-3 shadow-2xl animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-2 text-left"
                         >
                           <button
                             type="button"
@@ -388,14 +392,15 @@ export function AdminCatalogTable({
                   </p>
 
                   {/* Action Button: + Tambah Produk */}
-                  <button
+                  <Button
                     type="button"
+                    variant="outline"
+                    size="sm"
                     onClick={onAddNew}
-                    className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1E202B] hover:bg-[#252837] border border-deep-blue-700 text-label-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-all shadow-sm cursor-pointer whitespace-nowrap"
+                    leftIcon={<PlusIcon className="w-4 h-4 shrink-0" />}
                   >
-                    <PlusIcon className="w-4 h-4 shrink-0" />
                     <span>Tambah Produk</span>
-                  </button>
+                  </Button>
                 </div>
               </td>
             </tr>

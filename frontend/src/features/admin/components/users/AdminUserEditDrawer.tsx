@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 import type { AdminUserItem } from "../../types/admin-user.types";
 
 export interface AdminUserEditDrawerProps {
@@ -209,19 +210,21 @@ export function AdminUserEditDrawer({
 
           {/* Action Buttons: Batalkan & Simpan (Matching Screenshot Colors & Alignment) */}
           <div className="flex items-center justify-end gap-3 pt-4">
-            <button
+            <Button
               type="button"
+              variant="inactive"
+              size="sm"
               onClick={onClose}
-              className="px-5 py-2 rounded-lg text-label-xs font-semibold border border-deep-blue-700 bg-[#161c2c] hover:bg-deep-blue-900 text-gray-200 transition-colors cursor-pointer"
             >
               Batalkan
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="px-5 py-2 rounded-lg text-label-xs font-semibold bg-[#b93838] hover:bg-[#c93e3e] text-white transition-colors cursor-pointer border border-[#9b2c2c]"
+              variant="primary"
+              size="sm"
             >
               Simpan
-            </button>
+            </Button>
           </div>
         </form>
       </div>

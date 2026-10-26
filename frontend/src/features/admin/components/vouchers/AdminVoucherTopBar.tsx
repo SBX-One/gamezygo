@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { FilterModal } from "@/components/ui/FilterModal";
 import type { AdminVoucherFilterState } from "../../types/admin-voucher.types";
 
 export interface AdminVoucherTopBarProps {
@@ -44,19 +45,58 @@ const ClearIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 const FilterIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
-    width="16"
-    height="16"
+    width="24"
+    height="24"
     viewBox="0 0 24 24"
     fill="none"
-    stroke="currentColor"
-    strokeWidth="1.8"
-    strokeLinecap="round"
-    strokeLinejoin="round"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-4 h-4 shrink-0"
     {...props}
   >
-    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+    <path
+      d="M13.5 16C13.6989 16 13.8897 16.079 14.0303 16.2197C14.171 16.3603 14.25 16.5511 14.25 16.75C14.25 16.9489 14.171 17.1397 14.0303 17.2803C13.8897 17.421 13.6989 17.5 13.5 17.5H10.5C10.3011 17.5 10.1103 17.421 9.96967 17.2803C9.82902 17.1397 9.75 16.9489 9.75 16.75C9.75 16.5511 9.82902 16.3603 9.96967 16.2197C10.1103 16.079 10.3011 16 10.5 16H13.5ZM16.5 11C16.6989 11 16.8897 11.079 17.0303 11.2197C17.171 11.3603 17.25 11.5511 17.25 11.75C17.25 11.9489 17.171 12.1397 17.0303 12.2803C16.8897 12.421 16.6989 12.5 16.5 12.5H7.5C7.30109 12.5 7.11032 12.421 6.96967 12.2803C6.82902 12.1397 6.75 11.9489 6.75 11.75C6.75 11.5511 6.82902 11.3603 6.96967 11.2197C7.11032 11.079 7.30109 11 7.5 11H16.5ZM19.5 6C19.6989 6 19.8897 6.07902 20.0303 6.21967C20.171 6.36032 20.25 6.55109 20.25 6.75C20.25 6.94891 20.171 7.13968 20.0303 7.28033C19.8897 7.42098 19.6989 7.5 19.5 7.5H4.5C4.30109 7.5 4.11032 7.42098 3.96967 7.28033C3.82902 7.13968 3.75 6.94891 3.75 6.75C3.75 6.55109 3.82902 6.36032 3.96967 6.21967C4.11032 6.07902 4.30109 6 4.5 6H19.5Z"
+      fill="currentColor"
+    />
   </svg>
 );
+
+const STATUS_MAP: Record<string, AdminVoucherFilterState["status"]> = {
+  Semua: "all",
+  Active: "active",
+  Inactive: "inactive",
+  Expired: "expired",
+  Draft: "draft",
+};
+
+const STATUS_REVERSE_MAP: Record<AdminVoucherFilterState["status"], string> = {
+  all: "Semua",
+  active: "Active",
+  inactive: "Inactive",
+  expired: "Expired",
+  draft: "Draft",
+};
+
+const SORT_MAP: Record<string, AdminVoucherFilterState["sortBy"]> = {
+  Terbaru: "terbaru",
+  "Kode (A - Z)": "code_asc",
+  "Nilai Tertinggi": "value_desc",
+  "Nilai Terendah": "value_asc",
+};
+
+const SORT_REVERSE_MAP: Record<AdminVoucherFilterState["sortBy"], string> = {
+  terbaru: "Terbaru",
+  code_asc: "Kode (A - Z)",
+  value_desc: "Nilai Tertinggi",
+  value_asc: "Nilai Terendah",
+};
+
+const VOUCHER_STATUS_OPTIONS = ["Semua", "Active", "Inactive", "Expired", "Draft"];
+const VOUCHER_SORT_OPTIONS = [
+  "Terbaru",
+  "Kode (A - Z)",
+  "Nilai Tertinggi",
+  "Nilai Terendah",
+];
 
 export function AdminVoucherTopBar({
   filters,
@@ -64,32 +104,14 @@ export function AdminVoucherTopBar({
   className,
 }: AdminVoucherTopBarProps) {
   const [isPopoverOpen, setIsPopoverOpen] = React.useState(false);
-  const popoverRef = React.useRef<HTMLDivElement>(null);
-
-  React.useEffect(() => {
-    function handleClickOutside(event: MouseEvent) {
-      if (
-        popoverRef.current &&
-        !popoverRef.current.contains(event.target as Node)
-      ) {
-        setIsPopoverOpen(false);
-      }
-    }
-    if (isPopoverOpen) {
-      document.addEventListener("mousedown", handleClickOutside);
-    }
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, [isPopoverOpen]);
 
   const hasActiveFilters =
     filters.status !== "all" || filters.sortBy !== "terbaru";
 
   return (
-    <div className={cn("relative flex items-center gap-3", className)}>
-      {/* Search Input (Matching Image 1: Cari voucher) */}
-      <div className="relative flex items-center w-52 sm:w-64">
+    <div className={cn("relative flex items-center gap-3 sm:gap-4 select-none", className)}>
+      {/* Search Input (Matching Catalog Design) */}
+      <div className="relative flex items-center w-48 sm:w-64">
         <div className="absolute left-3 text-gray-400 pointer-events-none flex items-center">
           <SearchIcon className="w-4 h-4" />
         </div>
@@ -100,7 +122,7 @@ export function AdminVoucherTopBar({
             onFilterChange({ ...filters, searchQuery: e.target.value })
           }
           placeholder="Cari voucher"
-          className="w-full h-9 pl-9 pr-8 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-label-xs text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors select-none"
+          className="w-full h-10 pl-9 pr-8 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-label-xs text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors select-none"
         />
         {filters.searchQuery && (
           <button
@@ -114,14 +136,14 @@ export function AdminVoucherTopBar({
         )}
       </div>
 
-      {/* Filter Funnel Button (Matching Image 1: [ ▽ ]) */}
-      <div className="relative" ref={popoverRef}>
+      {/* Filter Funnel Button with Base FilterModal */}
+      <div className={cn("relative shrink-0", isPopoverOpen && "z-30")}>
         <button
           type="button"
           onClick={() => setIsPopoverOpen(!isPopoverOpen)}
           aria-label="Filter dan Urutkan Voucher"
           className={cn(
-            "h-9 w-9 rounded-lg border flex items-center justify-center transition-all cursor-pointer relative",
+            "h-10 w-10 rounded-lg border flex items-center justify-center transition-all cursor-pointer relative shrink-0",
             isPopoverOpen || hasActiveFilters
               ? "bg-[#1E202B] border-gray-400 text-white"
               : "bg-deep-blue-900 border-deep-blue-700 text-gray-300 hover:text-white hover:border-gray-500"
@@ -129,105 +151,63 @@ export function AdminVoucherTopBar({
         >
           <FilterIcon className="w-4 h-4" />
           {hasActiveFilters && (
-            <span className="absolute top-1.5 right-1.5 w-1.5 h-1.5 rounded-full bg-[#FF5364]" />
+            <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#FF5364]" />
           )}
         </button>
 
-        {/* Filter & Sort Dropdown Popover */}
-        {isPopoverOpen && (
-          <div className="absolute right-0 top-11 w-64 rounded-lg bg-[#0F111A] border border-deep-blue-700 p-4 shadow-2xl z-50 animate-in fade-in zoom-in-95 duration-150 font-sans">
-            <div className="space-y-4">
-              {/* Header */}
-              <div className="flex items-center justify-between border-b border-deep-blue-700 pb-2">
-                <span className="text-label-xs font-bold text-white uppercase tracking-wider">
-                  Filter & Sort
-                </span>
-                {hasActiveFilters && (
-                  <button
-                    type="button"
-                    onClick={() =>
-                      onFilterChange({
-                        ...filters,
-                        status: "all",
-                        sortBy: "terbaru",
-                      })
-                    }
-                    className="text-[11px] text-gray-400 hover:text-white underline cursor-pointer"
-                  >
-                    Reset
-                  </button>
-                )}
-              </div>
+        {/* Base FilterModal matching Gambar 1 */}
+        <FilterModal
+          isOpen={isPopoverOpen}
+          variant="dropdown"
+          placement="content"
+          onClose={() => setIsPopoverOpen(false)}
+          title="Filter & Sort"
+          categories={[]}
+          launchers={[]}
+          showPriceRange={false}
+          genresLabel="REWARD STATUS"
+          genres={VOUCHER_STATUS_OPTIONS}
+          selectedGenres={[STATUS_REVERSE_MAP[filters.status] || "Semua"]}
+          onToggleGenre={(lbl) => {
+            const nextStatus = STATUS_MAP[lbl] || "all";
+            onFilterChange({ ...filters, status: nextStatus });
+          }}
+          sortOptions={VOUCHER_SORT_OPTIONS}
+          selectedSort={SORT_REVERSE_MAP[filters.sortBy] || "Terbaru"}
+          onSelectSort={(sort) => {
+            const nextSort = SORT_MAP[sort] || "terbaru";
+            onFilterChange({ ...filters, sortBy: nextSort });
+          }}
+          showCancelButton={false}
+          onReset={() => {
+            onFilterChange({
+              ...filters,
+              status: "all",
+              sortBy: "terbaru",
+            });
+            setIsPopoverOpen(false);
+          }}
+          onApply={(values) => {
+            if (values) {
+              const selectedGenre =
+                values.genres && values.genres.length > 0 ? values.genres[0] : null;
+              const nextStatus = selectedGenre
+                ? STATUS_MAP[selectedGenre] || "all"
+                : filters.status;
+              const nextSort = values.sort
+                ? SORT_MAP[values.sort] || "terbaru"
+                : filters.sortBy;
 
-              {/* Status Filter */}
-              <div className="space-y-2">
-                <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide">
-                  Reward Status
-                </span>
-                <div className="grid grid-cols-2 gap-1.5">
-                  {(
-                    [
-                      { id: "all", label: "Semua" },
-                      { id: "active", label: "Active" },
-                      { id: "inactive", label: "Inactive" },
-                      { id: "expired", label: "Expired" },
-                      { id: "draft", label: "Draft" },
-                    ] as const
-                  ).map((st) => (
-                    <button
-                      key={st.id}
-                      type="button"
-                      onClick={() =>
-                        onFilterChange({ ...filters, status: st.id })
-                      }
-                      className={cn(
-                        "px-2.5 py-1.5 rounded-lg text-label-xs font-medium border text-center transition-colors cursor-pointer",
-                        filters.status === st.id
-                          ? "bg-indigo-600/30 border-indigo-500 text-white"
-                          : "bg-deep-blue-900 border-deep-blue-700 text-gray-300 hover:text-white"
-                      )}
-                    >
-                      {st.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              {/* Sort Filter */}
-              <div className="space-y-2">
-                <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wide">
-                  Urutkan
-                </span>
-                <div className="space-y-1">
-                  {(
-                    [
-                      { id: "terbaru", label: "Terbaru" },
-                      { id: "code_asc", label: "Kode (A - Z)" },
-                      { id: "value_desc", label: "Nilai Tertinggi" },
-                      { id: "value_asc", label: "Nilai Terendah" },
-                    ] as const
-                  ).map((srt) => (
-                    <button
-                      key={srt.id}
-                      type="button"
-                      onClick={() =>
-                        onFilterChange({ ...filters, sortBy: srt.id })
-                      }
-                      className={cn(
-                        "w-full px-2.5 py-1.5 rounded-lg text-label-xs text-left transition-colors cursor-pointer",
-                        filters.sortBy === srt.id
-                          ? "bg-indigo-600/20 text-white font-semibold"
-                          : "text-gray-400 hover:text-white hover:bg-white/5"
-                      )}
-                    >
-                      {srt.label}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+              onFilterChange({
+                ...filters,
+                status: nextStatus,
+                sortBy: nextSort,
+              });
+            }
+            setIsPopoverOpen(false);
+          }}
+          popoverClassName="w-80 sm:w-96 !h-auto max-h-[90vh] top-11 right-0 shadow-2xl"
+        />
       </div>
     </div>
   );

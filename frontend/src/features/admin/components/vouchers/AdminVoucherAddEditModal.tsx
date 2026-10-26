@@ -1,5 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
+import { InputField } from "@/components/ui/InputField";
 import type { AdminVoucherItem } from "../../types/admin-voucher.types";
 
 export interface AdminVoucherAddEditModalProps {
@@ -121,7 +123,7 @@ export function AdminVoucherAddEditModal({
     >
       <div
         className={cn(
-          "w-125 max-w-[95vw] rounded-lg bg-[#0F111A] border border-white/10 p-6 sm:p-7 shadow-2xl select-none animate-in zoom-in-95 duration-150 text-left space-y-6",
+          "w-125 max-w-[95vw] rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-6 sm:p-7 shadow-2xl select-none animate-in zoom-in-95 duration-150 text-left space-y-6",
           className
         )}
       >
@@ -148,82 +150,62 @@ export function AdminVoucherAddEditModal({
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Row 1: Voucher Code & Discount Value */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-label-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wide">
-                Kode Voucher
-              </label>
-              <input
-                type="text"
-                required
-                value={code}
-                onChange={(e) => setCode(e.target.value.toUpperCase())}
-                placeholder="Contoh: SUMMER26"
-                className="w-full h-10 px-3.5 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm font-semibold text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors uppercase tracking-wider"
-              />
-            </div>
+            <InputField
+              label="KODE VOUCHER"
+              type="text"
+              required
+              value={code}
+              onChange={(e) => setCode(e.target.value.toUpperCase())}
+              placeholder="Contoh: SUMMER26"
+              className="bg-deep-blue-900 hover:border-gray-500 text-white uppercase tracking-wider font-semibold"
+            />
 
-            <div>
-              <label className="block text-label-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wide">
-                Nilai Diskon (Rp)
-              </label>
-              <input
-                type="number"
-                required
-                min={1000}
-                step={1000}
-                value={discountAmount}
-                onChange={(e) => setDiscountAmount(e.target.value)}
-                placeholder="Contoh: 480000"
-                className="w-full h-10 px-3.5 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm font-semibold text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors"
-              />
-            </div>
+            <InputField
+              label="NILAI DISKON (RP)"
+              type="number"
+              required
+              min={1000}
+              step={1000}
+              value={discountAmount}
+              onChange={(e) => setDiscountAmount(e.target.value)}
+              placeholder="Contoh: 480000"
+              className="bg-deep-blue-900 hover:border-gray-500 text-white font-semibold"
+            />
           </div>
 
           {/* Row 2: Usage Limit & Validity Period */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div>
-              <label className="block text-label-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wide">
-                Batas Penggunaan (Limit)
-              </label>
-              <input
-                type="number"
-                min={1}
-                value={usageLimit}
-                onChange={(e) => setUsageLimit(e.target.value)}
-                placeholder="Contoh: 100"
-                className="w-full h-10 px-3.5 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors"
-              />
-            </div>
+            <InputField
+              label="BATAS PENGGUNAAN (LIMIT)"
+              type="number"
+              min={1}
+              value={usageLimit}
+              onChange={(e) => setUsageLimit(e.target.value)}
+              placeholder="Contoh: 100"
+              className="bg-deep-blue-900 hover:border-gray-500 text-white"
+            />
 
-            <div>
-              <label className="block text-label-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wide">
-                Periode Berlaku (DD/MM/YYYY)
-              </label>
-              <input
-                type="text"
-                value={validityPeriod}
-                onChange={(e) => setValidityPeriod(e.target.value)}
-                placeholder="Contoh: 22/07/2026"
-                className="w-full h-10 px-3.5 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors"
-              />
-            </div>
+            <InputField
+              label="PERIODE BERLAKU (DD/MM/YYYY)"
+              type="text"
+              value={validityPeriod}
+              onChange={(e) => setValidityPeriod(e.target.value)}
+              placeholder="Contoh: 22/07/2026"
+              className="bg-deep-blue-900 hover:border-gray-500 text-white"
+            />
           </div>
 
           {/* Row 3: Minimum Purchase */}
-          <div>
-            <label className="block text-label-xs font-semibold text-gray-300 mb-1.5 uppercase tracking-wide">
-              Minimal Belanja (Rp)
-            </label>
-            <input
-              type="number"
-              min={0}
-              step={5000}
-              value={minPurchase}
-              onChange={(e) => setMinPurchase(e.target.value)}
-              placeholder="Contoh: 500000"
-              className="w-full h-10 px-3.5 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-indigo-500 transition-colors"
-            />
-          </div>
+          <InputField
+            label="MINIMAL BELANJA (RP)"
+            type="number"
+            min={0}
+            step={5000}
+            value={minPurchase}
+            onChange={(e) => setMinPurchase(e.target.value)}
+            placeholder="Contoh: 500000"
+            className="bg-deep-blue-900 hover:border-gray-500 text-white"
+          />
 
           {/* Row 4: Description */}
           <div>
@@ -266,19 +248,21 @@ export function AdminVoucherAddEditModal({
 
           {/* Modal Actions */}
           <div className="flex items-center justify-end gap-3 pt-4 border-t border-deep-blue-700">
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
               onClick={onClose}
-              className="px-5 py-2.5 rounded-lg bg-[#181A22] hover:bg-[#222533] border border-white/10 text-white text-label-xs sm:text-sm font-semibold transition-colors cursor-pointer select-none"
             >
               Batal
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="px-6 py-2.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 active:scale-95 text-white text-label-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-sm select-none"
+              variant="primary"
+              size="sm"
             >
               {item ? "Simpan Perubahan" : "Buat Voucher"}
-            </button>
+            </Button>
           </div>
         </form>
       </div>

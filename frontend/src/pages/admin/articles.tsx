@@ -270,23 +270,26 @@ export default function AdminArticlesPage() {
             <div className="flex items-center gap-3">
               {/* Delete Button: Only shown when one or more cards are checked per user instruction */}
               {selectedIds.length > 0 && (
-                <button
-                  type="button"
+                <Button
+                  variant="inactive"
+                  size="xs"
                   onClick={handleDeleteSelected}
-                  className="px-4 py-2 rounded-lg border border-rose-500/40 bg-rose-500/10 hover:bg-rose-500/20 text-label-xs sm:text-sm font-medium text-rose-300 transition-colors cursor-pointer select-none"
+                  className="px-3 py-2"
                 >
                   Delete ({selectedIds.length})
-                </button>
+                </Button>
               )}
 
               {/* Add New Button: Always shown (Matching Image 1) */}
-              <Link
-                href="/admin/articles/add"
-                className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-label-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-colors cursor-pointer select-none"
+              <Button
+                variant="outline"
+                size="xs"
+                leftIcon={<PlusIcon className="w-3.5 h-3.5" />}
+                onClick={() => router.push("/admin/articles/add")}
+                className="px-3 py-2"
               >
-                <PlusIcon className="w-3.5 h-3.5" />
-                <span>Add New</span>
-              </Link>
+                Add New
+              </Button>
             </div>
           </div>
 
@@ -313,13 +316,14 @@ export default function AdminArticlesPage() {
               </p>
 
               {/* Action Button: + Tambah Artikel */}
-              <Link
-                href="/admin/articles/add"
-                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-[#1E202B] hover:bg-[#252837] border border-deep-blue-700 text-label-xs sm:text-sm font-medium text-gray-200 hover:text-white transition-all cursor-pointer"
+              <Button
+                variant="outline"
+                size="sm"
+                leftIcon={<PlusIcon className="w-4 h-4 shrink-0" />}
+                onClick={() => router.push("/admin/articles/add")}
               >
-                <PlusIcon className="w-4 h-4 shrink-0" />
-                <span>Tambah Artikel</span>
-              </Link>
+                Tambah Artikel
+              </Button>
             </div>
           ) : (
             /* POPULATED STATE: 3 Columns Grid & Pagination (Matching Image 2 & 4) */

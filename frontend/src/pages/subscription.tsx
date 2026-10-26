@@ -370,7 +370,7 @@ export default function SubscriptionPage() {
 
       {/* Global Toast Feedback */}
       {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 animate-fade-in">
+        <div className="fixed top-4 left-4 right-4 md:top-auto md:left-auto md:bottom-6 md:right-6 z-50 md:w-auto md:min-w-80 md:max-w-105 animate-fade-in">
           <Toast
             variant="success"
             title="Notifikasi"

@@ -67,15 +67,15 @@ export function AdminCategoryColumn({
           {title}
         </h2>
 
-        {/* + Add New Category button (red gradient) */}
-        <button
-          type="button"
+        {/* + Add New Category button */}
+        <Button
+          variant="primary"
+          size="sm"
           onClick={() => onAddNewCategory(scope)}
-          className="inline-flex items-center gap-1.5 px-4 sm:px-5 h-10 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer shrink-0"
+          leftIcon={<PlusIcon className="w-4 h-4 shrink-0" />}
         >
-          <PlusIcon />
-          <span>Add New Category</span>
-        </button>
+          Add New Category
+        </Button>
       </div>
 
       {/* 2. Body List of Category Group Cards with bg-deep-blue-950 ("sisanya 950") */}

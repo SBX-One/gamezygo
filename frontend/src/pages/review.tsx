@@ -369,10 +369,20 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
     return reviews;
   }, [apiReviewsRes, reviews]);
 
-  const handleToast = (msg: string) => {
-    setToastMessage(msg);
+  const [toast, setToast] = React.useState<{
+    title: string;
+    description: string;
+    variant: "success" | "error" | "warning";
+  } | null>(null);
+
+  const handleToast = (
+    msg: string,
+    variant: "success" | "error" | "warning" = "success",
+    title = variant === "error" ? "Peringatan" : "Berhasil"
+  ) => {
+    setToast({ title, description: msg, variant });
     setTimeout(() => {
-      setToastMessage(null);
+      setToast(null);
     }, 3000);
   };
 
@@ -487,10 +497,10 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
 
   const handleSendGuestOpinion = () => {
     if (!guestOpinionInput.trim()) {
-      handleToast("Mohon tuliskan pendapat Anda terlebih dahulu!");
+      handleToast("Mohon tuliskan pendapat Anda terlebih dahulu!", "error");
       return;
     }
-    handleToast("Terima kasih atas pendapat Anda!");
+    handleToast("Terima kasih atas pendapat Anda!", "success");
     setGuestOpinionInput("");
   };
 
@@ -869,9 +879,14 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
       )}
 
       {/* TOAST FEEDBACK */}
-      {toastMessage && (
-        <div className="fixed bottom-6 right-6 z-50 animate-slide-in-right">
-          <Toast variant="success" title="Notifikasi" description={toastMessage} />
+      {toast && (
+        <div className="fixed top-4 left-4 right-4 md:top-auto md:left-auto md:bottom-6 md:right-6 z-50 md:w-auto md:min-w-80 md:max-w-105 animate-fade-in">
+          <Toast
+            variant={toast.variant}
+            title={toast.title}
+            description={toast.description}
+            onClose={() => setToast(null)}
+          />
         </div>
       )}
     </>

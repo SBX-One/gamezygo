@@ -237,7 +237,7 @@ export default function WishlistPage() {
     if (game.productId) {
       addToCartMutation.mutate(game.productId);
     }
-    setToastMessage(`${game.title} berhasil ditambahkan ke keranjang belanja!`);
+    setToastMessage("Added to Cart");
     setTimeout(() => {
       setToastMessage(null);
     }, 3000);
@@ -570,11 +570,11 @@ export default function WishlistPage() {
 
         {/* Action Toast Feedback saat tombol "Tambah Keranjang" diklik */}
         {toastMessage && (
-          <div className="fixed bottom-6 right-6 z-50 animate-slide-in-right">
+          <div className="fixed top-4 left-4 right-4 md:top-auto md:left-auto md:bottom-6 md:right-6 z-50 md:w-auto md:min-w-80 md:max-w-105 animate-fade-in">
             <Toast
               variant="success"
-              title="Berhasil!"
-              description={toastMessage}
+              title={toastMessage}
+              onClose={() => setToastMessage(null)}
             />
           </div>
         )}

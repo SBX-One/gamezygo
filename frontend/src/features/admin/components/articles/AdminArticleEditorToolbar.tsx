@@ -306,7 +306,7 @@ export function AdminArticleEditorToolbar({
 
           {/* Heading Dropdown Popup (Image 5 exact match) */}
           {isHeadingMenuOpen && (
-            <div className="absolute left-0 top-10 z-50 w-36 rounded-lg bg-[#13151F] border border-white/10 p-1.5 shadow-none animate-in fade-in zoom-in-95 duration-150 space-y-0.5">
+            <div className="absolute left-0 top-10 z-50 w-36 rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-1.5 shadow-none animate-in fade-in zoom-in-95 duration-150 space-y-0.5">
               {(["h1", "h2", "h3", "h4"] as const).map((hType) => (
                 <button
                   key={hType}

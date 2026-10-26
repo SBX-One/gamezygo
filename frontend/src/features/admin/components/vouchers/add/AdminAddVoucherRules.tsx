@@ -30,7 +30,7 @@ export function AdminAddVoucherRules({
           value={formData.minPurchaseAmount}
           onChange={(e) => onChange({ minPurchaseAmount: e.target.value })}
           placeholder="IDR 200,000"
-          className="w-full h-11 px-4 bg-[#0D0F18] border border-deep-blue-700 rounded-lg text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
+          className="w-full h-11 px-4 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
         />
       </div>
 
@@ -44,7 +44,7 @@ export function AdminAddVoucherRules({
           value={formData.maxUsage}
           onChange={(e) => onChange({ maxUsage: e.target.value })}
           placeholder="Unlimited"
-          className="w-full h-11 px-4 bg-[#0D0F18] border border-deep-blue-700 rounded-lg text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
+          className="w-full h-11 px-4 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
         />
       </div>
 
@@ -58,7 +58,7 @@ export function AdminAddVoucherRules({
           value={formData.limitPerUser}
           onChange={(e) => onChange({ limitPerUser: e.target.value })}
           placeholder="Unlimited"
-          className="w-full h-11 px-4 bg-[#0D0F18] border border-deep-blue-700 rounded-lg text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
+          className="w-full h-11 px-4 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
         />
       </div>
     </div>

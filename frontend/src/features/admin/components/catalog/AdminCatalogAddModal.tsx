@@ -1,6 +1,8 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { AdminCheckbox } from "@/components/admin/AdminCheckbox";
+import { Button } from "@/components/ui/Button";
+import { InputField } from "@/components/ui/InputField";
 import type { AdminCatalogItem } from "../../types/admin-catalog.types";
 
 export interface AdminCatalogAddModalProps {
@@ -134,68 +136,52 @@ export function AdminCatalogAddModal({
         </div>
 
         <form onSubmit={handleSubmit} className="py-4 space-y-4">
-          <div>
-            <label className="block text-label-xs font-semibold text-gray-400 mb-1.5 uppercase">
-              Nama Produk / Game
-            </label>
-            <input
-              type="text"
-              required
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              placeholder="Contoh: Grand Theft Auto VI"
-              className="w-full h-10 px-3 bg-[#15161D] border border-deep-blue-700 rounded-lg text-label-xs text-white placeholder-gray-500 focus:outline-none focus:border-gray-400"
-            />
-          </div>
+          <InputField
+            label="NAMA PRODUK / GAME"
+            type="text"
+            required
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Contoh: Grand Theft Auto VI"
+            className="bg-deep-blue-900 hover:border-gray-500 text-white"
+          />
+
+          <InputField
+            label="HARGA (IDR)"
+            type="number"
+            required
+            value={price}
+            onChange={(e) => setPrice(e.target.value)}
+            placeholder="480000"
+            className="bg-deep-blue-900 hover:border-gray-500 text-white"
+          />
+
+          <InputField
+            label="URL COVER GAMBAR"
+            type="url"
+            value={imageSrc}
+            onChange={(e) => setImageSrc(e.target.value)}
+            placeholder="https://..."
+            className="bg-deep-blue-900 hover:border-gray-500 text-white"
+          />
 
           <div>
-            <label className="block text-label-xs font-semibold text-gray-400 mb-1.5 uppercase">
-              Harga (IDR)
-            </label>
-            <input
-              type="number"
-              required
-              value={price}
-              onChange={(e) => setPrice(e.target.value)}
-              placeholder="480000"
-              className="w-full h-10 px-3 bg-[#15161D] border border-deep-blue-700 rounded-lg text-label-xs text-white placeholder-gray-500 focus:outline-none focus:border-gray-400"
-            />
-          </div>
-
-          <div>
-            <label className="block text-label-xs font-semibold text-gray-400 mb-1.5 uppercase">
-              URL Cover Gambar
-            </label>
-            <input
-              type="url"
-              value={imageSrc}
-              onChange={(e) => setImageSrc(e.target.value)}
-              placeholder="https://..."
-              className="w-full h-10 px-3 bg-[#15161D] border border-deep-blue-700 rounded-lg text-label-xs text-white placeholder-gray-500 focus:outline-none focus:border-gray-400"
-            />
-          </div>
-
-          <div>
-            <label className="block text-label-xs font-semibold text-gray-400 mb-1.5 uppercase">
+            <label className="block text-body-xs font-normal text-gray-400 mb-1.5 uppercase">
               Kategori (Pilih Minimal 1)
             </label>
             <div className="flex flex-wrap gap-2">
               {CATEGORY_CHOICES.map((cat) => {
                 const isChecked = selectedCategories.includes(cat);
                 return (
-                  <button
+                  <Button
                     key={cat}
                     type="button"
+                    variant={isChecked ? "active" : "inactive"}
+                    size="xs"
                     onClick={() => toggleCategory(cat)}
-                    className={cn(
-                      "px-3 py-1.5 rounded-lg text-label-xs font-medium border transition-colors cursor-pointer",
-                      isChecked
-                        ? "bg-[#1E202B] text-white border-gray-400"
-                        : "bg-[#15161D] text-gray-300 border-deep-blue-700 hover:text-white"
-                    )}
                   >
                     {cat}
-                  </button>
+                  </Button>
                 );
               })}
             </div>
@@ -220,19 +206,21 @@ export function AdminCatalogAddModal({
           </div>
 
           <div className="pt-4 border-t border-deep-blue-700 flex items-center justify-end gap-3">
-            <button
+            <Button
               type="button"
+              variant="inactive"
+              size="sm"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-[#1E202B] hover:bg-[#252837] border border-deep-blue-700 text-label-xs font-medium text-gray-300 hover:text-white transition-colors cursor-pointer"
             >
               Batal
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="px-5 py-2 rounded-lg bg-[image:var(--gradient-primary-default)] text-white hover:brightness-110 active:scale-98 text-label-xs font-semibold shadow-sm transition-all cursor-pointer"
+              variant="primary"
+              size="sm"
             >
               Simpan Produk
-            </button>
+            </Button>
           </div>
         </form>
       </div>

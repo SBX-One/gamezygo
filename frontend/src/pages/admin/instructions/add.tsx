@@ -3,6 +3,7 @@ import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { AdminLayout } from "@/components/layout/AdminLayout";
+import { Button } from "@/components/ui/Button";
 import {
   AdminArticleEditorToolbar,
   AdminArticleBlockEditor,
@@ -316,21 +317,21 @@ export default function AdminAddNewInstructionPage() {
   // Header Right Actions: Save Draft & Publish (Matching Add Blog)
   const headerRight = (
     <div className="flex items-center gap-3 select-none">
-      <button
-        type="button"
+      <Button
+        variant="inactive"
+        size="sm"
         onClick={handleSaveDraft}
-        className="px-4 py-2 rounded-lg bg-deep-blue-900 hover:bg-[#1E202B] border border-white/10 text-label-xs sm:text-sm font-medium text-white transition-colors cursor-pointer select-none"
       >
         Save Draft
-      </button>
+      </Button>
 
-      <button
-        type="button"
+      <Button
+        variant="primary"
+        size="sm"
         onClick={handlePublish}
-        className="px-5 py-2 rounded-lg bg-linear-to-r from-[#DF3848] to-[#FF5364] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold transition-all cursor-pointer select-none"
       >
         Publish
-      </button>
+      </Button>
     </div>
   );
 

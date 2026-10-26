@@ -239,12 +239,12 @@ export function AdminCategoryDrawer({
       {/* Right Slide-over Drawer Panel */}
       <div
         className={cn(
-          "fixed inset-y-0 right-0 z-10 w-[480px] max-w-[95vw] h-full bg-[#13151F] border-l border-white/10 shadow-2xl flex flex-col justify-start animate-in slide-in-from-right duration-200 overflow-y-auto",
+          "fixed inset-y-0 right-0 z-10 w-[480px] max-w-[95vw] h-full bg-deep-blue-950 border-l border-deep-blue-700 shadow-2xl flex flex-col justify-start animate-in slide-in-from-right duration-200 overflow-y-auto",
           className
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-white/10">
+        <div className="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-deep-blue-700">
           <h3
             id="category-drawer-title"
             className="text-lg sm:text-xl font-bold text-white tracking-tight"
@@ -379,12 +379,13 @@ export function AdminCategoryDrawer({
             >
               Batalkan
             </Button>
-            <button
+            <Button
               type="submit"
-              className="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
+              variant="primary"
+              size="sm"
             >
               Simpan
-            </button>
+            </Button>
           </div>
         </form>
       </div>

@@ -212,12 +212,12 @@ export function AdminCommunityDrawer({
       {/* Right Slide-over Drawer Panel matching Images 3 & 4 */}
       <div
         className={cn(
-          "fixed inset-y-0 right-0 z-10 w-[480px] max-w-[95vw] h-full bg-[#13151F] border-l border-white/10 shadow-2xl flex flex-col justify-start animate-in slide-in-from-right duration-200 overflow-y-auto",
+          "fixed inset-y-0 right-0 z-10 w-[480px] max-w-[95vw] h-full bg-deep-blue-950 border-l border-deep-blue-700 shadow-2xl flex flex-col justify-start animate-in slide-in-from-right duration-200 overflow-y-auto",
           className
         )}
       >
         {/* Header: Title and Close Button */}
-        <div className="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-white/10">
+        <div className="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-deep-blue-700">
           <h3
             id="community-drawer-title"
             className="text-lg sm:text-xl font-bold text-white tracking-tight"
@@ -246,7 +246,7 @@ export function AdminCommunityDrawer({
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Nama komunitas"
-              className="w-full h-11 px-4 bg-[#181A26] border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
+              className="w-full h-11 px-4 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
             />
           </div>
 
@@ -260,7 +260,7 @@ export function AdminCommunityDrawer({
               value={pageLink}
               onChange={(e) => setPageLink(e.target.value)}
               placeholder="Halaman destinasi"
-              className="w-full h-11 px-4 bg-[#181A26] border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
+              className="w-full h-11 px-4 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
             />
           </div>
 
@@ -271,11 +271,11 @@ export function AdminCommunityDrawer({
             </label>
 
             {/* Input with chips */}
-            <div className="w-full min-h-[44px] px-3 py-1.5 bg-[#181A26] border border-white/10 rounded-lg flex items-center gap-2 flex-wrap mb-3 focus-within:border-white/25 transition-colors">
+            <div className="w-full min-h-[44px] px-3 py-1.5 bg-deep-blue-900 border border-deep-blue-700 rounded-lg flex items-center gap-2 flex-wrap mb-3 focus-within:border-white/25 transition-colors">
               {tags.map((t) => (
                 <span
                   key={t}
-                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-label-xs font-medium bg-[#13151F] border border-white/10 text-white"
+                  className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-label-xs font-medium bg-deep-blue-950 border border-deep-blue-700 text-white"
                 >
                   <span>{t}</span>
                   <button
@@ -346,7 +346,7 @@ export function AdminCommunityDrawer({
               /* Image 4 State: Uploaded Image Card + Adjacent Add Image button */
               <div className="flex items-center gap-3 w-full">
                 {/* Uploaded Image Card */}
-                <div className="relative w-36 h-40 rounded-lg bg-[#141622] border border-white/10 p-2.5 flex flex-col justify-between shrink-0 group">
+                <div className="relative w-36 h-40 rounded-lg bg-deep-blue-900 border border-deep-blue-700 p-2.5 flex flex-col justify-between shrink-0 group">
                   <div className="relative w-full h-24 rounded-lg overflow-hidden border border-white/5 bg-black/30">
                     <img
                       src={imageUrl}
@@ -414,12 +414,13 @@ export function AdminCommunityDrawer({
             >
               Batalkan
             </Button>
-            <button
+            <Button
               type="submit"
-              className="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
+              variant="primary"
+              size="sm"
             >
               Simpan
-            </button>
+            </Button>
           </div>
         </form>
       </div>

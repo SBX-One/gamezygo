@@ -48,7 +48,7 @@ export function AdminPreOrderPublishModal({
     >
       <div
         className={cn(
-          "w-full max-w-[440px] rounded-lg bg-[#13151F] border border-white/10 p-6 shadow-2xl select-none animate-in zoom-in-95 duration-150 text-left",
+          "w-full max-w-[440px] rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-6 shadow-2xl select-none animate-in zoom-in-95 duration-150 text-left",
           className
         )}
       >
@@ -62,13 +62,14 @@ export function AdminPreOrderPublishModal({
         </p>
 
         <div className="flex items-center justify-end gap-3 mt-6">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-lg bg-[#1E202B] hover:bg-[#272A38] text-white text-label-xs sm:text-sm font-medium transition-colors cursor-pointer select-none"
           >
             Batal
-          </button>
+          </Button>
           <Button
             type="button"
             variant="primary"

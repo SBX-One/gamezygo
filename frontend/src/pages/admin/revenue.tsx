@@ -2,6 +2,7 @@ import * as React from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { AdminLayout } from "@/components/layout/AdminLayout";
+import { Button } from "@/components/ui/Button";
 import {
   AdminRevenueMetricsSection,
   AdminRevenueChartCard,
@@ -50,28 +51,22 @@ export default function AdminRevenuePage() {
               </span>
             </span>
             <div className="flex items-center gap-1.5">
-              <button
-                type="button"
+              <Button
+                variant={!isEmptyState ? "active" : "inactive"}
+                size="xs"
                 onClick={() => setIsEmptyManual(false)}
-                className={`px-3 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
-                  !isEmptyState
-                    ? "bg-indigo-600 text-white shadow-sm"
-                    : "bg-[#1E202B] text-gray-400 hover:text-white"
-                }`}
+                className="px-3 py-2"
               >
                 Data Terisi
-              </button>
-              <button
-                type="button"
+              </Button>
+              <Button
+                variant={isEmptyState ? "active" : "inactive"}
+                size="xs"
                 onClick={() => setIsEmptyManual(true)}
-                className={`px-3 py-1 rounded-lg font-medium transition-colors cursor-pointer ${
-                  isEmptyState
-                    ? "bg-indigo-600 text-white shadow-sm"
-                    : "bg-[#1E202B] text-gray-400 hover:text-white"
-                }`}
+                className="px-3 py-2"
               >
                 Empty State
-              </button>
+              </Button>
             </div>
           </div>
 

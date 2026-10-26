@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 import type { InstructionTemplate, InstructionStep } from "../../types/admin-instruction.types";
 
 export interface AdminInstructionCreateModalProps {
@@ -162,7 +163,7 @@ export function AdminInstructionCreateModal({
 
       <div
         className={cn(
-          "relative z-10 w-145 max-w-[95vw] max-h-[90vh] overflow-y-auto rounded-lg bg-deep-blue-900 border border-deep-blue-700 p-6 sm:p-7 shadow-2xl flex flex-col animate-in zoom-in-95 duration-150",
+          "relative z-10 w-145 max-w-[95vw] max-h-[90vh] overflow-y-auto rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-6 sm:p-7 shadow-2xl flex flex-col animate-in zoom-in-95 duration-150",
           className
         )}
       >
@@ -207,14 +208,15 @@ export function AdminInstructionCreateModal({
                 Langkah-Langkah Instruksi
               </label>
 
-              <button
+              <Button
                 type="button"
+                variant="outline"
+                size="xs"
                 onClick={handleAddStep}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-deep-blue-950 hover:bg-deep-blue-800 text-label-xs font-medium text-white border border-deep-blue-700 transition-colors cursor-pointer"
+                leftIcon={<PlusIcon className="w-3.5 h-3.5 text-gray-300" />}
               >
-                <PlusIcon className="w-3.5 h-3.5 text-gray-300" />
                 <span>Tambah Langkah</span>
-              </button>
+              </Button>
             </div>
 
             <div className="flex flex-col gap-3.5 max-h-75 overflow-y-auto pr-1">
@@ -267,19 +269,21 @@ export function AdminInstructionCreateModal({
 
           {/* Action buttons */}
           <div className="flex items-center justify-end gap-3 pt-3 border-t border-deep-blue-700">
-            <button
+            <Button
               type="button"
+              variant="secondary"
+              size="sm"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg bg-deep-blue-950 hover:bg-deep-blue-800 border border-deep-blue-700 text-white text-label-xs sm:text-sm font-medium transition-colors cursor-pointer"
             >
               Batal
-            </button>
-            <button
+            </Button>
+            <Button
               type="submit"
-              className="px-5 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer"
+              variant="primary"
+              size="sm"
             >
               Simpan Template
-            </button>
+            </Button>
           </div>
         </form>
       </div>

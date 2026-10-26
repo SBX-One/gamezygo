@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 
 export interface AdminFaqDeleteModalProps {
   isOpen: boolean;
@@ -38,7 +39,7 @@ export function AdminFaqDeleteModal({
 
       <div
         className={cn(
-          "relative z-10 w-[440px] max-w-[95vw] rounded-lg bg-[#13151F] border border-white/10 p-6 sm:p-7 shadow-2xl flex flex-col animate-in zoom-in-95 duration-150",
+          "relative z-10 w-[440px] max-w-[95vw] rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-6 sm:p-7 shadow-2xl flex flex-col animate-in zoom-in-95 duration-150",
           className
         )}
       >
@@ -55,21 +56,23 @@ export function AdminFaqDeleteModal({
 
         {/* Action Buttons: [ Batal ] & [ Remove ] */}
         <div className="flex items-center justify-end gap-3 mt-6 sm:mt-7">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={onClose}
-            className="px-5 py-2.5 rounded-lg bg-[#181A26] hover:bg-[#222534] border border-white/10 text-white text-label-xs sm:text-sm font-medium transition-colors cursor-pointer"
           >
             Batal
-          </button>
+          </Button>
 
-          <button
+          <Button
             type="button"
+            variant="primary"
+            size="sm"
             onClick={onConfirm}
-            className="px-6 py-2.5 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-xs"
           >
             Remove
-          </button>
+          </Button>
         </div>
       </div>
     </div>

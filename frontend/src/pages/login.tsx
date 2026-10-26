@@ -418,7 +418,7 @@ export default function LoginPage() {
       >
         {/* Toast Alert Notification */}
         {toast && (
-          <div className="fixed top-24 right-4 sm:right-8 z-50  w-full animate-in fade-in slide-in-from-top-4 duration-200">
+          <div className="fixed top-4 left-4 right-4 md:top-auto md:left-auto md:bottom-6 md:right-6 z-50 md:w-auto md:min-w-80 md:max-w-105 animate-fade-in">
             <Toast
               variant={toast.variant}
               title={

@@ -1,6 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { AdminButton } from "@/components/admin";
+import { Button } from "@/components/ui/Button";
 import { SteamIcon } from "./AdminGameRequestIcons";
 import type { AdminGameRequestItem } from "../../types/admin-game-request.types";
 
@@ -50,7 +50,7 @@ export function AdminGameRequestDetailModal({
     >
       <div
         className={cn(
-          "w-125 max-w-[95vw] rounded-lg bg-[#0F111A] border border-white/10 p-6 sm:p-7 shadow-2xl select-none animate-in zoom-in-95 duration-150 text-left font-sans space-y-6",
+          "w-125 max-w-[95vw] rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-6 sm:p-7 shadow-2xl select-none animate-in zoom-in-95 duration-150 text-left font-sans space-y-6",
           className
         )}
       >
@@ -128,39 +128,40 @@ export function AdminGameRequestDetailModal({
 
         {/* Footer Actions */}
         <div className="flex items-center justify-between gap-3 pt-2 border-t border-deep-blue-700">
-          <button
+          <Button
             type="button"
+            variant="secondary"
+            size="sm"
             onClick={onClose}
-            className="px-4 py-2 rounded-lg bg-[#181A22] hover:bg-[#222533] border border-white/10 text-white text-label-xs sm:text-sm font-semibold transition-colors cursor-pointer select-none"
           >
             Tutup
-          </button>
+          </Button>
 
           <div className="flex items-center gap-2.5">
             {onDecline && (
-              <AdminButton
-                variant="dark"
+              <Button
+                variant="inactive"
                 size="sm"
                 onClick={() => {
                   onDecline(item);
                   onClose();
                 }}
-                className="border-white/10 bg-[#161823] hover:bg-[#1E202E]"
               >
                 Decline
-              </AdminButton>
+              </Button>
             )}
             {onAccept && (
-              <button
+              <Button
                 type="button"
+                variant="primary"
+                size="sm"
                 onClick={() => {
                   onAccept(item);
                   onClose();
                 }}
-                className="px-5 py-2 rounded-lg bg-[#BA343C] hover:bg-[#CF3C45] active:scale-95 text-white text-label-xs sm:text-sm font-semibold transition-all cursor-pointer shadow-sm select-none"
               >
                 Accept
-              </button>
+              </Button>
             )}
           </div>
         </div>

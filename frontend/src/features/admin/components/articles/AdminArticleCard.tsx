@@ -245,7 +245,7 @@ export function AdminArticleCard({
 
           {/* Action Dropdown Menu (Exact Match with Image 2 - max rounded-lg, no shadow) */}
           {isMenuOpen && (
-            <div className="absolute right-0 mt-2 w-48 rounded-lg bg-[#13151F] border border-white/10 p-2 z-30 space-y-1 animate-in fade-in zoom-in-95 duration-150 select-none">
+            <div className="absolute right-0 mt-2 w-48 rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-2 z-30 space-y-1 animate-in fade-in zoom-in-95 duration-150 select-none">
               {/* 1. Edit */}
               <button
                 type="button"

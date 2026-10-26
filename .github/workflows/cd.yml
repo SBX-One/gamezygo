@@ -53,6 +53,7 @@ jobs:
 
       - name: Validate Docker Compose Production Spec
         run: |
+          touch backend/.env
           docker compose -f docker-compose.prod.yml config
 
   deploy:

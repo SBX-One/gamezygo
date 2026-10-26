@@ -245,5 +245,6 @@ jobs:
       - name: Validate Production docker-compose.prod.yml
         run: |
           if [ -f docker-compose.prod.yml ]; then
+            touch backend/.env
             docker compose -f docker-compose.prod.yml config
           fi

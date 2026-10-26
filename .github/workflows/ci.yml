@@ -90,7 +90,7 @@ jobs:
       - name: Install Frontend Dependencies
         run: |
           if [ -f pnpm-lock.yaml ]; then
-            pnpm install --frozen-lockfile || pnpm install
+            pnpm install --frozen-lockfile --prod=false || pnpm install --prod=false
           else
             npm install
           fi
@@ -245,6 +245,12 @@ jobs:
       - name: Validate Production docker-compose.prod.yml
         run: |
           if [ -f docker-compose.prod.yml ]; then
-            touch backend/.env
+            if [ ! -f backend/.env ]; then
+              if [ -f backend/.env.example ]; then
+                cp backend/.env.example backend/.env
+              else
+                mkdir -p backend && touch backend/.env
+              fi
+            fi
             docker compose -f docker-compose.prod.yml config
           fi

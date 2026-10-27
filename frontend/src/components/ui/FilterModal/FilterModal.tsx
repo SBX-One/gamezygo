@@ -57,8 +57,8 @@ function formatRupiah(amount: number): string {
 
 export function FilterModal({
   isOpen = true,
-  isDialog = false,
-  variant = "dropdown",
+  isDialog = true,
+  variant = "dialog",
   placement = "navbar",
   onClose,
   onCancel,
@@ -74,6 +74,7 @@ export function FilterModal({
   sortOptions = DEFAULT_SORT_OPTIONS,
   showPriceRange = true,
   statusOptions,
+  paymentOptions,
   platformOptions,
   gameOptions,
   genresLabel = "GENRE",
@@ -92,6 +93,7 @@ export function FilterModal({
   selectedGenres: propGenres,
   selectedLaunchers: propLaunchers,
   selectedStatus: propStatus,
+  selectedPayments: propPayments,
   selectedPlatforms: propPlatforms,
   selectedGames: propGames,
   selectedSort: propSort,
@@ -99,6 +101,7 @@ export function FilterModal({
   onToggleGenre,
   onToggleLauncher,
   onToggleStatus,
+  onTogglePayment,
   onTogglePlatform,
   onToggleGame,
   onSelectSort,
@@ -113,6 +116,7 @@ export function FilterModal({
   const [internalGenres, setInternalGenres] = React.useState<string[]>([]);
   const [internalLaunchers, setInternalLaunchers] = React.useState<string[]>([]);
   const [internalStatus, setInternalStatus] = React.useState<string[]>([]);
+  const [internalPayments, setInternalPayments] = React.useState<string[]>([]);
   const [internalPlatforms, setInternalPlatforms] = React.useState<string[]>([]);
   const [internalGames, setInternalGames] = React.useState<string[]>([]);
   const [internalSort, setInternalSort] = React.useState<string>("Terbaru");
@@ -124,6 +128,7 @@ export function FilterModal({
   const activeGenres = propGenres ?? internalGenres;
   const activeLaunchers = propLaunchers ?? internalLaunchers;
   const activeStatus = propStatus ?? internalStatus;
+  const activePayments = propPayments ?? internalPayments;
   const activePlatforms = propPlatforms ?? internalPlatforms;
   const activeGames = propGames ?? internalGames;
   const activeSort = propSort ?? internalSort;
@@ -153,22 +158,10 @@ export function FilterModal({
     };
   }, [isOpen, onClose]);
 
-  // Lock background scroll ONLY for modal dialogs / mobile sheets (NOT for desktop dropdown popovers)
+  // Lock background scroll for modal dialogs (when isOpen and not inline)
   React.useEffect(() => {
     if (!isOpen || variant === "inline") return;
 
-    // Dropdown popover on desktop (sm+) should NEVER lock body scroll or alter body style.
-    // Locking body with position: fixed breaks sticky navigation headers and shifts the navbar off-screen!
-    const isDesktopDropdown =
-      variant === "dropdown" &&
-      typeof window !== "undefined" &&
-      window.innerWidth >= 640;
-
-    if (isDesktopDropdown) return;
-
-    // For modal dialogs (variant === "dialog") or mobile sheet:
-    // Simply set overflow: hidden on document.body.
-    // NEVER use position: fixed or top: -scrollY as that breaks sticky headers!
     const originalBodyOverflow = document.body.style.overflow;
     document.body.style.overflow = "hidden";
 
@@ -191,6 +184,7 @@ export function FilterModal({
       genres: activeGenres,
       launchers: activeLaunchers,
       status: activeStatus,
+      payments: activePayments,
       platforms: activePlatforms,
       games: activeGames,
       priceRange: [currentMinPrice, currentMaxPrice],
@@ -345,6 +339,7 @@ export function FilterModal({
     setInternalGenres([]);
     setInternalLaunchers([]);
     setInternalStatus([]);
+    setInternalPayments([]);
     setInternalPlatforms([]);
     setInternalGames([]);
     setInternalSort("Terbaru");
@@ -365,11 +360,6 @@ export function FilterModal({
 
   const renderInnerContent = (isMobileFull = false) => (
     <>
-      {/* Mobile Sheet Handle (only if not full screen modal) */}
-      {!isMobileFull && (
-        <div className="w-10 h-1 bg-white/25 rounded-full mx-auto mt-3 mb-1 shrink-0 sm:hidden" />
-      )}
-
       {/* 1. STICKY HEADER (Title & Dismiss Button) */}
       <div
         className={cn(
@@ -580,7 +570,39 @@ export function FilterModal({
         </div>
       ) : null}
 
-      {/* 4b. Game Section */}
+      {/* 4b. Payment Methods Section */}
+      {paymentOptions && paymentOptions.length > 0 && (
+        <div className="flex flex-col gap-3">
+          <span className="text-body-sm text-gray-400 font-normal uppercase ">
+            METODE PEMBAYARAN
+          </span>
+          <div className="flex flex-wrap items-center gap-2">
+            {paymentOptions.map((opt) => {
+              const isSelected = activePayments.includes(opt);
+              return (
+                <Button
+                  key={opt}
+                  type="button"
+                  variant={isSelected ? "active" : "inactive"}
+                  size="sm"
+                  onClick={() =>
+                    handleToggle(
+                      opt,
+                      activePayments,
+                      setInternalPayments,
+                      onTogglePayment
+                    )
+                  }
+                >
+                  {opt}
+                </Button>
+              );
+            })}
+          </div>
+        </div>
+      )}
+
+      {/* 4c. Game Section */}
       {gameOptions && gameOptions.length > 0 && (
         <div className="flex flex-col gap-3">
           <span className="text-body-sm text-gray-400 font-normal uppercase ">
@@ -762,24 +784,32 @@ export function FilterModal({
     </>
   );
 
-  const DesktopModalContent = (
-    <div
-      ref={ref}
-      className={cn(
-        "flex flex-col min-h-0 max-h-full rounded-2xl bg-deep-blue-950 border border-white/10 text-gray-50 select-none w-full overflow-hidden shadow-2xl overscroll-contain",
-        className
-      )}
-      {...props}
-    >
-      {renderInnerContent(false)}
-    </div>
-  );
+  if (!isOpen) return null;
 
-  const MobileModalContent = (
+  // Mode: INLINE (Card embedded directly in page layout)
+  if (variant === "inline") {
+    return (
+      <div
+        ref={ref}
+        className={cn(
+          "flex flex-col min-h-0 max-h-full rounded-2xl bg-deep-blue-950 border border-white/10 text-gray-50 select-none w-full overflow-hidden shadow-2xl overscroll-contain",
+          className
+        )}
+        {...props}
+      >
+        {renderInnerContent(false)}
+      </div>
+    );
+  }
+
+  // Centered Modal Dialog on all viewports (Mobile, Tablet, Desktop)
+  // Backdrop with 50% fade & blur (bg-black/50 backdrop-blur-md)
+  const modalNode = (
     <div
       role="dialog"
       aria-modal="true"
-      className="sm:hidden fixed inset-0 z-100 flex items-center justify-center p-4 bg-black/25 backdrop-blur-md animate-fade-in touch-none overscroll-none"
+      aria-label={typeof title === "string" ? title : "Filter & Sort"}
+      className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-4 md:p-6 bg-black/50 backdrop-blur-md animate-fade-in touch-none overscroll-none"
     >
       {/* Backdrop overlay (klik di luar untuk menutup) */}
       <div
@@ -791,84 +821,21 @@ export function FilterModal({
         aria-hidden="true"
       />
 
-      {/* Floating Card Modal dengan margin, border, rounded-2xl, dan shadow-2xl */}
-      <div className="relative z-10 w-full max-h-[85vh] flex flex-col rounded-2xl bg-deep-blue-950 border border-white/10 text-gray-50 select-none overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200">
+      {/* Floating Card Modal dengan responsive width, border, rounded-2xl, dan shadow-2xl */}
+      <div
+        ref={ref}
+        className={cn(
+          "relative z-10 w-full sm:w-[500px] md:w-[540px] max-w-[95vw] max-h-[85vh] flex flex-col rounded-2xl bg-deep-blue-950 border border-white/10 text-gray-50 select-none overflow-hidden shadow-2xl animate-in zoom-in-95 duration-200 overscroll-contain",
+          className
+        )}
+        {...props}
+      >
         {renderInnerContent(false)}
       </div>
     </div>
   );
 
-  if (!isOpen) return null;
-
-  // Mode: INLINE
-  if (variant === "inline") {
-    return DesktopModalContent;
-  }
-
-  // Mode: DIALOG (Explicit dialog mode on all screens)
-  if (variant === "dialog" || (isDialog && variant !== "dropdown")) {
-    const dialogNode = (
-      <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-black/75 backdrop-blur-md animate-fade-in touch-none overscroll-none">
-        <div
-          className="fixed inset-0 touch-none"
-          onClick={onClose}
-          onTouchMove={(e) => {
-            if (e.cancelable) e.preventDefault();
-          }}
-          aria-hidden="true"
-        />
-        <div className="relative z-10 w-full sm:max-w-lg max-h-[85vh] flex flex-col overflow-hidden rounded-2xl bg-deep-blue-950 border border-white/10 shadow-2xl animate-in zoom-in-95 duration-200">
-          {DesktopModalContent}
-        </div>
-      </div>
-    );
-
-    return isMounted && typeof document !== "undefined"
-      ? createPortal(dialogNode, document.body)
-      : null;
-  }
-
-  // Mode: DROPDOWN (Default)
-  // Pada mobile (< sm): Otomatis menjadi MODAL CARD dengan margin dan backdrop blur via Portal ke document.body
-  // Pada desktop (sm+): Menjadi floating dropdown popover di samping trigger/navbar
-  const isNavbar = placement === "navbar";
-  const mobilePortalNode =
-    isMounted && typeof document !== "undefined"
-      ? createPortal(MobileModalContent, document.body)
-      : null;
-
-  return (
-    <>
-      {/* ========================================================
-          1. MOBILE VIEWPORT (< sm): MODAL PENUH KE DOCUMENT.BODY
-         ======================================================== */}
-      {mobilePortalNode}
-
-      {/* ========================================================
-          2. DESKTOP VIEWPORT (sm+): FLOATING DROPDOWN POPOVER
-         ======================================================== */}
-      <div className="hidden sm:block">
-        <div
-          className={cn(
-            "fixed inset-0 bg-transparent",
-            isNavbar ? "z-35" : "z-25"
-          )}
-          onClick={onClose}
-          aria-hidden="true"
-        />
-
-        <div
-          className={cn(
-            "w-115 h-160 max-h-[min(640px,calc(100vh-120px))] flex flex-col overflow-hidden rounded-2xl shadow-2xl animate-in fade-in slide-in-from-top-2 duration-150",
-            isNavbar
-              ? "fixed right-4 sm:right-6 lg:right-20 top-20 sm:top-24 z-50"
-              : "absolute right-0 top-12 z-50",
-            popoverClassName
-          )}
-        >
-          {DesktopModalContent}
-        </div>
-      </div>
-    </>
-  );
+  return isMounted && typeof document !== "undefined"
+    ? createPortal(modalNode, document.body)
+    : null;
 }

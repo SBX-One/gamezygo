@@ -1,6 +1,5 @@
 import * as React from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import type { BannerCarouselProps, BannerSlide } from "./BannerCarousel.types";
 
@@ -119,54 +118,17 @@ export function BannerCarousel({
     return null;
   }
 
-interface SlideImageProps {
-  src?: string;
-  alt: string;
-  priority?: boolean;
-}
-
-function SlideImage({ src, alt, priority = false }: SlideImageProps) {
-  const fallbackSrc = "/assets/png/Banner.png";
-  const [currentSrc, setCurrentSrc] = React.useState<string>(src || fallbackSrc);
-  const [hasError, setHasError] = React.useState<boolean>(false);
-
-  React.useEffect(() => {
-    setCurrentSrc(src || fallbackSrc);
-    setHasError(false);
-  }, [src]);
-
-  return (
-    <Image
-      src={currentSrc}
-      alt={alt}
-      fill
-      unoptimized
-      sizes="(max-width: 1024px) 100vw, 60vw"
-      className="object-cover object-center select-none transition-transform duration-500 ease-out group-hover/slide:scale-[1.02]"
-      draggable={false}
-      priority={priority}
-      loading={priority ? "eager" : "lazy"}
-      onError={() => {
-        if (!hasError && currentSrc !== fallbackSrc) {
-          setHasError(true);
-          setCurrentSrc(fallbackSrc);
-        }
-      }}
-    />
-  );
-}
-
   const renderSlideContent = (slide: BannerSlide, index: number) => {
-    const isFirst = index === 0;
     const content = (
       <div
-        className="w-full h-full min-h-full relative cursor-pointer group/slide overflow-hidden"
+        className="w-full h-full min-h-full relative cursor-pointer group/slide overflow-hidden flex items-center justify-center bg-deep-blue-950"
         onClick={() => onSlideClick?.(slide, index)}
       >
-        <SlideImage
+        <img
           src={slide.imageSrc}
           alt={slide.alt || slide.title || `Slide ${index + 1}`}
-          priority={index < 2}
+          className="w-full h-full object-cover object-center select-none transition-transform duration-500 ease-out group-hover/slide:scale-[1.02]"
+          draggable={false}
         />
         {/* Subtle bottom vignette to ensure indicators and badges remain prominent */}
         <div className="absolute inset-0 bg-linear-to-t from-black/40 via-transparent to-transparent pointer-events-none" />

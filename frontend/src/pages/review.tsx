@@ -500,8 +500,8 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
       handleToast("Mohon tuliskan pendapat Anda terlebih dahulu!", "error");
       return;
     }
-    handleToast("Terima kasih atas pendapat Anda!", "success");
     setGuestOpinionInput("");
+     useAuthStore.getState().role === "guest" ? router.push("/login") :  router.push("/review")
   };
 
   // Shared Review Modal (Used in both guest and customer views)
@@ -716,15 +716,18 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
                       onChange={(e) => setGuestOpinionInput(e.target.value)}
                       placeholder="Beri pendapat"
                       className="w-full bg-transparent text-body-sm text-gray-100 placeholder:text-gray-500 focus:outline-none"
+                        onSubmit={useAuthStore.getState().role === "guest" ? () => router.push("/login") :  () => router.push("/review") }
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           handleSendGuestOpinion();
+                            useAuthStore.getState().role === "guest" ? () => router.push("/login") :  () => router.push("/review") 
                         }
                       }}
                     />
                     <button
                       type="button"
-                      onClick={handleSendGuestOpinion}
+                       onClick={useAuthStore.getState().role === "guest" ? () => router.push("/login") :  () => router.push("/review") }
+                 
                       className="p-1 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer outline-none shrink-0"
                       aria-label="Kirim pendapat"
                       title="Kirim pendapat"
@@ -747,8 +750,8 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
                   <p className="text-gray-400 text-body-sm -mt-0.5">
                     Dari 80K+{" "}
                     <span
-                      onClick={() => handleOpenModal(false)}
-                      className="underline cursor-pointer hover:text-white transition-colors font-medium"
+                        onClick={useAuthStore.getState().role === "guest" ? () => router.push("/login") :  () => router.push("/review") }
+                        className="underline cursor-pointer hover:text-white transition-colors font-medium"
                     >
                       ulasan
                     </span>

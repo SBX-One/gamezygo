@@ -3,6 +3,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { StoreLayout } from "@/components/layout";
 import {
+  Header,
   Button,
   ProductCard,
   FilterModal,
@@ -12,6 +13,7 @@ import {
   GameListItem,
   Toast,
 } from "@/components/ui";
+import { useAuthStore } from "@/stores/use-auth-store";
 import {
   useSubscriptionPlans,
   useUserSubscription,
@@ -486,8 +488,103 @@ export const BUNDLE_GAMES: BundleGame[] = [
   },
 ];
 
+const SUBSCRIPTION_GAMES = [
+  {
+    id: "dead-by-daylight",
+    title: "Dead By Daylight",
+    discount: "-30%",
+    originalPrice: "Rp 439.000,00",
+    price: "Rp 219.500",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/381210/library_600x900_2x.jpg",
+  },
+  {
+    id: "fc-26",
+    title: "EA SPORTS FC™ 26 Standard Edition",
+    discount: "-30%",
+    originalPrice: "Rp 439.000,00",
+    price: "Rp 219.500",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2195250/library_600x900_2x.jpg",
+  },
+  {
+    id: "rdr2",
+    title: "Read Dead Redemption II",
+    discount: "-30%",
+    originalPrice: "Rp 439.000,00",
+    price: "Rp 219.500",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/library_600x900_2x.jpg",
+  },
+  {
+    id: "phantom-blade",
+    title: "Phantom Blade Zero",
+    discount: "-30%",
+    originalPrice: "Rp 439.000,00",
+    price: "Rp 219.500",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2358720/library_600x900_2x.jpg",
+  },
+  {
+    id: "gta-v",
+    title: "Grand Theft Auto V",
+    discount: "-30%",
+    originalPrice: "Rp 439.000,00",
+    price: "Rp 219.500",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+  },
+  {
+    id: "cf-27",
+    title: "EA SPORTS CF™ 27 Standard Edition",
+    discount: "-30%",
+    originalPrice: "Rp 439.000,00",
+    price: "Rp 219.500",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2582560/library_600x900_2x.jpg",
+  },
+  {
+    id: "ac-black-flag",
+    title: "Assassin's Creed Black Flag Resynced",
+    discount: "-30%",
+    originalPrice: "Rp 439.000,00",
+    price: "Rp 219.500",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/242050/library_600x900_2x.jpg",
+  },
+  {
+    id: "007-first-light",
+    title: "007 - First Light",
+    discount: "-30%",
+    originalPrice: "Rp 439.000,00",
+    price: "Rp 219.500",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/library_600x900_2x.jpg",
+  },
+  {
+    id: "subnautica-2",
+    title: "Subnautica 2",
+    discount: "-30%",
+    originalPrice: "Rp 439.000,00",
+    price: "Rp 219.500",
+    imageSrc:
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1962700/library_600x900_2x.jpg",
+  },
+];
+
 export default function BundlePage() {
   const router = useRouter();
+
+  // Auth state
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const authUser = useAuthStore((s) => s.user);
+  const isMounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+  const isLoggedIn = isMounted && Boolean(isAuthenticated && authUser);
+
   // TanStack Query: Subscriptions API
   const { data: subscriptionPlansRes } = useSubscriptionPlans();
   const { data: userSubRes } = useUserSubscription();
@@ -574,6 +671,15 @@ export default function BundlePage() {
   const [isSubsModalOpen, setIsSubsModalOpen] = React.useState<boolean>(false);
   const [activeSubPlan, setActiveSubPlan] = React.useState<string>("Paket 2");
   const subsModalRef = React.useRef<HTMLDivElement | null>(null);
+
+  const handleSubscribeAction = (planTitle: string) => {
+    if (!isLoggedIn) {
+      router.push(`/login?redirect=${encodeURIComponent(router.asPath)}`);
+      return;
+    }
+    setActiveSubPlan(planTitle);
+    setIsSubsModalOpen(true);
+  };
 
   // Prevent background scroll without breaking sticky navbar (no body overflow: hidden)
   React.useEffect(() => {
@@ -809,6 +915,174 @@ export default function BundlePage() {
 
     return list;
   }, [isSearchActive, searchQuery, appliedGenres, appliedLaunchers, appliedSort]);
+
+  // GUEST LANDING VIEW (matching previous subscription view)
+  if (!isLoggedIn) {
+    return (
+      <>
+        <Head>
+          <title>Langganan Paket Gamezygo — Beli Sekali, Main Semua</title>
+          <meta
+            name="description"
+            content="Berlangganan paket game Gamezygo. Akses tak terbatas ke ratusan game terbaik, nikmati katalog terlengkap, dan main sepuasnya."
+          />
+        </Head>
+
+        <StoreLayout
+          navbarVariant="guest"
+          activeNavId="paket"
+          hideSidebar={true}
+          onLoginClick={() =>
+            router.push(`/login?redirect=${encodeURIComponent(router.asPath)}`)
+          }
+          onSignUpClick={() =>
+            router.push(
+              `/login?tab=signup&redirect=${encodeURIComponent(router.asPath)}`
+            )
+          }
+          onCartClick={() => router.push("/cart")}
+          contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 py-10 sm:py-10 flex flex-col gap-16 sm:gap-24 lg:gap-50"
+        >
+          {/* ========================================================
+              1. HERO SECTION: Header Component (matching Store)
+             ======================================================== */}
+          <div className="grid gap-10xl">
+            <Header
+              pillText="Promo Musim Panas Telah Datang!"
+              title="Beli Sekali, Main Semua di Gamezygo!"
+              subtitle="Mau lihat-lihat Game Dulu?"
+              actionLabel="Lihat Toko"
+              actionVariant="primary"
+              onActionClick={() => router.push("/store")}
+            />
+
+            {/* ========================================================
+                2. PRICING PLANS SECTION (Paket 1, Paket 2, Paket 3)
+               ======================================================== */}
+            <section className="w-full mx-auto">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch lg:px-10xl">
+                {pricingPlans.map((plan) => (
+                  <PricingCard
+                    key={plan.id}
+                    type={plan.type}
+                    title={plan.title}
+                    price={plan.price}
+                    period={plan.period}
+                    features={plan.features}
+                    actionText="Subscribe"
+                    onActionClick={() => handleSubscribeAction(plan.title)}
+                  />
+                ))}
+              </div>
+            </section>
+          </div>
+
+          {/* ========================================================
+              3. GAME LIBRARY SECTION: Header, Subheader, 3x3 Grid
+             ======================================================== */}
+          <section className="w-full flex flex-col gap-6 sm:gap-8">
+            {/* Centered Heading */}
+            <Header
+              as="h2"
+              pillText="GAME LIBRARY"
+              pillVariant="plain"
+              title="Game yang Akan Anda Dapatkan!"
+              subtitle={null}
+              actionLabel={null}
+            />
+
+            {/* Subheader Bar (Left title + Right Pill Badge) */}
+            <div className="flex items-center justify-between gap-4 border-b border-gray-800 pb-4 mt-2 sm:mt-4">
+              <h3 className="text-body-md sm:text-h5 font-semibold text-gray-50">
+                Dapatkan Game Pilihan!
+              </h3>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="shrink-0"
+              >
+                Total : {subsProductsRes?.meta?.total || "50.000"} Games
+              </Button>
+            </div>
+
+            {/* 3x3 Grid with Bottom Fade-Out Shadow */}
+            <div className="relative w-full overflow-hidden">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full pb-8">
+                {SUBSCRIPTION_GAMES.map((game) => (
+                  <GameListItem
+                    key={game.id}
+                    title={game.title}
+                    imageSrc={game.imageSrc}
+                    discount={game.discount}
+                    originalPrice={game.originalPrice}
+                    price={game.price}
+                    onClick={() => router.push("/store")}
+                  />
+                ))}
+              </div>
+
+              {/* Bottom Fade Shadow Overlay */}
+              <div
+                className="pointer-events-none absolute bottom-0 left-0 right-0 h-36 bg-linear-to-t from-deep-blue-950 via-deep-blue-950/80 to-transparent z-10"
+                aria-hidden="true"
+              />
+            </div>
+          </section>
+
+          {/* ========================================================
+              4. FAQ SECTION: Left Title + Right Accordion
+             ======================================================== */}
+          <section className="w-full flex flex-col lg:grid lg:grid-cols-7 gap-10 lg:gap-16 items-start py-6">
+            <div className="flex flex-col w-fit lg:col-span-3 gap-4 shrink-0 border-l-gradient-primary h-fit pl-6 sm:pl-8 pb-6">
+              <span className="text-body-sm text-gray-400">
+                FREQUENTLY ASKED QUESTION
+              </span>
+              <h2 className="text-h3 sm:text-h2 font-semibold leading-[120%] text-gradient-heading w-fit">
+                Pertanyaan yang <br /> Sering Ditanyakan!
+              </h2>
+              <div className="flex gap-3 w-full justify-between items-center mt-8">
+                <span className="text-body-xs text-gray-400">
+                  Masih memiliki <br />pertanyaan?
+                </span>
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="sm"
+                  rightIcon={<PhoneIcon className="w-4 h-4" />}
+                  onClick={() => handleToast("Menghubungi admin via Telegram...")}
+                  className="cursor-pointer px-6"
+                >
+                  Hubungi Kami
+                </Button>
+              </div>
+            </div>
+
+            <div className="flex-1 min-w-0 w-full lg:col-span-4">
+              <Accordion
+                items={FAQ_ITEMS}
+                defaultOpenId="faq-1"
+                allowMultiple={false}
+                isLanding={true}
+              />
+            </div>
+          </section>
+
+          {/* Global Toast Feedback */}
+          {toastMessage && (
+            <div className="fixed top-4 left-4 right-4 md:top-auto md:left-auto md:bottom-6 md:right-6 z-50 md:w-auto md:min-w-80 md:max-w-105 animate-fade-in">
+              <Toast
+                variant="success"
+                title="Notifikasi"
+                description={toastMessage}
+                onClose={() => setToastMessage(null)}
+              />
+            </div>
+          )}
+        </StoreLayout>
+      </>
+    );
+  }
 
   return (
     <>
@@ -1136,10 +1410,8 @@ export default function BundlePage() {
                   <FilterModal
                     isOpen={isFilterModalOpen}
                     showPriceRange={false}
-                    variant="dropdown"
-                    placement="content"
+                    variant="dialog"
                     onClose={() => setIsFilterModalOpen(false)}
-                    className="sm:top-12 sm:right-0 lg:right-0"
                     selectedCategories={modalCategories}
                     onToggleCategory={(category) => {
                       setModalCategories((prev) =>

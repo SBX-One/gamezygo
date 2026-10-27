@@ -357,7 +357,7 @@ export default function AboutPage() {
             subtitle="Ingin Langsung Buka Semua? Beli Premium!"
             actionLabel="Lihat Premium"
             actionVariant="primary"
-            onActionClick={() => router.push("/subscription")}
+            onActionClick={() => router.push("/bundle")}
             className="w-full sm:max-w-4/8"
           />
 
@@ -443,12 +443,7 @@ export default function AboutPage() {
             </div>
             </div>
 
-            {/* Right: Media Card matching exact height of Header */}
-            <div className="flex justify-end w-full h-full">
-              <div className="w-full h-full min-h-44 sm:min-h-52 lg:min-h-0 max-w-1/2 rounded-2xl bg-deep-blue-900/60 border border-white/5 overflow-hidden relative shadow-2xl flex items-end justify-end group">
-                <div className="absolute inset-0 bg-linear-to-tr from-deep-blue-950 via-deep-blue-900/40 to-transparent right-0" />
-              </div>
-            </div>
+         
           </div>
 
           {/* Bottom Row: Stats (Left) + 2x2 Feature Items (Right) */}
@@ -664,10 +659,14 @@ export default function AboutPage() {
                   onChange={(e) => setOpinionInput(e.target.value)}
                   placeholder="Beri pendapat"
                   className="w-full bg-transparent text-body-sm text-gray-100 placeholder:text-gray-500 focus:outline-none"
+                      onSubmit={useAuthStore.getState().role === "guest" ? () => router.push("/login") :  () => router.push("/review") }
+                 
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && opinionInput.trim()) {
                       showToast("Terima kasih atas pendapat Anda!");
                       setOpinionInput("");
+                      useAuthStore.getState().role === "guest" ? router.push("/login") :  router.push("/review")
+
                     }
                   }}
                 />
@@ -677,7 +676,9 @@ export default function AboutPage() {
                     if (opinionInput.trim()) {
                       showToast("Terima kasih atas pendapat Anda!");
                       setOpinionInput("");
+                      useAuthStore.getState().role === "guest" ? router.push("/login") :  router.push("/review")
                     }
+
                   }}
                   className="text-gray-400 hover:text-white transition-colors cursor-pointer p-1"
                 >

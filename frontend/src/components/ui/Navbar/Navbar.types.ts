@@ -2,7 +2,7 @@ import * as React from "react";
 
 import type { SidebarSection } from "@/components/ui/Sidebar/Sidebar.types";
 
-export type NavbarVariant = "guest" | "login" | "private" | "back";
+export type NavbarVariant = "guest" | "login" | "private" | "back" | "back-guest";
 
 export interface NavItem {
   /** Identifier unik link navigasi */

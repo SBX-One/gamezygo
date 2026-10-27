@@ -7,6 +7,7 @@ export interface FilterValues {
   status?: string[];
   platforms?: string[];
   games?: string[];
+  payments?: string[];
   priceRange?: [number, number];
   sort?: string;
 }
@@ -15,10 +16,10 @@ export interface FilterModalProps
   extends Omit<React.HTMLAttributes<HTMLDivElement>, "title"> {
   /** Apakah modal terbuka (jika digunakan sebagai overlay dialog) */
   isOpen?: boolean;
-  /** Mode dialog overlay dengan backdrop atau inline card component (default: false) */
+  /** Mode dialog overlay dengan backdrop atau inline card component (default: true) */
   isDialog?: boolean;
-  /** Tipe tampilan filter: 'dropdown' (default), 'dialog' (modal di tengah), atau 'inline' */
-  variant?: "dropdown" | "dialog" | "inline";
+  /** Tipe tampilan filter: 'dialog' (default, modal di tengah), 'dropdown' (kompatibilitas), atau 'inline' */
+  variant?: "dialog" | "dropdown" | "inline";
   /** Penempatan/konteks filter: 'navbar' (default, z-50 top-20) atau 'content' (z-30 relative top-12) */
   placement?: "navbar" | "content";
   /** Callback saat tombol close atau backdrop diklik */

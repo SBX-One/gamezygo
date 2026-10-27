@@ -425,7 +425,7 @@ export function Navbar({
           1. BARIS ATAS: Kiri (Logo W:60 H:32 + Divider + Nav Links) & Kanan (Search + Actions)
          ======================================================== */}
       <div className="w-full px-6 lg:px-20 py-4 flex items-center justify-between gap-4">
-        {variant === "back" ? (
+        {variant === "back" || variant === "back-guest" ? (
           <div className="flex items-center gap-4">
             <Button
               type="button"
@@ -454,9 +454,9 @@ export function Navbar({
             {/* Divider Garis | dan Nav Items (Hanya untuk mode Guest & Login) */}
             {variant !== "private" && (
               <>
-                <div className="h-5 w-px bg-white/15 shrink-0 hidden lg:block" />
+                <div className="h-5 w-px bg-white/15 shrink-0 hidden xl:block" />
 
-                <nav className="hidden lg:flex items-center gap-4 xl:gap-8 shrink-0">
+                <nav className="hidden xl:flex items-center gap-4 xl:gap-8 shrink-0">
                   {navItems.map((item) => {
                     const isActive = activeNavId
                       ? activeNavId === item.id
@@ -528,7 +528,7 @@ export function Navbar({
           )}
 
           {/* Filter Button (Secondary SM) - Tampil di desktop dan mobile jika onFilterClick tersedia */}
-          {variant !== "private" && variant !== "back" && onFilterClick && (
+          {variant !== "private" && variant !== "back" && variant !== "back-guest" && onFilterClick && (
             <Button
               type="button"
               variant="secondary"
@@ -542,7 +542,7 @@ export function Navbar({
           )}
 
           {/* Responsive / Mobile Hamburger Menu Button - Menggantikan tombol filter di layar < lg */}
-          {variant !== "back" && (
+          {variant !== "back" && variant !== "back-guest" && (
             <Button
               type="button"
               variant="secondary"
@@ -556,7 +556,7 @@ export function Navbar({
           )}
 
           {/* Action Buttons Sesuai Varian */}
-          {variant === "guest" || (variant === "back" && !user) ? (
+          {variant === "guest" || variant === "back-guest" || (variant === "back" && !user) ? (
             /* Mode GUEST: Tombol Keranjang (Secondary SM), Login (Secondary SM) & Sign Up (Primary SM) */
               <div className="flex items-center gap-2 sm:gap-3 shrink-0">
                 <Button
@@ -833,7 +833,7 @@ export function Navbar({
                   <CartIcon className="w-4 h-4 text-deep-blue-100" />
                   <span>Keranjang Belanja</span>
                 </Button>
-                {variant === "guest" || (variant === "back" && !user) ? (
+                {variant === "guest" || variant === "back-guest" || (variant === "back" && !user) ? (
                   <div className="flex items-center gap-3 w-full">
                     <Button
                       type="button"

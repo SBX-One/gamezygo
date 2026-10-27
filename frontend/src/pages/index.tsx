@@ -1,4 +1,4 @@
-﻿import * as React from "react";
+import * as React from "react";
 import Head from "next/head";
 import Link from "next/link";
 import { useRouter } from "next/router";
@@ -1523,7 +1523,7 @@ export default function LandingPage() {
               subtitle="Ingin Langsung Buka Semua? Beli Premium!"
               actionLabel="Lihat Premium"
               actionVariant="secondary"
-              onActionClick={() => router.push("/leaderboard")}
+              onActionClick={() => router.push("/bundle")}
               className="sm:max-w-5/8"
             />
           </div>

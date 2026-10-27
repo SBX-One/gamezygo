@@ -9,13 +9,12 @@
  * they will be intercepted and redirected to /login with a return redirect parameter.
  *
  * Per requirements:
- * - /bundle is a private user route (NOT guest)
+ * - /bundle is accessible to guests (preview & plans) but requires login for real action (subscribe)
  * - /library, /history, /wishlist, /request, /profile, /credentials/*, /dashboard/* are private user routes
- * - Shared routes (/store, /leaderboard, /review, /blogs, /about, /cart, /) remain freely accessible to guests
+ * - Shared routes (/store, /leaderboard, /review, /blogs, /about, /cart, /bundle, /) remain freely accessible to guests
  * - Admin routes (/admin/*) are left untouched during current development phase
  */
 export const PROTECTED_USER_ROUTES = [
-  "/bundle",
   "/library",
   "/history",
   "/wishlist",

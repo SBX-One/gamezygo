@@ -121,6 +121,8 @@ export function StoreLayout({
   const effectiveVariant =
     navbarVariant === "guest" && effectiveIsLoggedIn
       ? "login"
+      : navbarVariant === "back" && !effectiveIsLoggedIn
+      ? "back-guest"
       : navbarVariant;
 
   const effectiveUser =
@@ -131,7 +133,7 @@ export function StoreLayout({
         }
       : undefined) ||
     user ||
-    (effectiveVariant !== "guest"
+    (effectiveVariant !== "guest" && effectiveVariant !== "back-guest"
       ? {
           name: authUser?.name || MOCK_USER.name,
           avatarUrl: authUser?.avatarUrl || MOCK_USER.avatarUrl,
@@ -308,8 +310,7 @@ export function StoreLayout({
       {!onFilterClick && (
         <FilterModal
           isOpen={isFilterModalOpen}
-          placement="navbar"
-          variant="dropdown"
+          variant="dialog"
           onClose={() => toggleFilterModal(false)}
           onApply={handleGlobalFilterApply}
           onReset={handleGlobalFilterReset}

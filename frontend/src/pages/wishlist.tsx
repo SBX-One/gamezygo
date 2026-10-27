@@ -255,6 +255,7 @@ export default function WishlistPage() {
   };
 
   const handleClearAllFilters = () => {
+    setSearchQuery("");
     setAppliedGenres([]);
     setAppliedCategories([]);
     setAppliedLaunchers([]);
@@ -272,6 +273,12 @@ export default function WishlistPage() {
     appliedGenres.length > 0 ||
     appliedCategories.length > 0 ||
     appliedLaunchers.length > 0;
+
+  const displaySearchQuery = React.useMemo(() => {
+    const q = searchQuery.trim();
+    if (!q) return "";
+    return q.length > 28 ? `${q.slice(0, 28)}...` : q;
+  }, [searchQuery]);
 
   const filteredGames: WishlistGame[] = React.useMemo(() => {
     let list = [...wishlistGames];
@@ -348,16 +355,22 @@ export default function WishlistPage() {
             <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none">
               {/* Header Kiri: Dinamis tergantung status Search & Filter */}
               <div className="min-w-0 flex items-center">
-                {isSearchActive ? (
-                  /* STATE 3: SEARCHED STATE */
-                  <h3 className="text-h3 font-semibold text-gray-50 tracking-normal truncate">
-                    Cari &quot;{searchQuery}&quot;
+                {isSearchActive && !isFilterActive ? (
+                  /* STATE 3: ONLY SEARCH ACTIVE */
+                  <h3
+                    className="text-h3 font-semibold text-gray-50 tracking-normal truncate max-w-full sm:max-w-xl"
+                    title={`Cari "${searchQuery.trim()}"`}
+                  >
+                    Cari &quot;{displaySearchQuery}&quot;
                   </h3>
                 ) : isFilterActive ? (
-                  /* STATE 2: FILTER APPLIED STATE */
+                  /* STATE 2: FILTER ACTIVE (WITH OR WITHOUT SEARCH) */
                   <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-                    <span className="text-body-md font-semibold text-gray-300 mr-1">
-                      Tampilkan:
+                    <span
+                      className="text-body-md font-semibold text-gray-300 mr-1 truncate max-w-xs sm:max-w-md"
+                      title={searchQuery.trim() ? `Cari "${searchQuery.trim()}":` : "Tampilkan:"}
+                    >
+                      {searchQuery.trim() ? `Cari "${displaySearchQuery}":` : "Tampilkan:"}
                     </span>
 
                     {appliedGenres.map((genre) => (
@@ -448,14 +461,12 @@ export default function WishlistPage() {
                 </Button>
 
                 {/* ========================================================
-                    FILTER & SORT DROPDOWN (Floating popover persis seperti Home Page)
+                    FILTER & SORT MODAL DIALOG
                    ======================================================== */}
                 <FilterModal
                   isOpen={isFilterModalOpen}
-                  variant="dropdown"
-                  placement="content"
+                  variant="dialog"
                   onClose={() => setIsFilterModalOpen(false)}
-                  className="sm:top-12 sm:right-0 lg:right-0"
                   selectedCategories={modalCategories}
                   onToggleCategory={(category) => {
                     setModalCategories((prev) =>

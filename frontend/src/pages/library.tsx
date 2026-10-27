@@ -341,6 +341,7 @@ export default function GameLibraryPage() {
   };
 
   const handleClearAllFilters = () => {
+    setSearchQuery("");
     setAppliedGenres([]);
     setAppliedCategories([]);
     setAppliedLaunchers([]);
@@ -359,6 +360,12 @@ export default function GameLibraryPage() {
     appliedGenres.length > 0 ||
     appliedCategories.length > 0 ||
     appliedLaunchers.length > 0;
+
+  const displaySearchQuery = React.useMemo(() => {
+    const q = searchQuery.trim();
+    if (!q) return "";
+    return q.length > 28 ? `${q.slice(0, 28)}...` : q;
+  }, [searchQuery]);
 
   // Base Library Games (from API with fallback to mock data)
   const baseGames = React.useMemo(() => {
@@ -440,16 +447,22 @@ export default function GameLibraryPage() {
           <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none">
             {/* Header Kiri: Dinamis tergantung status Search & Filter */}
             <div className="min-w-0 flex items-center">
-              {isSearchActive ? (
-                /* STATE 3: SEARCHED STATE (Screenshot 4) */
-                <h3 className="text-h3 font-semibold text-gray-50 tracking-normal truncate">
-                  Cari &quot;{searchQuery}&quot;
+              {isSearchActive && !isFilterActive ? (
+                /* STATE 3: ONLY SEARCH ACTIVE */
+                <h3
+                  className="text-h3 font-semibold text-gray-50 tracking-normal truncate max-w-full sm:max-w-xl"
+                  title={`Cari "${searchQuery.trim()}"`}
+                >
+                  Cari &quot;{displaySearchQuery}&quot;
                 </h3>
               ) : isFilterActive ? (
-                /* STATE 2: FILTER APPLIED STATE (Screenshot 3) */
+                /* STATE 2: FILTER ACTIVE (WITH OR WITHOUT SEARCH) */
                 <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
-                  <span className="text-body-md font-semibold text-gray-300 mr-1">
-                    Tampilkan:
+                  <span
+                    className="text-body-md font-semibold text-gray-300 mr-1 truncate max-w-xs sm:max-w-md"
+                    title={searchQuery.trim() ? `Cari "${searchQuery.trim()}":` : "Tampilkan:"}
+                  >
+                    {searchQuery.trim() ? `Cari "${displaySearchQuery}":` : "Tampilkan:"}
                   </span>
 
                   {appliedGenres.map((genre) => (
@@ -543,14 +556,12 @@ export default function GameLibraryPage() {
               </Button>
 
               {/* ========================================================
-                  FILTER & SORT DROPDOWN (Persis seperti di Home Page)
+                  FILTER & SORT MODAL DIALOG
                  ======================================================== */}
               <FilterModal
                 isOpen={isFilterModalOpen}
-                variant="dropdown"
-                placement="content"
+                variant="dialog"
                 onClose={() => setIsFilterModalOpen(false)}
-                className="sm:top-12 sm:right-0 lg:right-0"
                 selectedCategories={modalCategories}
                 onToggleCategory={(category) => {
                   setModalCategories((prev) =>

@@ -144,7 +144,7 @@ export function Footer({
       {/* ========================================================
           4. Content Grid: 5 Kolom dengan Justify Between (z-10 di atas background logo)
          ======================================================== */}
-      <div className="relative z-10 w-full max-w-300 mx-auto flex flex-col md:flex-row justify-between items-start gap-10 md:gap-8">
+      <div className="relative z-10 w-full max-w-300 mx-auto grid grid-cols-1 md:grid-cols-3 lg:flex lg:flex-row justify-between items-start gap-10 md:gap-8">
         {/* Kolom 1: Brand (Logo Putih + Text H4 Semi Bold) */}
         <div className="flex items-center gap-3 shrink-0">
           <Link

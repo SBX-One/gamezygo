@@ -5,6 +5,7 @@ import { Header, Button, UserRank, Toast, Pill } from "@/components/ui";
 import { useLeaderboard, useUserLeaderboardRank } from "@/hooks/use-leaderboard";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { MOCK_USER } from "@/lib/mock/data";
+import router from "next/router";
 
 interface LeaderboardUser {
   rank: number;
@@ -145,7 +146,7 @@ export default function LeaderboardPage() {
               subtitle="Ingin Langsung Buka Semua? Beli Premium"
               actionLabel="Lihat Premium"
               actionVariant="secondary"
-              onActionClick={() => handleToast("Membuka paket berlangganan...")}
+              onActionClick={() => router.push("/bundle")}
               className="w-full sm:max-w-4/7"
             />
           </div>
@@ -301,7 +302,7 @@ export default function LeaderboardPage() {
                     type="button"
                     variant="primary"
                     size="sm"
-                    onClick={() => handleToast("Voucher berhasil diklaim!")}
+                    onClick={useAuthStore.getState().role === "guest" ? () => router.push("/login") : () => router.push("/bundle") }
                     className="w-full sm:w-auto px-6 py-2 cursor-pointer h-11 justify-center"
                   >
                     Klaim Hadiah

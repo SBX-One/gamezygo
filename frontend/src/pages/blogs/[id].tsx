@@ -14,7 +14,8 @@ import {
   PROMO_GAMES,
   getBlogById,
 } from "@/features/catalog/blogs.data";
-import { useBlogDetail } from "@/hooks/use-blogs";
+import { useBlogDetail } from "@/hooks/use-blogs"; 
+import { useAuthStore } from "@/stores/use-auth-store";
 import { formatDate } from "@/utils/formatters";
 
 // Fluent Play Icon
@@ -61,6 +62,16 @@ export default function BlogDetailPage() {
   const router = useRouter();
   const { id } = router.query;
   const slug = typeof id === "string" ? id : "";
+
+  // Auth state to differentiate between back (logged in) and back-guest
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const authUser = useAuthStore((s) => s.user);
+  const isMounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+  const isLoggedIn = isMounted && Boolean(isAuthenticated && authUser);
 
   // API Blog Detail Hook
   const { data: blogApiRes } = useBlogDetail(slug);
@@ -114,11 +125,13 @@ export default function BlogDetailPage() {
       </Head>
 
       <StoreLayout
-        navbarVariant="back"
+        navbarVariant={isLoggedIn ? "back" : "back-guest"}
         backTitle="Artikel"
         onBackClick={() => router.push("/blogs")}
         hideSidebar={true}
         onCartClick={() => router.push("/cart")}
+        onLoginClick={() => router.push("/login")}
+        onSignUpClick={() => router.push("/login?tab=signup")}
         contentClassName="flex-1 w-full flex flex-col pt-8 pb-20 p-0 mb-0"
       >
           {/* Upper Section (Constrained to max-w-320 container) */}
@@ -185,7 +198,7 @@ export default function BlogDetailPage() {
             {/* D. ROSTER GUIDE CONTENT SECTION
                 Per Image 3: 200px margin on left & right within 1280px container = max-w-220 mx-auto
             */}
-            <section className="w-full mx-auto mt-16 sm:mt-24 border-t-gradient-secondary px-8xl sm:px-11xl pt-16 sm:pt-24">
+            <section className="w-full mx-auto mt-16 sm:mt-24 border-t-gradient-secondary px-xl sm:px-11xl pt-16 sm:pt-24">
               <h2 className="text-h3 sm:text-h2 font-bold text-white mb-10 sm:mb-12">
                 {blog.guideTitle || "The Marvel Tokon Roster Guide"}
               </h2>

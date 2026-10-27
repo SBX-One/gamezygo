@@ -63,6 +63,34 @@ const CrossIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+// Magnifying glass icon for search badge
+const SearchIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-3.5 h-3.5 shrink-0"
+    {...props}
+  >
+    <path
+      d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M21 21L16.65 16.65"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 
 import productsData from "@/json/products.json";
 import { useAnnouncements } from "@/hooks/use-common";
@@ -98,21 +126,21 @@ const PROMO_BANNERS: BannerSlide[] = [
   {
     id: "summer-promo-1",
     title: "Promo Musim Panas",
-    imageSrc: "/assets/png/Banner.png",
+    imageSrc: "/assets/png/Container.png",
     alt: "Promo Musim Panas - Gamezygo",
     href: "/store?promo=summer",
   },
   {
     id: "summer-promo-2",
     title: "Promo Musim Panas Spesial",
-    imageSrc: "/assets/png/Banner.png",
+    imageSrc: "/assets/png/Container.png",
     alt: "Promo Musim Panas Spesial - Gamezygo",
     href: "/store?promo=summer-special",
   },
   {
     id: "summer-promo-3",
     title: "Promo Musim Panas Flash Deals",
-    imageSrc: "/assets/png/Banner.png",
+    imageSrc: "/assets/png/Container.png",
     alt: "Promo Musim Panas Flash Deals - Gamezygo",
     href: "/store?promo=summer-flash",
   },
@@ -356,48 +384,132 @@ export default function StorePage() {
     selectedGenres,
   ]);
 
+  const handleClearSearch = () => {
+    setSearchQuery("");
+    setPreviewState("default");
+    const nextQuery = { ...router.query };
+    delete nextQuery.q;
+    delete nextQuery.search;
+    router.replace(
+      Object.keys(nextQuery).length > 0
+        ? { pathname: "/store", query: nextQuery }
+        : "/store",
+      undefined,
+      { shallow: true }
+    );
+  };
+
   const handleRemoveGenre = (genreToRemove: string) => {
     const next = activeGenres.filter((g) => g !== genreToRemove);
     setAppliedGenres(next);
     setSelectedGenres(next);
-    if (
-      next.length === 0 &&
-      appliedCategories.length === 0 &&
-      appliedLaunchers.length === 0 &&
-      appliedPriceRange[0] === 0 &&
-      appliedPriceRange[1] === 200000
-    ) {
-      setPreviewState("default");
-      router.replace(
-        searchQuery.trim()
-          ? { pathname: "/store", query: { q: searchQuery.trim() } }
-          : "/store",
-        undefined,
-        { shallow: true }
-      );
-    } else {
-      const queryParams: Record<string, string> = {};
-      if (searchQuery.trim()) queryParams.q = searchQuery.trim();
-      if (next.length > 0) queryParams.genres = next.join(",");
-      if (appliedCategories.length > 0)
-        queryParams.categories = appliedCategories.join(",");
-      if (appliedLaunchers.length > 0)
-        queryParams.launchers = appliedLaunchers.join(",");
-      if (appliedPriceRange[0] > 0)
-        queryParams.minPrice = appliedPriceRange[0].toString();
-      if (appliedPriceRange[1] < 200000)
-        queryParams.maxPrice = appliedPriceRange[1].toString();
-      if (appliedSort !== "Terbaru") queryParams.sort = appliedSort;
+    const queryParams: Record<string, string> = {};
+    if (searchQuery.trim()) queryParams.q = searchQuery.trim();
+    if (next.length > 0) queryParams.genres = next.join(",");
+    if (appliedCategories.length > 0)
+      queryParams.categories = appliedCategories.join(",");
+    if (appliedLaunchers.length > 0)
+      queryParams.launchers = appliedLaunchers.join(",");
+    if (appliedPriceRange[0] > 0)
+      queryParams.minPrice = appliedPriceRange[0].toString();
+    if (appliedPriceRange[1] < 200000)
+      queryParams.maxPrice = appliedPriceRange[1].toString();
+    if (appliedSort !== "Terbaru") queryParams.sort = appliedSort;
 
-      router.replace(
-        { pathname: "/store", query: queryParams },
-        undefined,
-        { shallow: true }
-      );
-    }
+    router.replace(
+      Object.keys(queryParams).length > 0
+        ? { pathname: "/store", query: queryParams }
+        : "/store",
+      undefined,
+      { shallow: true }
+    );
+  };
+
+  const handleRemoveCategory = (catToRemove: string) => {
+    const next = appliedCategories.filter((c) => c !== catToRemove);
+    setAppliedCategories(next);
+    setSelectedCategories(next);
+    const queryParams: Record<string, string> = {};
+    if (searchQuery.trim()) queryParams.q = searchQuery.trim();
+    if (activeGenres.length > 0) queryParams.genres = activeGenres.join(",");
+    if (next.length > 0) queryParams.categories = next.join(",");
+    if (appliedLaunchers.length > 0) queryParams.launchers = appliedLaunchers.join(",");
+    if (appliedPriceRange[0] > 0) queryParams.minPrice = appliedPriceRange[0].toString();
+    if (appliedPriceRange[1] < 200000) queryParams.maxPrice = appliedPriceRange[1].toString();
+    if (appliedSort !== "Terbaru") queryParams.sort = appliedSort;
+
+    router.replace(
+      Object.keys(queryParams).length > 0
+        ? { pathname: "/store", query: queryParams }
+        : "/store",
+      undefined,
+      { shallow: true }
+    );
+  };
+
+  const handleRemoveLauncher = (launcherToRemove: string) => {
+    const next = appliedLaunchers.filter((l) => l !== launcherToRemove);
+    setAppliedLaunchers(next);
+    setSelectedLaunchers(next);
+    const queryParams: Record<string, string> = {};
+    if (searchQuery.trim()) queryParams.q = searchQuery.trim();
+    if (activeGenres.length > 0) queryParams.genres = activeGenres.join(",");
+    if (appliedCategories.length > 0) queryParams.categories = appliedCategories.join(",");
+    if (next.length > 0) queryParams.launchers = next.join(",");
+    if (appliedPriceRange[0] > 0) queryParams.minPrice = appliedPriceRange[0].toString();
+    if (appliedPriceRange[1] < 200000) queryParams.maxPrice = appliedPriceRange[1].toString();
+    if (appliedSort !== "Terbaru") queryParams.sort = appliedSort;
+
+    router.replace(
+      Object.keys(queryParams).length > 0
+        ? { pathname: "/store", query: queryParams }
+        : "/store",
+      undefined,
+      { shallow: true }
+    );
+  };
+
+  const handleResetPriceRange = () => {
+    setAppliedPriceRange([0, 200000]);
+    setPriceRange([0, 200000]);
+    const queryParams: Record<string, string> = {};
+    if (searchQuery.trim()) queryParams.q = searchQuery.trim();
+    if (activeGenres.length > 0) queryParams.genres = activeGenres.join(",");
+    if (appliedCategories.length > 0) queryParams.categories = appliedCategories.join(",");
+    if (appliedLaunchers.length > 0) queryParams.launchers = appliedLaunchers.join(",");
+    if (appliedSort !== "Terbaru") queryParams.sort = appliedSort;
+
+    router.replace(
+      Object.keys(queryParams).length > 0
+        ? { pathname: "/store", query: queryParams }
+        : "/store",
+      undefined,
+      { shallow: true }
+    );
+  };
+
+  const handleResetSort = () => {
+    setAppliedSort("Terbaru");
+    setSelectedSort("Terbaru");
+    const queryParams: Record<string, string> = {};
+    if (searchQuery.trim()) queryParams.q = searchQuery.trim();
+    if (activeGenres.length > 0) queryParams.genres = activeGenres.join(",");
+    if (appliedCategories.length > 0) queryParams.categories = appliedCategories.join(",");
+    if (appliedLaunchers.length > 0) queryParams.launchers = appliedLaunchers.join(",");
+    if (appliedPriceRange[0] > 0) queryParams.minPrice = appliedPriceRange[0].toString();
+    if (appliedPriceRange[1] < 200000) queryParams.maxPrice = appliedPriceRange[1].toString();
+
+    router.replace(
+      Object.keys(queryParams).length > 0
+        ? { pathname: "/store", query: queryParams }
+        : "/store",
+      undefined,
+      { shallow: true }
+    );
   };
 
   const handleClearAllFilters = () => {
+    setSearchQuery("");
     setSelectedGenres([]);
     setAppliedGenres([]);
     setSelectedCategories([]);
@@ -409,13 +521,7 @@ export default function StorePage() {
     setSelectedSort("Terbaru");
     setAppliedSort("Terbaru");
     setPreviewState("default");
-    router.replace(
-      searchQuery.trim()
-        ? { pathname: "/store", query: { q: searchQuery.trim() } }
-        : "/store",
-      undefined,
-      { shallow: true }
-    );
+    router.replace("/store", undefined, { shallow: true });
   };
 
   // Dynamic local admin banners loaded safely after mount to avoid hydration mismatch
@@ -440,16 +546,13 @@ export default function StorePage() {
     }
   }, []);
 
-  // Dynamic Banners from Backend (or admin localStorage post-mount, fallback to local if API empty)
+  // Dynamic Banners from Backend (fallback to PROMO_BANNERS)
   const heroBanners = React.useMemo(() => {
     if (announcementsData?.data && announcementsData.data.length > 0) {
       return announcementsData.data.map(mapAnnouncementToSlide);
     }
-    if (localAdminBanners && localAdminBanners.length > 0) {
-      return localAdminBanners;
-    }
     return PROMO_BANNERS;
-  }, [announcementsData, localAdminBanners]);
+  }, [announcementsData]);
 
   // Dynamic Custom Sections from Backend
   const customSections = React.useMemo(() => {
@@ -461,6 +564,10 @@ export default function StorePage() {
 
   // Filtered Products Logic
   const searchResults = React.useMemo(() => {
+    if (previewState === "filter-empty" || previewState === "searched-empty") {
+      return [];
+    }
+
     let list: Array<ProductItem | ProductCardRowItem> = ALL_STORE_PRODUCTS;
 
     if (productsApiData?.data && productsApiData.data.length > 0) {
@@ -510,6 +617,10 @@ export default function StorePage() {
       });
     }
 
+    if (appliedSort === "Nama (A - Z)") {
+      list = [...list].sort((a, b) => a.title.localeCompare(b.title));
+    }
+
     return list;
   }, [
     searchQuery,
@@ -517,57 +628,11 @@ export default function StorePage() {
     appliedCategories,
     appliedLaunchers,
     appliedPriceRange,
+    appliedSort,
+    previewState,
     productsApiData,
   ]);
 
-  const filteredCatalog = React.useMemo(() => {
-    if (previewState === "filter-empty") {
-      return [];
-    }
-
-    let list =
-      productsApiData?.data && productsApiData.data.length > 0
-        ? productsApiData.data.map(mapProductToCardItem)
-        : [...ALL_STORE_PRODUCTS];
-
-    // 1. Filter by genres & categories
-    if (activeGenres.length > 0) {
-      list = list.filter((product) =>
-        activeGenres.some((g) => product.genres.includes(g))
-      );
-    }
-    if (appliedCategories.length > 0) {
-      list = list.filter((product) =>
-        appliedCategories.some((c) => product.genres.includes(c))
-      );
-    }
-
-    // 2. Filter by launcher / platform
-    if (appliedLaunchers.length > 0) {
-      list = list.filter((product) =>
-        appliedLaunchers.some(
-          (l) =>
-            product.platform?.toLowerCase().includes(l.toLowerCase()) ||
-            l.toLowerCase().includes(product.platform?.toLowerCase() || "")
-        )
-      );
-    }
-
-    // 3. Filter by price range
-    if (appliedPriceRange[0] > 0 || appliedPriceRange[1] < 200000) {
-      list = list.filter((product) => {
-        const price = product.numericPrice ?? 0;
-        return price >= appliedPriceRange[0] && price <= appliedPriceRange[1];
-      });
-    }
-
-    // 4. Sort
-    if (appliedSort === "Nama (A - Z)") {
-      list = [...list].sort((a, b) => a.title.localeCompare(b.title));
-    }
-
-    return list;
-  }, [activeGenres, appliedCategories, appliedLaunchers, appliedPriceRange, appliedSort, previewState, productsApiData]);
 
   const storeCatalogProducts = React.useMemo(() => {
     if (productsApiData?.data && productsApiData.data.length > 0) {
@@ -592,6 +657,12 @@ export default function StorePage() {
     appliedPriceRange[0] > 0 ||
     appliedPriceRange[1] < 200000 ||
     appliedSort !== "Terbaru";
+
+  const displaySearchQuery = React.useMemo(() => {
+    const q = searchQuery.trim();
+    if (!q) return "";
+    return q.length > 28 ? `${q.slice(0, 28)}...` : q;
+  }, [searchQuery]);
 
   return (
     <>
@@ -625,9 +696,7 @@ export default function StorePage() {
           }
         }}
         onSearchClear={() => {
-          setSearchQuery("");
-          setPreviewState("default");
-          router.replace("/store", undefined, { shallow: true });
+          handleClearSearch();
         }}
         onSearchSubmit={(val) => {
           const q = val.trim();
@@ -665,170 +734,117 @@ export default function StorePage() {
               onSearch={() => setExactState("default")}
             />
           </div>
-        ) : isSearchActive ? (
+        ) : isSearchActive || isFilterActive ? (
           /* ======================================================
-              CASE B: SEARCHED STATES (Screenshot 2: Searched / Searched Empty)
-             ====================================================== */
-          <div className="flex flex-col gap-8 pt-8   min-h-screen pb-16">
-            <SectionHeader
-              type="outer"
-              title={`Cari "${searchQuery || 'Grand Thief Auto V'}"`}
-              showAction={false}
-            />
-
-            {searchResults.length > 0 && previewState !== "searched-empty" ? (
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-                {searchResults.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    title={product.title}
-                    imageSrc={product.imageSrc}
-                    genres={product.genres}
-                    originalPrice={product.originalPrice}
-                    price={product.price}
-                    discount={product.discount}
-                    platform={product.platform}
-                    href={`/store/${product.id}`}
-                    onActionClick={() => handleAddToCart(product.title)}
-                  />
-                ))}
-              </div>
-            ) : (
-              <div className="py-10xl">
-                <EmptyState
-                  title="Ups!... Hasil tidak ditemukan"
-                  description="Coba cari hal lain!"
-                  backLabel="Kembali"
-                  searchLabel="Search"
-                  onBack={() => {
-                    setSearchQuery("");
-                    setExactState("default");
-                    router.replace("/store", undefined, { shallow: true });
-                  }}
-                  onSearch={() => {
-                    setSearchQuery("");
-                    setExactState("default");
-                    router.replace("/store", undefined, { shallow: true });
-                  }}
-                />
-              </div>
-            )}
-          </div>
-        ) : isFilterActive ? (
-          /* ======================================================
-              CASE C: FILTER APPLIED / FILTER EMPTY (Screenshot 3)
+              CASE B & C: UNIFIED SEARCH & FILTER APPLIED STATE
+              (Handles: Search Only, Filter Only, and Search + Filter)
              ====================================================== */
           <div className="flex flex-col gap-8 pt-8 min-h-screen pb-16">
-            {/* Header with Active Filter Badges */}
+            {/* Header with Dynamic Title and Active Filter Badges */}
             <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between pb-6.5 border-b border-b-gradient-secondary gap-4">
-              <h3 className="text-h3 font-semibold text-gray-50 tracking-normal">
-                Semua Produk
-              </h3>
-
-              <div className="flex flex-wrap items-center gap-2.5">
-                {activeGenres.map((genre) => (
-                  <Button
-                    key={`genre-${genre}`}
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    rightIcon={<CrossIcon />}
-                    onClick={() => handleRemoveGenre(genre)}
-                  >
-                    {genre}
-                  </Button>
-                ))}
-
-                {appliedCategories.map((cat) => (
-                  <Button
-                    key={`cat-${cat}`}
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    rightIcon={<CrossIcon />}
-                    onClick={() => {
-                      const next = appliedCategories.filter((c) => c !== cat);
-                      setAppliedCategories(next);
-                      setSelectedCategories(next);
-                      const queryParams: Record<string, string> = {};
-                      if (searchQuery.trim()) queryParams.q = searchQuery.trim();
-                      if (activeGenres.length > 0) queryParams.genres = activeGenres.join(",");
-                      if (next.length > 0) queryParams.categories = next.join(",");
-                      if (appliedLaunchers.length > 0) queryParams.launchers = appliedLaunchers.join(",");
-                      if (appliedPriceRange[0] > 0) queryParams.minPrice = appliedPriceRange[0].toString();
-                      if (appliedPriceRange[1] < 200000) queryParams.maxPrice = appliedPriceRange[1].toString();
-                      if (appliedSort !== "Terbaru") queryParams.sort = appliedSort;
-                      router.replace({ pathname: "/store", query: queryParams }, undefined, { shallow: true });
-                    }}
-                  >
-                    {cat}
-                  </Button>
-                ))}
-
-                {appliedLaunchers.map((launcher) => (
-                  <Button
-                    key={`launcher-${launcher}`}
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    rightIcon={<CrossIcon />}
-                    onClick={() => {
-                      const next = appliedLaunchers.filter((l) => l !== launcher);
-                      setAppliedLaunchers(next);
-                      setSelectedLaunchers(next);
-                      const queryParams: Record<string, string> = {};
-                      if (searchQuery.trim()) queryParams.q = searchQuery.trim();
-                      if (activeGenres.length > 0) queryParams.genres = activeGenres.join(",");
-                      if (appliedCategories.length > 0) queryParams.categories = appliedCategories.join(",");
-                      if (next.length > 0) queryParams.launchers = next.join(",");
-                      if (appliedPriceRange[0] > 0) queryParams.minPrice = appliedPriceRange[0].toString();
-                      if (appliedPriceRange[1] < 200000) queryParams.maxPrice = appliedPriceRange[1].toString();
-                      if (appliedSort !== "Terbaru") queryParams.sort = appliedSort;
-                      router.replace({ pathname: "/store", query: queryParams }, undefined, { shallow: true });
-                    }}
-                  >
-                    {launcher}
-                  </Button>
-                ))}
-
-                {(appliedPriceRange[0] > 0 || appliedPriceRange[1] < 200000) && (
-                  <Button
-                    key="price-badge"
-                    type="button"
-                    variant="secondary"
-                    size="sm"
-                    rightIcon={<CrossIcon />}
-                    onClick={() => {
-                      setAppliedPriceRange([0, 200000]);
-                      setPriceRange([0, 200000]);
-                      const queryParams: Record<string, string> = {};
-                      if (searchQuery.trim()) queryParams.q = searchQuery.trim();
-                      if (activeGenres.length > 0) queryParams.genres = activeGenres.join(",");
-                      if (appliedCategories.length > 0) queryParams.categories = appliedCategories.join(",");
-                      if (appliedLaunchers.length > 0) queryParams.launchers = appliedLaunchers.join(",");
-                      if (appliedSort !== "Terbaru") queryParams.sort = appliedSort;
-                      router.replace({ pathname: "/store", query: queryParams }, undefined, { shallow: true });
-                    }}
-                  >
-                    {`Rp ${appliedPriceRange[0].toLocaleString("id-ID")} - Rp ${appliedPriceRange[1].toLocaleString("id-ID")}`}
-                  </Button>
-                )}
-
-                <Button
-                  type="button"
-                  variant="inactive"
-                  size="sm"
-                  onClick={handleClearAllFilters}
+              <div className="min-w-0 flex-1 max-w-full sm:max-w-xl">
+                <h3
+                  className="text-h3 font-semibold text-gray-50 tracking-normal truncate"
+                  title={searchQuery.trim() ? `Cari "${searchQuery.trim()}"` : "Semua Produk"}
                 >
-                  Hapus semua
-                </Button>
+                  {searchQuery.trim()
+                    ? `Cari "${displaySearchQuery}"`
+                    : "Semua Produk"}
+                </h3>
               </div>
+
+              {isFilterActive && (
+                <div className="flex flex-wrap items-center gap-2.5">
+                  {/* 1. Genre Badges */}
+                  {activeGenres.map((genre) => (
+                    <Button
+                      key={`genre-${genre}`}
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      rightIcon={<CrossIcon />}
+                      onClick={() => handleRemoveGenre(genre)}
+                    >
+                      {genre}
+                    </Button>
+                  ))}
+
+                  {/* 2. Category Badges */}
+                  {appliedCategories.map((cat) => (
+                    <Button
+                      key={`cat-${cat}`}
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      rightIcon={<CrossIcon />}
+                      onClick={() => handleRemoveCategory(cat)}
+                    >
+                      {cat}
+                    </Button>
+                  ))}
+
+                  {/* 3. Launcher Badges */}
+                  {appliedLaunchers.map((launcher) => (
+                    <Button
+                      key={`launcher-${launcher}`}
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      rightIcon={<CrossIcon />}
+                      onClick={() => handleRemoveLauncher(launcher)}
+                    >
+                      {launcher}
+                    </Button>
+                  ))}
+
+                  {/* 4. Price Range Badge */}
+                  {(appliedPriceRange[0] > 0 || appliedPriceRange[1] < 200000) && (
+                    <Button
+                      key="price-badge"
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      rightIcon={<CrossIcon />}
+                      onClick={handleResetPriceRange}
+                    >
+                      {`Rp ${appliedPriceRange[0].toLocaleString("id-ID")} - Rp ${appliedPriceRange[1].toLocaleString("id-ID")}`}
+                    </Button>
+                  )}
+
+                  {/* 5. Sort Badge */}
+                  {appliedSort && appliedSort !== "Terbaru" && (
+                    <Button
+                      key="sort-badge"
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      rightIcon={<CrossIcon />}
+                      onClick={handleResetSort}
+                    >
+                      {`Urutan: ${appliedSort}`}
+                    </Button>
+                  )}
+
+                  {/* 6. Hapus Semua Button */}
+                  <Button
+                    type="button"
+                    variant="inactive"
+                    size="sm"
+                    onClick={handleClearAllFilters}
+                    className="cursor-pointer text-gray-400 hover:text-gray-50"
+                  >
+                    Hapus semua
+                  </Button>
+                </div>
+              )}
             </div>
 
-            {/* Filtered Grid or Filter Empty State */}
-            {filteredCatalog.length > 0 ? (
+            {/* Filtered Grid or Empty State */}
+            {searchResults.length > 0 &&
+            previewState !== "searched-empty" &&
+            previewState !== "filter-empty" ? (
               <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-                {filteredCatalog.map((product) => (
+                {searchResults.map((product) => (
                   <ProductCard
                     key={product.id}
                     title={product.title}
@@ -848,17 +864,22 @@ export default function StorePage() {
               <div className="py-10xl">
                 <EmptyState
                   title="Ups!... Hasil tidak ditemukan"
-                  description="Coba cari hal lain!"
+                  description={
+                    searchQuery.trim() &&
+                    (activeGenres.length > 0 ||
+                      appliedCategories.length > 0 ||
+                      appliedLaunchers.length > 0 ||
+                      appliedPriceRange[0] > 0 ||
+                      appliedPriceRange[1] < 200000)
+                      ? `Tidak ada produk "${displaySearchQuery}" yang cocok dengan filter yang dipilih.`
+                      : searchQuery.trim()
+                      ? `Tidak ada produk yang cocok dengan pencarian "${displaySearchQuery}".`
+                      : "Coba cari hal lain atau hapus filter!"
+                  }
                   backLabel="Kembali"
                   searchLabel="Search"
-                  onBack={() => {
-                    setSelectedGenres([]);
-                    setExactState("default");
-                  }}
-                  onSearch={() => {
-                    setSelectedGenres([]);
-                    setExactState("default");
-                  }}
+                  onBack={handleClearAllFilters}
+                  onSearch={handleClearAllFilters}
                 />
               </div>
             )}
@@ -875,6 +896,7 @@ export default function StorePage() {
               subtitle="Ingin Langsung Buka Semua? Beli Premium!"
               actionLabel="Lihat Premium"
               actionVariant="primary"
+              onActionClick={() => router.push("/bundle")}
               className="pt-10xl w-full sm:max-w-5/8 lg:max-w-4/8"
             />
 
@@ -999,7 +1021,7 @@ export default function StorePage() {
          ======================================================== */}
       <FilterModal
         isOpen={isFilterModalOpen}
-        variant="dropdown"
+        variant="dialog"
         onClose={() => setIsFilterModalOpen(false)}
         selectedCategories={selectedCategories}
         onToggleCategory={(category) => {

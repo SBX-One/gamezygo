@@ -559,14 +559,11 @@ export default function BlogsPage() {
                     <FilterIcon className="w-4 h-4 text-deep-blue-100" />
                   </Button>
 
-                  {/* Floating FilterModal Dropdown (Positioned relative to trigger container) */}
+                  {/* FilterModal Dialog */}
                   <FilterModal
                     isOpen={isContentFilterOpen}
-                    variant="dropdown"
-                    placement="content"
-                    
+                    variant="dialog"
                     onClose={() => setIsContentFilterOpen(false)}
-                    className="sm:top-12 sm:right-0 lg:right-0"
                     title="Filter & Sort"
                     categories={CATEGORIES}
                     selectedCategories={modalCategories}

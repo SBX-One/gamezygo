@@ -42,11 +42,11 @@ export async function fetchUserGameLibrary(
 
   try {
     return await apiGet<ApiPaginatedResponse<ProductListItem>>(
-      `/user/profile/products/${queryString}`
+      `/user/profile/products${queryString}`
     );
   } catch {
     return apiGet<ApiPaginatedResponse<ProductListItem>>(
-      `/user/profile/game-library/${queryString}`
+      `/user/profile/game-library${queryString}`
     );
   }
 }

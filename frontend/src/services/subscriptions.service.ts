@@ -22,9 +22,9 @@ export async function fetchSubscriptionPlans(): Promise<
   ApiResponse<SubscriptionPlan[]>
 > {
   try {
-    return await apiGet<ApiResponse<SubscriptionPlan[]>>("/subscriptions/");
+    return await apiGet<ApiResponse<SubscriptionPlan[]>>("/user/subscriptions");
   } catch {
-    return apiGet<ApiResponse<SubscriptionPlan[]>>("/user/subscriptions/");
+    return apiGet<ApiResponse<SubscriptionPlan[]>>("/subscriptions");
   }
 }
 
@@ -77,11 +77,11 @@ export async function fetchSubscriptionProducts(
 
   try {
     return await apiGet<ApiPaginatedResponse<SubscriptionProductItem>>(
-      `/user/profile/subscription/product${query}`
+      `/user/profile/subscriptions/products${query}`
     );
   } catch {
     return apiGet<ApiPaginatedResponse<SubscriptionProductItem>>(
-      `/user/subscription/product${query}`
+      `/user/subscriptions/products${query}`
     );
   }
 }

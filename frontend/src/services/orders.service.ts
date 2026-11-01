@@ -67,7 +67,7 @@ export async function createOrder(
 export async function fetchOrderDetail(
   orderId: string
 ): Promise<ApiResponse<OrderDetailResponse>> {
-  return apiGet<ApiResponse<OrderDetailResponse>>(`/user/orders/${orderId}/`);
+  return apiGet<ApiResponse<OrderDetailResponse>>(`/user/orders/${orderId}`);
 }
 
 /**

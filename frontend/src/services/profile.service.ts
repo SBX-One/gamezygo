@@ -12,13 +12,13 @@ import type {
 export async function fetchUserProfile(): Promise<
   ApiResponse<UserProfileResponse>
 > {
-  return apiGet<ApiResponse<UserProfileResponse>>("/user/profile/");
+  return apiGet<ApiResponse<UserProfileResponse>>("/user/profile");
 }
 
 /**
  * Update user profile
- * Primary Endpoint (Postman user > profile > update): PATCH /api/v1/user/profile/
- * Fallback Endpoint: PUT /api/v1/user/profile/
+ * Primary Endpoint (Postman user > profile > update): PATCH /api/v1/user/profile
+ * Fallback Endpoint: PUT /api/v1/user/profile
  */
 export async function updateUserProfile(
   payload: Partial<UserProfileResponse>
@@ -27,12 +27,12 @@ export async function updateUserProfile(
     return await apiPatch<
       ApiResponse<UserProfileResponse>,
       Partial<UserProfileResponse>
-    >("/user/profile/", payload);
+    >("/user/profile", payload);
   } catch {
     return apiPut<
       ApiResponse<UserProfileResponse>,
       Partial<UserProfileResponse>
-    >("/user/profile/", payload);
+    >("/user/profile", payload);
   }
 }
 

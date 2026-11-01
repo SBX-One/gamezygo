@@ -64,8 +64,8 @@ export async function fetchProducts(
   }
 
   const queryString = queryParams.toString();
-  const primaryUrl = queryString ? `/products?${queryString}` : "/products";
-  const fallbackUrl = queryString ? `/user/products?${queryString}` : "/user/products";
+  const primaryUrl = queryString ? `/user/products?${queryString}` : "/user/products";
+  const fallbackUrl = queryString ? `/products?${queryString}` : "/products";
 
   try {
     return await apiGet<ApiPaginatedResponse<ProductListItem>>(primaryUrl);
@@ -76,40 +76,71 @@ export async function fetchProducts(
 
 /**
  * Fetch single product details by slug or ID
- * Primary Endpoint (Postman guest): GET /api/v1/products/:slug
- * Fallback Endpoint: GET /api/v1/user/products/:slug
+ * Primary Endpoint: GET /api/v1/user/products/:slug
+ * Fallback Endpoint: GET /api/v1/products/:slug
  */
 export async function fetchProductDetail(
   slug: string
 ): Promise<ApiResponse<ProductDetailItem>> {
   try {
-    return await apiGet<ApiResponse<ProductDetailItem>>(`/products/${slug}`);
+    return await apiGet<ApiResponse<ProductDetailItem>>(`/user/products/${slug}`);
   } catch {
-    return apiGet<ApiResponse<ProductDetailItem>>(`/user/products/${slug}`);
+    return apiGet<ApiResponse<ProductDetailItem>>(`/products/${slug}`);
   }
 }
 
 /**
  * Fetch product filter and sort options
- * Endpoint: GET /api/v1/products/filters
+ * Note: Backend does not provide a dedicated /filters route, so static filter options are returned.
  */
 export async function fetchProductFilters(): Promise<
   ApiResponse<ProductFiltersData>
 > {
-  return apiGet<ApiResponse<ProductFiltersData>>("/products/filters");
+  return {
+    success: true,
+    message: "Product filters retrieved successfully",
+    data: {
+      categories: [
+        { id: 1, name: "Action", slug: "action" },
+        { id: 2, name: "Adventure", slug: "adventure" },
+        { id: 3, name: "Open World", slug: "open-world" },
+        { id: 4, name: "Strategy", slug: "strategy" },
+        { id: 5, name: "FPS", slug: "fps" },
+        { id: 6, name: "RPG", slug: "rpg" },
+      ],
+      launcher: [
+        { id: 1, name: "Steam", slug: "steam" },
+        { id: 2, name: "Epic Games", slug: "epic-games" },
+      ],
+      statuses: [
+        { label: "Active", value: true },
+        { label: "Inactive", value: false },
+      ],
+      price_range: {
+        min: 0,
+        max: 1500000,
+      },
+      sort_options: [
+        { label: "Terbaru", value: "latest" },
+        { label: "Terlama", value: "oldest" },
+        { label: "Nama A-Z", value: "a_z" },
+        { label: "Nama Z-A", value: "z_a" },
+      ],
+    },
+  };
 }
 
 /**
  * Fetch custom promo sections for landing storefront
- * Primary Endpoint (Postman guest): GET /api/v1/custom-sections/
- * Fallback Endpoint: GET /api/v1/user/custom-sections/
+ * Primary Endpoint: GET /api/v1/user/custom-sections/
+ * Fallback Endpoint: GET /api/v1/custom-sections/
  */
 export async function fetchCustomSections(): Promise<
   ApiResponse<CustomSectionItem[]>
 > {
   try {
-    return await apiGet<ApiResponse<CustomSectionItem[]>>("/custom-sections/");
+    return await apiGet<ApiResponse<CustomSectionItem[]>>("/user/custom-sections");
   } catch {
-    return apiGet<ApiResponse<CustomSectionItem[]>>("/user/custom-sections/");
+    return apiGet<ApiResponse<CustomSectionItem[]>>("/custom-sections");
   }
 }

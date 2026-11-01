@@ -10,7 +10,7 @@ import type {
  * Endpoint: GET /api/v1/user/cart/
  */
 export async function fetchCart(): Promise<ApiResponse<CartResponse>> {
-  return apiGet<ApiResponse<CartResponse>>("/user/cart/");
+  return apiGet<ApiResponse<CartResponse>>("/user/cart");
 }
 
 /**

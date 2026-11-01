@@ -10,21 +10,21 @@ export async function fetchAnnouncements(): Promise<
   ApiResponse<AnnouncementItem[]>
 > {
   try {
-    return await apiGet<ApiResponse<AnnouncementItem[]>>("/announcements/");
+    return await apiGet<ApiResponse<AnnouncementItem[]>>("/user/announcements");
   } catch {
-    return apiGet<ApiResponse<AnnouncementItem[]>>("/user/announcements/");
+    return apiGet<ApiResponse<AnnouncementItem[]>>("/announcements");
   }
 }
 
 /**
  * Fetch frequently asked questions
- * Primary Endpoint: GET /api/v1/faqs/
- * Fallback Endpoint (Postman raw URL): GET /api/v1/user/faqs/
+ * Primary Endpoint: GET /api/v1/user/faqs
+ * Fallback Endpoint: GET /api/v1/faqs
  */
 export async function fetchFaqs(): Promise<ApiResponse<FaqItem[]>> {
   try {
-    return await apiGet<ApiResponse<FaqItem[]>>("/faqs/");
+    return await apiGet<ApiResponse<FaqItem[]>>("/user/faqs");
   } catch {
-    return apiGet<ApiResponse<FaqItem[]>>("/user/faqs/");
+    return apiGet<ApiResponse<FaqItem[]>>("/faqs");
   }
 }

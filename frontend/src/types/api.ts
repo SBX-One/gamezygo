@@ -273,11 +273,13 @@ export interface LeaderboardItem {
   id: number;
   name: string;
   point: number;
+
 }
 
 export interface UserLeaderboardRank {
   rank: number;
   point: number;
+
 }
 
 // ============================================================================

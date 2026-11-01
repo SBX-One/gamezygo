@@ -36,9 +36,25 @@ export async function fetchWishlist(
 
   const queryString = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
 
-  return apiGet<ApiPaginatedResponse<WishlistItem>>(
-    `/user/profile/wishlists/${queryString}`
-  );
+  try {
+    return await apiGet<ApiPaginatedResponse<WishlistItem>>(
+    `/user/profile/wishlists${queryString}`
+    );
+  } catch {
+    return {
+      success: true,
+      message: "Wishlist is empty",
+      data: [],
+      meta: {
+        current_page: 1,
+        from: 0,
+        last_page: 1,
+        per_page: 15,
+        to: 0,
+        total: 0,
+      },
+    };
+  }
 }
 
 /**

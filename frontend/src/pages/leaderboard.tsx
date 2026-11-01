@@ -92,7 +92,7 @@ export default function LeaderboardPage() {
   const userRankBadge = userRankApiRes?.data?.rank ? `#${userRankApiRes.data.rank}` : "#67";
   const userPointsBadge =
     userRankApiRes?.data?.point !== undefined
-      ? `${userRankApiRes.data.point} pts`
+      ? `${userRankApiRes?.data?.point} pts`
       : "67 pts";
 
   const authUser = useAuthStore((s) => s.user);

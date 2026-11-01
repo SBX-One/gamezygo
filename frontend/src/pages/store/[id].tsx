@@ -553,7 +553,20 @@ export default function GameStoreDetailPage() {
   }, [apiProduct, steamData, matchedProduct]);
 
   // Fetch Steam Game Details (including pc_requirements)
-  const appId = (matchedProduct as { steamAppId?: number })?.steamAppId || 242050;
+  const extractedSteamId = React.useMemo(() => {
+    if (apiProduct?.steam_url) {
+      const match = apiProduct.steam_url.match(/\/app\/(\d+)/);
+      if (match && match[1]) {
+        return Number(match[1]);
+      }
+    }
+    return null;
+  }, [apiProduct?.steam_url]);
+
+  const appId =
+    extractedSteamId ||
+    (matchedProduct as { steamAppId?: number })?.steamAppId ||
+    242050;
 
   React.useEffect(() => {
     let isMounted = true;
@@ -637,7 +650,9 @@ export default function GameStoreDetailPage() {
   // Gallery screenshots from Steam or fallback
   const mediaList = React.useMemo(() => {
     if (steamData?.screenshots && steamData.screenshots.length > 0) {
-      return steamData.screenshots.slice(0, 5).map((s) => s.full || s.thumbnail);
+      return (apiProduct?.thumbnail ? [apiProduct.thumbnail] : []).concat(
+        steamData.screenshots.slice(0, 5).map((s) => s.full || s.thumbnail)
+      );
     }
     const banner =
       apiProduct?.thumbnail ||

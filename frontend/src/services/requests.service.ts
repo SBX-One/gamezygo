@@ -51,7 +51,7 @@ export async function fetchGameRequests(
   const queryString = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
 
   return apiGet<ApiPaginatedResponse<GameRequestItem>>(
-    `/user/game-requests/${queryString}`
+    `/user/game-requests${queryString}`
   );
 }
 

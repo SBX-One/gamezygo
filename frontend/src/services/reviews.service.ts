@@ -8,9 +8,9 @@ import type { ApiResponse, ReviewItem } from "@/types";
  */
 export async function fetchReviews(): Promise<ApiResponse<ReviewItem[]>> {
   try {
-    return await apiGet<ApiResponse<ReviewItem[]>>("/reviews/");
+    return await apiGet<ApiResponse<ReviewItem[]>>("/user/reviews");
   } catch {
-    return apiGet<ApiResponse<ReviewItem[]>>("/user/reviews");
+    return apiGet<ApiResponse<ReviewItem[]>>("/reviews");
   }
 }
 
@@ -22,7 +22,7 @@ export async function fetchUserReviews(): Promise<ApiResponse<ReviewItem[]>> {
   try {
     return await apiGet<ApiResponse<ReviewItem[]>>("/user/reviews");
   } catch {
-    return apiGet<ApiResponse<ReviewItem[]>>("/reviews/");
+    return apiGet<ApiResponse<ReviewItem[]>>("/reviews");
   }
 }
 

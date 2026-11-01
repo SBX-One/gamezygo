@@ -36,8 +36,8 @@ export async function fetchBlogs(
   }
 
   const queryString = queryParams.toString();
-  const primaryUrl = queryString ? `/blogs/?${queryString}` : "/blogs/";
-  const fallbackUrl = queryString ? `/user/blogs/?${queryString}` : "/user/blogs/";
+  const primaryUrl = queryString ? `/user/blogs?${queryString}` : "/user/blogs";
+  const fallbackUrl = queryString ? `/blogs?${queryString}` : "/blogs";
 
   try {
     return await apiGet<ApiResponse<BlogListItem[]>>(primaryUrl);
@@ -48,15 +48,15 @@ export async function fetchBlogs(
 
 /**
  * Fetch single blog details by slug
- * Primary Endpoint: GET /api/v1/blogs/:slug
- * Fallback Endpoint: GET /api/v1/user/blogs/:slug
+ * Primary Endpoint: GET /api/v1/user/blogs/:slug
+ * Fallback Endpoint: GET /api/v1/blogs/:slug
  */
 export async function fetchBlogDetail(
   slug: string
 ): Promise<ApiResponse<BlogDetailItem>> {
   try {
-    return await apiGet<ApiResponse<BlogDetailItem>>(`/blogs/${slug}`);
+    return await apiGet<ApiResponse<BlogDetailItem>>(`/user/blogs/${slug}`);
   } catch {
-    return apiGet<ApiResponse<BlogDetailItem>>(`/user/blogs/${slug}`);
+    return apiGet<ApiResponse<BlogDetailItem>>(`/blogs/${slug}`);
   }
 }

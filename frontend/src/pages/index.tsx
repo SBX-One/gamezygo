@@ -1602,8 +1602,14 @@ export default function LandingPage() {
                     className="w-full bg-transparent text-body-sm text-gray-100 placeholder:text-gray-500 focus:outline-none"
                     onKeyDown={(e) => {
                       if (e.key === "Enter" && opinionInput.trim()) {
-                        showToast("Terima kasih atas pendapat Anda!");
+                        const isGuest = !isAuthenticated || useAuthStore.getState().role === "guest";
                         setOpinionInput("");
+                        if (isGuest) {
+                          router.push("/login");
+                        } else {
+                          showToast("Terima kasih atas pendapat Anda!");
+                          router.push("/review");
+                        }
                       }
                     }}
                   />
@@ -1611,8 +1617,14 @@ export default function LandingPage() {
                     type="button"
                     onClick={() => {
                       if (opinionInput.trim()) {
-                        showToast("Terima kasih atas pendapat Anda!");
+                        const isGuest = !isAuthenticated || useAuthStore.getState().role === "guest";
                         setOpinionInput("");
+                        if (isGuest) {
+                          router.push("/login");
+                        } else {
+                          showToast("Terima kasih atas pendapat Anda!");
+                          router.push("/review");
+                        }
                       }
                     }}
                     className="text-gray-400 hover:text-white transition-colors cursor-pointer p-1"

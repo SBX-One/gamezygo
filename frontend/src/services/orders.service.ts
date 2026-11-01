@@ -1,4 +1,4 @@
-import { apiGet, apiPost, apiDelete } from "@/lib/api-client";
+import { apiGet, apiPost, apiDelete, API_BASE_URL } from "@/lib/api-client";
 import type {
   ApiResponse,
   ApiPaginatedResponse,
@@ -9,13 +9,15 @@ import type {
 } from "@/types";
 
 export interface OrderItemPayload {
-  item_type: "product" | string;
-  product_id: number;
+  item_type: "product" | "subscription" | string;
+  product_id?: number;
+  subscription_plan_id?: number;
 }
 
 export interface CreateOrderPayload {
-  item_type?: "product" | string;
+  item_type?: "product" | "subscription" | string;
   product_id?: number;
+  subscription_plan_id?: number;
   items?: OrderItemPayload[];
 }
 
@@ -31,11 +33,15 @@ export interface UserOrderQueryParams {
  */
 export async function fetchUserOrders(
   params?: UserOrderQueryParams
-): Promise<ApiResponse<OrderDetailResponse[]> | ApiPaginatedResponse<OrderDetailResponse>> {
+): Promise<
+  ApiResponse<OrderDetailResponse[]> | ApiPaginatedResponse<OrderDetailResponse>
+> {
   const queryParts: string[] = [];
   if (params?.page) queryParts.push(`page=${params.page}`);
-  if (params?.status) queryParts.push(`status=${encodeURIComponent(params.status)}`);
-  if (params?.search) queryParts.push(`search=${encodeURIComponent(params.search)}`);
+  if (params?.status)
+    queryParts.push(`status=${encodeURIComponent(params.status)}`);
+  if (params?.search)
+    queryParts.push(`search=${encodeURIComponent(params.search)}`);
   const qs = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
 
   return apiGet<ApiResponse<OrderDetailResponse[]>>(`/user/orders${qs}`);
@@ -106,14 +112,23 @@ export async function createPayment(
 
 /**
  * Check payment status by gateway reference
- * Endpoint: GET /api/v1/user/orders/payments/:reference
+ * Primary Endpoint (Postman user > orders > payments > status):
+ *   GET /api/v1/user/orders/payments/:reference/status
+ * Fallback Endpoint:
+ *   GET /api/v1/user/orders/payments/:reference
  */
 export async function fetchPaymentStatus(
   reference: string
 ): Promise<ApiResponse<OrderDetailResponse>> {
-  return apiGet<ApiResponse<OrderDetailResponse>>(
-    `/user/orders/payments/${reference}`
-  );
+  try {
+    return await apiGet<ApiResponse<OrderDetailResponse>>(
+      `/user/orders/payments/${reference}/status`
+    );
+  } catch {
+    return apiGet<ApiResponse<OrderDetailResponse>>(
+      `/user/orders/payments/${reference}`
+    );
+  }
 }
 
 /**
@@ -129,8 +144,7 @@ export function subscribePaymentSSE(
     return () => {};
   }
 
-  const baseUrl = process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
-  const url = `${baseUrl}/user/orders/payments/${reference}/stream`;
+  const url = `${API_BASE_URL}/user/orders/payments/${reference}/stream`;
 
   try {
     const eventSource = new EventSource(url);
@@ -160,4 +174,3 @@ export function subscribePaymentSSE(
     return () => {};
   }
 }
-

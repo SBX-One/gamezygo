@@ -7,9 +7,11 @@ import {
   FilterModal,
   EmptyState,
   Toast,
+  FilterBadgeSwiper,
 } from "@/components/ui";
 import { useWishlist } from "@/hooks/use-wishlist";
 import { useAddToCart } from "@/hooks/use-cart";
+import { cn } from "@/lib/utils";
 
 // Search Icon
 const SearchIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -188,7 +190,12 @@ export const INITIAL_WISHLIST_GAMES: WishlistGame[] = [
 
 export default function WishlistPage() {
   // Wishlist API integration with graceful fallback
-  const { data: wishlistApiRes } = useWishlist();
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [appliedGenres, setAppliedGenres] = React.useState<string[]>([]);
+  const { data: wishlistApiRes } = useWishlist({
+    search: searchQuery.trim() || undefined,
+    genre_categories: appliedGenres.length > 0 ? appliedGenres : undefined,
+  });
   const addToCartMutation = useAddToCart();
   const [localWishlistGames, setLocalWishlistGames] = React.useState<WishlistGame[]>(
     INITIAL_WISHLIST_GAMES
@@ -212,7 +219,7 @@ export default function WishlistPage() {
   }, [wishlistApiRes, localWishlistGames]);
 
   // Search State
-  const [searchQuery, setSearchQuery] = React.useState<string>("");
+  // Search State moved above
 
   // Filter Modal & Applied Filter State
   const [isFilterModalOpen, setIsFilterModalOpen] = React.useState<boolean>(false);
@@ -226,7 +233,7 @@ export default function WishlistPage() {
 
   // Applied Filters
   const [appliedCategories, setAppliedCategories] = React.useState<string[]>([]);
-  const [appliedGenres, setAppliedGenres] = React.useState<string[]>([]);
+  // Applied Genres moved above
   const [appliedLaunchers, setAppliedLaunchers] = React.useState<string[]>([]);
   const [appliedSort, setAppliedSort] = React.useState<string>("Terbaru");
 
@@ -279,6 +286,11 @@ export default function WishlistPage() {
     if (!q) return "";
     return q.length > 28 ? `${q.slice(0, 28)}...` : q;
   }, [searchQuery]);
+
+  const totalFilterCount =
+    appliedGenres.length + appliedCategories.length + appliedLaunchers.length;
+  const isHeaderFlexCol =
+    totalFilterCount >= 4 || (isSearchActive && totalFilterCount >= 2);
 
   const filteredGames: WishlistGame[] = React.useMemo(() => {
     let list = [...wishlistGames];
@@ -352,68 +364,70 @@ export default function WishlistPage() {
               Only visible when wishlist has items, or in search state
              ======================================================== */}
           {!isTotalWishlistEmpty && (
-            <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none">
+            <div
+              className={cn(
+                "w-full gap-4 select-none",
+                isHeaderFlexCol
+                  ? "flex flex-col items-start"
+                  : "flex flex-col sm:flex-row sm:items-center justify-between"
+              )}
+            >
               {/* Header Kiri: Dinamis tergantung status Search & Filter */}
-              <div className="min-w-0 flex items-center">
+              <div className="min-w-0 flex items-center flex-1 max-w-full">
                 {isSearchActive && !isFilterActive ? (
                   /* STATE 3: ONLY SEARCH ACTIVE */
                   <h3
-                    className="text-h3 font-semibold text-gray-50 tracking-normal truncate max-w-full sm:max-w-xl"
+                    className="text-h3 font-semibold text-gray-50 tracking-normal truncate shrink-0"
                     title={`Cari "${searchQuery.trim()}"`}
                   >
                     Cari &quot;{displaySearchQuery}&quot;
                   </h3>
                 ) : isFilterActive ? (
                   /* STATE 2: FILTER ACTIVE (WITH OR WITHOUT SEARCH) */
-                  <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+                  <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1 max-w-full">
                     <span
-                      className="text-body-md font-semibold text-gray-300 mr-1 truncate max-w-xs sm:max-w-md"
+                      className="text-body-md font-semibold text-gray-300 mr-1 shrink-0"
                       title={searchQuery.trim() ? `Cari "${searchQuery.trim()}":` : "Tampilkan:"}
                     >
                       {searchQuery.trim() ? `Cari "${displaySearchQuery}":` : "Tampilkan:"}
                     </span>
 
-                    {appliedGenres.map((genre) => (
-                      <Button
-                        key={genre}
-                        type="button"
-                        variant="secondary"
-                        size="sm"
-                        rightIcon={<CrossIcon />}
-                        onClick={() => handleRemoveGenre(genre)}
-                        className="cursor-pointer"
-                      >
-                        {genre}
-                      </Button>
-                    ))}
-
-                    {appliedLaunchers.map((launcher) => (
-                      <Button
-                        key={launcher}
-                        type="button"
-                        variant="secondary"
-                        size="sm"
-                        rightIcon={<CrossIcon />}
-                        onClick={() => handleRemoveLauncher(launcher)}
-                        className="cursor-pointer"
-                      >
-                        {launcher}
-                      </Button>
-                    ))}
-
-                    <Button
-                      type="button"
-                      variant="inactive"
-                      size="sm"
-                      onClick={handleClearAllFilters}
-                      className="cursor-pointer text-gray-400 hover:text-gray-50"
+                    <FilterBadgeSwiper
+                      onClearAll={handleClearAllFilters}
+                      className="min-w-0 flex-1"
                     >
-                      Hapus semua
-                    </Button>
+                      {appliedGenres.map((genre) => (
+                        <Button
+                          key={genre}
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          rightIcon={<CrossIcon />}
+                          onClick={() => handleRemoveGenre(genre)}
+                          className="cursor-pointer whitespace-nowrap shrink-0"
+                        >
+                          {genre}
+                        </Button>
+                      ))}
+
+                      {appliedLaunchers.map((launcher) => (
+                        <Button
+                          key={launcher}
+                          type="button"
+                          variant="secondary"
+                          size="sm"
+                          rightIcon={<CrossIcon />}
+                          onClick={() => handleRemoveLauncher(launcher)}
+                          className="cursor-pointer whitespace-nowrap shrink-0"
+                        >
+                          {launcher}
+                        </Button>
+                      ))}
+                    </FilterBadgeSwiper>
                   </div>
                 ) : (
                   /* STATE 1: DEFAULT STATE */
-                  <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 shrink-0">
                     <span className="text-body-md font-normal text-gray-300">
                       Tampilkan:
                     </span>

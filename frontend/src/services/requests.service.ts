@@ -6,8 +6,11 @@ import type {
 } from "@/types";
 
 export interface GameRequestQueryParams {
-  scope?: "mine" | "all";
+  scope?: "mine" | "all" | "added";
+  search?: string;
+  status?: string;
   page?: number;
+  per_page?: number;
 }
 
 export interface CreateGameRequestPayload {
@@ -18,7 +21,7 @@ export interface CreateGameRequestPayload {
 
 /**
  * Fetch game requests list
- * Endpoint: GET /api/v1/user/game-requests/?scope=mine|all
+ * Endpoint: GET /api/v1/user/game-requests/?scope=mine|all|added&search=&status=&page=&per_page=
  */
 export async function fetchGameRequests(
   params?: GameRequestQueryParams
@@ -29,8 +32,20 @@ export async function fetchGameRequests(
     queryParts.push(`scope=${encodeURIComponent(params.scope)}`);
   }
 
+  if (params?.search) {
+    queryParts.push(`search=${encodeURIComponent(params.search)}`);
+  }
+
+  if (params?.status) {
+    queryParts.push(`status=${encodeURIComponent(params.status)}`);
+  }
+
   if (params?.page) {
     queryParts.push(`page=${params.page}`);
+  }
+
+  if (params?.per_page) {
+    queryParts.push(`per_page=${params.per_page}`);
   }
 
   const queryString = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";

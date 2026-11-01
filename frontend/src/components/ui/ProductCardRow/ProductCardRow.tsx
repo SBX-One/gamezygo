@@ -182,7 +182,7 @@ export function ProductCardRow({
             platform={product.platform}
             isBestSeller={product.isBestSeller ?? false}
             buttonText="Tambah Keranjang"
-            href={`/store/${product.id}`}
+            href={`/store/${product.slug || product.id}`}
             onActionClick={() => onAddToCart?.(product.title)}
             className={cn(isHorizontal ? "w-full" : "max-lg:pb-8xl", cardClassName)}
           />
@@ -292,7 +292,7 @@ export function ProductCardRow({
                 platform={product.platform}
                 isBestSeller={product.isBestSeller ?? false}
                 buttonText="Tambah Keranjang"
-                href={`/store/${product.id}`}
+                href={`/store/${product.slug || product.id}`}
                 onActionClick={() => onAddToCart?.(product.title)}
                 className={cn("h-full", isHorizontal ? "sm:min-w-0" : "max-lg:pb-8xl", cardClassName)}
               />

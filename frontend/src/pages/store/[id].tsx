@@ -22,6 +22,9 @@ import { BUNDLE_GAMES } from "@/pages/bundle";
 import { INITIAL_WISHLIST_GAMES } from "@/pages/wishlist";
 import { useCartStore } from "@/stores/use-cart-store";
 import { useProductDetail } from "@/hooks/use-products";
+import { useAddToCart } from "@/hooks/use-cart";
+import { useAddToWishlist, useRemoveFromWishlist } from "@/hooks/use-wishlist";
+import { useAuthStore } from "@/stores/use-auth-store";
 import { formatRupiah, formatDiscount } from "@/utils/formatters";
 
 // ============================================================================
@@ -401,6 +404,10 @@ export default function GameStoreDetailPage() {
 
   // Cart store integration
   const { addItem, toggleCart } = useCartStore();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const addToCartMutation = useAddToCart();
+  const addToWishlistMutation = useAddToWishlist();
+  const removeFromWishlistMutation = useRemoveFromWishlist();
 
   // Local state
   const [isWishlisted, setIsWishlisted] = React.useState(false);
@@ -568,6 +575,24 @@ export default function GameStoreDetailPage() {
 
   // Parse Minimum & Recommended specifications from Steam Store API
   const minSpecs: ParsedSystemRequirements = React.useMemo(() => {
+    const apiSpecs =
+      apiProduct?.specification_requirements ||
+      apiProduct?.product_specification_requirements ||
+      [];
+    const minApi = apiSpecs.filter((s) => s.type === "minimum");
+    if (minApi.length > 0) {
+      const findReq = (key: string, fallback: string) =>
+        minApi.find((s) => s.label.toLowerCase().includes(key))?.requirement || fallback;
+      return {
+        os: findReq("os", "Windows 10 (64-bit)"),
+        cpu: findReq("cpu", findReq("processor", "Intel Core i5-2500K / AMD FX-6300")),
+        ram: findReq("ram", findReq("memory", "8 GB RAM")),
+        gpu: findReq("gpu", findReq("graphics", "NVIDIA GeForce GTX 660 / AMD Radeon HD 7870")),
+        directx: findReq("directx", "Versi 11"),
+        storage: findReq("storage", "30 GB Available Space"),
+        soundCard: findReq("sound", "DX9 compliant"),
+      };
+    }
     return parseSteamRequirements(steamData?.pc_requirements?.minimum, {
       os: "Windows 10 (64-bit)",
       cpu: "Intel Core i5-2500K @ 3.3 GHz / AMD FX-6300 @ 3.5 GHz",
@@ -577,9 +602,27 @@ export default function GameStoreDetailPage() {
       storage: "30 GB Available Space",
       soundCard: "DX9 compliant",
     });
-  }, [steamData?.pc_requirements?.minimum]);
+  }, [apiProduct, steamData?.pc_requirements?.minimum]);
 
   const recSpecs: ParsedSystemRequirements = React.useMemo(() => {
+    const apiSpecs =
+      apiProduct?.specification_requirements ||
+      apiProduct?.product_specification_requirements ||
+      [];
+    const recApi = apiSpecs.filter((s) => s.type === "recommended");
+    if (recApi.length > 0) {
+      const findReq = (key: string, fallback: string) =>
+        recApi.find((s) => s.label.toLowerCase().includes(key))?.requirement || fallback;
+      return {
+        os: findReq("os", "Windows 11 (64-bit)"),
+        cpu: findReq("cpu", findReq("processor", "Intel Core i7-4770 / AMD Ryzen 5 1600")),
+        ram: findReq("ram", findReq("memory", "16 GB RAM")),
+        gpu: findReq("gpu", findReq("graphics", "NVIDIA GeForce GTX 970 / AMD Radeon R9 290")),
+        directx: findReq("directx", "Versi 12"),
+        storage: findReq("storage", "30 GB Available Space"),
+        soundCard: findReq("sound", "DX9 compliant"),
+      };
+    }
     return parseSteamRequirements(steamData?.pc_requirements?.recommended, {
       os: "Windows 11 (64-bit)",
       cpu: "Intel Core i7-4770 @ 3.4 GHz / AMD Ryzen 5 1600 @ 3.2 GHz",
@@ -589,7 +632,7 @@ export default function GameStoreDetailPage() {
       storage: "30 GB Available Space",
       soundCard: "DX9 compliant",
     });
-  }, [steamData?.pc_requirements?.recommended]);
+  }, [apiProduct, steamData?.pc_requirements?.recommended]);
 
   // Gallery screenshots from Steam or fallback
   const mediaList = React.useMemo(() => {
@@ -638,6 +681,10 @@ export default function GameStoreDetailPage() {
       (matchedProduct as { id?: string | number } | null)?.id || id || appId
     );
     addItem(prodId, 1);
+    const numericId = apiProduct?.id || Number(prodId);
+    if (isAuthenticated && !isNaN(numericId) && numericId > 0) {
+      addToCartMutation.mutate(numericId);
+    }
     showToast(`"${gameTitle}" berhasil ditambahkan ke keranjang!`, "success");
     setTimeout(() => {
       toggleCart(true);
@@ -646,6 +693,26 @@ export default function GameStoreDetailPage() {
 
   // Wishlist Handler
   const handleToggleWishlist = () => {
+    const numericId =
+      apiProduct?.id ||
+      Number((matchedProduct as { id?: string | number } | null)?.id || id);
+    const next = !isWishlisted;
+    setIsWishlisted(next);
+    if (isAuthenticated && !isNaN(numericId) && numericId > 0) {
+      if (next) {
+        addToWishlistMutation.mutate(numericId);
+      } else {
+        removeFromWishlistMutation.mutate(numericId);
+      }
+    }
+    showToast(
+      next
+        ? `"${gameTitle}" berhasil ditambahkan ke Wishlist!`
+        : `"${gameTitle}" dihapus dari Wishlist.`,
+      next ? "success" : "error"
+    );
+  };
+  const _unusedToggleWishlist = () => {
     setIsWishlisted((prev) => {
       const next = !prev;
       showToast(
@@ -718,6 +785,10 @@ export default function GameStoreDetailPage() {
               );
               addItem(prodId, 1);
               showToast("Added to Cart", "success");
+              const numericId = apiProduct?.id || Number(prodId);
+              if (isAuthenticated && !isNaN(numericId) && numericId > 0) {
+                addToCartMutation.mutate(numericId);
+              }
             }}
             className="w-12 sm:w-fit px-3 py-3 shrink-0 flex items-center justify-center cursor-pointer"
             aria-label="Tambah ke Keranjang"
@@ -755,7 +826,7 @@ export default function GameStoreDetailPage() {
           className="w-full py-3"
           onClick={() => {
             window.open(
-              `https://store.steampowered.com/app/${appId}`,
+              apiProduct?.steam_url || `https://store.steampowered.com/app/${appId}`,
               "_blank"
             );
           }}

@@ -1,5 +1,10 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fetchCart, addToCart, removeFromCart } from "@/services/cart.service";
+import {
+  fetchCart,
+  addToCart,
+  removeFromCart,
+  clearCartApi,
+} from "@/services/cart.service";
 
 export const CART_KEYS = {
   all: ["cart"] as const,
@@ -38,6 +43,20 @@ export function useRemoveFromCart() {
 
   return useMutation({
     mutationFn: (cartItemId: number | string) => removeFromCart(cartItemId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: CART_KEYS.all });
+    },
+  });
+}
+
+/**
+ * Hook to clear all items from cart
+ */
+export function useClearCart() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: () => clearCartApi(),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: CART_KEYS.all });
     },

@@ -3,7 +3,7 @@ import Head from "next/head";
 import { useRouter } from "next/router";
 import { StoreLayout } from "@/components/layout";
 import { Button, EmptyState, Toast, Item } from "@/components/ui";
-import { useCart, useRemoveFromCart } from "@/hooks/use-cart";
+import { useCart, useRemoveFromCart, useClearCart } from "@/hooks/use-cart";
 import { formatRupiah, formatDiscount } from "@/utils/formatters";
 import { useAuthStore } from "@/stores/use-auth-store";
 
@@ -119,6 +119,7 @@ export default function CartPage() {
   // Server-side Cart API Hook
   const { data: cartApiRes } = useCart();
   const removeCartMutation = useRemoveFromCart();
+  const clearCartMutation = useClearCart();
 
   // Local state fallback
   const [localCartItems, setLocalCartItems] = React.useState<CartItemData[]>(INITIAL_CART_ITEMS);
@@ -183,6 +184,9 @@ export default function CartPage() {
 
   // Clear all items (switches to Empty State in Screenshot 2)
   const handleClearAll = () => {
+    if (cartApiRes?.data) {
+      clearCartMutation.mutate();
+    }
     setLocalCartItems([]);
     setAppliedVoucher(null);
     setDiscountPercent(0);

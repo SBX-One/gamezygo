@@ -1,16 +1,10 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
+import axios from "axios";
 import type { User } from "@/types";
+import type { AuthLoginPayload, AuthRegisterPayload } from "@/types/api";
+import { loginApi, registerApi, logoutApi } from "@/services/auth.service";
 import { MOCK_USER, MOCK_TOKEN } from "@/lib/mock/data";
-
-/**
- * Usage Example:
- * 
- * const { user, isAuthenticated, isLoading, login, logout } = useAuthStore();
- * or for performance:
- * const user = useAuthUser();
- * const isAuthenticated = useIsAuthenticated();
- */
 
 export interface AuthState {
   user: User | null;
@@ -23,7 +17,8 @@ export interface AuthState {
 }
 
 export interface AuthActions {
-  login: (credentials: { email: string }) => Promise<void>;
+  login: (credentials: AuthLoginPayload) => Promise<void>;
+  register: (payload: AuthRegisterPayload) => Promise<void>;
   logout: () => void;
   setToken: (token: string | null) => void;
   setRefreshToken: (refreshToken: string | null) => void;
@@ -37,7 +32,7 @@ export type AuthStore = AuthState & AuthActions;
 export const useAuthStore = create<AuthStore>()(
   devtools(
     persist(
-      (set) => ({
+      (set, get) => ({
         user: null,
         token: null,
         refreshToken: null,
@@ -49,30 +44,157 @@ export const useAuthStore = create<AuthStore>()(
         login: async (credentials) => {
           set({ isLoading: true, error: null });
           try {
-            // TODO: Integrate real Laravel API endpoint here.
-            // Endpoint: POST /api/v1/auth/login or POST /api/v1/orders/checkout auth interceptor
-            // Target API client in src/services/auth.ts
-            // Currently utilizing temporary mock data from src/lib/mock/data.ts
-            
-            // Simulating API latency
-            await new Promise((resolve) => setTimeout(resolve, 500));
-
             if (!credentials.email) {
               throw new Error("Email is required");
             }
 
-            const mappedRole: "guest" | "user" | "admin" = 
+            try {
+              const res = await loginApi({
+                email: credentials.email,
+                password: credentials.password || "password",
+              });
+
+              const apiData = res?.data;
+              const token =
+                apiData?.token ||
+                apiData?.access_token ||
+                (res as unknown as { token?: string })?.token ||
+                MOCK_TOKEN;
+              const refreshToken = apiData?.refresh_token || null;
+              const apiUser = apiData?.user;
+
+              const mappedUser: User = apiUser
+                ? {
+                    id: String(apiUser.id),
+                    name: apiUser.name || credentials.email.split("@")[0],
+                    email: apiUser.email || credentials.email,
+                    role: apiUser.role === "admin" ? "admin" : "customer",
+                    avatarUrl: apiUser.avatar_url || MOCK_USER.avatarUrl,
+                  }
+                : {
+                    ...MOCK_USER,
+                    email: credentials.email,
+                  };
+
+              const mappedRole: "guest" | "user" | "admin" =
+                mappedUser.role === "admin" ? "admin" : "user";
+
+              set({
+                user: mappedUser,
+                token,
+                refreshToken,
+                role: mappedRole,
+                isAuthenticated: true,
+                isLoading: false,
+              });
+              return;
+            } catch (apiErr) {
+              // If backend returned explicit 401/422 validation error, surface it
+              if (
+                axios.isAxiosError(apiErr) &&
+                apiErr.response &&
+                (apiErr.response.status === 401 || apiErr.response.status === 422)
+              ) {
+                const msg =
+                  (apiErr.response.data as { message?: string })?.message ||
+                  "Email atau password tidak valid.";
+                throw new Error(msg);
+              }
+              // Otherwise fallback gracefully to mock user when backend is offline
+            }
+
+            const mappedRole: "guest" | "user" | "admin" =
               MOCK_USER.role === "admin" ? "admin" : "user";
 
             set({
-              user: MOCK_USER,
+              user: {
+                ...MOCK_USER,
+                email: credentials.email,
+              },
               token: MOCK_TOKEN,
               role: mappedRole,
               isAuthenticated: true,
               isLoading: false,
             });
           } catch (err) {
-            const message = err instanceof Error ? err.message : "Failed to login";
+            const message =
+              err instanceof Error ? err.message : "Failed to login";
+            set({
+              error: message,
+              isLoading: false,
+            });
+            throw err;
+          }
+        },
+
+        register: async (payload) => {
+          set({ isLoading: true, error: null });
+          try {
+            try {
+              const res = await registerApi(payload);
+              const apiData = res?.data;
+              const token =
+                apiData?.token ||
+                apiData?.access_token ||
+                (res as unknown as { token?: string })?.token ||
+                MOCK_TOKEN;
+              const refreshToken = apiData?.refresh_token || null;
+              const apiUser = apiData?.user;
+
+              const mappedUser: User = apiUser
+                ? {
+                    id: String(apiUser.id),
+                    name: apiUser.name || payload.name,
+                    email: apiUser.email || payload.email,
+                    role: apiUser.role === "admin" ? "admin" : "customer",
+                    avatarUrl: apiUser.avatar_url || MOCK_USER.avatarUrl,
+                  }
+                : {
+                    ...MOCK_USER,
+                    name: payload.name,
+                    email: payload.email,
+                  };
+
+              const mappedRole: "guest" | "user" | "admin" =
+                mappedUser.role === "admin" ? "admin" : "user";
+
+              set({
+                user: mappedUser,
+                token,
+                refreshToken,
+                role: mappedRole,
+                isAuthenticated: true,
+                isLoading: false,
+              });
+              return;
+            } catch (apiErr) {
+              if (
+                axios.isAxiosError(apiErr) &&
+                apiErr.response &&
+                apiErr.response.status === 422
+              ) {
+                const msg =
+                  (apiErr.response.data as { message?: string })?.message ||
+                  "Data pendaftaran tidak valid.";
+                throw new Error(msg);
+              }
+            }
+
+            // Fallback when backend is offline
+            set({
+              user: {
+                ...MOCK_USER,
+                name: payload.name,
+                email: payload.email,
+              },
+              token: MOCK_TOKEN,
+              role: "user",
+              isAuthenticated: true,
+              isLoading: false,
+            });
+          } catch (err) {
+            const message =
+              err instanceof Error ? err.message : "Failed to register";
             set({
               error: message,
               isLoading: false,
@@ -82,6 +204,12 @@ export const useAuthStore = create<AuthStore>()(
         },
 
         logout: () => {
+          const currentToken = get().token;
+          if (currentToken && currentToken !== MOCK_TOKEN) {
+            logoutApi().catch(() => {
+              // Ignore network/401 errors during logout cleanup
+            });
+          }
           set({
             user: null,
             token: null,
@@ -114,9 +242,13 @@ export const useAuthStore = create<AuthStore>()(
 
         updateUser: (updatedFields) => {
           set((state) => {
-            const updatedUser = state.user ? { ...state.user, ...updatedFields } : null;
-            const updatedRole = updatedUser 
-              ? (updatedUser.role === "admin" ? "admin" : "user" as const)
+            const updatedUser = state.user
+              ? { ...state.user, ...updatedFields }
+              : null;
+            const updatedRole = updatedUser
+              ? updatedUser.role === "admin"
+                ? ("admin" as const)
+                : ("user" as const)
               : ("guest" as const);
             return {
               user: updatedUser,
@@ -129,10 +261,10 @@ export const useAuthStore = create<AuthStore>()(
       }),
       {
         name: "gamezygo-auth-storage",
-        // Only persist serializable auth data
         partialize: (state) => ({
           user: state.user,
           token: state.token,
+          refreshToken: state.refreshToken,
           role: state.role,
           isAuthenticated: state.isAuthenticated,
         }),

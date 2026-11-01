@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchReviews,
+  fetchUserReviews,
   createReview,
   updateReview,
   deleteReview,
@@ -9,15 +10,27 @@ import {
 export const REVIEW_KEYS = {
   all: ["reviews"] as const,
   list: () => [...REVIEW_KEYS.all, "list"] as const,
+  userList: () => [...REVIEW_KEYS.all, "user-list"] as const,
 };
 
 /**
- * Hook to fetch approved customer reviews
+ * Hook to fetch approved customer reviews (Public/Guest)
  */
 export function useReviews() {
   return useQuery({
     queryKey: REVIEW_KEYS.list(),
     queryFn: () => fetchReviews(),
+  });
+}
+
+/**
+ * Hook to fetch authenticated user's reviews
+ */
+export function useUserReviews(enabled: boolean = true) {
+  return useQuery({
+    queryKey: REVIEW_KEYS.userList(),
+    queryFn: () => fetchUserReviews(),
+    enabled,
   });
 }
 

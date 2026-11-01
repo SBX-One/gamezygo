@@ -14,7 +14,10 @@ export interface LibraryQueryParams {
 
 /**
  * Fetch user game library (purchased games)
- * Endpoint: GET /api/v1/user/profile/game-library/
+ * Primary Endpoint (Postman user > profile > game library):
+ *   GET /api/v1/user/profile/products/?search=&genre_categories[...]
+ * Fallback Endpoint:
+ *   GET /api/v1/user/profile/game-library/
  */
 export async function fetchUserGameLibrary(
   params?: LibraryQueryParams
@@ -37,9 +40,15 @@ export async function fetchUserGameLibrary(
 
   const queryString = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
 
-  return apiGet<ApiPaginatedResponse<ProductListItem>>(
-    `/user/profile/game-library/${queryString}`
-  );
+  try {
+    return await apiGet<ApiPaginatedResponse<ProductListItem>>(
+      `/user/profile/products/${queryString}`
+    );
+  } catch {
+    return apiGet<ApiPaginatedResponse<ProductListItem>>(
+      `/user/profile/game-library/${queryString}`
+    );
+  }
 }
 
 /**

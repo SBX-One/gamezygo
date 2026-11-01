@@ -14,7 +14,7 @@ import {
   PROMO_GAMES,
   getBlogById,
 } from "@/features/catalog/blogs.data";
-import { useBlogDetail } from "@/hooks/use-blogs"; 
+import { useBlogDetail, useBlogs } from "@/hooks/use-blogs";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { formatDate } from "@/utils/formatters";
 
@@ -75,6 +75,7 @@ export default function BlogDetailPage() {
 
   // API Blog Detail Hook
   const { data: blogApiRes } = useBlogDetail(slug);
+  const { data: blogsListRes } = useBlogs();
   const apiBlog = blogApiRes?.data;
 
   // Resolve current blog detail with API priority or fallback gracefully
@@ -108,13 +109,23 @@ export default function BlogDetailPage() {
 
   // Related 4 blogs for "Berita Gamezygo" section (matching Image 1: blog-1, blog-2, blog-3, blog-4)
   const relatedBlogs = React.useMemo(() => {
+    if (blogsListRes?.data && blogsListRes.data.length > 0) {
+      return blogsListRes.data.slice(0, 4).map((b) => ({
+        id: b.slug || String(b.id),
+        title: b.title,
+        imageSrc: b.banner_file_url,
+        date: formatDate(b.published_at),
+        category: b.category?.name || "Gaming",
+        description: b.sort_description,
+      }));
+    }
     return BLOGS_DATA.slice(0, 4);
-  }, []);
+  }, [blogsListRes]);
 
   // Quadrupled items for seamless infinite carousel loop
   const carouselGames = React.useMemo(() => {
     return [...PROMO_GAMES, ...PROMO_GAMES, ...PROMO_GAMES, ...PROMO_GAMES];
-  }, []);
+  }, [blogsListRes]);
 
 
   return (
@@ -198,7 +209,7 @@ export default function BlogDetailPage() {
             {/* D. ROSTER GUIDE CONTENT SECTION
                 Per Image 3: 200px margin on left & right within 1280px container = max-w-220 mx-auto
             */}
-            <section className="w-full mx-auto mt-16 sm:mt-24 border-t-gradient-secondary px-xl sm:px-11xl pt-16 sm:pt-24">
+            <section className="w-full mx-auto mt-16 sm:mt-24 border-t-gradient-secondary px-xl lg:px-11xl pt-16 sm:pt-24">
               <h2 className="text-h3 sm:text-h2 font-bold text-white mb-10 sm:mb-12">
                 {blog.guideTitle || "The Marvel Tokon Roster Guide"}
               </h2>

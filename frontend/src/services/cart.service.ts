@@ -35,3 +35,11 @@ export async function removeFromCart(
 ): Promise<ApiResponse<null>> {
   return apiDelete<ApiResponse<null>>(`/user/cart/${cartItemId}`);
 }
+
+/**
+ * Clear all items in the user's cart
+ * Endpoint (Postman user > cart > clear): DELETE /api/v1/user/cart/clear
+ */
+export async function clearCartApi(): Promise<ApiResponse<null>> {
+  return apiDelete<ApiResponse<null>>("/user/cart/clear");
+}

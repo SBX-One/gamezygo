@@ -7,9 +7,11 @@ import {
   FilterModal,
   EmptyState,
   Pagination,
+  FilterBadgeSwiper,
 } from "@/components/ui";
 import { useUserLibrary } from "@/hooks/use-library";
 import { formatRupiah } from "@/utils/formatters";
+import { cn } from "@/lib/utils";
 
 // Search Icon
 const SearchIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -367,6 +369,9 @@ export default function GameLibraryPage() {
     return q.length > 28 ? `${q.slice(0, 28)}...` : q;
   }, [searchQuery]);
 
+  const totalFilterCount = appliedGenres.length + appliedLaunchers.length;
+  const isHeaderFlexCol = totalFilterCount >= 4 || (isSearchActive && totalFilterCount >= 2);
+
   // Base Library Games (from API with fallback to mock data)
   const baseGames = React.useMemo(() => {
     if (libraryApiRes?.data && libraryApiRes.data.length > 0) {
@@ -444,68 +449,70 @@ export default function GameLibraryPage() {
               State 2: Filtered ("Tampilkan: [Action ×] [Adventure ×] ... Hapus semua" + Search + Filter)
               State 3: Searched (Cari "Grand Thief Auto V" + Search + Filter)
              ======================================================== */}
-          <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-4 select-none">
+          <div
+            className={cn(
+              "w-full gap-4 select-none",
+              isHeaderFlexCol
+                ? "flex flex-col items-start"
+                : "flex flex-col sm:flex-row sm:items-center justify-between"
+            )}
+          >
             {/* Header Kiri: Dinamis tergantung status Search & Filter */}
-            <div className="min-w-0 flex items-center">
+            <div className="min-w-0 flex items-center flex-1 max-w-full">
               {isSearchActive && !isFilterActive ? (
                 /* STATE 3: ONLY SEARCH ACTIVE */
                 <h3
-                  className="text-h3 font-semibold text-gray-50 tracking-normal truncate max-w-full sm:max-w-xl"
+                  className="text-h3 font-semibold text-gray-50 tracking-normal truncate shrink-0"
                   title={`Cari "${searchQuery.trim()}"`}
                 >
                   Cari &quot;{displaySearchQuery}&quot;
                 </h3>
               ) : isFilterActive ? (
                 /* STATE 2: FILTER ACTIVE (WITH OR WITHOUT SEARCH) */
-                <div className="flex flex-wrap items-center gap-2 sm:gap-2.5">
+                <div className="flex items-center gap-2 sm:gap-2.5 min-w-0 flex-1 max-w-full">
                   <span
-                    className="text-body-md font-semibold text-gray-300 mr-1 truncate max-w-xs sm:max-w-md"
+                    className="text-body-md font-semibold text-gray-300 mr-1 shrink-0"
                     title={searchQuery.trim() ? `Cari "${searchQuery.trim()}":` : "Tampilkan:"}
                   >
                     {searchQuery.trim() ? `Cari "${displaySearchQuery}":` : "Tampilkan:"}
                   </span>
 
-                  {appliedGenres.map((genre) => (
-                    <Button
-                      key={genre}
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      rightIcon={<CrossIcon />}
-                      onClick={() => handleRemoveGenre(genre)}
-                      className="cursor-pointer"
-                    >
-                      {genre}
-                    </Button>
-                  ))}
-
-                  {appliedLaunchers.map((launcher) => (
-                    <Button
-                      key={launcher}
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      rightIcon={<CrossIcon />}
-                      onClick={() => handleRemoveLauncher(launcher)}
-                      className="cursor-pointer"
-                    >
-                      {launcher}
-                    </Button>
-                  ))}
-
-                  <Button
-                    type="button"
-                    variant="inactive"
-                    size="sm"
-                    onClick={handleClearAllFilters}
-                    className="cursor-pointer text-gray-400 hover:text-gray-50"
+                  <FilterBadgeSwiper
+                    onClearAll={handleClearAllFilters}
+                    className="min-w-0 flex-1"
                   >
-                    Hapus semua
-                  </Button>
+                    {appliedGenres.map((genre) => (
+                      <Button
+                        key={genre}
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        rightIcon={<CrossIcon />}
+                        onClick={() => handleRemoveGenre(genre)}
+                        className="cursor-pointer whitespace-nowrap shrink-0"
+                      >
+                        {genre}
+                      </Button>
+                    ))}
+
+                    {appliedLaunchers.map((launcher) => (
+                      <Button
+                        key={launcher}
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        rightIcon={<CrossIcon />}
+                        onClick={() => handleRemoveLauncher(launcher)}
+                        className="cursor-pointer whitespace-nowrap shrink-0"
+                      >
+                        {launcher}
+                      </Button>
+                    ))}
+                  </FilterBadgeSwiper>
                 </div>
               ) : (
                 /* STATE 1: DEFAULT STATE (Screenshot 1) */
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 shrink-0">
                   <span className="text-body-md font-normal text-gray-300">
                     Tampilkan:
                   </span>

@@ -7,35 +7,81 @@ import type {
   SubscriptionProductItem,
 } from "@/types";
 
+export interface SubscriptionProductsParams {
+  page?: number;
+  search?: string;
+  genre_categories?: string[];
+}
+
 /**
  * Fetch available subscription plans
- * Endpoint: GET /api/v1/user/subscriptions/
+ * Primary Endpoint: GET /api/v1/subscriptions/
+ * Fallback Endpoint: GET /api/v1/user/subscriptions/
  */
 export async function fetchSubscriptionPlans(): Promise<
   ApiResponse<SubscriptionPlan[]>
 > {
-  return apiGet<ApiResponse<SubscriptionPlan[]>>("/user/subscriptions/");
+  try {
+    return await apiGet<ApiResponse<SubscriptionPlan[]>>("/subscriptions/");
+  } catch {
+    return apiGet<ApiResponse<SubscriptionPlan[]>>("/user/subscriptions/");
+  }
 }
 
 /**
  * Fetch user's currently active subscription
- * Endpoint: GET /api/v1/user/subscription
+ * Primary Endpoint (Postman user): GET /api/v1/user/profile/subscriptions
+ * Fallback Endpoints: GET /api/v1/user/subscriptions or GET /api/v1/user/subscription
  */
 export async function fetchUserSubscription(): Promise<
   ApiResponse<UserActiveSubscription | null>
 > {
-  return apiGet<ApiResponse<UserActiveSubscription | null>>("/user/subscription");
+  try {
+    return await apiGet<ApiResponse<UserActiveSubscription | null>>(
+      "/user/profile/subscriptions"
+    );
+  } catch {
+    return apiGet<ApiResponse<UserActiveSubscription | null>>(
+      "/user/subscription"
+    );
+  }
 }
 
 /**
  * Fetch products included in subscription bundle
- * Endpoint: GET /api/v1/user/subscription/product
+ * Primary Endpoint (Postman user): GET /api/v1/user/profile/subscription/product
+ * Fallback Endpoint: GET /api/v1/user/subscription/product
  */
 export async function fetchSubscriptionProducts(
-  page?: number
+  paramsOrPage?: number | SubscriptionProductsParams
 ): Promise<ApiPaginatedResponse<SubscriptionProductItem>> {
-  const query = page ? `?page=${page}` : "";
-  return apiGet<ApiPaginatedResponse<SubscriptionProductItem>>(
-    `/user/subscription/product${query}`
-  );
+  const params: SubscriptionProductsParams =
+    typeof paramsOrPage === "number"
+      ? { page: paramsOrPage }
+      : paramsOrPage || {};
+
+  const queryParts: string[] = [];
+  if (params.search) {
+    queryParts.push(`search=${encodeURIComponent(params.search)}`);
+  }
+  if (params.genre_categories && params.genre_categories.length > 0) {
+    params.genre_categories.forEach((cat, idx) => {
+      queryParts.push(`genre_categories[${idx}]=${encodeURIComponent(cat)}`);
+    });
+  }
+  if (params.page) {
+    queryParts.push(`page=${params.page}`);
+  }
+
+  const query = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
+
+  try {
+    return await apiGet<ApiPaginatedResponse<SubscriptionProductItem>>(
+      `/user/profile/subscription/product${query}`
+    );
+  } catch {
+    return apiGet<ApiPaginatedResponse<SubscriptionProductItem>>(
+      `/user/subscription/product${query}`
+    );
+  }
 }

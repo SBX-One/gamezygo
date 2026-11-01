@@ -13,7 +13,8 @@ export interface FetchBlogsParams {
 
 /**
  * Fetch blogs list with optional search and categories filters
- * Endpoint: GET /api/v1/user/blogs/
+ * Primary Endpoint: GET /api/v1/blogs/
+ * Fallback Endpoint: GET /api/v1/user/blogs/
  */
 export async function fetchBlogs(
   params?: FetchBlogsParams
@@ -35,17 +36,27 @@ export async function fetchBlogs(
   }
 
   const queryString = queryParams.toString();
-  const url = queryString ? `/user/blogs/?${queryString}` : "/user/blogs/";
+  const primaryUrl = queryString ? `/blogs/?${queryString}` : "/blogs/";
+  const fallbackUrl = queryString ? `/user/blogs/?${queryString}` : "/user/blogs/";
 
-  return apiGet<ApiResponse<BlogListItem[]>>(url);
+  try {
+    return await apiGet<ApiResponse<BlogListItem[]>>(primaryUrl);
+  } catch {
+    return apiGet<ApiResponse<BlogListItem[]>>(fallbackUrl);
+  }
 }
 
 /**
  * Fetch single blog details by slug
- * Endpoint: GET /api/v1/user/blogs/:slug
+ * Primary Endpoint: GET /api/v1/blogs/:slug
+ * Fallback Endpoint: GET /api/v1/user/blogs/:slug
  */
 export async function fetchBlogDetail(
   slug: string
 ): Promise<ApiResponse<BlogDetailItem>> {
-  return apiGet<ApiResponse<BlogDetailItem>>(`/user/blogs/${slug}`);
+  try {
+    return await apiGet<ApiResponse<BlogDetailItem>>(`/blogs/${slug}`);
+  } catch {
+    return apiGet<ApiResponse<BlogDetailItem>>(`/user/blogs/${slug}`);
+  }
 }

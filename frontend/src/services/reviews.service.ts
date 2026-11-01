@@ -2,16 +2,34 @@ import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api-client";
 import type { ApiResponse, ReviewItem } from "@/types";
 
 /**
- * Fetch approved customer reviews
- * Endpoint: GET /api/v1/user/reviews/
+ * Fetch approved customer reviews (Guest & Public)
+ * Primary Endpoint (Postman guest): GET /api/v1/reviews/
+ * Fallback Endpoint: GET /api/v1/user/reviews
  */
 export async function fetchReviews(): Promise<ApiResponse<ReviewItem[]>> {
-  return apiGet<ApiResponse<ReviewItem[]>>("/user/reviews/");
+  try {
+    return await apiGet<ApiResponse<ReviewItem[]>>("/reviews/");
+  } catch {
+    return apiGet<ApiResponse<ReviewItem[]>>("/user/reviews");
+  }
+}
+
+/**
+ * Fetch authenticated user's own reviews
+ * Endpoint (Postman user): GET /api/v1/user/reviews
+ */
+export async function fetchUserReviews(): Promise<ApiResponse<ReviewItem[]>> {
+  try {
+    return await apiGet<ApiResponse<ReviewItem[]>>("/user/reviews");
+  } catch {
+    return apiGet<ApiResponse<ReviewItem[]>>("/reviews/");
+  }
 }
 
 /**
  * Submit a new game review
  * Endpoint: POST /api/v1/user/reviews
+ * FormData fields per Postman: rating, review, images[]
  */
 export async function createReview(
   formData: FormData

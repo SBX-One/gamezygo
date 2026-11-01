@@ -14,6 +14,7 @@ import {
 import {
   useGameRequests,
   useCreateGameRequest,
+  useDeleteGameRequest,
   useVoteGameRequest,
   useUnvoteGameRequest,
 } from "@/hooks/use-requests";
@@ -326,9 +327,15 @@ export default function RequestGamePage() {
   const ITEMS_PER_PAGE = 6;
 
   // TanStack Query: Game Requests API
-  const scope = activeTab === "my-requests" ? "mine" : "all";
+  const scope =
+    activeTab === "my-requests"
+      ? "mine"
+      : activeTab === "added"
+      ? "added"
+      : "all";
   const { data: requestsApiRes } = useGameRequests({ scope, page: currentPage });
   const createRequestMutation = useCreateGameRequest();
+  const deleteRequestMutation = useDeleteGameRequest();
   const voteMutation = useVoteGameRequest();
   const unvoteMutation = useUnvoteGameRequest();
 
@@ -587,6 +594,10 @@ export default function RequestGamePage() {
   // Handle Card Action based on active tab
   const handleCardAction = (id: string) => {
     if (activeTab === "my-requests") {
+      const numericId = parseInt(id.replace(/\D/g, ""), 10);
+      if (numericId && !isNaN(numericId)) {
+        if (id) deleteRequestMutation.mutate(numericId);
+      }
       // Cancel request from My Requests and localStorage
       setMyRequests((prev) => {
         const updated = prev.filter((item) => item.id !== id);
@@ -672,8 +683,13 @@ export default function RequestGamePage() {
   // Determine current display list based on active tab with API fallback
   const currentItems = React.useMemo(() => {
     if (forceEmptyState) return [];
+    const id = "";
 
     if (activeTab === "my-requests") {
+      const numericId = parseInt(id.replace(/\D/g, ""), 10);
+      if (numericId && !isNaN(numericId)) {
+        if (id) deleteRequestMutation.mutate(numericId);
+      }
       if (requestsApiRes?.data && requestsApiRes.data.length > 0 && scope === "mine") {
         const apiItems: RequestGameData[] = requestsApiRes.data.map((r, index) => {
           const fallback = productsData.tawaranKhusus[index % productsData.tawaranKhusus.length];
@@ -724,6 +740,25 @@ export default function RequestGamePage() {
     }
 
     if (activeTab === "added") {
+      if (requestsApiRes?.data && requestsApiRes.data.length > 0 && scope === "added") {
+        const apiAdded: RequestGameData[] = requestsApiRes.data.map((r, index) => {
+          const fallback = productsData.tawaranKhusus[index % productsData.tawaranKhusus.length];
+          const steamAppId = extractSteamAppId(r.steam_url);
+          return {
+            id: String(r.id),
+            title: r.name,
+            imageSrc: steamAppId
+              ? `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${steamAppId}/library_600x900_2x.jpg`
+              : fallback?.imageSrc ||
+                "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+            requestDate: new Date(r.created_at || Date.now()).toLocaleDateString("id-ID"),
+            addedDate: new Date(r.updated_at || Date.now()).toLocaleDateString("id-ID"),
+            requestCount: r.request_count || 1,
+            storeHref: `/store/${r.id}`,
+          };
+        });
+        return apiAdded;
+      }
       return addedRequests;
     }
 

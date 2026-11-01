@@ -20,6 +20,8 @@ import {
   useSubscriptionProducts,
 } from "@/hooks/use-subscriptions";
 import { formatRupiah } from "@/utils/formatters";
+import { useFaqs } from "@/hooks/use-common";
+import { useCreateOrder } from "@/hooks/use-orders";
 
 // Crown Icon (Existing standard system icon)
 const CrownIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -589,6 +591,20 @@ export default function BundlePage() {
   const { data: subscriptionPlansRes } = useSubscriptionPlans();
   const { data: userSubRes } = useUserSubscription();
   const { data: subsProductsRes } = useSubscriptionProducts();
+  const { data: faqsApiRes } = useFaqs();
+  const createOrderMutation = useCreateOrder();
+  const resolvedFaqs = React.useMemo(() => {
+    if (faqsApiRes?.data && faqsApiRes.data.length > 0) {
+      return faqsApiRes.data
+        .filter((f) => f.is_active)
+        .map((f) => ({
+          id: `faq-${f.id}`,
+          title: f.question,
+          content: f.answer,
+        }));
+    }
+    return FAQ_ITEMS;
+  }, [faqsApiRes]);
 
   // Mode switcher: "subscribed" (Image 3 & 4) vs "unsubscribed" (Image 2)
   const [viewMode, setViewMode] = React.useState<"subscribed" | "unsubscribed">("subscribed");
@@ -1060,7 +1076,7 @@ export default function BundlePage() {
 
             <div className="flex-1 min-w-0 w-full lg:col-span-4">
               <Accordion
-                items={FAQ_ITEMS}
+                items={resolvedFaqs}
                 defaultOpenId="faq-1"
                 allowMultiple={false}
                 isLanding={true}
@@ -1589,6 +1605,7 @@ export default function BundlePage() {
                   actionText="Subscribe"
                   onActionClick={() => {
                     setActiveSubPlan("Paket 1");
+                    createOrderMutation.mutate({ item_type: "subscription", subscription_plan_id: 1 });
                     handleToast("Paket 1 dipilih");
                     setIsSubsModalOpen(false);
                     setViewMode("subscribed");
@@ -1611,6 +1628,7 @@ export default function BundlePage() {
                   actionText="Subscribe"
                   onActionClick={() => {
                     setActiveSubPlan("Paket 2");
+                    createOrderMutation.mutate({ item_type: "subscription", subscription_plan_id: 2 });
                     handleToast("Paket 2 berhasil diperbarui!");
                     setIsSubsModalOpen(false);
                     setViewMode("subscribed");
@@ -1633,6 +1651,7 @@ export default function BundlePage() {
                   actionText="Subscribe"
                   onActionClick={() => {
                     setActiveSubPlan("Paket 3");
+                    createOrderMutation.mutate({ item_type: "subscription", subscription_plan_id: 3 });
                     handleToast("Paket 3 dipilih");
                     setIsSubsModalOpen(false);
                     setViewMode("subscribed");

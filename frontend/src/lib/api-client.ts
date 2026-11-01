@@ -7,7 +7,9 @@ import axios, {
 import { useAuthStore } from "@/stores/use-auth-store";
 
 export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
+  process.env.NEXT_PUBLIC_API_BASE_URL ||
+  process.env.NEXT_PUBLIC_API_URL ||
+  "http://localhost:8000/api/v1";
 
 export const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,
@@ -130,8 +132,8 @@ apiClient.interceptors.response.use(
 );
 
 /**
- * Type-safe HTTP request wrappers returning response.data
- */
+  * Type-safe HTTP request wrappers returning response.data
+  */
 export async function apiGet<T>(
   url: string,
   config?: AxiosRequestConfig
@@ -155,6 +157,15 @@ export async function apiPut<T, B = unknown>(
   config?: AxiosRequestConfig
 ): Promise<T> {
   const response = await apiClient.put<T>(url, data, config);
+  return response.data;
+}
+
+export async function apiPatch<T, B = unknown>(
+  url: string,
+  data?: B,
+  config?: AxiosRequestConfig
+): Promise<T> {
+  const response = await apiClient.patch<T>(url, data, config);
   return response.data;
 }
 

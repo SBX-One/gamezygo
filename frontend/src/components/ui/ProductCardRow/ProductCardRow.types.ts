@@ -3,6 +3,7 @@ import type { ProductCardProps } from "@/components/ui/ProductCard/ProductCard.t
 
 export interface ProductCardRowItem {
   id: string;
+  slug?: string;
   steamAppId?: number;
   title: string;
   imageSrc: string;

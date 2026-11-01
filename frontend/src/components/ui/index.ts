@@ -30,3 +30,4 @@ export * from "./RequestListItem";
 export * from "./Item";
 export * from "./Table";
 export * from "./CinematicLoader";
+export * from "./FilterBadgeSwiper";

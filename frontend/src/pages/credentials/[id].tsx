@@ -19,6 +19,7 @@ import {
 import productsData from "@/json/products.json";
 import { OWNED_LIBRARY_GAMES } from "@/pages/library";
 import { useGameCredentials } from "@/hooks/use-library";
+import { useProductDetail } from "@/hooks/use-products";
 
 // ============================================================================
 // SVG ICONS
@@ -311,6 +312,9 @@ const TESTIMONIALS_DATA = [
 export default function GameCredentialPage() {
   const router = useRouter();
   const { id } = router.query;
+  const productSlug = typeof id === "string" ? id : "";
+  const { data: productApiRes } = useProductDetail(productSlug);
+  const apiProduct = productApiRes?.data;
 
   // Local state
   const [steamData, setSteamData] = React.useState<SteamGameDetails | null>(null);
@@ -402,6 +406,12 @@ export default function GameCredentialPage() {
 
   // Resolved genres list (supporting multiple genres with slider)
   const gameGenres = React.useMemo(() => {
+    if (apiProduct?.categories && apiProduct.categories.length > 0) {
+      return apiProduct.categories.map((c) => c.name);
+    }
+    if (apiProduct?.product_genre_categories && apiProduct.product_genre_categories.length > 0) {
+      return apiProduct.product_genre_categories.map((c) => c.name);
+    }
     if (steamData?.genres && steamData.genres.length > 0) {
       return steamData.genres;
     }
@@ -412,7 +422,7 @@ export default function GameCredentialPage() {
       return (matchedProduct as { genres?: string[] }).genres!;
     }
     return ["Aksi", "Petualangan", "RPG", "Dunia Terbuka"];
-  }, [steamData, matchedProduct]);
+  }, [apiProduct, steamData, matchedProduct]);
 
   // Fetch Steam Game Details (including pc_requirements)
   const appId = (matchedProduct as { steamAppId?: number })?.steamAppId || 242050;
@@ -493,9 +503,9 @@ export default function GameCredentialPage() {
     steamData?.description ||
     "“gue gatau ada berapa org dibalik bisnis ini, 1 atau seberapapun org terlibat, gue mengapresiasi sebesar besarnya udah ada jasa kaya gini. in this economy.”";
 
-  // Fetch credentials from API (GET /api/v1/user/products/:slug/credentials)
+  /* Fetch credentials from API (GET /api/v1/user/products/:slug/credentials)
   const productSlug = typeof id === "string" ? id : "";
-  const { data: credentialsRes } = useGameCredentials(productSlug);
+  */ const { data: credentialsRes } = useGameCredentials(productSlug);
 
   // Account Credentials for the specific game (with graceful fallback)
   const fallbackUsername = `shared_steam_${String(

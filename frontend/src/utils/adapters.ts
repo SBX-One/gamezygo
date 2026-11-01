@@ -40,6 +40,7 @@ export function mapProductToCardItem(
 
   return {
     id: String(product.id),
+    slug: ("slug" in product && product.slug) ? product.slug : String(product.id),
     title: product.name,
     imageSrc: ("thumbnail" in product && product.thumbnail) ? product.thumbnail : "",
     genres: categories.map((c) => c.name),

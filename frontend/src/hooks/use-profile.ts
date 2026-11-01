@@ -2,8 +2,9 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   fetchUserProfile,
   updateUserProfile,
+  changeUserPassword,
 } from "@/services/profile.service";
-import type { UserProfileResponse } from "@/types";
+import type { UserProfileResponse, ChangePasswordPayload } from "@/types";
 
 export const PROFILE_KEYS = {
   all: ["user-profile"] as const,
@@ -31,5 +32,14 @@ export function useUpdateProfile() {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PROFILE_KEYS.all });
     },
+  });
+}
+
+/**
+ * Hook to change user password
+ */
+export function useChangePassword() {
+  return useMutation({
+    mutationFn: (payload: ChangePasswordPayload) => changeUserPassword(payload),
   });
 }

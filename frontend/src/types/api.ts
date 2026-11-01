@@ -428,4 +428,38 @@ export interface UserProfileResponse {
   avatar_url?: string;
   role?: "customer" | "admin" | string;
   joined_date?: string;
+  phone?: string;
+  total_transactions?: number;
+  total_points?: number;
+  total_games?: number;
+}
+
+export interface ChangePasswordPayload {
+  current_password: string;
+  new_password: string;
+  new_password_confirmation: string;
+}
+
+export interface AuthLoginPayload {
+  email: string;
+  password?: string;
+}
+
+export interface AuthRegisterPayload {
+  name: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+}
+
+export interface AuthResponseData {
+  token?: string;
+  access_token?: string;
+  refresh_token?: string;
+  token_type?: string;
+  user?: UserProfileResponse;
+}
+
+interface _Unused {
+  _unused?: never;
 }

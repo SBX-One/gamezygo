@@ -148,8 +148,18 @@ import { formatDate } from "@/utils/formatters";
 export default function BlogsPage() {
   const router = useRouter();
 
+  //
+  //
+  //
+  const [searchQuery, setSearchQuery] = React.useState("");
+  const [appliedCategories, setAppliedCategories] = React.useState<string[]>([]);
+  const [currentPage, setCurrentPage] = React.useState(1);
   // API Blogs Hook
-  const { data: blogsApiRes } = useBlogs();
+  const { data: blogsApiRes } = useBlogs({
+    search: searchQuery.trim() || undefined,
+    categories: appliedCategories.length > 0 ? appliedCategories : undefined,
+    page: currentPage,
+  });
 
   // Preview state derived from query or local override
   const [previewStateOverride, setPreviewStateOverride] = React.useState<
@@ -170,8 +180,8 @@ export default function BlogsPage() {
     setPreviewStateOverride(state);
   };
 
-  const [searchQuery, setSearchQuery] = React.useState("");
-  const [isContentFilterOpen, setIsContentFilterOpen] = React.useState(false);
+  //
+  const [isContentFilterOpen, setIsContentFilterOpen] = React.useState(false); // searchQuery above
 
   // Staged Filter States (edited in modal before clicking Apply)
   const [modalCategories, setModalCategories] = React.useState<string[]>([]);
@@ -181,15 +191,29 @@ export default function BlogsPage() {
   const [modalSort, setModalSort] = React.useState<string>("Terbaru");
 
   // Applied Filter States (active filters applied to the blog list, matching bundle concept)
-  const [appliedCategories, setAppliedCategories] = React.useState<string[]>([]);
+  //
   const [appliedStatus, setAppliedStatus] = React.useState<string[]>([]);
   const [appliedPlatforms, setAppliedPlatforms] = React.useState<string[]>([]);
   const [appliedGames, setAppliedGames] = React.useState<string[]>([]);
   const [appliedSort, setAppliedSort] = React.useState<string>("Terbaru");
 
-  const [currentPage, setCurrentPage] = React.useState(1);
+  //
+  // Remove duplicate blogsApiRes hook
+  const { data: _unusedBlogsApiRes } = useBlogs({
+    search: searchQuery.trim() || undefined,
+    categories: appliedCategories.length > 0 ? appliedCategories : undefined,
+    page: currentPage,
+  });
   const [activeNavId, setActiveNavId] = React.useState("artikel");
+  if (false) console.log(_unusedBlogsApiRes);
+  /*
+  const { data: blogsApiRes } = useBlogs({
+    search: searchQuery.trim() || undefined,
+    categories: appliedCategories.length > 0 ? appliedCategories : undefined,
+    page: currentPage,
+  });
 
+  */
   const isFilterActive =
     appliedCategories.length > 0 ||
     appliedStatus.length > 0 ||
@@ -652,7 +676,7 @@ export default function BlogsPage() {
                     {filteredBlogs.map((blog) => (
                       <BlogCard
                         key={blog.id}
-                        href={`/blogs/${blog.id}`}
+                        href={`/blogs/${(blog as { slug?: string }).slug || blog.id}`}
                         imageSrc={blog.imageSrc}
                         date={blog.date}
                         title={blog.title}

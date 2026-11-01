@@ -19,6 +19,7 @@ interface AttachedImage {
   id: string;
   name: string;
   url: string;
+  file?: File;
 }
 
 interface ReviewItem {
@@ -433,6 +434,7 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
         id: `img-${Date.now()}-${idx}`,
         name: file.name,
         url: URL.createObjectURL(file),
+        file,
       }));
       setAttachedImages((prev) => [...prev, ...newItems]);
       e.target.value = "";
@@ -473,7 +475,13 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
     };
 
     const formData = new FormData();
+    formData.append("review", modalComment.trim());
     formData.append("comment", modalComment.trim());
+    attachedImages.forEach((img) => {
+      if (img.file) {
+        formData.append("images[]", img.file);
+      }
+    });
     formData.append("rating", String(selectedRating || 5));
 
     createReviewMutation.mutate(formData, {
@@ -764,7 +772,7 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
           {/* 2. TESTIMONIAL CARDS GRID (3 Columns Responsive, 6 Cards) */}
           <section className="w-full grid gap-10xl">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-8xl gap-x-5 w-full">
-              {GUEST_REVIEWS.map((item) => (
+              {(apiReviewsRes?.data && apiReviewsRes.data.length > 0 ? displayReviews : GUEST_REVIEWS).map((item) => (
                 <TestimonialCard
                   key={item.id}
                   userName={item.userName}

@@ -11,11 +11,15 @@ import {
   EmptyState,
   Toast,
   BannerCarousel,
+  FilterBadgeSwiper,
   type BannerSlide,
   type ProductCardRowItem,
 } from "@/components/ui";
 import { StoreLayout } from "@/components/layout";
 import { useAuthStore } from "@/stores/use-auth-store";
+import { useCartStore } from "@/stores/use-cart-store";
+import { useAddToCart } from "@/hooks/use-cart";
+import { cn } from "@/lib/utils";
 
 // Icon for 500 Server Error
 const WifiOffIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -321,8 +325,17 @@ export default function StorePage() {
 
   // Cart notification toast
   const [cartToast, setCartToast] = React.useState<string | null>(null);
+  const addItemToStore = useCartStore((s) => s.addItem);
+  const addToCartMutation = useAddToCart();
 
   const handleAddToCart = (gameTitle: string) => {
+    const matchedApi = productsApiData?.data?.find((p) => p.name === gameTitle);
+    const matchedLocal = ALL_STORE_PRODUCTS.find((p) => p.title === gameTitle);
+    const prodId = matchedApi ? String(matchedApi.id) : (matchedLocal?.id || gameTitle);
+    addItemToStore(prodId, 1);
+    if (isAuthenticated && matchedApi?.id) {
+      addToCartMutation.mutate(matchedApi.id);
+    }
     setCartToast(gameTitle);
     setTimeout(() => {
       setCartToast(null);
@@ -664,6 +677,16 @@ export default function StorePage() {
     return q.length > 28 ? `${q.slice(0, 28)}...` : q;
   }, [searchQuery]);
 
+  const totalFilterCount =
+    activeGenres.length +
+    appliedCategories.length +
+    appliedLaunchers.length +
+    (appliedPriceRange[0] > 0 || appliedPriceRange[1] < 200000 ? 1 : 0) +
+    (appliedSort && appliedSort !== "Terbaru" ? 1 : 0);
+
+  const isHeaderFlexCol =
+    totalFilterCount >= 4 || (searchQuery.trim().length > 0 && totalFilterCount >= 2);
+
   return (
     <>
       <Head>
@@ -741,10 +764,17 @@ export default function StorePage() {
              ====================================================== */
           <div className="flex flex-col gap-8 pt-8 min-h-screen pb-16">
             {/* Header with Dynamic Title and Active Filter Badges */}
-            <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between pb-6.5 border-b border-b-gradient-secondary gap-4">
-              <div className="min-w-0 flex-1 max-w-full sm:max-w-xl">
+            <div
+              className={cn(
+                "w-full pb-6.5 border-b border-b-gradient-secondary gap-4 select-none",
+                isHeaderFlexCol
+                  ? "flex flex-col items-start"
+                  : "flex flex-col sm:flex-row sm:items-center justify-between"
+              )}
+            >
+              <div className="shrink-0 max-w-full">
                 <h3
-                  className="text-h3 font-semibold text-gray-50 tracking-normal truncate"
+                  className="text-h3 font-semibold text-gray-50 tracking-normal shrink-0"
                   title={searchQuery.trim() ? `Cari "${searchQuery.trim()}"` : "Semua Produk"}
                 >
                   {searchQuery.trim()
@@ -754,7 +784,13 @@ export default function StorePage() {
               </div>
 
               {isFilterActive && (
-                <div className="flex flex-wrap items-center gap-2.5">
+                <FilterBadgeSwiper
+                  onClearAll={handleClearAllFilters}
+                  className={cn(
+                    "min-w-0",
+                    isHeaderFlexCol ? "w-full" : "max-w-full sm:max-w-[70%]"
+                  )}
+                >
                   {/* 1. Genre Badges */}
                   {activeGenres.map((genre) => (
                     <Button
@@ -764,6 +800,7 @@ export default function StorePage() {
                       size="sm"
                       rightIcon={<CrossIcon />}
                       onClick={() => handleRemoveGenre(genre)}
+                      className="cursor-pointer whitespace-nowrap shrink-0"
                     >
                       {genre}
                     </Button>
@@ -778,6 +815,7 @@ export default function StorePage() {
                       size="sm"
                       rightIcon={<CrossIcon />}
                       onClick={() => handleRemoveCategory(cat)}
+                      className="cursor-pointer whitespace-nowrap shrink-0"
                     >
                       {cat}
                     </Button>
@@ -792,6 +830,7 @@ export default function StorePage() {
                       size="sm"
                       rightIcon={<CrossIcon />}
                       onClick={() => handleRemoveLauncher(launcher)}
+                      className="cursor-pointer whitespace-nowrap shrink-0"
                     >
                       {launcher}
                     </Button>
@@ -806,6 +845,7 @@ export default function StorePage() {
                       size="sm"
                       rightIcon={<CrossIcon />}
                       onClick={handleResetPriceRange}
+                      className="cursor-pointer whitespace-nowrap shrink-0"
                     >
                       {`Rp ${appliedPriceRange[0].toLocaleString("id-ID")} - Rp ${appliedPriceRange[1].toLocaleString("id-ID")}`}
                     </Button>
@@ -820,22 +860,12 @@ export default function StorePage() {
                       size="sm"
                       rightIcon={<CrossIcon />}
                       onClick={handleResetSort}
+                      className="cursor-pointer whitespace-nowrap shrink-0"
                     >
                       {`Urutan: ${appliedSort}`}
                     </Button>
                   )}
-
-                  {/* 6. Hapus Semua Button */}
-                  <Button
-                    type="button"
-                    variant="inactive"
-                    size="sm"
-                    onClick={handleClearAllFilters}
-                    className="cursor-pointer text-gray-400 hover:text-gray-50"
-                  >
-                    Hapus semua
-                  </Button>
-                </div>
+                </FilterBadgeSwiper>
               )}
             </div>
 

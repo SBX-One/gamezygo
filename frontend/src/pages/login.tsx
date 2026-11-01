@@ -5,6 +5,7 @@ import { useRouter } from "next/router";
 import { StoreLayout } from "@/components/layout";
 import { Toast } from "@/components/ui/Toast";
 import { useAuthStore } from "@/stores/use-auth-store";
+import { fetchGoogleAuthRedirect } from "@/services/auth.service";
 import { cn } from "@/lib/utils";
 
 /**
@@ -254,6 +255,7 @@ export default function LoginPage() {
 
   // Global Auth Store
   const login = useAuthStore((s) => s.login);
+  const register = useAuthStore((s) => s.register);
   const updateUser = useAuthStore((s) => s.updateUser);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isLoading = useAuthStore((s) => s.isLoading);
@@ -319,7 +321,7 @@ export default function LoginPage() {
 
     setIsSubmitting(true);
     try {
-      await login({ email: loginEmail.trim() });
+      await login({ email: loginEmail.trim(), password: loginPassword });
       showToast("Login berhasil! Mengalihkan ke Gamezygo...", "success");
       setTimeout(() => {
         const destination = typeof redirect === "string" ? redirect : "/";
@@ -358,7 +360,12 @@ export default function LoginPage() {
 
     setIsSubmitting(true);
     try {
-      await login({ email: registerEmail.trim() });
+      await register({
+        name: registerName.trim(),
+        email: registerEmail.trim(),
+        password: registerPassword,
+        password_confirmation: registerConfirmPassword,
+      });
       updateUser({ name: registerName.trim(), email: registerEmail.trim() });
       showToast("Akun berhasil dibuat! Selamat datang di Gamezygo.", "success");
       setTimeout(() => {
@@ -377,6 +384,16 @@ export default function LoginPage() {
     setIsSubmitting(true);
     try {
       // Simulate Google OAuth response
+      try {
+        const res = await fetchGoogleAuthRedirect();
+        const redirectUrl = res?.data?.url || res?.data?.redirect_url;
+        if (redirectUrl && typeof window !== "undefined") {
+          window.location.href = redirectUrl;
+          return;
+        }
+      } catch {
+        // Fallback to simulated Google OAuth when backend is unreachable
+      }
       await login({ email: "google.gamer@gamezygo.com" });
       updateUser({
         name: "Google Gamer",

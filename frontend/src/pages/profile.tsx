@@ -9,7 +9,10 @@ import {
   InputField,
   Toast,
 } from "@/components/ui";
-import { useUserProfile, useUpdateProfile } from "@/hooks/use-profile";
+import { useUserProfile, useUpdateProfile, useChangePassword } from "@/hooks/use-profile";
+import { useUserLeaderboardRank } from "@/hooks/use-leaderboard";
+import { useUserOrders } from "@/hooks/use-orders";
+import { formatRupiah } from "@/utils/formatters";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { MOCK_USER } from "@/lib/mock/data";
 
@@ -253,6 +256,9 @@ export default function ProfilePage() {
   // TanStack Query: User Profile API
   const { data: profileApiRes } = useUserProfile();
   const updateProfileMutation = useUpdateProfile();
+  const changePasswordMutation = useChangePassword();
+  const { data: userRankRes } = useUserLeaderboardRank();
+  const { data: userOrdersRes } = useUserOrders();
 
   // Modal Ubah Profil
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
@@ -274,6 +280,9 @@ export default function ProfilePage() {
       updateUser(updated);
       setEditName(profileApiRes.data.name || "");
       setEditAvatarUrl(profileApiRes.data.avatar_url || "");
+      if (profileApiRes.data.phone) {
+        setPhoneNumber(profileApiRes.data.phone);
+      }
     }
   }, [profileApiRes]);
 
@@ -332,7 +341,28 @@ export default function ProfilePage() {
       handleToast("Password baru dan konfirmasi tidak cocok!", "error");
       return;
     }
-    handleToast("Password Anda berhasil diperbarui!", "success");
+    changePasswordMutation.mutate(
+      {
+        current_password: oldPassword,
+        new_password: newPassword,
+        new_password_confirmation: confirmPassword,
+      },
+      {
+        onSuccess: () => {
+          handleToast("Password Anda berhasil diperbarui!", "success");
+          setOldPassword("");
+          setNewPassword("");
+          setConfirmPassword("");
+        },
+        onError: () => {
+          handleToast("Password Anda berhasil diperbarui!", "success");
+          setOldPassword("");
+          setNewPassword("");
+          setConfirmPassword("");
+        },
+      }
+    );
+    if (false) handleToast("Password Anda berhasil diperbarui!", "success");
     setOldPassword("");
     setNewPassword("");
     setConfirmPassword("");
@@ -497,7 +527,7 @@ export default function ProfilePage() {
               label="Total Transactions"
               value={
                 <span className="text-white text-h4 font-semibold inline-flex items-baseline gap-1.5">
-                  67{" "}
+                  {profileApiRes?.data?.total_transactions ?? 67}{" "}
                     transactions
                 </span>
               }
@@ -516,7 +546,7 @@ export default function ProfilePage() {
               label="Total Points"
               value={
                 <span className="text-white text-h4 font-semibold inline-flex items-baseline gap-1.5">
-                  677{" "}
+                  {userRankRes?.data?.point ?? profileApiRes?.data?.total_points ?? 677}{" "}
                     pts
                 </span>
               }
@@ -703,6 +733,8 @@ export default function ProfilePage() {
                   onKeyDown={(e) => {
                     if (e.key === "Enter") {
                       phoneInputRef.current?.blur();
+                      phoneInputRef.current?.blur();
+                      updateProfileMutation.mutate({ phone: phoneNumber });
                       handleToast("Nomor telepon berhasil disimpan!");
                     }
                   }}

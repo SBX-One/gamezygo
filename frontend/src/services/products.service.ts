@@ -21,7 +21,8 @@ export interface FetchProductsParams {
 
 /**
  * Fetch paginated products list with query filters
- * Endpoint: GET /api/v1/user/products?filter=&category=&launcher=&sort_by=&price_range=&page
+ * Primary Endpoint (Postman guest): GET /api/v1/products
+ * Fallback Endpoint: GET /api/v1/user/products
  */
 export async function fetchProducts(
   params?: FetchProductsParams
@@ -63,19 +64,29 @@ export async function fetchProducts(
   }
 
   const queryString = queryParams.toString();
-  const url = queryString ? `/user/products?${queryString}` : "/user/products";
+  const primaryUrl = queryString ? `/products?${queryString}` : "/products";
+  const fallbackUrl = queryString ? `/user/products?${queryString}` : "/user/products";
 
-  return apiGet<ApiPaginatedResponse<ProductListItem>>(url);
+  try {
+    return await apiGet<ApiPaginatedResponse<ProductListItem>>(primaryUrl);
+  } catch {
+    return apiGet<ApiPaginatedResponse<ProductListItem>>(fallbackUrl);
+  }
 }
 
 /**
  * Fetch single product details by slug or ID
- * Endpoint: GET /api/v1/user/products/:slug
+ * Primary Endpoint (Postman guest): GET /api/v1/products/:slug
+ * Fallback Endpoint: GET /api/v1/user/products/:slug
  */
 export async function fetchProductDetail(
   slug: string
 ): Promise<ApiResponse<ProductDetailItem>> {
-  return apiGet<ApiResponse<ProductDetailItem>>(`/user/products/${slug}`);
+  try {
+    return await apiGet<ApiResponse<ProductDetailItem>>(`/products/${slug}`);
+  } catch {
+    return apiGet<ApiResponse<ProductDetailItem>>(`/user/products/${slug}`);
+  }
 }
 
 /**
@@ -90,10 +101,15 @@ export async function fetchProductFilters(): Promise<
 
 /**
  * Fetch custom promo sections for landing storefront
- * Endpoint: GET /api/v1/user/custom-sections/
+ * Primary Endpoint (Postman guest): GET /api/v1/custom-sections/
+ * Fallback Endpoint: GET /api/v1/user/custom-sections/
  */
 export async function fetchCustomSections(): Promise<
   ApiResponse<CustomSectionItem[]>
 > {
-  return apiGet<ApiResponse<CustomSectionItem[]>>("/user/custom-sections/");
+  try {
+    return await apiGet<ApiResponse<CustomSectionItem[]>>("/custom-sections/");
+  } catch {
+    return apiGet<ApiResponse<CustomSectionItem[]>>("/user/custom-sections/");
+  }
 }

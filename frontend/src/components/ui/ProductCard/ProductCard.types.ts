@@ -1,4 +1,4 @@
-﻿import * as React from "react";
+import * as React from "react";
 
 export type ProductCardOrientation = "vertical" | "horizontal";
 export type ProductCardState = "default" | "unavailable" | "pre-order";
@@ -35,6 +35,8 @@ export interface ProductCardProps
   releaseDate?: React.ReactNode;
   /** Teks kustom tombol aksi */
   buttonText?: React.ReactNode;
+  /** Apakah tombol aksi dinonaktifkan (misal: jika sudah di keranjang atau dimiliki) */
+  isActionDisabled?: boolean;
   /** Callback saat tombol aksi diklik */
   onActionClick?: (e: React.MouseEvent<HTMLButtonElement>) => void;
   /** Link tujuan saat card diklik */

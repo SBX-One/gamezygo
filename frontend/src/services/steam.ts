@@ -47,7 +47,7 @@ export interface SteamSearchResult {
  * Get high resolution Steam Library/Hero vertical capsule (600x900 / 3:4 aspect ratio)
  */
 export function getSteamCapsuleUrl(appId: number | string): string {
-  return `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${appId}/library_600x900_2x.jpg`;
+  return `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appId}/hero_capsule.jpg`;
 }
 
 /**

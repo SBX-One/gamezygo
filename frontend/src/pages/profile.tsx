@@ -12,6 +12,7 @@ import {
 import { useUserProfile, useUpdateProfile, useChangePassword } from "@/hooks/use-profile";
 import { useUserLeaderboardRank } from "@/hooks/use-leaderboard";
 import { useUserOrders } from "@/hooks/use-orders";
+import { useOwnedGames } from "@/hooks/use-library";
 import { formatRupiah } from "@/utils/formatters";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { MOCK_USER } from "@/lib/mock/data";
@@ -259,6 +260,38 @@ export default function ProfilePage() {
   const changePasswordMutation = useChangePassword();
   const { data: userRankRes } = useUserLeaderboardRank();
   const { data: userOrdersRes } = useUserOrders();
+  const { ownedGames } = useOwnedGames();
+
+  // Dynamic recent transactions mapped from user orders
+  const recentTransactions: TransactionGame[] = React.useMemo(() => {
+    if (!userOrdersRes?.data || userOrdersRes.data.length === 0) return [];
+    const items: TransactionGame[] = [];
+    userOrdersRes.data.forEach((order) => {
+      if (order.order_items && order.order_items.length > 0) {
+        order.order_items.forEach((item, idx) => {
+          items.push({
+            id: `trans-${order.id}-${item.id || idx}`,
+            title: item.product?.name || `Order #${order.order_number}`,
+            imageSrc:
+              item.product?.thumbnail ||
+              "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+            price: formatRupiah(item.price || order.total_price),
+            points: `+${Math.max(1, Math.floor(Number(item.price || order.total_price) / 10000))} pts`,
+          });
+        });
+      } else {
+        items.push({
+          id: `trans-order-${order.id}`,
+          title: `Pesanan #${order.order_number}`,
+          imageSrc:
+            "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+          price: formatRupiah(order.total_price),
+          points: `+${Math.max(1, Math.floor(Number(order.total_price) / 10000))} pts`,
+        });
+      }
+    });
+    return items;
+  }, [userOrdersRes]);
 
   // Modal Ubah Profil
   const [isEditModalOpen, setIsEditModalOpen] = React.useState(false);
@@ -527,7 +560,7 @@ export default function ProfilePage() {
               label="Total Transactions"
               value={
                 <span className="text-white text-h4 font-semibold inline-flex items-baseline gap-1.5">
-                  {profileApiRes?.data?.total_transactions ?? 67}{" "}
+                  {userOrdersRes?.data?.length ?? profileApiRes?.data?.total_transactions ?? 0}{" "}
                     transactions
                 </span>
               }
@@ -546,7 +579,7 @@ export default function ProfilePage() {
               label="Total Points"
               value={
                 <span className="text-white text-h4 font-semibold inline-flex items-baseline gap-1.5">
-                  {userRankRes?.data?.point ?? profileApiRes?.data?.total_points ?? 677}{" "}
+                  {userRankRes?.data?.point ?? profileApiRes?.data?.total_points ?? 0}{" "}
                     pts
                 </span>
               }
@@ -573,8 +606,8 @@ export default function ProfilePage() {
                       dapatkan voucher diskon!
                     </p>
                     <div className="flex items-center gap-3 shrink-0">
-                      <span className="text-body-md font-semibold text-gray-400">
-                        -
+                      <span className="text-body-md font-semibold text-white">
+                        {ownedGames.length} games
                       </span>
                       <Button
                         type="button"
@@ -813,15 +846,30 @@ export default function ProfilePage() {
             {/* Expandable Swipeable Game Track */}
             {isRecentTransOpen && (
               <div className="w-full pt-6">
-                <SwipeableTrack itemCount={RECENT_TRANSACTIONS.length}>
-                  {RECENT_TRANSACTIONS.map((game) => (
-                    <TransactionCard
-                      key={game.id}
-                      item={game}
-                      onClick={() => handleToast(`Melihat detail ${game.title}`)}
-                    />
-                  ))}
-                </SwipeableTrack>
+                {recentTransactions.length > 0 ? (
+                  <SwipeableTrack itemCount={recentTransactions.length}>
+                    {recentTransactions.map((game) => (
+                      <TransactionCard
+                        key={game.id}
+                        item={game}
+                        onClick={() => router.push("/history")}
+                      />
+                    ))}
+                  </SwipeableTrack>
+                ) : (
+                  <div className="w-full py-8 flex flex-col items-center justify-center gap-3 text-center rounded-lg bg-surface-secondary-default/40 border border-white/5">
+                    <p className="text-body-sm text-gray-400">Belum ada riwayat transaksi</p>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      onClick={() => router.push("/store")}
+                      className="cursor-pointer"
+                    >
+                      Mulai Belanja
+                    </Button>
+                  </div>
+                )}
               </div>
             )}
           </div>

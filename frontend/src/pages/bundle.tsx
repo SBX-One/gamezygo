@@ -14,6 +14,7 @@ import {
   Toast,
 } from "@/components/ui";
 import { useAuthStore } from "@/stores/use-auth-store";
+import { useCartStore } from "@/stores/use-cart-store";
 import {
   useSubscriptionPlans,
   useUserSubscription,
@@ -300,7 +301,7 @@ const MINI_CATALOG_GAMES = [
     slug: "targeted-10-days",
     title: "Targeted - 10 Days",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/107410/library_600x900_2x.jpg",
+      "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/107410/hero_capsule.jpg",
     tier: "Tier 3",
     originalPrice: "Rp 439.000,00",
     price: "Rp 122.999",
@@ -580,6 +581,8 @@ export default function BundlePage() {
   // Auth state
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const authUser = useAuthStore((s) => s.user);
+  const addItem = useCartStore((s) => s.addItem);
+  const isInCart = useCartStore((s) => s.isInCart);
   const isMounted = React.useSyncExternalStore(
     () => () => {},
     () => true,
@@ -607,7 +610,7 @@ export default function BundlePage() {
   }, [faqsApiRes]);
 
   // Mode switcher: "subscribed" (Image 3 & 4) vs "unsubscribed" (Image 2)
-  const [viewMode, setViewMode] = React.useState<"subscribed" | "unsubscribed">("subscribed");
+  const [viewMode, setViewMode] = React.useState<"subscribed" | "unsubscribed">("unsubscribed");
 
   // Sync active subscription from API if available
   React.useEffect(() => {
@@ -625,6 +628,8 @@ export default function BundlePage() {
     if (subscriptionPlansRes?.data && subscriptionPlansRes.data.length > 0) {
       return subscriptionPlansRes.data.map((plan, idx) => ({
         id: String(plan.id),
+        numericId: plan.id,
+        rawPrice: plan.price,
         type: (idx === 1 ? "primary" : "secondary") as "primary" | "secondary",
         title: plan.name,
         price: formatRupiah(plan.price),
@@ -643,41 +648,47 @@ export default function BundlePage() {
     return [
       {
         id: "plan-1",
+        numericId: 1,
+        rawPrice: 50000,
         type: "secondary" as const,
         title: "Paket 1",
-        price: "IDR 150,000",
+        price: "IDR 50,000",
         period: "/ Month",
         features: [
           "Mainkan Game Lebih Banyak",
-          "Mainkan Game Lebih Banyak",
-          "Mainkan Game Lebih Banyak",
-          "Mainkan Game Lebih Banyak",
+          "Akses Koleksi Game Paket",
+          "Akses Instan Tanpa Antrean",
+          "Dukungan CS 24/7",
         ],
       },
       {
         id: "plan-2",
+        numericId: 2,
+        rawPrice: 150000,
         type: "primary" as const,
         title: "Paket 2",
         price: "IDR 150,000",
         period: "/ Month",
         features: [
           "Mainkan Game Lebih Banyak",
-          "Mainkan Game Lebih Banyak",
-          "Mainkan Game Lebih Banyak",
-          "Mainkan Game Lebih Banyak",
+          "Akses Seluruh Koleksi Paket",
+          "Update Game Otomatis",
+          "Dukungan CS 24/7",
         ],
       },
       {
         id: "plan-3",
+        numericId: 3,
+        rawPrice: 200000,
         type: "secondary" as const,
         title: "Paket 3",
-        price: "IDR 150,000",
+        price: "IDR 200,000",
         period: "/ Month",
         features: [
           "Mainkan Game Lebih Banyak",
-          "Mainkan Game Lebih Banyak",
-          "Mainkan Game Lebih Banyak",
-          "Mainkan Game Lebih Banyak",
+          "Semua Fitur VIP & Akses Prioritas",
+          "Update Game Otomatis",
+          "Dukungan CS 24/7",
         ],
       },
     ];
@@ -688,13 +699,71 @@ export default function BundlePage() {
   const [activeSubPlan, setActiveSubPlan] = React.useState<string>("Paket 2");
   const subsModalRef = React.useRef<HTMLDivElement | null>(null);
 
-  const handleSubscribeAction = (planTitle: string) => {
-    if (!isLoggedIn) {
-      router.push(`/login?redirect=${encodeURIComponent(router.asPath)}`);
-      return;
+  const handleSubscribeToPlan = (plan: {
+    id: string;
+    numericId?: number;
+    title: string;
+    price: string;
+    rawPrice?: number;
+  }) => {
+    const numericPrice =
+      plan.rawPrice ||
+      parseInt(plan.price.replace(/\D/g, "")) ||
+      150000;
+    const planItemId = `sub-${plan.numericId || plan.id}`;
+    const planTitle = `Paket Langganan ${plan.title}`;
+    const coverImage =
+      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg";
+
+    // 1. Masukkan ke useCartStore
+    addItem(planItemId, 1, {
+      id: planItemId,
+      title: planTitle,
+      price: numericPrice,
+      originalPrice: numericPrice,
+      discount: "",
+      imageSrc: coverImage,
+      cover_image_url: coverImage,
+    });
+
+    // 2. Simpan ke sessionStorage untuk checkout
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem(
+          "gamezygo_checkout_items",
+          JSON.stringify([
+            {
+              id: planItemId,
+              productId: plan.numericId || 1,
+              title: planTitle,
+              imageSrc: coverImage,
+              price: numericPrice,
+            },
+          ])
+        );
+      }
+    } catch {
+      // ignore storage error
     }
-    setActiveSubPlan(planTitle);
-    setIsSubsModalOpen(true);
+
+    // 3. Tutup modal jika terbuka
+    setIsSubsModalOpen(false);
+
+    // 4. Feedback toast & navigasi ke keranjang
+    handleToast(`"${planTitle}" berhasil dimasukkan ke keranjang! Mengalihkan ke keranjang...`);
+    setTimeout(() => {
+      router.push("/cart");
+    }, 600);
+  };
+
+  const handleSubscribeAction = (planTitle: string) => {
+    const matched = pricingPlans.find((p) => p.title === planTitle);
+    if (matched) {
+      handleSubscribeToPlan(matched);
+    } else {
+      setActiveSubPlan(planTitle);
+      setIsSubsModalOpen(true);
+    }
   };
 
   // Prevent background scroll without breaking sticky navbar (no body overflow: hidden)
@@ -1181,10 +1250,7 @@ export default function BundlePage() {
                           period={plan.period}
                           features={plan.features}
                           actionText="Subscribe"
-                          onActionClick={() => {
-                            setActiveSubPlan(plan.title);
-                            setIsSubsModalOpen(true);
-                          }}
+                          onActionClick={() => handleSubscribeToPlan(plan)}
                           className="h-full"
                         />
                       </div>
@@ -1598,17 +1664,19 @@ export default function BundlePage() {
                   period="/ Month"
                   features={[
                     "Mainkan Game Lebih Banyak",
-                    "Mainkan Game Lebih Banyak",
-                    "Mainkan Game Lebih Banyak",
-                    "Mainkan Game Lebih Banyak",
+                    "Akses Koleksi Game Paket",
+                    "Akses Instan Tanpa Antrean",
+                    "Dukungan CS 24/7",
                   ]}
                   actionText="Subscribe"
                   onActionClick={() => {
-                    setActiveSubPlan("Paket 1");
-                    createOrderMutation.mutate({ item_type: "subscription", subscription_plan_id: 1 });
-                    handleToast("Paket 1 dipilih");
-                    setIsSubsModalOpen(false);
-                    setViewMode("subscribed");
+                    handleSubscribeToPlan({
+                      id: "plan-1",
+                      numericId: 1,
+                      title: "Paket 1",
+                      price: "IDR 50,000",
+                      rawPrice: 50000,
+                    });
                   }}
                   className="w-full"
                 />
@@ -1621,17 +1689,19 @@ export default function BundlePage() {
                   period="/ Month"
                   features={[
                     "Mainkan Game Lebih Banyak",
-                    "Mainkan Game Lebih Banyak",
-                    "Mainkan Game Lebih Banyak",
-                    "Mainkan Game Lebih Banyak",
+                    "Akses Seluruh Koleksi Paket",
+                    "Update Game Otomatis",
+                    "Dukungan CS 24/7",
                   ]}
                   actionText="Subscribe"
                   onActionClick={() => {
-                    setActiveSubPlan("Paket 2");
-                    createOrderMutation.mutate({ item_type: "subscription", subscription_plan_id: 2 });
-                    handleToast("Paket 2 berhasil diperbarui!");
-                    setIsSubsModalOpen(false);
-                    setViewMode("subscribed");
+                    handleSubscribeToPlan({
+                      id: "plan-2",
+                      numericId: 2,
+                      title: "Paket 2",
+                      price: "IDR 150,000",
+                      rawPrice: 150000,
+                    });
                   }}
                   className="w-full"
                 />
@@ -1644,17 +1714,19 @@ export default function BundlePage() {
                   period="/ Month"
                   features={[
                     "Mainkan Game Lebih Banyak",
-                    "Mainkan Game Lebih Banyak",
-                    "Mainkan Game Lebih Banyak",
-                    "Mainkan Game Lebih Banyak",
+                    "Semua Fitur VIP & Akses Prioritas",
+                    "Update Game Otomatis",
+                    "Dukungan CS 24/7",
                   ]}
                   actionText="Subscribe"
                   onActionClick={() => {
-                    setActiveSubPlan("Paket 3");
-                    createOrderMutation.mutate({ item_type: "subscription", subscription_plan_id: 3 });
-                    handleToast("Paket 3 dipilih");
-                    setIsSubsModalOpen(false);
-                    setViewMode("subscribed");
+                    handleSubscribeToPlan({
+                      id: "plan-3",
+                      numericId: 3,
+                      title: "Paket 3",
+                      price: "IDR 200,000",
+                      rawPrice: 200000,
+                    });
                   }}
                   className="w-full"
                 />

@@ -5,6 +5,7 @@ import axios, {
   type InternalAxiosRequestConfig,
 } from "axios";
 import { useAuthStore } from "@/stores/use-auth-store";
+import { MOCK_TOKEN } from "@/lib/mock/data";
 
 export const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_BASE_URL ||
@@ -24,7 +25,20 @@ export const apiClient: AxiosInstance = axios.create({
 apiClient.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     // Attempt retrieving token from Zustand store
-    const token = useAuthStore.getState().token;
+    let token = useAuthStore.getState().token;
+
+    // Direct fallback from localStorage if Zustand has not yet hydrated into memory
+    if (!token && typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem("gamezygo-auth-storage");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          token = parsed?.state?.token || null;
+        }
+      } catch {
+        // ignore JSON parse errors
+      }
+    }
 
     if (token && config.headers) {
       config.headers.Authorization = token.startsWith("Bearer ")
@@ -65,11 +79,31 @@ apiClient.interceptors.response.use(
     const originalRequest = error.config;
 
     if (error.response?.status === 401 && !originalRequest?._retry) {
-      const { refreshToken, setToken, logout } = useAuthStore.getState();
+      const { token, refreshToken, setToken, logout } = useAuthStore.getState();
 
-      // If already on the refresh endpoint or no refresh token, logout
-      if (!refreshToken || originalRequest?.url?.includes("/auth/refresh")) {
+      // If user is operating with a mock/offline token, DO NOT wipe session on backend 401!
+      // In development or demo mode, backend may not recognize mock tokens.
+      if (!token || token === MOCK_TOKEN || token.startsWith("mock-")) {
+        return Promise.reject(error);
+      }
+
+      // If already on the refresh endpoint, refresh failed - logout
+      if (originalRequest?.url?.includes("/auth/refresh")) {
         logout();
+        return Promise.reject(error);
+      }
+
+      // If no refresh token is available (e.g. Laravel Sanctum bearer tokens without refresh endpoint)
+      if (!refreshToken) {
+        // Only logout if this was an explicit core profile/me check failure,
+        // never wipe state on random background queries or optional endpoints!
+        const isCoreAuthCheck =
+          originalRequest?.url?.includes("/user/profile") ||
+          originalRequest?.url?.includes("/auth/me");
+
+        if (isCoreAuthCheck) {
+          logout();
+        }
         return Promise.reject(error);
       }
 

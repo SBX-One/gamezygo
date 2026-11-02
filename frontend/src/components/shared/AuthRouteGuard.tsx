@@ -23,25 +23,45 @@ export function AuthRouteGuard({ children }: AuthRouteGuardProps) {
 
   // Monitor Zustand persistence hydration
   React.useEffect(() => {
-    // If persist already finished hydration
-    if (useAuthStore.persist?.hasHydrated?.()) {
+    const syncState = () => {
+      if (typeof window !== "undefined") {
+        try {
+          const raw = localStorage.getItem("gamezygo-auth-storage");
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (parsed?.state?.isAuthenticated) {
+              if (!useAuthStore.getState().isAuthenticated) {
+                useAuthStore.setState({
+                  user: parsed.state.user,
+                  token: parsed.state.token,
+                  refreshToken: parsed.state.refreshToken,
+                  role: parsed.state.role,
+                  isAuthenticated: true,
+                });
+              }
+            }
+          }
+        } catch {
+          // ignore parsing error
+        }
+      }
       setIsHydrated(true);
-    }
-
-    // Subscribe to finish hydration event
-    const unsub = useAuthStore.persist?.onFinishHydration?.(() => {
-      setIsHydrated(true);
-    });
-
-    // Fallback in case persist.hasHydrated() is synchronous or already settled
-    const timer = setTimeout(() => {
-      setIsHydrated(true);
-    }, 50);
-
-    return () => {
-      unsub?.();
-      clearTimeout(timer);
     };
+
+    if (useAuthStore.persist?.hasHydrated?.()) {
+      syncState();
+    } else {
+      const unsub = useAuthStore.persist?.onFinishHydration?.(() => {
+        syncState();
+      });
+
+      const timer = setTimeout(syncState, 50);
+
+      return () => {
+        unsub?.();
+        clearTimeout(timer);
+      };
+    }
   }, []);
 
   const isProtected =

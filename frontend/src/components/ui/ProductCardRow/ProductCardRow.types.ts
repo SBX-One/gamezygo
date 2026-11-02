@@ -15,6 +15,8 @@ export interface ProductCardRowItem {
   discount: string;
   platform?: string;
   isBestSeller?: boolean;
+  buttonText?: string;
+  isActionDisabled?: boolean;
 }
 
 export interface ProductCardRowProps extends React.HTMLAttributes<HTMLDivElement> {

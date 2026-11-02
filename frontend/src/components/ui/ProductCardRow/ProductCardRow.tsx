@@ -168,9 +168,9 @@ export function ProductCardRow({
         )}
         {...props}
       >
-        {products.map((product) => (
+        {products.map((product, idx) => (
           <ProductCard
-            key={product.id}
+            key={`pcr-card-${product.id}-${idx}`}
             data-product-card="true"
             orientation={orientation}
             title={product.title}
@@ -181,9 +181,10 @@ export function ProductCardRow({
             discount={product.discount}
             platform={product.platform}
             isBestSeller={product.isBestSeller ?? false}
-            buttonText="Tambah Keranjang"
+            buttonText={product.buttonText || "Tambah Keranjang"}
+            isActionDisabled={product.isActionDisabled}
             href={`/store/${product.slug || product.id}`}
-            onActionClick={() => onAddToCart?.(product.title)}
+            onActionClick={() => !product.isActionDisabled && onAddToCart?.(product.title)}
             className={cn(isHorizontal ? "w-full" : "max-lg:pb-8xl", cardClassName)}
           />
         ))}
@@ -267,9 +268,9 @@ export function ProductCardRow({
           onScroll={checkScroll}
           className="flex gap-4 sm:gap-6 overflow-x-auto overflow-y-hidden no-scrollbar scroll-smooth pb-3 pt-1 -mx-1 px-1"
         >
-          {products.map((product) => (
+          {products.map((product, idx) => (
             <div
-              key={product.id}
+              key={`pcr-wrap-${product.id}-${idx}`}
               data-product-card="true"
               className={cn(
                 "shrink-0 flex flex-col",
@@ -291,9 +292,10 @@ export function ProductCardRow({
                 discount={product.discount}
                 platform={product.platform}
                 isBestSeller={product.isBestSeller ?? false}
-                buttonText="Tambah Keranjang"
+                buttonText={product.buttonText || "Tambah Keranjang"}
+                isActionDisabled={product.isActionDisabled}
                 href={`/store/${product.slug || product.id}`}
-                onActionClick={() => onAddToCart?.(product.title)}
+                onActionClick={() => !product.isActionDisabled && onAddToCart?.(product.title)}
                 className={cn("h-full", isHorizontal ? "sm:min-w-0" : "max-lg:pb-8xl", cardClassName)}
               />
             </div>

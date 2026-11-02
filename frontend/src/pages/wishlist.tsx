@@ -1,5 +1,6 @@
 import * as React from "react";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { StoreLayout } from "@/components/layout";
 import {
   Button,
@@ -10,6 +11,10 @@ import {
   FilterBadgeSwiper,
 } from "@/components/ui";
 import { useWishlist } from "@/hooks/use-wishlist";
+import { useAuthStore } from "@/stores/use-auth-store";
+import { useCartStore } from "@/stores/use-cart-store";
+import { useWishlistStore } from "@/stores/use-wishlist-store";
+import { useOwnedGames } from "@/hooks/use-library";
 import { useAddToCart } from "@/hooks/use-cart";
 import { cn } from "@/lib/utils";
 
@@ -189,7 +194,16 @@ export const INITIAL_WISHLIST_GAMES: WishlistGame[] = [
 ];
 
 export default function WishlistPage() {
-  // Wishlist API integration with graceful fallback
+  const router = useRouter();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const { addItem, isInCart } = useCartStore();
+  const { isGameOwned } = useOwnedGames();
+
+  // Local wishlist items integration
+  const localWishlistItems = useWishlistStore((s) => s.items);
+  const removeFromWishlistStore = useWishlistStore((s) => s.removeFromWishlist);
+
+  // Wishlist API integration
   const [searchQuery, setSearchQuery] = React.useState("");
   const [appliedGenres, setAppliedGenres] = React.useState<string[]>([]);
   const { data: wishlistApiRes } = useWishlist({
@@ -197,26 +211,61 @@ export default function WishlistPage() {
     genre_categories: appliedGenres.length > 0 ? appliedGenres : undefined,
   });
   const addToCartMutation = useAddToCart();
-  const [localWishlistGames, setLocalWishlistGames] = React.useState<WishlistGame[]>(
-    INITIAL_WISHLIST_GAMES
-  );
 
   const wishlistGames: WishlistGame[] = React.useMemo(() => {
+    // Sanitize imageSrc: replace screenshot or old library 600x900 for 107410 with hero_capsule
+    const sanitizedLocal: WishlistGame[] = localWishlistItems.map((item) => {
+      let imageSrc = item.imageSrc;
+      const appId = item.steamAppId || (item.productId && !isNaN(Number(item.productId)) ? Number(item.productId) : undefined);
+
+      if (
+        (appId && String(appId) === "107410") ||
+        (item.title && item.title.toLowerCase().includes("targeted")) ||
+        (item.id && item.id.includes("targeted"))
+      ) {
+        imageSrc = "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/107410/hero_capsule.jpg";
+      } else if (
+        appId &&
+        (imageSrc?.includes("steamuserimages") || imageSrc?.includes("/ss_") || imageSrc?.includes("header.jpg"))
+      ) {
+        imageSrc = `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appId}/hero_capsule.jpg`;
+      }
+
+      return {
+        ...item,
+        imageSrc: imageSrc || item.imageSrc,
+      };
+    });
+
+    const list: WishlistGame[] = [...sanitizedLocal];
+
     if (wishlistApiRes?.data && wishlistApiRes.data.length > 0) {
-      return wishlistApiRes.data.map((item) => ({
-        id: String(item.id),
-        productId: item.product?.id,
-        slug: item.product?.slug || (item.product?.id ? String(item.product.id) : undefined),
-        steamAppId: (item.product as { steam_app_id?: number } | undefined)?.steam_app_id,
-        title: item.product?.name || "Game",
-        imageSrc: item.product?.thumbnail || "",
-        genres: ["Action", "Adventure"],
-        platform: "Steam",
-        launcher: "Steam",
-      }));
+      wishlistApiRes.data.forEach((item) => {
+        const id = String(item.product?.id || item.id);
+        const exists = list.some((x) => String(x.productId || x.id) === id);
+        if (!exists) {
+          const appId = (item.product as { steam_app_id?: number } | undefined)?.steam_app_id || item.product?.id;
+          const cover = appId
+            ? `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appId}/hero_capsule.jpg`
+            : item.product?.thumbnail || "";
+
+          list.push({
+            id: String(item.id),
+            productId: item.product?.id,
+            slug: item.product?.slug || (item.product?.id ? String(item.product.id) : undefined),
+            steamAppId: (item.product as { steam_app_id?: number } | undefined)?.steam_app_id,
+            title: item.product?.name || "Game",
+            imageSrc: cover,
+            genres: (item.product as { categories?: Array<{ name: string }> })?.categories?.map((c) => c.name) || ["Action", "Adventure"],
+            platform: "Steam",
+            launcher: "Steam",
+          });
+        }
+      });
     }
-    return localWishlistGames;
-  }, [wishlistApiRes, localWishlistGames]);
+
+    return list;
+  }, [wishlistApiRes, localWishlistItems]);
 
   // Search State
   // Search State moved above
@@ -241,10 +290,32 @@ export default function WishlistPage() {
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
 
   const handleAddToCart = (game: WishlistGame) => {
-    if (game.productId) {
+    if (isGameOwned(game.productId, game.title, game.slug)) {
+      setToastMessage(`Game "${game.title}" sudah Anda miliki di Library!`);
+      setTimeout(() => {
+        setToastMessage(null);
+      }, 3000);
+      return;
+    }
+
+    if (isInCart(String(game.productId || game.id), game.title)) {
+      setToastMessage(`Game "${game.title}" sudah ada di Keranjang!`);
+      setTimeout(() => {
+        setToastMessage(null);
+      }, 3000);
+      return;
+    }
+
+    addItem(String(game.productId || game.id), 1, {
+      title: game.title,
+      imageSrc: game.imageSrc,
+    });
+
+    if (isAuthenticated && game.productId) {
       addToCartMutation.mutate(game.productId);
     }
-    setToastMessage("Added to Cart");
+
+    setToastMessage(`"${game.title}" berhasil ditambahkan ke Keranjang!`);
     setTimeout(() => {
       setToastMessage(null);
     }, 3000);
@@ -538,10 +609,10 @@ export default function WishlistPage() {
                 backLabel="Kembali"
                 searchLabel="Search"
                 onBack={() => {
-                  setLocalWishlistGames(INITIAL_WISHLIST_GAMES);
+                  router.push("/store");
                 }}
                 onSearch={() => {
-                  window.location.href = "/store";
+                  router.push("/store");
                 }}
               />
             </div>

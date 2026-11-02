@@ -1,5 +1,6 @@
 import * as React from "react";
 import Head from "next/head";
+import { useRouter } from "next/router";
 import { StoreLayout } from "@/components/layout";
 import {
   Button,
@@ -10,6 +11,7 @@ import {
   FilterBadgeSwiper,
 } from "@/components/ui";
 import { useUserLibrary } from "@/hooks/use-library";
+import { useAuthStore } from "@/stores/use-auth-store";
 import { formatRupiah } from "@/utils/formatters";
 import { cn } from "@/lib/utils";
 
@@ -300,6 +302,7 @@ export const OWNED_LIBRARY_GAMES: LibraryGame[] = [
 ];
 
 export default function GameLibraryPage() {
+  const router = useRouter();
   // Search State
   const [searchQuery, setSearchQuery] = React.useState<string>("");
 
@@ -426,7 +429,7 @@ export default function GameLibraryPage() {
     }
 
     return list;
-  }, [isSearchActive, searchQuery, appliedGenres, appliedLaunchers, appliedSort]);
+  }, [baseGames, isSearchActive, searchQuery, appliedGenres, appliedLaunchers, appliedSort]);
 
   return (
     <>
@@ -616,7 +619,23 @@ export default function GameLibraryPage() {
           {/* ========================================================
               GAME CARDS GRID ATAU EMPTY STATE
              ======================================================== */}
-          {filteredGames.length > 0 ? (
+          {baseGames.length === 0 ? (
+            /* CASE A: USER BELUM MEMILIKI GAME DI PERPUSTAKAAN */
+            <div className="py-24 flex items-center justify-center w-full">
+              <EmptyState
+                title="Perpustakaan Masih Kosong"
+                description="Anda belum memiliki game apapun di perpustakaan. Mulai jelajahi katalog toko dan beli game impian Anda!"
+                backLabel="Kembali"
+                searchLabel="Jelajahi Toko"
+                onBack={() => {
+                  router.push("/store");
+                }}
+                onSearch={() => {
+                  router.push("/store");
+                }}
+              />
+            </div>
+          ) : filteredGames.length > 0 ? (
             /* 4-COLUMN RESPONSIVE GAME GRID (Screenshot 1, 3, 4 Kiri) */
             <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
               {filteredGames.map((game) => (

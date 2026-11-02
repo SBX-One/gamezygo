@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
 import type { OrderHistoryItem, OrderStatus } from "../types";
+import { fetchOrderDetail } from "@/services/orders.service";
 
 export interface TransactionDetailModalProps {
   isOpen: boolean;
@@ -97,12 +98,35 @@ export function TransactionDetailModal({
 
   if (!isOpen || !order) return null;
 
-  const handleCheckStatus = () => {
+  const handleCheckStatus = async () => {
     setIsLoading(true);
-    // Simulate checking status and rotating or validating
+    try {
+      if (order.id) {
+        const res = await fetchOrderDetail(order.id);
+        if (res?.data) {
+          const rawStatus = (res.data.status || "").toLowerCase();
+          const nextStatus: OrderStatus =
+            rawStatus === "paid" || rawStatus === "completed" || rawStatus === "success"
+              ? "Berhasil"
+              : rawStatus === "pending"
+              ? "Pending"
+              : "Gagal";
+          setCurrentStatus(nextStatus);
+          onStatusUpdated?.({
+            ...order,
+            transactionId: transactionIdInput,
+            status: nextStatus,
+          });
+          setIsLoading(false);
+          return;
+        }
+      }
+    } catch {
+      // API fallback
+    }
+
     setTimeout(() => {
       setIsLoading(false);
-      // If currently pending, transition to Berhasil
       const nextStatus: OrderStatus =
         currentStatus === "Pending" ? "Berhasil" : currentStatus;
       setCurrentStatus(nextStatus);

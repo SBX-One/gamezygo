@@ -152,7 +152,7 @@ const INITIAL_MY_REQUESTS: RequestGameData[] = [
     id: "targeted-10-days",
     title: "Targeted - 10 Days",
     imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/107410/library_600x900_2x.jpg",
+      "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/107410/hero_capsule.jpg",
     requestDate: "21/07/2026",
     requestCount: 24,
   },
@@ -956,13 +956,20 @@ export default function RequestGamePage() {
 
               {/* Empty Title & Description */}
               <div className="flex flex-col gap-4 my-8">
-
-              <h2 className="text-h4 font-semibold leading-1.2 text-gray-50 ">
-                Request Game Impianmu
-              </h2>
-              <p className="text-body-xs text-gray-400   leading-relaxed">
-                Game favoritmu belum ada di katalog? Kirim link <br /> store-nya sekarang. Game dengan vote terbanyak <br />bakal kita hadirkan lebih cepat!
-              </p>
+                <h2 className="text-h4 font-semibold leading-1.2 text-gray-50 ">
+                  {activeTab === "my-requests"
+                    ? "Belum Ada Request Game"
+                    : activeTab === "added"
+                    ? "Belum Ada Game Ditambahkan"
+                    : "Belum Ada Request Komunitas"}
+                </h2>
+                <p className="text-body-xs text-gray-400 leading-relaxed">
+                  {activeTab === "my-requests"
+                    ? "Anda belum pernah mengajukan request game. Masukkan link game Steam di atas untuk mengajukan game favoritmu!"
+                    : activeTab === "added"
+                    ? "Belum ada game dari request komunitas yang telah ditambahkan ke katalog toko."
+                    : "Belum ada request game dari komunitas saat ini. Jadilah yang pertama mengajukan!"}
+                </p>
               </div>
 
               {/* Action Buttons */}
@@ -974,17 +981,12 @@ export default function RequestGamePage() {
                   leftIcon={<ArrowLeftIcon />}
                   onClick={() => {
                     setForceEmptyState(false);
-                    setMyRequests(INITIAL_MY_REQUESTS);
-                    try {
-                      localStorage.setItem(
-                        LOCAL_STORAGE_KEY_MY_REQUESTS,
-                        JSON.stringify(INITIAL_MY_REQUESTS)
-                      );
-                    } catch (e) {}
+                    const el = document.getElementById("steam-store-url");
+                    el?.focus();
                   }}
                   className=" px-5 py-3 cursor-pointer "
                 >
-                  Kembali
+                  Ajukan Game
                 </Button>
                 <Button
                   type="button"

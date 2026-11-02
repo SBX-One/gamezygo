@@ -87,7 +87,7 @@ export default async function handler(
     const { data } = appData;
 
     // High resolution capsule image for vertical 3:4 product cards
-    const libraryCapsuleUrl = `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${numericAppId}/library_600x900_2x.jpg`;
+    const libraryCapsuleUrl = `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${numericAppId}/hero_capsule.jpg`;
 
     const highlightTrailer = data.movies?.find((m) => m.highlight) || data.movies?.[0];
 

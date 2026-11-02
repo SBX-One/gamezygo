@@ -18,7 +18,9 @@ import {
 import { StoreLayout } from "@/components/layout";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useCartStore } from "@/stores/use-cart-store";
+import { formatRupiah, formatDiscount } from "@/utils/formatters";
 import { useAddToCart } from "@/hooks/use-cart";
+import { useOwnedGames } from "@/hooks/use-library";
 import { cn } from "@/lib/utils";
 
 // Icon for 500 Server Error
@@ -326,13 +328,57 @@ export default function StorePage() {
   // Cart notification toast
   const [cartToast, setCartToast] = React.useState<string | null>(null);
   const addItemToStore = useCartStore((s) => s.addItem);
+  const isInCartStore = useCartStore((s) => s.isInCart);
   const addToCartMutation = useAddToCart();
+  const { isGameOwned } = useOwnedGames();
+
+  const enrichRowItems = React.useCallback(
+    (items: ProductCardRowItem[]) =>
+      items.map((item) => {
+        const owned = isGameOwned(item.id, item.title);
+        const inCart = isInCartStore(item.id, item.title);
+        return {
+          ...item,
+          buttonText: owned ? "Sudah Dimiliki" : inCart ? "Di Keranjang" : "Tambah Keranjang",
+          isActionDisabled: owned || inCart,
+        };
+      }),
+    [isGameOwned, isInCartStore]
+  );
 
   const handleAddToCart = (gameTitle: string) => {
     const matchedApi = productsApiData?.data?.find((p) => p.name === gameTitle);
     const matchedLocal = ALL_STORE_PRODUCTS.find((p) => p.title === gameTitle);
     const prodId = matchedApi ? String(matchedApi.id) : (matchedLocal?.id || gameTitle);
-    addItemToStore(prodId, 1);
+
+    if (isGameOwned(prodId, gameTitle)) {
+      setCartToast(`Anda sudah memiliki "${gameTitle}" di Library.`);
+      setTimeout(() => setCartToast(null), 3500);
+      return;
+    }
+
+    if (isInCartStore(prodId, gameTitle)) {
+      setCartToast(`"${gameTitle}" sudah ada di dalam keranjang.`);
+      setTimeout(() => setCartToast(null), 3500);
+      return;
+    }
+
+    const price = matchedApi
+      ? (matchedApi.discount_price && matchedApi.discount_price > 0 ? matchedApi.discount_price : matchedApi.price)
+      : (matchedLocal ? parseInt(matchedLocal.price.replace(/\D/g, '')) || 0 : 0);
+    const originalPrice = matchedApi
+      ? matchedApi.price
+      : (matchedLocal ? parseInt(matchedLocal.originalPrice?.replace(/\D/g, '') || '0') || price : price);
+    const imageSrc = matchedApi?.thumbnail || matchedLocal?.imageSrc || '';
+    const discount = matchedApi ? formatDiscount(matchedApi.discount) : (matchedLocal?.discount || '');
+
+    addItemToStore(prodId, 1, {
+      title: gameTitle,
+      price: price || 0,
+      originalPrice: originalPrice || price || 0,
+      imageSrc,
+      discount,
+    });
     if (isAuthenticated && matchedApi?.id) {
       addToCartMutation.mutate(matchedApi.id);
     }
@@ -874,21 +920,27 @@ export default function StorePage() {
             previewState !== "searched-empty" &&
             previewState !== "filter-empty" ? (
               <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-                {searchResults.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    title={product.title}
-                    imageSrc={product.imageSrc}
-                    genres={product.genres}
-                    originalPrice={product.originalPrice}
-                    price={product.price}
-                    discount={product.discount}
-                    platform={product.platform}
-                    href={`/store/${product.id}`}
-                    onActionClick={() => handleAddToCart(product.title)}
-                    className="pb-8xl"
-                  />
-                ))}
+                {searchResults.map((product) => {
+                  const owned = isGameOwned(product.id, product.title);
+                  const inCart = isInCartStore(product.id, product.title);
+                  return (
+                    <ProductCard
+                      key={product.id}
+                      title={product.title}
+                      imageSrc={product.imageSrc}
+                      genres={product.genres}
+                      originalPrice={product.originalPrice}
+                      price={product.price}
+                      discount={product.discount}
+                      platform={product.platform}
+                      buttonText={owned ? "Sudah Dimiliki" : inCart ? "Di Keranjang" : "Tambah Keranjang"}
+                      isActionDisabled={owned || inCart}
+                      href={`/store/${product.id}`}
+                      onActionClick={() => handleAddToCart(product.title)}
+                      className="pb-8xl"
+                    />
+                  );
+                })}
               </div>
             ) : (
               <div className="py-10xl">
@@ -940,24 +992,29 @@ export default function StorePage() {
 
               {/* 2 Horizontal Product Cards: Di bawah pada layar kecil/zoom (order-2), di kiri pada layar lebar (xl:order-1) */}
               <div className="order-2 xl:order-1 xl:col-span-2 flex flex-col gap-6 shrink-0 w-full justify-between">
-                {MINI_FEATURED_GAMES.slice(0, 2).map((game) => (
-                  <ProductCard
-                    key={game.id}
-                    orientation="horizontal"
-                    title={game.title}
-                    imageSrc={game.imageSrc}
-                    genres={game.genres}
-                    originalPrice={game.originalPrice}
-                    price={game.price}
-                    discount={game.discount}
-                    platform={game.platform}
-                    isBestSeller={false}
-                    buttonText="Tambah Keranjang"
-                    href={`/store/${game.id}`}
-                    onActionClick={() => handleAddToCart(game.title)}
-                    className="w-full sm:min-w-0"
-                  />
-                ))}
+                {MINI_FEATURED_GAMES.slice(0, 2).map((game) => {
+                  const owned = isGameOwned(game.id, game.title);
+                  const inCart = isInCartStore(game.id, game.title);
+                  return (
+                    <ProductCard
+                      key={game.id}
+                      orientation="horizontal"
+                      title={game.title}
+                      imageSrc={game.imageSrc}
+                      genres={game.genres}
+                      originalPrice={game.originalPrice}
+                      price={game.price}
+                      discount={game.discount}
+                      platform={game.platform}
+                      isBestSeller={false}
+                      buttonText={owned ? "Sudah Dimiliki" : inCart ? "Di Keranjang" : "Tambah Keranjang"}
+                      isActionDisabled={owned || inCart}
+                      href={`/store/${game.id}`}
+                      onActionClick={() => handleAddToCart(game.title)}
+                      className="w-full sm:min-w-0"
+                    />
+                  );
+                })}
               </div>
             </section>
 
@@ -972,7 +1029,7 @@ export default function StorePage() {
                     onActionClick={() => setExactState("filter-applied")}
                   />
                   <ProductCardRow
-                    products={mapSectionProducts(sec)}
+                    products={enrichRowItems(mapSectionProducts(sec))}
                     visibleCount={
                       isUserLoggedIn
                         ? 4

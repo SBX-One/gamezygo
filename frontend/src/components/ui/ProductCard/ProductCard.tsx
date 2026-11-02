@@ -35,13 +35,14 @@ export function ProductCard({
   platform = "Steam",
   isBestSeller = orientation === "horizontal",
   bestSellerLabel = "Best Seller",
-  genres = ["Action", "Adventure"],
-  title = "Assassin's Creed Black Flag Resynced",
-  originalPrice = "Rp 439.000,00",
-  price = "Rp 219.500",
-  discount = "-30%",
+  genres = [],
+  title = "-",
+  originalPrice = "",
+  price = "-",
+  discount = "",
   releaseDate = "Release at 5 July",
   buttonText,
+  isActionDisabled = false,
   onActionClick,
   href,
   showPrice = true,
@@ -53,6 +54,21 @@ export function ProductCard({
   const isHorizontal = orientation === "horizontal";
   const isUnavailable = state === "unavailable";
   const isPreOrder = state === "pre-order";
+
+  const resolvedImageSrc = React.useMemo(() => {
+    if (!imageSrc) return imageSrc;
+    // Replace zoomed-in library art for 107410 / targeted with proper hero_capsule
+    if (imageSrc.includes("107410/library_600x900_2x.jpg")) {
+      return "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/107410/hero_capsule.jpg";
+    }
+    return imageSrc;
+  }, [imageSrc]);
+
+  const [hasImgError, setHasImgError] = React.useState(false);
+
+  React.useEffect(() => {
+    setHasImgError(false);
+  }, [imageSrc]);
 
   // Action Button Rendering
   const renderActionButton = () => {
@@ -92,13 +108,18 @@ export function ProductCard({
         <Button
           type="button"
           variant="outline"
-          size="md" 
-          className="w-full justify-center cursor-pointer text-label-xs sm:text-sm"
-          onClick={onActionClick}
+          size="md"
+          disabled={isActionDisabled}
+          className={cn(
+            "w-full justify-center text-label-xs sm:text-sm",
+            isActionDisabled
+              ? "opacity-60 cursor-not-allowed bg-white/5 border-white/10 text-gray-400"
+              : "cursor-pointer"
+          )}
+          onClick={isActionDisabled ? undefined : onActionClick}
         >
           {buttonText || "Tambah Keranjang"}
         </Button>
-
       );
     }
 
@@ -107,8 +128,14 @@ export function ProductCard({
         type="button"
         variant="secondary"
         size="md"
-        className="w-full justify-center cursor-pointer text-label-xs "
-        onClick={onActionClick}
+        disabled={isActionDisabled}
+        className={cn(
+          "w-full justify-center text-label-xs",
+          isActionDisabled
+            ? "opacity-60 cursor-not-allowed bg-white/5 border-white/10 text-gray-400"
+            : "cursor-pointer"
+        )}
+        onClick={isActionDisabled ? undefined : onActionClick}
       >
         {buttonText || "Tambah Keranjang"}
       </Button>
@@ -169,21 +196,18 @@ export function ProductCard({
           {/* Cover Image */}
           {imageSlot ? (
             imageSlot
-          ) : imageSrc ? (
+          ) : imageSrc && !hasImgError ? (
             <img
-              src={imageSrc}
+              src={resolvedImageSrc}
               alt={imageAlt || (typeof title === "string" ? title : "Game cover")}
               className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-              onError={(e) => {
-                const target = e.currentTarget;
-                if (!target.src.includes("/assets/png/")) {
-                  target.src = "/assets/png/Banner.png";
-                }
-              }}
+              onError={() => setHasImgError(true)}
             />
           ) : (
-            <div className="w-full h-full bg-deep-blue-950 flex items-center justify-center text-gray-500 text-body-xs">
-              Cover Game
+            <div className="w-full h-full bg-deep-blue-900/40 border border-white/5 flex flex-col items-center justify-center text-gray-500 gap-1.5 animate-pulse">
+              <svg className="w-6 h-6 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
             </div>
           )}
 
@@ -264,15 +288,18 @@ export function ProductCard({
       <div className="w-full aspect-3/4 rounded-lg overflow-hidden relative bg-deep-blue-950 shrink-0">
         {imageSlot ? (
           imageSlot
-        ) : imageSrc ? (
+        ) : imageSrc && !hasImgError ? (
           <img
-            src={imageSrc}
+            src={resolvedImageSrc}
             alt={imageAlt || (typeof title === "string" ? title : "Game cover")}
             className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
+            onError={() => setHasImgError(true)}
           />
         ) : (
-          <div className="w-full h-full bg-deep-blue-950 flex items-center justify-center text-gray-500 text-body-xs">
-            Cover Game
+          <div className="w-full h-full bg-deep-blue-900/40 border border-white/5 flex flex-col items-center justify-center text-gray-500 gap-2 animate-pulse">
+            <svg className="w-8 h-8 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
           </div>
         )}
 

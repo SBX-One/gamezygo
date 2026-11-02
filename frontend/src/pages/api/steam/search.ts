@@ -51,7 +51,7 @@ export default async function handler(
       id: item.id,
       name: item.name,
       tiny_image: item.tiny_image,
-      hero_capsule: `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${item.id}/library_600x900_2x.jpg`,
+      hero_capsule: `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${item.id}/hero_capsule.jpg`,
     }));
 
     return res.status(200).json(items);

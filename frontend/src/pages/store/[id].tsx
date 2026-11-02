@@ -12,6 +12,7 @@ import {
 } from "@/components/ui";
 import {
   fetchSteamGame,
+  searchSteamGames,
   parseSteamRequirements,
   type SteamGameDetails,
   type ParsedSystemRequirements,
@@ -21,6 +22,8 @@ import { OWNED_LIBRARY_GAMES } from "@/pages/library";
 import { BUNDLE_GAMES } from "@/pages/bundle";
 import { INITIAL_WISHLIST_GAMES } from "@/pages/wishlist";
 import { useCartStore } from "@/stores/use-cart-store";
+import { useWishlistStore } from "@/stores/use-wishlist-store";
+import { useOwnedGames } from "@/hooks/use-library";
 import { useProductDetail } from "@/hooks/use-products";
 import { useAddToCart } from "@/hooks/use-cart";
 import { useAddToWishlist, useRemoveFromWishlist } from "@/hooks/use-wishlist";
@@ -403,14 +406,17 @@ export default function GameStoreDetailPage() {
   const apiProduct = productApiRes?.data;
 
   // Cart store integration
-  const { addItem, toggleCart } = useCartStore();
+  const { addItem, toggleCart, isInCart } = useCartStore();
+  const { isGameOwned } = useOwnedGames();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const addToCartMutation = useAddToCart();
   const addToWishlistMutation = useAddToWishlist();
   const removeFromWishlistMutation = useRemoveFromWishlist();
 
-  // Local state
-  const [isWishlisted, setIsWishlisted] = React.useState(false);
+  // Wishlist store integration
+  const isItemWishlisted = useWishlistStore((s) => s.isWishlisted);
+  const toggleWishlistStore = useWishlistStore((s) => s.toggleWishlist);
+  const [searchedSteamAppId, setSearchedSteamAppId] = React.useState<number | null>(null);
   const [steamData, setSteamData] = React.useState<SteamGameDetails | null>(null);
   const [activeMediaIndex, setActiveMediaIndex] = React.useState(0);
   const [toast, setToast] = React.useState<{
@@ -481,7 +487,8 @@ export default function GameStoreDetailPage() {
       const steamAppId =
         (found as { steamAppId?: number }).steamAppId ||
         Number(String((found as { imageSrc?: string }).imageSrc).match(/\/apps\/(\d+)\//)?.[1]) ||
-        242050;
+        searchedSteamAppId ||
+    0;
 
       return {
         ...found,
@@ -504,23 +511,23 @@ export default function GameStoreDetailPage() {
         discount: "-40%",
         imageSrc: `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${numericId}/library_600x900_2x.jpg`,
         bannerSrc: `https://cdn.akamai.steamstatic.com/steam/apps/${numericId}/header.jpg`,
-        genres: ["Action", "Adventure"],
+        genres: [],
       };
     }
 
     // Default: Assassin's Creed IV Black Flag (appId 242050)
     return {
       id: id,
-      steamAppId: 242050,
-      title: "Assassin's Creed : Black Flag Resynced",
-      originalPrice: "Rp 313.500",
-      price: "Rp 219.500",
-      discount: "-30%",
+      steamAppId: undefined,
+      title: "-",
+      originalPrice: "-",
+      price: "-",
+      discount: "",
       imageSrc:
-        "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/242050/library_600x900_2x.jpg",
+        "",
       bannerSrc:
-        "https://cdn.akamai.steamstatic.com/steam/apps/242050/header.jpg",
-      genres: ["Action", "Adventure"],
+        "",
+      genres: [],
     };
   }, [id, steamData?.name]);
 
@@ -549,7 +556,7 @@ export default function GameStoreDetailPage() {
     ) {
       return (matchedProduct as { genres?: string[] }).genres!;
     }
-    return ["Aksi", "Petualangan", "RPG", "Dunia Terbuka"];
+    return [];
   }, [apiProduct, steamData, matchedProduct]);
 
   // Fetch Steam Game Details (including pc_requirements)
@@ -563,14 +570,39 @@ export default function GameStoreDetailPage() {
     return null;
   }, [apiProduct?.steam_url]);
 
+  // Auto search Steam if no steam_url or numeric ID
+  React.useEffect(() => {
+    if (extractedSteamId) return;
+    const gameName = apiProduct?.name || (matchedProduct as { title?: string } | null)?.title;
+    if (!gameName || gameName === "-") return;
+
+    let isMounted = true;
+    searchSteamGames(gameName)
+      .then((results) => {
+        if (isMounted && results && results.length > 0) {
+          setSearchedSteamAppId(results[0].id);
+        }
+      })
+      .catch(() => {});
+
+    return () => {
+      isMounted = false;
+    };
+  }, [apiProduct?.name, extractedSteamId, matchedProduct]);
+
   const appId =
     extractedSteamId ||
+    searchedSteamAppId ||
     (matchedProduct as { steamAppId?: number })?.steamAppId ||
-    242050;
+    0;
 
   React.useEffect(() => {
-    let isMounted = true;
+    if (!appId || appId <= 0) {
+      setSteamData(null);
+      return;
+    }
 
+    let isMounted = true;
     fetchSteamGame(appId)
       .then((data) => {
         if (isMounted) {
@@ -586,7 +618,17 @@ export default function GameStoreDetailPage() {
     };
   }, [appId]);
 
-  // Parse Minimum & Recommended specifications from Steam Store API
+  const defaultEmptySpecs: ParsedSystemRequirements = {
+    os: "-",
+    cpu: "-",
+    ram: "-",
+    gpu: "-",
+    directx: "-",
+    storage: "-",
+    soundCard: "-",
+  };
+
+  // Parse Minimum & Recommended specifications from Steam Store API or Backend API
   const minSpecs: ParsedSystemRequirements = React.useMemo(() => {
     const apiSpecs =
       apiProduct?.specification_requirements ||
@@ -594,27 +636,22 @@ export default function GameStoreDetailPage() {
       [];
     const minApi = apiSpecs.filter((s) => s.type === "minimum");
     if (minApi.length > 0) {
-      const findReq = (key: string, fallback: string) =>
-        minApi.find((s) => s.label.toLowerCase().includes(key))?.requirement || fallback;
+      const findReq = (key: string) =>
+        minApi.find((s) => s.label.toLowerCase().includes(key))?.requirement || "-";
       return {
-        os: findReq("os", "Windows 10 (64-bit)"),
-        cpu: findReq("cpu", findReq("processor", "Intel Core i5-2500K / AMD FX-6300")),
-        ram: findReq("ram", findReq("memory", "8 GB RAM")),
-        gpu: findReq("gpu", findReq("graphics", "NVIDIA GeForce GTX 660 / AMD Radeon HD 7870")),
-        directx: findReq("directx", "Versi 11"),
-        storage: findReq("storage", "30 GB Available Space"),
-        soundCard: findReq("sound", "DX9 compliant"),
+        os: findReq("os"),
+        cpu: findReq("cpu") !== "-" ? findReq("cpu") : findReq("processor"),
+        ram: findReq("ram") !== "-" ? findReq("ram") : findReq("memory"),
+        gpu: findReq("gpu") !== "-" ? findReq("gpu") : findReq("graphics"),
+        directx: findReq("directx"),
+        storage: findReq("storage"),
+        soundCard: findReq("sound"),
       };
     }
-    return parseSteamRequirements(steamData?.pc_requirements?.minimum, {
-      os: "Windows 10 (64-bit)",
-      cpu: "Intel Core i5-2500K @ 3.3 GHz / AMD FX-6300 @ 3.5 GHz",
-      ram: "8 GB RAM",
-      gpu: "NVIDIA GeForce GTX 660 / AMD Radeon HD 7870 (2GB VRAM)",
-      directx: "Versi 11",
-      storage: "30 GB Available Space",
-      soundCard: "DX9 compliant",
-    });
+    if (steamData?.pc_requirements?.minimum) {
+      return parseSteamRequirements(steamData.pc_requirements.minimum, defaultEmptySpecs);
+    }
+    return defaultEmptySpecs;
   }, [apiProduct, steamData?.pc_requirements?.minimum]);
 
   const recSpecs: ParsedSystemRequirements = React.useMemo(() => {
@@ -624,95 +661,170 @@ export default function GameStoreDetailPage() {
       [];
     const recApi = apiSpecs.filter((s) => s.type === "recommended");
     if (recApi.length > 0) {
-      const findReq = (key: string, fallback: string) =>
-        recApi.find((s) => s.label.toLowerCase().includes(key))?.requirement || fallback;
+      const findReq = (key: string) =>
+        recApi.find((s) => s.label.toLowerCase().includes(key))?.requirement || "-";
       return {
-        os: findReq("os", "Windows 11 (64-bit)"),
-        cpu: findReq("cpu", findReq("processor", "Intel Core i7-4770 / AMD Ryzen 5 1600")),
-        ram: findReq("ram", findReq("memory", "16 GB RAM")),
-        gpu: findReq("gpu", findReq("graphics", "NVIDIA GeForce GTX 970 / AMD Radeon R9 290")),
-        directx: findReq("directx", "Versi 12"),
-        storage: findReq("storage", "30 GB Available Space"),
-        soundCard: findReq("sound", "DX9 compliant"),
+        os: findReq("os"),
+        cpu: findReq("cpu") !== "-" ? findReq("cpu") : findReq("processor"),
+        ram: findReq("ram") !== "-" ? findReq("ram") : findReq("memory"),
+        gpu: findReq("gpu") !== "-" ? findReq("gpu") : findReq("graphics"),
+        directx: findReq("directx"),
+        storage: findReq("storage"),
+        soundCard: findReq("sound"),
       };
     }
-    return parseSteamRequirements(steamData?.pc_requirements?.recommended, {
-      os: "Windows 11 (64-bit)",
-      cpu: "Intel Core i7-4770 @ 3.4 GHz / AMD Ryzen 5 1600 @ 3.2 GHz",
-      ram: "16 GB RAM",
-      gpu: "NVIDIA GeForce GTX 970 / AMD Radeon R9 290 (4GB VRAM)",
-      directx: "Versi 12",
-      storage: "30 GB Available Space",
-      soundCard: "DX9 compliant",
-    });
+    if (steamData?.pc_requirements?.recommended) {
+      return parseSteamRequirements(steamData.pc_requirements.recommended, defaultEmptySpecs);
+    }
+    return defaultEmptySpecs;
   }, [apiProduct, steamData?.pc_requirements?.recommended]);
 
-  // Gallery screenshots from Steam or fallback
+  // Gallery screenshots from Steam or Backend
   const mediaList = React.useMemo(() => {
-    if (steamData?.screenshots && steamData.screenshots.length > 0) {
-      return (apiProduct?.thumbnail ? [apiProduct.thumbnail] : []).concat(
-        steamData.screenshots.slice(0, 5).map((s) => s.full || s.thumbnail)
-      );
+    const list: string[] = [];
+    if (apiProduct?.thumbnail) {
+      list.push(apiProduct.thumbnail);
     }
-    const banner =
-      apiProduct?.thumbnail ||
-      (matchedProduct as { bannerSrc?: string })?.bannerSrc ||
-      `https://cdn.akamai.steamstatic.com/steam/apps/${appId}/header.jpg`;
-    const cover =
-      apiProduct?.thumbnail ||
-      (matchedProduct as { imageSrc?: string })?.imageSrc ||
-      `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${appId}/library_600x900_2x.jpg`;
-    return [banner, cover];
-  }, [steamData?.screenshots, apiProduct?.thumbnail, matchedProduct, appId]);
+    if (steamData?.screenshots && steamData.screenshots.length > 0) {
+      steamData.screenshots.forEach((s) => {
+        const url = s.full || s.thumbnail;
+        if (url && !list.includes(url)) list.push(url);
+      });
+    }
+    const banner = (matchedProduct as { bannerSrc?: string })?.bannerSrc;
+    if (banner && !list.includes(banner)) {
+      list.push(banner);
+    }
+    const cover = (matchedProduct as { imageSrc?: string })?.imageSrc;
+    if (cover && !list.includes(cover)) {
+      list.push(cover);
+    }
+    if (list.length === 0 && appId > 0) {
+      list.push(`https://cdn.akamai.steamstatic.com/steam/apps/${appId}/header.jpg`);
+    }
+    return list.filter(Boolean);
+  }, [apiProduct?.thumbnail, steamData?.screenshots, matchedProduct, appId]);
 
   // Dynamic Game Title & Description
   const gameTitle =
     apiProduct?.name ||
     steamData?.name ||
     (matchedProduct as { title?: string })?.title ||
-    "Assassin's Creed : Black Flag Resynced";
+    "-";
 
   const gameDescription =
     apiProduct?.description ||
-    (matchedProduct as { description?: string })?.description ||
     steamData?.description ||
-    "“gue gatau ada berapa org dibalik bisnis ini, 1 atau seberapapun org terlibat, gue mengapresiasi sebesar besarnya udah ada jasa kaya gini. in this economy.”";
+    (matchedProduct as { description?: string })?.description ||
+    "-";
 
   const originalPrice = apiProduct
     ? formatRupiah(apiProduct.price)
-    : (matchedProduct as { originalPrice?: string })?.originalPrice || "Rp 439.000,00";
+    : (matchedProduct as { originalPrice?: string })?.originalPrice || "-";
 
   const price = apiProduct
     ? formatRupiah(apiProduct.price_discount || apiProduct.price)
-    : (matchedProduct as { price?: string })?.price || "Rp 219.500";
+    : (matchedProduct as { price?: string })?.price || "-";
 
   const discount = apiProduct
     ? formatDiscount(apiProduct.discount)
-    : (matchedProduct as { discount?: string })?.discount || "-30%";
+    : (matchedProduct as { discount?: string })?.discount || "";
+
+  const currentProdId = String(
+    (matchedProduct as { id?: string | number } | null)?.id || id || appId
+  );
+  const isOwned = isGameOwned(currentProdId, gameTitle, String(id));
+  const isAlreadyInCart = isInCart(currentProdId, gameTitle);
+  const isWishlisted = isItemWishlisted(currentProdId, gameTitle);
 
   // Buy Now Handler
   const handleBuyNow = () => {
-    const prodId = String(
-      (matchedProduct as { id?: string | number } | null)?.id || id || appId
-    );
-    addItem(prodId, 1);
-    const numericId = apiProduct?.id || Number(prodId);
-    if (isAuthenticated && !isNaN(numericId) && numericId > 0) {
-      addToCartMutation.mutate(numericId);
+    if (isOwned) {
+      showToast("Anda sudah memiliki game ini di Library Anda!", "warning");
+      return;
     }
-    showToast(`"${gameTitle}" berhasil ditambahkan ke keranjang!`, "success");
-    setTimeout(() => {
-      toggleCart(true);
-    }, 400);
+
+    const prodId = currentProdId;
+    const numericPrice = apiProduct?.price_discount || apiProduct?.price || 0;
+    const numericOrigPrice = apiProduct?.price || numericPrice;
+    const steamCover = appId ? `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appId}/hero_capsule.jpg` : undefined;
+    const coverImg = (matchedProduct as { imageSrc?: string })?.imageSrc || steamCover || apiProduct?.thumbnail || mediaList[0] || "";
+
+    const productPayload = {
+      id: prodId,
+      title: gameTitle,
+      price: numericPrice,
+      originalPrice: numericOrigPrice,
+      discount: discount,
+      imageSrc: coverImg,
+      cover_image_url: coverImg,
+    };
+
+    if (!isAlreadyInCart) {
+      addItem(prodId, 1, productPayload);
+      const numericId = apiProduct?.id || Number(prodId);
+      if (isAuthenticated && !isNaN(numericId) && numericId > 0) {
+        addToCartMutation.mutate(numericId);
+      }
+    }
+
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem(
+          "gamezygo_checkout_items",
+          JSON.stringify([
+            {
+              id: prodId,
+              productId: Number(prodId) || 1,
+              title: gameTitle,
+              imageSrc: coverImg,
+              price: numericPrice,
+            },
+          ])
+        );
+      }
+    } catch {
+      // ignore
+    }
+
+    if (!isAuthenticated) {
+      showToast("Silakan login terlebih dahulu untuk checkout.", "warning");
+      setTimeout(() => {
+        router.push("/login?redirect=/checkout");
+      }, 500);
+      return;
+    }
+
+    router.push("/checkout");
   };
 
   // Wishlist Handler
   const handleToggleWishlist = () => {
-    const numericId =
-      apiProduct?.id ||
-      Number((matchedProduct as { id?: string | number } | null)?.id || id);
-    const next = !isWishlisted;
-    setIsWishlisted(next);
+    const rawId = apiProduct?.id || (matchedProduct as { id?: string | number } | null)?.id || id;
+    const numericId = typeof rawId === "number" ? rawId : Number(rawId);
+    const steamCover = appId
+      ? `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appId}/hero_capsule.jpg`
+      : undefined;
+
+    const targetGame = {
+      id: String(rawId),
+      productId: !isNaN(numericId) && numericId > 0 ? numericId : undefined,
+      slug: typeof id === "string" ? id : undefined,
+      steamAppId: appId,
+      title: gameTitle,
+      imageSrc:
+        (matchedProduct as { imageSrc?: string })?.imageSrc ||
+        steamCover ||
+        apiProduct?.thumbnail ||
+        mediaList[0] ||
+        "",
+      genres: gameGenres,
+      platform: "Steam",
+      launcher: "Steam",
+    };
+
+    const next = toggleWishlistStore(targetGame);
+
     if (isAuthenticated && !isNaN(numericId) && numericId > 0) {
       if (next) {
         addToWishlistMutation.mutate(numericId);
@@ -720,24 +832,13 @@ export default function GameStoreDetailPage() {
         removeFromWishlistMutation.mutate(numericId);
       }
     }
+
     showToast(
       next
         ? `"${gameTitle}" berhasil ditambahkan ke Wishlist!`
         : `"${gameTitle}" dihapus dari Wishlist.`,
       next ? "success" : "error"
     );
-  };
-  const _unusedToggleWishlist = () => {
-    setIsWishlisted((prev) => {
-      const next = !prev;
-      showToast(
-        next
-          ? `"${gameTitle}" berhasil ditambahkan ke Wishlist!`
-          : `"${gameTitle}" dihapus dari Wishlist.`,
-        next ? "success" : "error"
-      );
-      return next;
-    });
   };
 
   // Shared product info & action buttons block
@@ -749,7 +850,11 @@ export default function GameStoreDetailPage() {
           {/* Launcher Indicator */}
           <div className="flex items-center gap-2 text-sm text-gray-300 font-medium">
             <SteamIcon className="w-4 h-4 text-white" />
-            <span className="text-white">Steam</span>
+            <span className="text-white">
+              {apiProduct?.launcher_category?.name ||
+                apiProduct?.product_launcher_category?.name ||
+                (appId > 0 ? "Steam" : "-")}
+            </span>
           </div>
 
           {/* Title */}
@@ -766,51 +871,94 @@ export default function GameStoreDetailPage() {
         {/* Price Row */}
         <div className="flex items-center gap-3 flex-wrap">
           <div className="flex items-center gap-2 px-1 sm:px-2">
-            <span className="text-body-sm sm:text-body-md text-gray-400 line-through">
-              {originalPrice}
-            </span>
+            {originalPrice && originalPrice !== "-" && originalPrice !== price && (
+              <span className="text-body-sm sm:text-body-md text-gray-400 line-through">
+                {originalPrice}
+              </span>
+            )}
             <span className="text-2xl sm:text-h4 font-semibold text-white">
               {price}
             </span>
           </div>
-          <Pill variant="primary" size="sm">
-            {discount}
-          </Pill>
+          {discount && discount !== "0%" && discount !== "-0%" && (
+            <Pill variant="primary" size="sm">
+              {discount}
+            </Pill>
+          )}
         </div>
       </div>
 
       {/* Action Buttons Stack */}
       <div className="flex flex-col gap-3 w-full min-w-0">
-        {/* 1. Beli Sekarang (Red Gradient Button with Cart Icon on Right) */}
-        <div className="flex gap-2.5 sm:gap-3 w-full">
-          <Button
-            onClick={handleBuyNow}
-            size="sm"
-            className="flex-1 py-3"
-          >
-            Beli Sekarang
-          </Button>
-          <Button
-            type="button"
-            variant="outline"
-            size="sm"
-            onClick={() => {
-              const prodId = String(
-                (matchedProduct as { id?: string | number } | null)?.id || id || appId
-              );
-              addItem(prodId, 1);
-              showToast("Added to Cart", "success");
-              const numericId = apiProduct?.id || Number(prodId);
-              if (isAuthenticated && !isNaN(numericId) && numericId > 0) {
-                addToCartMutation.mutate(numericId);
-              }
-            }}
-            className="w-12 sm:w-fit px-3 py-3 shrink-0 flex items-center justify-center cursor-pointer"
-            aria-label="Tambah ke Keranjang"
-          >
-            <CartIcon className="size-4 text-deep-blue-100" />
-          </Button>
-        </div>
+        {isOwned ? (
+          <div className="flex flex-col gap-2.5 w-full">
+            <div className="p-3 rounded-lg bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-body-sm flex items-center gap-2">
+              <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+              </svg>
+              <span className="font-medium">Game ini sudah ada di Library akun Anda</span>
+            </div>
+            <Button
+              onClick={() => router.push("/library")}
+              size="sm"
+              className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white cursor-pointer"
+            >
+              Buka di Library
+            </Button>
+          </div>
+        ) : (
+          <div className="flex gap-2.5 sm:gap-3 w-full">
+            <Button
+              onClick={handleBuyNow}
+              size="sm"
+              className="flex-1 py-3"
+            >
+              Beli Sekarang
+            </Button>
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => {
+                if (isAlreadyInCart) {
+                  showToast(`"${gameTitle}" sudah ada di keranjang belanja Anda!`, "warning");
+                  setTimeout(() => toggleCart(true), 300);
+                  return;
+                }
+
+                const prodId = currentProdId;
+                const numericPrice = apiProduct?.price_discount || apiProduct?.price || 0;
+                const numericOrigPrice = apiProduct?.price || numericPrice;
+                const coverImg = mediaList[0] || apiProduct?.thumbnail || "";
+
+                const productPayload = {
+                  id: prodId,
+                  title: gameTitle,
+                  price: numericPrice,
+                  originalPrice: numericOrigPrice,
+                  discount: discount,
+                  imageSrc: coverImg,
+                  cover_image_url: coverImg,
+                };
+
+                addItem(prodId, 1, productPayload);
+                showToast(`"${gameTitle}" berhasil ditambahkan ke keranjang!`, "success");
+                const numericId = apiProduct?.id || Number(prodId);
+                if (isAuthenticated && !isNaN(numericId) && numericId > 0) {
+                  addToCartMutation.mutate(numericId);
+                }
+              }}
+              className={cn(
+                "w-12 sm:w-fit px-3 py-3 shrink-0 flex items-center justify-center cursor-pointer transition-all",
+                isAlreadyInCart && "border-indigo-500/50 bg-indigo-500/10 text-indigo-400"
+              )}
+              aria-label="Tambah ke Keranjang"
+              title={isAlreadyInCart ? "Sudah di Keranjang" : "Tambah ke Keranjang"}
+            >
+              <CartIcon className="size-4 text-deep-blue-100" />
+            </Button>
+          </div>
+        )}
 
         {/* 2. Masukan Wishlist (Dark Secondary Button with Bookmark Icon on Right) */}
         <Button
@@ -839,11 +987,14 @@ export default function GameStoreDetailPage() {
           variant="outline"
           size="sm"
           className="w-full py-3"
+          disabled={!apiProduct?.steam_url && appId <= 0}
           onClick={() => {
-            window.open(
-              apiProduct?.steam_url || `https://store.steampowered.com/app/${appId}`,
-              "_blank"
-            );
+            const launcherUrl =
+              apiProduct?.steam_url ||
+              (appId > 0 ? `https://store.steampowered.com/app/${appId}` : null);
+            if (launcherUrl) {
+              window.open(launcherUrl, "_blank");
+            }
           }}
         >
           Lihat di Launcher
@@ -929,66 +1080,88 @@ export default function GameStoreDetailPage() {
                   </div>
 
                   {/* Main Media Display */}
-                  <div className="relative w-full aspect-square sm:aspect-video rounded-xl overflow-hidden bg-deep-blue-900 border border-white/10 shadow-lg group">
-                    <img
-                      src={mediaList[activeMediaIndex] || mediaList[0]}
-                      alt={gameTitle}
-                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102"
-                    />
-                    <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
-                  </div>
+                  {mediaList.length > 0 && (mediaList[activeMediaIndex] || mediaList[0]) ? (
+                    <div className="relative w-full aspect-square sm:aspect-video rounded-xl overflow-hidden bg-deep-blue-900 border border-white/10 shadow-lg group">
+                      <img
+                        src={mediaList[activeMediaIndex] || mediaList[0]}
+                        alt={gameTitle}
+                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102"
+                      />
+                      <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+                    </div>
+                  ) : (
+                    <div className="relative w-full aspect-square sm:aspect-video rounded-xl overflow-hidden bg-deep-blue-900/40 border border-white/10 shadow-lg flex flex-col items-center justify-center text-gray-500 gap-3">
+                      <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                        <svg className="w-7 h-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                      </div>
+                      <span className="text-body-sm font-medium text-gray-400">Gambar tidak tersedia</span>
+                    </div>
+                  )}
 
                   {/* Thumbnails Row with Left and Right Navigation Buttons */}
-                  <div className="w-full min-w-0 max-w-full flex items-center gap-2.5 sm:gap-3">
-                    {/* Previous Button */}
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      className="w-12 sm:w-16 h-13 sm:h-16 p-0 shrink-0 flex items-center justify-center rounded-lg cursor-pointer"
-                      onClick={handlePrevMedia}
-                      aria-label="Media sebelumnya"
-                    >
-                      <ArrowLeftIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-50" />
-                    </Button>
+                  {mediaList.length > 0 ? (
+                    <div className="w-full min-w-0 max-w-full flex items-center gap-2.5 sm:gap-3">
+                      {/* Previous Button */}
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        className="w-12 sm:w-16 h-13 sm:h-16 p-0 shrink-0 flex items-center justify-center rounded-lg cursor-pointer"
+                        onClick={handlePrevMedia}
+                        aria-label="Media sebelumnya"
+                      >
+                        <ArrowLeftIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-50" />
+                      </Button>
 
-                    {/* Scrollable Thumbnails */}
-                    <div
-                      ref={thumbnailsRef}
-                      className="flex-1 min-w-0 flex gap-2.5 sm:gap-3 overflow-x-auto no-scrollbar py-1 scroll-smooth"
-                    >
-                      {mediaList.map((thumb, idx) => (
-                        <button
-                          key={`thumb-${idx}`}
-                          type="button"
-                          onClick={() => setActiveMediaIndex(idx)}
-                          className={`relative w-20 sm:w-28 aspect-video rounded-lg overflow-hidden border transition-all shrink-0 cursor-pointer ${
-                            activeMediaIndex === idx
-                              ? "border-rose-500 ring-2 ring-rose-500/40 opacity-100 scale-102"
-                              : "border-white/10 opacity-60 hover:opacity-100"
-                          }`}
-                        >
-                          <img
-                            src={thumb}
-                            alt={`Thumbnail ${idx + 1}`}
-                            className="w-full h-full object-cover"
-                          />
-                        </button>
+                      {/* Scrollable Thumbnails */}
+                      <div
+                        ref={thumbnailsRef}
+                        className="flex-1 min-w-0 flex gap-2.5 sm:gap-3 overflow-x-auto no-scrollbar py-1 scroll-smooth"
+                      >
+                        {mediaList.map((thumb, idx) => (
+                          <button
+                            key={`thumb-${idx}`}
+                            type="button"
+                            onClick={() => setActiveMediaIndex(idx)}
+                            className={`relative w-20 sm:w-28 aspect-video rounded-lg overflow-hidden border transition-all shrink-0 cursor-pointer ${
+                              activeMediaIndex === idx
+                                ? "border-rose-500 ring-2 ring-rose-500/40 opacity-100 scale-102"
+                                : "border-white/10 opacity-60 hover:opacity-100"
+                            }`}
+                          >
+                            <img
+                              src={thumb}
+                              alt={`Thumbnail ${idx + 1}`}
+                              className="w-full h-full object-cover"
+                            />
+                          </button>
+                        ))}
+                      </div>
+
+                      {/* Next Button */}
+                      <Button
+                        type="button"
+                        variant="secondary"
+                        size="sm"
+                        className="w-12 sm:w-16 h-13 sm:h-16 p-0 shrink-0 flex items-center justify-center rounded-lg cursor-pointer"
+                        onClick={handleNextMedia}
+                        aria-label="Media berikutnya"
+                      >
+                        <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-50" />
+                      </Button>
+                    </div>
+                  ) : (
+                    <div className="w-full min-w-0 max-w-full flex items-center gap-2.5 sm:gap-3 py-1">
+                      {[0, 1, 2, 3].map((idx) => (
+                        <div
+                          key={`skeleton-thumb-${idx}`}
+                          className="relative w-20 sm:w-28 aspect-video rounded-lg overflow-hidden border border-white/5 bg-white/5"
+                        />
                       ))}
                     </div>
-
-                    {/* Next Button */}
-                    <Button
-                      type="button"
-                      variant="secondary"
-                      size="sm"
-                      className="w-12 sm:w-16 h-13 sm:h-16 p-0 shrink-0 flex items-center justify-center rounded-lg cursor-pointer"
-                      onClick={handleNextMedia}
-                      aria-label="Media berikutnya"
-                    >
-                      <ArrowRightIcon className="w-4 h-4 sm:w-5 sm:h-5 text-gray-50" />
-                    </Button>
-                  </div>
+                  )}
                 </div>
 
                 {/* Badges Row (Genre, Rating, Launcher) */}
@@ -999,21 +1172,27 @@ export default function GameStoreDetailPage() {
                       GENRE
                     </span>
                     <div className="relative w-full overflow-hidden">
-                      <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth pr-6 py-0.5">
-                        {gameGenres.map((g) => (
-                          <Pill
-                            key={g}
-                            variant="secondary"
-                            size="xs"
-                            className="px-2 sm:px-3 shrink-0 whitespace-nowrap text-label-xs"
-                          >
-                            {g}
-                          </Pill>
-                        ))}
-                      </div>
-                      {/* Shadow at the right of content when having > 2 genres */}
-                      {gameGenres.length > 2 && (
-                        <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-6 sm:w-8 bg-linear-to-l from-deep-blue-950 via-deep-blue-950/70 to-transparent" />
+                      {gameGenres.length > 0 ? (
+                        <>
+                          <div className="flex items-center gap-1.5 overflow-x-auto no-scrollbar scroll-smooth pr-6 py-0.5">
+                            {gameGenres.map((g) => (
+                              <Pill
+                                key={g}
+                                variant="secondary"
+                                size="xs"
+                                className="px-2 sm:px-3 shrink-0 whitespace-nowrap text-label-xs"
+                              >
+                                {g}
+                              </Pill>
+                            ))}
+                          </div>
+                          {/* Shadow at the right of content when having > 2 genres */}
+                          {gameGenres.length > 2 && (
+                            <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-6 sm:w-8 bg-linear-to-l from-deep-blue-950 via-deep-blue-950/70 to-transparent" />
+                          )}
+                        </>
+                      ) : (
+                        <span className="text-body-sm text-gray-400 font-medium">-</span>
                       )}
                     </div>
                   </div>
@@ -1023,18 +1202,24 @@ export default function GameStoreDetailPage() {
                     <span className="text-body-xs sm:text-body-sm text-gray-400">
                       RATING
                     </span>
-                    <div className="flex items-center gap-1 sm:gap-2">
-                      <span className="text-body-xs sm:text-body-md font-semibold text-white">
-                        {apiProduct?.rating ? apiProduct.rating.toFixed(1) : "4.8"}
-                      </span>
-                      <div className="flex items-center gap-0.5 sm:gap-1 text-white">
-                        <StarFilledIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-white shrink-0" />
-                        <StarFilledIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-white shrink-0" />
-                        <StarFilledIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-white shrink-0" />
-                        <StarFilledIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-white shrink-0" />
-                        <StarRegularIcon className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-gray-500 shrink-0" />
+                    {apiProduct?.rating && apiProduct.rating > 0 ? (
+                      <div className="flex items-center gap-1 sm:gap-2">
+                        <span className="text-body-xs sm:text-body-md font-semibold text-white">
+                          {apiProduct.rating.toFixed(1)}
+                        </span>
+                        <div className="flex items-center gap-0.5 sm:gap-1 text-white">
+                          {[1, 2, 3, 4, 5].map((star) =>
+                            star <= Math.round(apiProduct.rating!) ? (
+                              <StarFilledIcon key={star} className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-white shrink-0" />
+                            ) : (
+                              <StarRegularIcon key={star} className="w-3.5 h-3.5 sm:w-5 sm:h-5 fill-current text-gray-500 shrink-0" />
+                            )
+                          )}
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <span className="text-body-sm text-gray-400 font-medium">-</span>
+                    )}
                   </div>
 
                   {/* Launcher Column */}
@@ -1045,7 +1230,7 @@ export default function GameStoreDetailPage() {
                     <span className="text-body-sm sm:text-body-md font-semibold text-gray-50">
                       {apiProduct?.launcher_category?.name ||
                         apiProduct?.product_launcher_category?.name ||
-                        "Steam"}
+                        (appId > 0 ? "Steam" : "-")}
                     </span>
                   </div>
                 </div>

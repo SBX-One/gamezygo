@@ -20,6 +20,7 @@ import {
   type OrderStatus,
 } from "@/features/history";
 import { useUserOrders } from "@/hooks/use-orders";
+import { useAuthStore } from "@/stores/use-auth-store";
 import { formatRupiah } from "@/utils/formatters";
 
 // Funnel / Filter Icon
@@ -125,6 +126,8 @@ export default function HistoryPage() {
   const router = useRouter();
   const { query } = router;
 
+
+
   // View state: 'default' | 'empty' | 'error'
   const [userViewState, setUserViewState] = React.useState<"default" | "empty" | "error">("default");
 
@@ -161,42 +164,76 @@ export default function HistoryPage() {
   // TanStack Query: Fetch user orders from API
   const { data: userOrdersRes } = useUserOrders();
 
-  // Map API data if available
+  // Map API data accurately
   const apiOrders: OrderHistoryItem[] = React.useMemo(() => {
     if (!userOrdersRes?.data) return [];
-    const items = Array.isArray(userOrdersRes.data)
-      ? userOrdersRes.data
-      : (userOrdersRes.data as unknown as { data?: unknown[] }).data || [];
+    const rawData: any = userOrdersRes.data;
+    const items = Array.isArray(rawData)
+      ? rawData
+      : Array.isArray(rawData.data)
+      ? rawData.data
+      : [];
 
     if (!Array.isArray(items) || items.length === 0) return [];
 
-    return items.map((o: any) => {
-      const priceVal = Number(o.total_price || o.grand_total || 0);
+    return items.map((o: any, idx: number) => {
+      const priceVal = Number(o.total_price || o.grand_total || o.subtotal_price || 0);
+
+      // Support order_items or items array
+      const orderItemsList = o.order_items || o.items || [];
+      let gameTitle = "Pesanan Gamezygo";
+      if (orderItemsList.length > 0) {
+        const first = orderItemsList[0];
+        const prodName = first.product?.name || first.product?.title || first.name || first.title;
+        if (prodName) {
+          gameTitle = orderItemsList.length > 1 ? `${prodName} (+${orderItemsList.length - 1} item)` : prodName;
+        }
+      } else if (o.item_name) {
+        gameTitle = o.item_name;
+      } else if (o.item_type === "subscription") {
+        gameTitle = "Paket Langganan";
+      }
+
+      // Status normalization: 'paid' | 'completed' | 'success' -> 'Berhasil'
+      const rawStatus = String(o.status || "").toLowerCase();
+      let status: OrderStatus = "Pending";
+      if (rawStatus === "paid" || rawStatus === "completed" || rawStatus === "success") {
+        status = "Berhasil";
+      } else if (rawStatus === "pending") {
+        status = "Pending";
+      } else if (rawStatus === "expired" || rawStatus === "cancelled" || rawStatus === "failed") {
+        status = "Gagal";
+      }
+
+      const paymentMethod =
+        o.payment?.payment_method?.toUpperCase() ||
+        o.payment_method?.toUpperCase() ||
+        "QRIS";
+
+      const purchaseDate = o.created_at
+        ? new Date(o.created_at).toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })
+        : new Date().toLocaleDateString("id-ID");
+
       return {
-        id: String(o.id || o.order_number),
-        transactionId: o.order_number || `ORD-${o.id}`,
-        gameTitle: o.items?.[0]?.product?.title || o.item_name || "Gamezygo Product",
-        purchaseDate: new Date(o.created_at || Date.now()).toLocaleDateString("id-ID", {
-          day: "numeric",
-          month: "short",
-          year: "numeric",
-        }),
+        id: String(o.id || o.order_number || `ord-${idx}`),
+        transactionId: o.order_number || o.payment?.gateway_reference || `ORD-${o.id || idx}`,
+        gameTitle,
+        purchaseDate,
         price: priceVal,
         formattedPrice: formatRupiah(priceVal),
-        paymentMethod: o.payment_method?.toUpperCase() || "QRIS",
-        status: (o.status === "completed" || o.status === "success"
-          ? "Berhasil"
-          : o.status === "pending"
-          ? "Pending"
-          : "Gagal") as OrderStatus,
+        paymentMethod,
+        status,
       };
     });
   }, [userOrdersRes]);
 
-  // Compute filtered items
+  // Compute filtered items strictly based on real apiOrders (no fake dummy fallback for logged-in user)
   const filteredItems = React.useMemo(() => {
-    const baseList = apiOrders.length > 0 ? apiOrders : MOCK_HISTORY_ORDERS;
-    let list: OrderHistoryItem[] = [...baseList];
+    let list: OrderHistoryItem[] = [...apiOrders];
 
     // Filter by Status
     if (appliedFilter.status.length > 0) {
@@ -227,7 +264,7 @@ export default function HistoryPage() {
     }
 
     return list;
-  }, [appliedFilter]);
+  }, [apiOrders, appliedFilter]);
 
   const hasActiveFilters =
     appliedFilter.status.length > 0 ||
@@ -254,11 +291,27 @@ export default function HistoryPage() {
     setAppliedFilter(updated);
   };
 
-  // Determine current stats based on view state
-  const currentStats =
-    viewState === "error" || viewState === "empty"
-      ? EMPTY_HISTORY_STATS
-      : DEFAULT_HISTORY_STATS;
+  // Dynamically calculate statistics from real orders
+  const currentStats = React.useMemo(() => {
+    if (viewState === "error" || viewState === "empty" || apiOrders.length === 0) {
+      return {
+        totalPayment: "Rp 0",
+        totalPoints: "0 pts",
+        totalGames: "0 Game",
+      };
+    }
+
+    const successful = apiOrders.filter((o) => o.status === "Berhasil");
+    const totalAmount = successful.reduce((sum, o) => sum + o.price, 0);
+    const totalGamesCount = successful.length;
+    const points = Math.floor(totalAmount / 1000);
+
+    return {
+      totalPayment: formatRupiah(totalAmount),
+      totalPoints: `${points} pts`,
+      totalGames: `${totalGamesCount} Game`,
+    };
+  }, [viewState, apiOrders]);
 
   return (
     <>
@@ -314,32 +367,32 @@ export default function HistoryPage() {
               ========================================================================= */}
           {viewState === "error" ? (
             /* =========================================================================
-                ERROR 500 STATE (Screenshot 2)
+                ERROR 500 STATE
                 ========================================================================= */
             <div className="py-16 sm:py-24 flex items-center justify-center w-full">
               <EmptyState
                 icon={<WifiAlertIcon />}
-                title="500: Internal Server Error"
-                description="This page you're looking for doesn't exist or has been moved. Please check the URL or return to the homepage."
+                title="500: Terjadi Gangguan Server"
+                description="Layanan riwayat pesanan sedang tidak dapat dijangkau. Silakan coba beberapa saat lagi."
                 backLabel="Kembali"
-                searchLabel="Reload"
+                searchLabel="Muat Ulang"
                 onBack={() => setViewState("default")}
                 onSearch={() => window.location.reload()}
               />
             </div>
-          ) : viewState === "empty" ? (
+          ) : viewState === "empty" || apiOrders.length === 0 ? (
             /* =========================================================================
-                EMPTY STATE (Screenshot 4)
+                EMPTY STATE (Belum Ada Riwayat Pesanan)
                 ========================================================================= */
             <div className="py-16 sm:py-24 flex items-center justify-center w-full">
               <EmptyState
                 icon={<BookReceiptIcon />}
-                title="Tidak ada Riwayat"
-                description="This page you're looking for doesn't exist or has been moved. Please check the URL or return to the homepage."
-                backLabel="Kembali"
-                searchLabel="Lihat Toko"
-                onBack={() => setViewState("default")}
-                onSearch={() => router.push("/")}
+                title="Belum Ada Riwayat Pesanan"
+                description="Anda belum memiliki transaksi pembelian. Jelajahi toko untuk menemukan game favorit Anda!"
+                backLabel="Lihat Katalog"
+                searchLabel="Jelajahi Toko"
+                onBack={() => router.push("/store")}
+                onSearch={() => router.push("/store")}
               />
             </div>
           ) : (

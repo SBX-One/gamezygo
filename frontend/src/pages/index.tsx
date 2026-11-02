@@ -24,6 +24,8 @@ import { useLandingAnimations } from "@/hooks/use-landing-animations";
 import { StoreLayout } from "@/components/layout";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useCartStore } from "@/stores/use-cart-store";
+import { useAddToCart } from "@/hooks/use-cart";
+import { useOwnedGames } from "@/hooks/use-library";
 import { useAnnouncements, useFaqs } from "@/hooks/use-common";
 import { useCustomSections, useProducts } from "@/hooks/use-products";
 import { useLeaderboard } from "@/hooks/use-leaderboard";
@@ -306,6 +308,23 @@ export default function LandingPage() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const authUser = useAuthStore((s) => s.user);
   const addToCart = useCartStore((s) => s.addItem);
+  const isInCart = useCartStore((s) => s.isInCart);
+  const addToCartMutation = useAddToCart();
+  const { isGameOwned } = useOwnedGames();
+
+  const enrichRowItems = React.useCallback(
+    (items: ProductCardRowItem[]) =>
+      items.map((item) => {
+        const owned = isGameOwned(item.id, item.title);
+        const inCart = isInCart(item.id, item.title);
+        return {
+          ...item,
+          buttonText: owned ? "Sudah Dimiliki" : inCart ? "Di Keranjang" : "Tambah Keranjang",
+          isActionDisabled: owned || inCart,
+        };
+      }),
+    [isGameOwned, isInCart]
+  );
 
   const isMounted = React.useSyncExternalStore(
     () => () => {},
@@ -337,9 +356,30 @@ export default function LandingPage() {
     id: number | string;
     title: string;
     price?: number;
+    originalPrice?: number;
+    discount?: string;
     imageSrc?: string;
   }) => {
-    addToCart(String(product.id));
+    if (isGameOwned(product.id, product.title)) {
+      showToast(`Anda sudah memiliki "${product.title}" di Library Anda!`);
+      return;
+    }
+
+    if (isInCart(product.id, product.title)) {
+      showToast(`"${product.title}" sudah ada di keranjang belanja Anda!`);
+      return;
+    }
+    addToCart(String(product.id), 1, {
+      title: product.title,
+      price: product.price || 0,
+      originalPrice: product.originalPrice || product.price || 0,
+      discount: product.discount || "",
+      imageSrc: product.imageSrc || "",
+    });
+    const numId = Number(product.id);
+    if (isAuthenticated && !isNaN(numId) && numId > 0) {
+      addToCartMutation.mutate(numId);
+    }
     showToast(`"${product.title}" berhasil ditambahkan ke keranjang!`);
   };
 
@@ -1186,13 +1226,18 @@ export default function LandingPage() {
           <div data-animate="cards-track">
             <ProductCardRow
               orientation="horizontal"
-              products={MINI_FEATURED_PRODUCTS}
+              products={enrichRowItems(MINI_FEATURED_PRODUCTS)}
               onAddToCart={(title) => {
                 const item = MINI_FEATURED_PRODUCTS.find((p) => p.title === title);
+                const price = item?.numericPrice || (item?.price ? parseInt(item.price.replace(/\D/g, '')) || 0 : 0);
+                const origPrice = item?.originalPrice ? parseInt(item.originalPrice.replace(/\D/g, '')) || price : price;
                 handleAddToCart({
                   id: item?.id || 1,
                   title: item?.title || title,
                   imageSrc: item?.imageSrc,
+                  price,
+                  originalPrice: origPrice,
+                  discount: item?.discount,
                 });
               }}
             />
@@ -1311,7 +1356,7 @@ export default function LandingPage() {
               </div>
               <div data-animate="cards-track">
                 <ProductCardRow
-                  products={mapSectionProducts(sec)}
+                  products={enrichRowItems(mapSectionProducts(sec))}
                   visibleCount={
                     isUserLoggedIn
                       ? 4
@@ -1321,10 +1366,15 @@ export default function LandingPage() {
                   }
                   onAddToCart={(title) => {
                     const item = mapSectionProducts(sec).find((p) => p.title === title);
+                    const price = item?.numericPrice || (item?.price ? parseInt(item.price.replace(/\D/g, '')) || 0 : 0);
+                    const origPrice = item?.originalPrice ? parseInt(item.originalPrice.replace(/\D/g, '')) || price : price;
                     handleAddToCart({
                       id: item?.id || 1,
                       title: item?.title || title,
                       imageSrc: item?.imageSrc,
+                      price,
+                      originalPrice: origPrice,
+                      discount: item?.discount,
                     });
                   }}
                 />
@@ -1345,13 +1395,18 @@ export default function LandingPage() {
               </div>
               <div data-animate="cards-track">
                 <ProductCardRow
-                  products={TAWARAN_KHUSUS_PRODUCTS}
+                  products={enrichRowItems(TAWARAN_KHUSUS_PRODUCTS)}
                   onAddToCart={(title) => {
                     const item = TAWARAN_KHUSUS_PRODUCTS.find((p) => p.title === title);
+                    const price = item?.numericPrice || (item?.price ? parseInt(item.price.replace(/\D/g, '')) || 0 : 0);
+                    const origPrice = item?.originalPrice ? parseInt(item.originalPrice.replace(/\D/g, '')) || price : price;
                     handleAddToCart({
                       id: item?.id || 1,
                       title: item?.title || title,
                       imageSrc: item?.imageSrc,
+                      price,
+                      originalPrice: origPrice,
+                      discount: item?.discount,
                     });
                   }}
                 />
@@ -1370,14 +1425,19 @@ export default function LandingPage() {
               </div>
               <div data-animate="cards-track">
                 <ProductCardRow
-                  products={RILIS_TERBARU_PRODUCTS}
+                  products={enrichRowItems(RILIS_TERBARU_PRODUCTS)}
                   visibleCount={isUserLoggedIn ? 4 : 5}
                   onAddToCart={(title) => {
                     const item = RILIS_TERBARU_PRODUCTS.find((p) => p.title === title);
+                    const price = item?.numericPrice || (item?.price ? parseInt(item.price.replace(/\D/g, '')) || 0 : 0);
+                    const origPrice = item?.originalPrice ? parseInt(item.originalPrice.replace(/\D/g, '')) || price : price;
                     handleAddToCart({
                       id: item?.id || 1,
                       title: item?.title || title,
                       imageSrc: item?.imageSrc,
+                      price,
+                      originalPrice: origPrice,
+                      discount: item?.discount,
                     });
                   }}
                 />

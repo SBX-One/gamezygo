@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { devtools, persist } from "zustand/middleware";
-import type { CartItem } from "@/types";
+import type { CartItem, Product } from "@/types";
 import { MOCK_PRODUCTS } from "@/lib/mock/data";
 import { useAuthStore } from "./use-auth-store";
 
@@ -27,7 +27,9 @@ export interface CartState {
 }
 
 export interface CartActions {
-  addItem: (productId: string, quantity?: number) => void;
+  addItem: (productId: string, quantity?: number, productData?: Partial<Product>) => void;
+  isInCart: (productId: string | number, title?: string) => boolean;
+  setCartItems: (items: CartItem[]) => void;
   removeItem: (productId: string) => void;
   updateQuantity: (productId: string, quantity: number) => void;
   clearCart: () => void;
@@ -67,22 +69,58 @@ export const useCartStore = create<CartStore>()(
           set({ gatewayReference: reference });
         },
 
-        addItem: (productId, quantity = 1) => {
-          const { cartItems } = get();
-          const existingItem = cartItems.find((item) => item.productId === productId);
+        setCartItems: (items) => {
+          set({ cartItems: items });
+        },
 
-          let updatedItems: CartItem[];
-          if (existingItem) {
-            updatedItems = cartItems.map((item) =>
-              item.productId === productId
-                ? { ...item, quantity: item.quantity + quantity }
-                : item
-            );
-          } else {
-            // Find product details in mock database if available
-            const mockProduct = MOCK_PRODUCTS.find((p) => p.id === productId);
-            updatedItems = [...cartItems, { productId, quantity, product: mockProduct }];
+        isInCart: (productId, title) => {
+          const { cartItems } = get();
+          const strId = String(productId);
+          const cleanTitle = title?.trim().toLowerCase();
+          return cartItems.some(
+            (item) =>
+              String(item.productId) === strId ||
+              (cleanTitle && item.product?.title?.trim().toLowerCase() === cleanTitle)
+          );
+        },
+
+        addItem: (productId, quantity = 1, productData) => {
+          const { cartItems } = get();
+          const strId = String(productId);
+          const titleToMatch = productData?.title?.trim().toLowerCase();
+
+          // Reject duplicate if already in cart
+          const alreadyExists = cartItems.some(
+            (item) =>
+              String(item.productId) === strId ||
+              (titleToMatch && item.product?.title?.trim().toLowerCase() === titleToMatch)
+          );
+
+          if (alreadyExists) {
+            return;
           }
+
+          const fallbackMock = MOCK_PRODUCTS.find((p) => String(p.id) === strId);
+          const product: Product = {
+            id: strId,
+            title: productData?.title || fallbackMock?.title || "Game",
+            slug: productData?.slug || fallbackMock?.slug || strId,
+            price: productData?.price ?? fallbackMock?.price ?? 0,
+            originalPrice: productData?.originalPrice ?? productData?.price ?? fallbackMock?.price ?? 0,
+            discount: productData?.discount ?? "",
+            cover_image_url:
+              productData?.cover_image_url ||
+              productData?.imageSrc ||
+              fallbackMock?.cover_image_url ||
+              "",
+            imageSrc:
+              productData?.imageSrc ||
+              productData?.cover_image_url ||
+              fallbackMock?.cover_image_url ||
+              "",
+            ...productData,
+          };
+          const updatedItems = [...cartItems, { productId: strId, quantity: 1, product }];
 
           set({ cartItems: updatedItems });
         },

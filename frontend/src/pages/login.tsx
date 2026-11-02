@@ -6,6 +6,8 @@ import { StoreLayout } from "@/components/layout";
 import { Toast } from "@/components/ui/Toast";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { fetchGoogleAuthRedirect } from "@/services/auth.service";
+import { addToCart } from "@/services/cart.service";
+import { useCartStore } from "@/stores/use-cart-store";
 import { cn } from "@/lib/utils";
 
 /**
@@ -319,16 +321,42 @@ export default function LoginPage() {
       return;
     }
 
+    const trimmedInput = loginEmail.trim();
+    // Auto-normalize if user inputs username without domain (e.g. 'user' -> 'user@gamezygo.com')
+    const finalEmail = trimmedInput.includes("@")
+      ? trimmedInput
+      : `${trimmedInput}@gamezygo.com`;
+
     setIsSubmitting(true);
     try {
-      await login({ email: loginEmail.trim(), password: loginPassword });
+      await login({ email: finalEmail, password: loginPassword });
+
+      // Sync guest cart items to backend if any
+      const guestCartItems = useCartStore.getState().cartItems;
+      if (guestCartItems && guestCartItems.length > 0) {
+        for (const item of guestCartItems) {
+          const numId = Number(item.productId);
+          if (!isNaN(numId) && numId > 0) {
+            try {
+              await addToCart(numId);
+            } catch {
+              // ignore duplicate or background error
+            }
+          }
+        }
+      }
+
       showToast("Login berhasil! Mengalihkan ke Gamezygo...", "success");
       setTimeout(() => {
         const destination = typeof redirect === "string" ? redirect : "/";
         router.push(destination);
       }, 700);
-    } catch {
-      showToast("Gagal masuk. Periksa kembali email dan password Anda.", "error");
+    } catch (err) {
+      const errorMsg =
+        err instanceof Error
+          ? err.message
+          : "Gagal masuk. Periksa kembali email dan password Anda.";
+      showToast(errorMsg, "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -383,12 +411,22 @@ export default function LoginPage() {
   const handleGoogleLogin = async () => {
     setIsSubmitting(true);
     try {
-      // Simulate Google OAuth response
       try {
         const res = await fetchGoogleAuthRedirect();
         const redirectUrl = res?.data?.url || res?.data?.redirect_url;
-        if (redirectUrl && typeof window !== "undefined") {
+        if (
+          redirectUrl &&
+          !redirectUrl.includes("YOUR_GOOGLE_OAUTH_CLIENT_ID") &&
+          typeof window !== "undefined"
+        ) {
           window.location.href = redirectUrl;
+          return;
+        } else if (redirectUrl && redirectUrl.includes("YOUR_GOOGLE_OAUTH_CLIENT_ID")) {
+          showToast(
+            "Google OAuth Client ID belum dikonfigurasi di backend (.env). Silakan gunakan login Email & Password.",
+            "default"
+          );
+          setIsSubmitting(false);
           return;
         }
       } catch {
@@ -406,8 +444,10 @@ export default function LoginPage() {
         const destination = typeof redirect === "string" ? redirect : "/";
         router.push(destination);
       }, 700);
-    } catch {
-      showToast("Gagal menghubungkan ke Google OAuth.", "error");
+    } catch (err) {
+      const errorMsg =
+        err instanceof Error ? err.message : "Gagal menghubungkan ke Google OAuth.";
+      showToast(errorMsg, "error");
     } finally {
       setIsSubmitting(false);
     }

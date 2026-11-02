@@ -90,59 +90,13 @@ export interface PaymentMethod {
   icon: string;
 }
 
-// Initial checkout items matching Figma screenshot fallback
-const DEFAULT_CHECKOUT_ITEMS: CheckoutItem[] = [
-  {
-    id: "gta-1",
-    productId: 1,
-    title: "Grand Theft Auto V",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    price: 219500,
-  },
-  {
-    id: "rdr2-1",
-    productId: 2,
-    title: "Red Dead Redemption 2",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/library_600x900_2x.jpg",
-    price: 219000,
-  },
-  {
-    id: "ac-1",
-    productId: 3,
-    title: "Assassin's Creed Black Flag Resynced",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/242050/library_600x900_2x.jpg",
-    price: 219500,
-  },
-  {
-    id: "ghost-1",
-    productId: 4,
-    title: "Ghost of Tsushima DIRECTOR'S CUT",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2215430/library_600x900_2x.jpg",
-    price: 439500,
-  },
-];
-
 export default function CheckoutPage() {
   const router = useRouter();
 
-  // Auth state & protected route check
+
+
+  // Auth state
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
-  const [isHydrated, setIsHydrated] = React.useState(false);
-
-  React.useEffect(() => {
-    setIsHydrated(true);
-  }, []);
-
-  React.useEffect(() => {
-    if (isHydrated && !isAuthenticated) {
-      showToast("error", "Login Diperlukan", "Silakan login terlebih dahulu untuk mengakses halaman checkout.");
-      router.replace("/login?redirect=/checkout");
-    }
-  }, [isHydrated, isAuthenticated, router]);
 
   // Zustand state
   const clearCart = useCartStore((s: CartStore) => s.clearCart);
@@ -150,12 +104,13 @@ export default function CheckoutPage() {
   const activeOrderId = useCartStore((s: CartStore) => s.orderId);
   const setOrderDetails = useCartStore((s: CartStore) => s.setOrderDetails);
   const setGatewayReference = useCartStore((s: CartStore) => s.setGatewayReference);
+  const storeCartItems = useCartStore((s: CartStore) => s.cartItems);
 
   // TanStack Query Cart data
   const { data: cartApiRes } = useCart();
 
-  // Checkout items state (defaults to API items if present, else fallback)
-  const [checkoutItems, setCheckoutItems] = React.useState<CheckoutItem[]>(DEFAULT_CHECKOUT_ITEMS);
+  // Checkout items state (sourced dynamically from sessionStorage, API, or Zustand store)
+  const [checkoutItems, setCheckoutItems] = React.useState<CheckoutItem[]>([]);
 
   React.useEffect(() => {
     try {
@@ -165,11 +120,11 @@ export default function CheckoutPage() {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
             const mapped: CheckoutItem[] = parsed.map((item: any, idx: number) => ({
-              id: item.id || `item-${idx}`,
-              productId: typeof item.id === "number" ? item.id : idx + 1,
+              id: String(item.id || item.productId || `item-${idx}`),
+              productId: Number(item.productId || item.id) || (idx + 1),
               title: item.title || item.name || "Game",
-              imageSrc: item.imageSrc || item.thumbnail || DEFAULT_CHECKOUT_ITEMS[0].imageSrc,
-              price: item.price || 219500,
+              imageSrc: item.imageSrc || item.cover_image_url || item.thumbnail || "",
+              price: Number(item.price) || 0,
             }));
             setCheckoutItems(mapped);
             return;
@@ -185,12 +140,27 @@ export default function CheckoutPage() {
         id: String(item.id),
         productId: item.id,
         title: item.name,
-        imageSrc: item.thumbnail,
+        imageSrc: item.thumbnail || "",
         price: item.discount_price > 0 ? item.discount_price : item.price,
       }));
       setCheckoutItems(mapped);
+      return;
     }
-  }, [cartApiRes]);
+
+    if (storeCartItems && storeCartItems.length > 0) {
+      const mapped: CheckoutItem[] = storeCartItems.map((item, idx) => ({
+        id: String(item.productId || `item-${idx}`),
+        productId: Number(item.productId) || (idx + 1),
+        title: item.product?.title || "Game",
+        imageSrc: item.product?.imageSrc || item.product?.cover_image_url || "",
+        price: Number(item.product?.price) || 0,
+      }));
+      setCheckoutItems(mapped);
+      return;
+    }
+
+    setCheckoutItems([]);
+  }, [cartApiRes, storeCartItems]);
 
   // Midtrans Snap SDK hook
   const { openSnap } = useMidtransSnap();
@@ -360,16 +330,26 @@ export default function CheckoutPage() {
     }
 
     // Fallback client-side voucher validation
-    if (cleanCode === "DISCOUNT10" || cleanCode === "GAMEZYGO10" || cleanCode === "SUMMER26") {
-      setAppliedVoucher(cleanCode);
-      setDiscountPercent(10);
-      setApiDiscountAmount(null);
-      showToast("success", "Voucher Berhasil Digunakan!", "Diskon 10% berhasil diterapkan pada total belanja.");
-    } else if (cleanCode === "DISCOUNT50") {
+    if (cleanCode === "DISCOUNT50" || cleanCode === "FLASH50") {
       setAppliedVoucher(cleanCode);
       setDiscountPercent(50);
       setApiDiscountAmount(null);
       showToast("success", "Voucher Berhasil Digunakan!", "Diskon 50% berhasil diterapkan pada total belanja.");
+    } else if (cleanCode === "WELCOME2026") {
+      setAppliedVoucher(cleanCode);
+      setDiscountPercent(25);
+      setApiDiscountAmount(null);
+      showToast("success", "Voucher Berhasil Digunakan!", "Diskon 25% promo pengguna baru berhasil diterapkan.");
+    } else if (
+      cleanCode === "DISCOUNT10" ||
+      cleanCode === "GAMEZYGO10" ||
+      cleanCode === "SUMMER26" ||
+      cleanCode === "WINTER26"
+    ) {
+      setAppliedVoucher(cleanCode);
+      setDiscountPercent(10);
+      setApiDiscountAmount(null);
+      showToast("success", "Voucher Berhasil Digunakan!", "Diskon 10% berhasil diterapkan pada total belanja.");
     } else {
       setVoucherError("Kode voucher tidak valid atau telah kedaluwarsa.");
       showToast("error", "Voucher Gagal", "Kode voucher tidak valid atau tidak ditemukan.");
@@ -410,7 +390,7 @@ export default function CheckoutPage() {
 
     if (!targetOrderId && selectedPayment !== "midtrans") {
       const primaryProductId = checkoutItems[0]?.productId || 1;
-      const itemsPayload = checkoutItems.map((item) => ({
+      const itemsPayload = checkoutItems.map((item, idx) => ({
         product_id: item.productId || 1,
         item_type: "product",
       }));
@@ -462,7 +442,7 @@ export default function CheckoutPage() {
         const snapData = await createSnapToken({
           order_id: orderNumber,
           gross_amount: totalBelanja,
-          items: checkoutItems.map((item) => ({
+          items: checkoutItems.map((item, idx) => ({
             id: item.productId || item.id,
             name: item.title,
             price: item.price,
@@ -625,7 +605,7 @@ export default function CheckoutPage() {
   };
 
   // Prevent flash of checkout content while verifying authentication
-  if (!isHydrated || !isAuthenticated) {
+  if (!isAuthenticated) {
     return (
       <StoreLayout activeNavId="toko">
         <Head>
@@ -697,35 +677,51 @@ export default function CheckoutPage() {
 
             {/* Items List */}
             <div className="flex flex-col gap-4 w-full">
-              {checkoutItems.map((item) => (
-                <div
-                  key={item.id}
-                  className="w-full bg-surface-secondary-default rounded-lg p-2 flex items-center gap-4 transition-all duration-150 hover:border-white/10 select-none"
-                >
-                  {/* Thumbnail Cover Game */}
-                  <div className="w-16.25 h-17.5 rounded-md overflow-hidden shrink-0 bg-deep-blue-950 relative flex items-center justify-center">
-                    <img
-                      src={item.imageSrc}
-                      alt={item.title}
-                      className="w-full h-full object-cover rounded-md"
-                      onError={(e) => {
-                        (e.currentTarget as HTMLImageElement).src =
-                          "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&h=800&q=80";
-                      }}
-                    />
-                  </div>
+              {checkoutItems.length > 0 ? (
+                checkoutItems.map((item, idx) => (
+                  <div
+                    key={`checkout-item-${item.id}-${idx}`}
+                    className="w-full bg-surface-secondary-default rounded-lg p-2 flex items-center gap-4 transition-all duration-150 hover:border-white/10 select-none"
+                  >
+                    {/* Thumbnail Cover Game */}
+                    <div className="w-16.25 h-17.5 rounded-md overflow-hidden shrink-0 bg-deep-blue-950 relative flex items-center justify-center">
+                      {item.imageSrc ? (
+                        <img
+                          src={item.imageSrc}
+                          alt={item.title}
+                          className="w-full h-full object-cover rounded-md"
+                          onError={(e) => {
+                            (e.currentTarget as HTMLElement).style.display = "none";
+                          }}
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-deep-blue-900/40 flex items-center justify-center text-gray-500">
+                          <svg className="w-6 h-6 text-white/10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                          </svg>
+                        </div>
+                      )}
+                    </div>
 
-                  {/* Title & Price */}
-                  <div className="flex flex-col items-start justify-center gap-3 min-w-0">
-                    <h3 className="text-body-md font-semibold text-gray-50 leading-snug">
-                      {item.title}
-                    </h3>
-                    <span className="text-body-sm text-gray-400 font-normal">
-                      {formatRupiah(item.price)}
-                    </span>
+                    {/* Title & Price */}
+                    <div className="flex flex-col items-start justify-center gap-3 min-w-0">
+                      <h3 className="text-body-md font-semibold text-gray-50 leading-snug">
+                        {item.title}
+                      </h3>
+                      <span className="text-body-sm text-gray-400 font-normal">
+                        {formatRupiah(item.price)}
+                      </span>
+                    </div>
                   </div>
+                ))
+              ) : (
+                <div className="w-full bg-surface-secondary-default rounded-lg p-8 flex flex-col items-center justify-center text-center gap-3 border border-white/5">
+                  <p className="text-gray-400 text-body-sm">Keranjang checkout Anda kosong.</p>
+                  <Button variant="secondary" size="sm" onClick={() => router.push("/store")}>
+                    Jelajahi Toko
+                  </Button>
                 </div>
-              ))}
+              )}
             </div>
           </div>
 

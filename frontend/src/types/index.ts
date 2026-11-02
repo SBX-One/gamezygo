@@ -13,9 +13,12 @@ export interface User {
 export interface Product {
   id: string | number;
   title: string;
-  slug: string;
+  slug?: string;
   price: number;
-  cover_image_url: string;
+  originalPrice?: number;
+  discount?: string;
+  cover_image_url?: string;
+  imageSrc?: string;
 }
 
 export interface CartItem {

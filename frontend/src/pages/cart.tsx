@@ -6,6 +6,7 @@ import { Button, EmptyState, Toast, Item } from "@/components/ui";
 import { useCart, useRemoveFromCart, useClearCart } from "@/hooks/use-cart";
 import { formatRupiah, formatDiscount } from "@/utils/formatters";
 import { useAuthStore } from "@/stores/use-auth-store";
+import { useCartStore } from "@/stores/use-cart-store";
 
 /**
  * Arrow Right Icon for Checkout button
@@ -64,50 +65,6 @@ export interface CartItemData {
   price: number;
 }
 
-// 4 Initial cart items matching Figma screenshots 1 & 3 exactly
-const INITIAL_CART_ITEMS: CartItemData[] = [
-  {
-    id: "cart-1",
-    title: "Dead By Daylight",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/381210/library_600x900_2x.jpg",
-    discount: "-30%",
-    originalPrice: 439000,
-    originalPriceFormatted: "Rp 439.000,00",
-    price: 219500,
-  },
-  {
-    id: "cart-2",
-    title: "EA SPORTS FC™ 24",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2195250/library_600x900_2x.jpg",
-    discount: "-30%",
-    originalPrice: 439000,
-    originalPriceFormatted: "Rp 439.000,00",
-    price: 219500,
-  },
-  {
-    id: "cart-3",
-    title: "Red Dead Redemption II",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/library_600x900_2x.jpg",
-    discount: "-30%",
-    originalPrice: 439000,
-    originalPriceFormatted: "Rp 439.000,00",
-    price: 219500,
-  },
-  {
-    id: "cart-4",
-    title: "Phantom Blade Zero",
-    imageSrc:
-      "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&h=900&q=80",
-    discount: "-30%",
-    originalPrice: 439000,
-    originalPriceFormatted: "Rp 439.000,00",
-    price: 219500,
-  },
-];
-
 const formatCurrency = (amount: number): string => {
   return `Rp ${amount.toLocaleString("id-ID")}`;
 };
@@ -116,29 +73,39 @@ export default function CartPage() {
   const router = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
+  // Zustand Store Cart
+  const storeCartItems = useCartStore((s) => s.cartItems);
+  const removeItemFromStore = useCartStore((s) => s.removeItem);
+  const clearCartStore = useCartStore((s) => s.clearCart);
+
   // Server-side Cart API Hook
   const { data: cartApiRes } = useCart();
   const removeCartMutation = useRemoveFromCart();
   const clearCartMutation = useClearCart();
 
-  // Local state fallback
-  const [localCartItems, setLocalCartItems] = React.useState<CartItemData[]>(INITIAL_CART_ITEMS);
-
-  // Computed Cart Items (API priority or local fallback)
+  // Computed Cart Items (prioritizes API when authenticated, else local Zustand store)
   const cartItems: CartItemData[] = React.useMemo(() => {
-    if (cartApiRes?.data?.items) {
+    if (isAuthenticated && cartApiRes?.data?.items && cartApiRes.data.items.length > 0) {
       return cartApiRes.data.items.map((item) => ({
         id: String(item.id),
         title: item.name,
-        imageSrc: item.thumbnail,
+        imageSrc: item.thumbnail || "",
         discount: formatDiscount(item.discount),
         originalPrice: item.price,
         originalPriceFormatted: formatRupiah(item.price),
-        price: item.discount_price || item.price,
+        price: item.discount_price > 0 ? item.discount_price : item.price,
       }));
     }
-    return localCartItems;
-  }, [cartApiRes, localCartItems]);
+    return storeCartItems.map((item) => ({
+      id: String(item.productId),
+      title: item.product?.title || "Game",
+      imageSrc: item.product?.imageSrc || item.product?.cover_image_url || "",
+      discount: item.product?.discount || "",
+      originalPrice: item.product?.originalPrice || item.product?.price || 0,
+      originalPriceFormatted: formatRupiah(item.product?.originalPrice || item.product?.price || 0),
+      price: item.product?.price || 0,
+    }));
+  }, [isAuthenticated, cartApiRes, storeCartItems]);
 
   // Voucher input & applied states
   const [voucherInput, setVoucherInput] = React.useState("");
@@ -167,7 +134,8 @@ export default function CartPage() {
 
   // Remove individual item
   const handleRemoveItem = (id: string, title: string) => {
-    if (cartApiRes?.data) {
+    removeItemFromStore(id);
+    if (isAuthenticated && cartApiRes?.data) {
       removeCartMutation.mutate(id, {
         onSuccess: () => {
           showToast("error", "Item Dihapus", `${title} berhasil dihapus dari keranjang.`);
@@ -177,17 +145,16 @@ export default function CartPage() {
         },
       });
     } else {
-      setLocalCartItems((prev) => prev.filter((item) => item.id !== id));
       showToast("error", "Item Dihapus", `${title} berhasil dihapus dari keranjang.`);
     }
   };
 
-  // Clear all items (switches to Empty State in Screenshot 2)
+  // Clear all items (switches to Empty State)
   const handleClearAll = () => {
-    if (cartApiRes?.data) {
+    clearCartStore();
+    if (isAuthenticated && cartApiRes?.data) {
       clearCartMutation.mutate();
     }
-    setLocalCartItems([]);
     setAppliedVoucher(null);
     setDiscountPercent(0);
     setVoucherInput("");
@@ -205,14 +172,23 @@ export default function CartPage() {
       return;
     }
 
-    if (cleanCode === "DISCOUNT10" || cleanCode === "GAMEZYGO10" || cleanCode === "SUMMER26") {
-      setAppliedVoucher(cleanCode);
-      setDiscountPercent(10);
-      showToast("success", "Voucher Berhasil Digunakan!", "Diskon 10% berhasil diterapkan pada total belanja.");
-    } else if (cleanCode === "DISCOUNT50") {
+    if (cleanCode === "DISCOUNT50" || cleanCode === "FLASH50") {
       setAppliedVoucher(cleanCode);
       setDiscountPercent(50);
       showToast("success", "Voucher Berhasil Digunakan!", "Diskon 50% berhasil diterapkan pada total belanja.");
+    } else if (cleanCode === "WELCOME2026") {
+      setAppliedVoucher(cleanCode);
+      setDiscountPercent(25);
+      showToast("success", "Voucher Berhasil Digunakan!", "Diskon 25% promo pengguna baru berhasil diterapkan.");
+    } else if (
+      cleanCode === "DISCOUNT10" ||
+      cleanCode === "GAMEZYGO10" ||
+      cleanCode === "SUMMER26" ||
+      cleanCode === "WINTER26"
+    ) {
+      setAppliedVoucher(cleanCode);
+      setDiscountPercent(10);
+      showToast("success", "Voucher Berhasil Digunakan!", "Diskon 10% berhasil diterapkan pada total belanja.");
     } else {
       setVoucherError("Kode voucher tidak valid atau telah kedaluwarsa.");
       showToast("error", "Voucher Gagal", "Kode voucher tidak valid atau tidak ditemukan.");
@@ -350,9 +326,9 @@ export default function CartPage() {
             ) : (
               /* CASE B: CART ITEMS LIST (Using Item Component) */
               <div className="flex flex-col gap-4 w-full">
-                {cartItems.map((item) => (
+                {cartItems.map((item, idx) => (
                   <Item
-                    key={item.id}
+                    key={`cart-item-${item.id}-${idx}`}
                     id={item.id}
                     title={item.title}
                     imageSrc={item.imageSrc}

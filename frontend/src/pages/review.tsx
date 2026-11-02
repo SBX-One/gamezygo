@@ -327,10 +327,42 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
   const isGuestView = !isDashboardView;
 
   const [reviews, setReviews] = React.useState<ReviewItem[]>(INITIAL_REVIEWS);
+  const [localReviews, setLocalReviews] = React.useState<ReviewItem[]>([]);
   const [quickFeedback, setQuickFeedback] = React.useState("");
   const [guestOpinionInput, setGuestOpinionInput] = React.useState("");
   const [currentPage, setCurrentPage] = React.useState(1);
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
+
+  // Load persistent reviews from localStorage
+  React.useEffect(() => {
+    try {
+      if (typeof window !== "undefined") {
+        const stored = localStorage.getItem("gamezygo_user_reviews");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed)) {
+            setLocalReviews(parsed);
+          }
+        }
+      }
+    } catch {
+      // ignore storage parsing error
+    }
+  }, []);
+
+  const saveReviewLocally = (item: ReviewItem) => {
+    setLocalReviews((prev) => {
+      const updated = [item, ...prev.filter((p) => p.id !== item.id)];
+      try {
+        if (typeof window !== "undefined") {
+          localStorage.setItem("gamezygo_user_reviews", JSON.stringify(updated));
+        }
+      } catch {
+        // ignore storage write error
+      }
+      return updated;
+    });
+  };
 
   // Review Modal State (Exact matching Image 1 & Image 2)
   const [isModalOpen, setIsModalOpen] = React.useState(false);
@@ -350,25 +382,32 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
       MOCK_USER.avatarUrl,
   };
 
-  // Merge API reviews if available for customer view
+  // Merge API reviews with local user-submitted reviews at the top
   const displayReviews = React.useMemo(() => {
-    if (apiReviewsRes?.data && apiReviewsRes.data.length > 0) {
-      return apiReviewsRes.data.map((r) => ({
-        id: String(r.id),
-        userName: r.user?.name || "Pelanggan Gamezygo",
-        avatarSrc:
-          r.user?.avatar_url ||
-          "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=120&h=120&q=80",
-        rating: `${r.rating || 5} Star`,
-        review: r.review,
-        gameName: "Black Myth Wukong, 2+",
-        images: (r.images || [])
-          .map((img) => img.url || img.file_url || "")
-          .filter((url): url is string => Boolean(url)),
-      }));
-    }
-    return reviews;
-  }, [apiReviewsRes, reviews]);
+    const apiMapped: ReviewItem[] =
+      apiReviewsRes?.data && apiReviewsRes.data.length > 0
+        ? apiReviewsRes.data.map((r) => ({
+            id: String(r.id),
+            userName: r.user?.name || "Pelanggan Gamezygo",
+            avatarSrc:
+              r.user?.avatar_url ||
+              "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=120&h=120&q=80",
+            rating: `${r.rating || 5} Star`,
+            review: r.review,
+            gameName: "Black Myth Wukong, 2+",
+            images: (r.images || [])
+              .map((img) => img.url || img.file_url || "")
+              .filter((url): url is string => Boolean(url)),
+          }))
+        : reviews;
+
+    // Filter out duplicates from API
+    const userUnique = localReviews.filter(
+      (lr) => !apiMapped.some((ar) => ar.id === lr.id)
+    );
+
+    return [...userUnique, ...apiMapped];
+  }, [apiReviewsRes, localReviews, reviews]);
 
   const [toast, setToast] = React.useState<{
     title: string;
@@ -430,13 +469,23 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (files && files.length > 0) {
-      const newItems: AttachedImage[] = Array.from(files).map((file, idx) => ({
-        id: `img-${Date.now()}-${idx}`,
-        name: file.name,
-        url: URL.createObjectURL(file),
-        file,
-      }));
-      setAttachedImages((prev) => [...prev, ...newItems]);
+      Array.from(files).forEach((file, idx) => {
+        const reader = new FileReader();
+        reader.onload = (uploadEvent) => {
+          const dataUrl =
+            (uploadEvent.target?.result as string) || URL.createObjectURL(file);
+          setAttachedImages((prev) => [
+            ...prev,
+            {
+              id: `img-${Date.now()}-${idx}-${Math.random()}`,
+              name: file.name,
+              url: dataUrl,
+              file,
+            },
+          ]);
+        };
+        reader.readAsDataURL(file);
+      });
       e.target.value = "";
     }
   };
@@ -448,7 +497,7 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
   const handleSubmitReview = (e: React.FormEvent) => {
     e.preventDefault();
     if (!modalComment.trim()) {
-      handleToast("Mohon tulis pendapat atau ulasan Anda!");
+      handleToast("Mohon tulis pendapat atau ulasan Anda!", "error");
       return;
     }
 
@@ -474,6 +523,18 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
       images: imageUrls,
     };
 
+    // 1. Immediately save locally so that it appears without waiting and persists
+    saveReviewLocally(newReview);
+    setReviews((prev) => [newReview, ...prev]);
+
+    // 2. Instantly close modal, reset inputs, and show success toast (Zero latency optimistic UI)
+    setIsModalOpen(false);
+    setQuickFeedback("");
+    setGuestOpinionInput("");
+    handleClearAll();
+    handleToast("Ulasan Anda berhasil ditambahkan!", "success");
+
+    // 3. Fire backend sync silently in background without blocking UI
     const formData = new FormData();
     formData.append("review", modalComment.trim());
     formData.append("comment", modalComment.trim());
@@ -485,20 +546,9 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
     formData.append("rating", String(selectedRating || 5));
 
     createReviewMutation.mutate(formData, {
-      onSuccess: () => {
-        setQuickFeedback("");
-        setGuestOpinionInput("");
-        handleClearAll();
-        setIsModalOpen(false);
-        handleToast("Ulasan Anda berhasil dikirim! Terima kasih atas pendapat Anda.");
-      },
-      onError: () => {
-        setReviews([newReview, ...reviews]);
-        setQuickFeedback("");
-        setGuestOpinionInput("");
-        handleClearAll();
-        setIsModalOpen(false);
-        handleToast("Ulasan Anda berhasil ditambahkan!");
+      onError: (err) => {
+        // Keep optimistic state active and silently log background sync error
+        console.debug("Background review sync:", err);
       },
     });
   };
@@ -772,7 +822,7 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
           {/* 2. TESTIMONIAL CARDS GRID (3 Columns Responsive, 6 Cards) */}
           <section className="w-full grid gap-10xl">
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-8xl gap-x-5 w-full">
-              {(apiReviewsRes?.data && apiReviewsRes.data.length > 0 ? displayReviews : GUEST_REVIEWS).map((item) => (
+              {(displayReviews.length > 0 ? displayReviews : GUEST_REVIEWS).map((item) => (
                 <TestimonialCard
                   key={item.id}
                   userName={item.userName}

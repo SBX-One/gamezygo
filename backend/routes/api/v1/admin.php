@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Admin\Dashboard\AdminDashboardController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -14,5 +15,6 @@ Route::prefix('admin')
   ->name('admin.')
   ->middleware(['auth:admin', 'admin.only'])
   ->group(function () {
-    // Admin management and CMS routes will be defined here
+    Route::get('/dashboard', [AdminDashboardController::class, 'index'])->name('dashboard');
+    Route::get('/dashboard/recent-transactions', [AdminDashboardController::class, 'recentTransactions'])->name('dashboard.recent-transactions');
   });

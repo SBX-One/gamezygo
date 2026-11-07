@@ -1,31 +1,18 @@
 <?php
 
-use App\Http\Controllers\Api\V1\Admin\Auth\AdminAuthController;
 use Illuminate\Support\Facades\Route;
 
 /*
 |--------------------------------------------------------------------------
-| Admin Routes
+| Admin Management Routes
 |--------------------------------------------------------------------------
-| Dedicated routes for administrator access, separated from user routes.
-| Base URL: /api/v1/admin/
+| Routes for admin dashboard, catalog CMS, stock imports, and reports.
+| Authentication routes are consolidated in routes/api/v1/auth.php.
 */
 
 Route::prefix('admin')
   ->name('admin.')
+  ->middleware(['auth:admin', 'admin.only'])
   ->group(function () {
-
-    // Public Admin Auth endpoint (Single URL: POST /api/v1/admin/login)
-    Route::controller(AdminAuthController::class)->group(function () {
-      Route::post('login', 'login')->name('login');
-    });
-
-    // Protected Admin Auth endpoints (auth:admin + admin.only)
-    Route::middleware(['auth:admin', 'admin.only'])
-      ->controller(AdminAuthController::class)
-      ->group(function () {
-        Route::get('me', 'me')->name('me');
-        Route::post('refresh', 'refresh')->name('refresh');
-        Route::delete('logout', 'logout')->name('logout');
-      });
+    // Admin management and CMS routes will be defined here
   });

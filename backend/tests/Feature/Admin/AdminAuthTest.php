@@ -47,24 +47,6 @@ class AdminAuthTest extends TestCase
     $this->assertNotEmpty($response->json('data.token'));
   }
 
-  public function test_admin_can_login_via_admin_auth_login_endpoint(): void
-  {
-    Admin::create([
-      'name'     => 'Staff Admin',
-      'email'    => 'staff@gamezygo.com',
-      'password' => Hash::make('secretadmin'),
-    ]);
-
-    $response = $this->postJson('/api/v1/admin/auth/login', [
-      'email'    => 'staff@gamezygo.com',
-      'password' => 'secretadmin',
-    ]);
-
-    $response->assertStatus(200)
-      ->assertJsonPath('success', true)
-      ->assertJsonPath('data.admin.email', 'staff@gamezygo.com');
-  }
-
   public function test_admin_login_fails_with_invalid_credentials(): void
   {
     Admin::create([
@@ -140,7 +122,7 @@ class AdminAuthTest extends TestCase
       ]);
   }
 
-  public function test_authenticated_admin_can_access_me_endpoint(): void
+  public function test_admin_me_endpoint_is_removed(): void
   {
     $admin = Admin::create([
       'name'     => 'Admin Arya',
@@ -153,38 +135,17 @@ class AdminAuthTest extends TestCase
     $response = $this->withHeader('Authorization', "Bearer {$token}")
       ->getJson('/api/v1/admin/me');
 
-    $response->assertStatus(200)
-      ->assertJsonPath('success', true)
-      ->assertJsonPath('data.name', 'Admin Arya')
-      ->assertJsonPath('data.email', 'arya.admin@example.com');
+    $response->assertStatus(404);
   }
 
-  public function test_authenticated_admin_can_access_auth_me_endpoint(): void
+  public function test_unauthenticated_request_cannot_access_admin_refresh_endpoint(): void
   {
-    $admin = Admin::create([
-      'name'     => 'Admin Test',
-      'email'    => 'test.admin@example.com',
-      'password' => Hash::make('secret123'),
-    ]);
-
-    $token = auth('admin')->login($admin);
-
-    $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->getJson('/api/v1/admin/auth/me');
-
-    $response->assertStatus(200)
-      ->assertJsonPath('success', true)
-      ->assertJsonPath('data.name', 'Admin Test');
-  }
-
-  public function test_unauthenticated_request_cannot_access_admin_me_endpoint(): void
-  {
-    $response = $this->getJson('/api/v1/admin/me');
+    $response = $this->postJson('/api/v1/admin/refresh');
 
     $response->assertStatus(401);
   }
 
-  public function test_regular_user_token_cannot_access_admin_me_endpoint(): void
+  public function test_regular_user_token_cannot_access_admin_refresh_endpoint(): void
   {
     $user = User::create([
       'name'     => 'Customer Hacker',
@@ -196,7 +157,7 @@ class AdminAuthTest extends TestCase
     $userToken = auth('api')->login($user);
 
     $response = $this->withHeader('Authorization', "Bearer {$userToken}")
-      ->getJson('/api/v1/admin/me');
+      ->postJson('/api/v1/admin/refresh');
 
     // Should be rejected because the token belongs to user, not admin
     $this->assertTrue(in_array($response->status(), [401, 403], true));
@@ -252,4 +213,3 @@ class AdminAuthTest extends TestCase
       ]);
   }
 }
-

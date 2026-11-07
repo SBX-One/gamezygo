@@ -124,29 +124,17 @@ class GoogleAuthTest extends TestCase
       ->assertJsonPath('data.user.email', 'jane@example.com');
   }
 
-  public function test_authenticated_user_can_access_me_endpoint(): void
+  public function test_me_endpoint_has_been_removed(): void
   {
-    $user = User::factory()->create([
-      'name'   => 'Arya Test',
-      'email'  => 'arya@gamezygo.com',
-      'status' => 'active',
-    ]);
-
+    $user = User::factory()->create();
     $token = $user->createToken('test_token')->plainTextToken;
 
-    $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->getJson('/api/v1/auth/me');
+    $this->withHeader('Authorization', "Bearer {$token}")
+      ->getJson('/api/v1/auth/me')
+      ->assertStatus(404);
 
-    $response->assertStatus(200)
-      ->assertJsonPath('data.name', 'Arya Test')
-      ->assertJsonPath('data.email', 'arya@gamezygo.com');
-  }
-
-  public function test_unauthenticated_request_to_me_returns_401(): void
-  {
-    $response = $this->getJson('/api/v1/auth/me');
-
-    $response->assertStatus(401);
+    $this->getJson('/api/v1/auth/me')
+      ->assertStatus(404);
   }
 
   public function test_logout_revokes_current_token(): void

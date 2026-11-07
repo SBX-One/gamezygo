@@ -178,6 +178,51 @@ class ProfileTest extends TestCase
 
     $this->assertNotNull($response->json('data.avatar_url'));
     $this->assertStringContainsString('avatars/', $response->json('data.avatar_url'));
+
+    $this->assertDatabaseHas('files', [
+      'related_type' => User::class,
+      'related_id'   => $user->id,
+      'file_name'    => 'custom-avatar.jpg',
+    ]);
+
+    $this->assertNotNull($response->json('data.avatar'));
+    $this->assertEquals('custom-avatar.jpg', $response->json('data.avatar.file_name'));
+  }
+
+  public function test_replacing_avatar_updates_polymorphic_file_and_cleans_old_file(): void
+  {
+    Storage::fake('public');
+
+    $user = User::create([
+      'name'     => 'Avatar Replacer',
+      'email'    => 'replace@example.com',
+      'password' => bcrypt('secret123'),
+      'status'   => 'active',
+    ]);
+
+    $token = auth('api')->login($user);
+
+    $file1 = UploadedFile::fake()->create('avatar1.jpg', 50, 'image/jpeg');
+    $this->withHeader('Authorization', "Bearer {$token}")
+      ->postJson('/api/v1/user/profile', [
+        'avatar' => $file1,
+      ]);
+
+    $this->assertDatabaseCount('files', 1);
+
+    $file2 = UploadedFile::fake()->create('avatar2.png', 80, 'image/png');
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->postJson('/api/v1/user/profile', [
+        'avatar' => $file2,
+      ]);
+
+    $response->assertStatus(200);
+    $this->assertDatabaseCount('files', 1);
+    $this->assertDatabaseHas('files', [
+      'related_type' => User::class,
+      'related_id'   => $user->id,
+      'file_name'    => 'avatar2.png',
+    ]);
   }
 
   public function test_profile_update_validation_fails_with_invalid_data(): void
@@ -514,5 +559,60 @@ class ProfileTest extends TestCase
     $data = $response->json('data');
     $this->assertCount(1, $data);
     $this->assertEquals('Game A', $data[0]['name']);
+  }
+
+  public function test_unauthenticated_user_cannot_access_profile_leaderboard(): void
+  {
+    $response = $this->getJson('/api/v1/user/profile/leaderboard');
+
+    $response->assertStatus(401);
+  }
+
+  public function test_authenticated_user_can_view_profile_leaderboard(): void
+  {
+    // Create top user with 2000 points
+    User::create([
+      'name'         => 'Top Gamer',
+      'email'        => 'top@example.com',
+      'password'     => bcrypt('secret123'),
+      'status'       => 'active',
+      'total_points' => 2000,
+    ]);
+
+    // Create target user with 1250 points (Rank 2)
+    $user = User::create([
+      'name'         => 'Target Gamer',
+      'email'        => 'target@example.com',
+      'password'     => bcrypt('secret123'),
+      'status'       => 'active',
+      'total_points' => 1250,
+    ]);
+
+    // Create lower rank user with 500 points
+    User::create([
+      'name'         => 'Lower Gamer',
+      'email'        => 'lower@example.com',
+      'password'     => bcrypt('secret123'),
+      'status'       => 'active',
+      'total_points' => 500,
+    ]);
+
+    $token = auth('api')->login($user);
+
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->getJson('/api/v1/user/profile/leaderboard');
+
+    $response->assertStatus(200)
+      ->assertJson([
+        'success' => true,
+        'message' => 'User leaderboard retrieved successfully',
+        'data'    => [
+          'rank'  => 2,
+          'point' => 1250,
+        ],
+      ]);
+
+    $this->assertEquals(2, $response->json('data.rank'));
+    $this->assertEquals(1250, $response->json('data.point'));
   }
 }

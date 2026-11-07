@@ -128,6 +128,65 @@ class GameRequestTest extends TestCase
     $response->assertStatus(401);
   }
 
+  public function test_authenticated_user_can_view_own_game_requests_via_user_game_requests_endpoints(): void
+  {
+    $userA = User::factory()->create();
+    $userB = User::factory()->create();
+
+    GameRequest::create([
+      'user_id'       => $userA->id,
+      'name'          => 'User A Game',
+      'steam_url'     => 'https://store.steampowered.com/app/111/',
+      'request_count' => 10,
+      'status'        => 'pending',
+    ]);
+
+    GameRequest::create([
+      'user_id'       => $userB->id,
+      'name'          => 'User B Game',
+      'steam_url'     => 'https://store.steampowered.com/app/222/',
+      'request_count' => 5,
+      'status'        => 'pending',
+    ]);
+
+    $token = auth('api')->login($userA);
+
+    // Test GET /api/v1/user/game-requests
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->getJson('/api/v1/user/game-requests');
+
+    $response->assertStatus(200)
+      ->assertJson([
+        'success' => true,
+        'message' => 'Game requests retrieved successfully',
+      ]);
+    $data = $response->json('data');
+    $this->assertCount(1, $data);
+    $this->assertEquals('User A Game', $data[0]['name']);
+    $this->assertEquals(10, $data[0]['request_count']);
+
+    // Test GET /api/v1/user/game-requests/mine
+    $responseMine = $this->withHeader('Authorization', "Bearer {$token}")
+      ->getJson('/api/v1/user/game-requests/mine');
+
+    $responseMine->assertStatus(200);
+    $this->assertCount(1, $responseMine->json('data'));
+
+    // Test GET /api/v1/user/game-requests/user
+    $responseUser = $this->withHeader('Authorization', "Bearer {$token}")
+      ->getJson('/api/v1/user/game-requests/user');
+
+    $responseUser->assertStatus(200);
+    $this->assertCount(1, $responseUser->json('data'));
+  }
+
+  public function test_unauthenticated_user_cannot_access_user_game_requests_endpoint(): void
+  {
+    $response = $this->getJson('/api/v1/user/game-requests');
+
+    $response->assertStatus(401);
+  }
+
   public function test_can_view_added_game_requests_via_scope_added(): void
   {
     $user = User::factory()->create();

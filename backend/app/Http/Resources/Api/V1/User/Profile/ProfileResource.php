@@ -5,6 +5,7 @@ namespace App\Http\Resources\Api\V1\User\Profile;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Http\Resources\Json\JsonResource;
+use Illuminate\Support\Facades\Storage;
 
 class ProfileResource extends JsonResource
 {
@@ -16,6 +17,10 @@ class ProfileResource extends JsonResource
   public function toArray(Request $request): array
   {
     $user = $this->resource['user'] ?? $this->resource;
+
+    if ($user instanceof User) {
+      $user->loadMissing('avatar');
+    }
 
     $totalGames = $this->resource['total_games_owned'] ?? (
       $user instanceof User ? $user->ownedGames()->count() : 0
@@ -31,12 +36,23 @@ class ProfileResource extends JsonResource
       $user instanceof User ? $user->orders()->withCount('items')->latest()->take(3)->get() : []
     );
 
+    $avatarUrl = ($user instanceof User && $user->avatar)
+      ? (filter_var($user->avatar->file_path, FILTER_VALIDATE_URL) ? $user->avatar->file_path : Storage::disk('public')->url($user->avatar->file_path))
+      : ($user->avatar_url ?? 'https://ui-avatars.com/api/?name=' . urlencode($user->name ?? 'User'));
+
     return [
       'id'                  => $user->id,
       'name'                => $user->name,
       'email'               => $user->email,
       'phone'               => $user->phone,
-      'avatar_url'          => $user->avatar_url ?? 'https://ui-avatars.com/api/?name=' . urlencode($user->name ?? 'User'),
+      'avatar'              => ($user instanceof User && $user->avatar) ? [
+        'id'        => $user->avatar->id,
+        'file_name' => $user->avatar->file_name,
+        'file_type' => $user->avatar->file_type,
+        'file_size' => (int) $user->avatar->file_size,
+        'url'       => filter_var($user->avatar->file_path, FILTER_VALIDATE_URL) ? $user->avatar->file_path : Storage::disk('public')->url($user->avatar->file_path),
+      ] : null,
+      'avatar_url'          => $avatarUrl,
       'status'              => $user->status,
       'joined_at'           => $user->created_at,
       'total_transaction'   => (int) ($user->total_transaction ?? 0),

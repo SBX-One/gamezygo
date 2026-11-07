@@ -140,7 +140,9 @@ Route::prefix('user')
       ->prefix('game-requests')
       ->name('game-requests.')
       ->group(function () {
-        Route::get('/', 'index')->name('index');
+        Route::get('/', 'userRequests')->name('index');
+        Route::get('/mine', 'userRequests')->name('mine');
+        Route::get('/user', 'userRequests')->name('user');
         Route::post('', 'store')->name('store');
         Route::delete('/{id}', 'destroy')->name('destroy');
       });

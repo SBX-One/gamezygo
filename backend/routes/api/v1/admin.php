@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\Api\V1\Admin\Catalog\AdminCatalogController;
 use App\Http\Controllers\Api\V1\Admin\Dashboard\AdminDashboardController;
+use App\Http\Controllers\Api\V1\Admin\Revenue\AdminRevenueController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -38,5 +39,14 @@ Route::prefix('admin')
         Route::match(['put', 'post'], '/{id}', 'update')->name('update');
         Route::delete('/', 'destroy')->name('destroy');
         Route::match(['post', 'put', 'patch'], '/archive/{productId}', 'archiveStatus')->name('archive.status');
+      });
+
+    // Revenue Analytics
+    Route::controller(AdminRevenueController::class)
+      ->prefix('revenue')
+      ->name('revenue.')
+      ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/product/{id}', 'productRevenue')->name('product');
       });
   });

@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\Admin\Catalog\AdminCatalogController;
 use App\Http\Controllers\Api\V1\Admin\CustomSection\AdminCustomSectionController;
 use App\Http\Controllers\Api\V1\Admin\Dashboard\AdminDashboardController;
 use App\Http\Controllers\Api\V1\Admin\Revenue\AdminRevenueController;
+use App\Http\Controllers\Api\V1\Admin\Subscription\AdminSubscriptionController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -66,5 +67,21 @@ Route::prefix('admin')
         Route::delete('/{sectionId}/products/{productId}', 'removeProduct')->name('products.destroy')->whereNumber('sectionId')->whereNumber('productId');
         Route::delete('/{sectionId}/products', 'clearProducts')->name('products.clear')->whereNumber('sectionId');
         Route::post('/{sectionId}/products/sort', 'sortProducts')->name('products.sort')->whereNumber('sectionId');
+      });
+
+    // Subscription Management
+    Route::controller(AdminSubscriptionController::class)
+      ->prefix('subscriptions')
+      ->name('subscriptions.')
+      ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/active-subs', 'activeSubs')->name('active-subs');
+        Route::get('/products', 'products')->name('products.index');
+        Route::post('/products', 'addProducts')->name('products.store');
+        Route::delete('/products/{productId?}', 'removeProduct')->name('products.destroy');
+        Route::match(['put', 'patch'], '/{subscriptionId}', 'update')->name('update')->whereNumber('subscriptionId');
+        Route::get('/{subscriptionId}/features', 'features')->name('features.index')->whereNumber('subscriptionId');
+        Route::match(['put', 'patch', 'post'], '/{subscriptionId}/features/{featureId?}', 'syncFeatures')->name('features.sync')->whereNumber('subscriptionId');
+        Route::delete('/{subscriptionId}/features/{featureId}', 'deleteFeature')->name('features.destroy')->whereNumber('subscriptionId')->whereNumber('featureId');
       });
   });

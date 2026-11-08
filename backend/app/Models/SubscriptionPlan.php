@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
     'name',
     'price',
     'duration_days',
+    'duration_months',
     'max_concurrent_access',
     'is_active',
 ])]

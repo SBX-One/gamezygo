@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Admin\Blog\AdminBlogController;
 use App\Http\Controllers\Api\V1\Admin\Catalog\AdminCatalogController;
 use App\Http\Controllers\Api\V1\Admin\CustomSection\AdminCustomSectionController;
 use App\Http\Controllers\Api\V1\Admin\Dashboard\AdminDashboardController;
@@ -83,5 +84,20 @@ Route::prefix('admin')
         Route::get('/{subscriptionId}/features', 'features')->name('features.index')->whereNumber('subscriptionId');
         Route::match(['put', 'patch', 'post'], '/{subscriptionId}/features/{featureId?}', 'syncFeatures')->name('features.sync')->whereNumber('subscriptionId');
         Route::delete('/{subscriptionId}/features/{featureId}', 'deleteFeature')->name('features.destroy')->whereNumber('subscriptionId')->whereNumber('featureId');
+      });
+
+    // Blog Management
+    Route::controller(AdminBlogController::class)
+      ->prefix('blogs')
+      ->name('blogs.')
+      ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::match(['post', 'put', 'patch'], '/publish', 'publish')->name('publish.bulk');
+        Route::delete('/', 'destroy')->name('destroy.bulk');
+        Route::get('/{blogId}', 'show')->name('show')->whereNumber('blogId');
+        Route::match(['put', 'patch', 'post'], '/{blogId}', 'update')->name('update')->whereNumber('blogId');
+        Route::delete('/{blogId}', 'destroy')->name('destroy')->whereNumber('blogId');
+        Route::match(['post', 'put', 'patch'], '/{blogId}/publish', 'publish')->name('publish')->whereNumber('blogId');
       });
   });

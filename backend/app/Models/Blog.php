@@ -19,6 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'meta_title',
     'meta_description',
     'published_at',
+    'total_views',
 ])]
 class Blog extends Model
 {
@@ -40,5 +41,37 @@ class Blog extends Model
     public function author(): BelongsTo
     {
         return $this->belongsTo(User::class, 'author_id');
+    }
+
+    public function adminAuthor(): BelongsTo
+    {
+        return $this->belongsTo(Admin::class, 'author_id');
+    }
+
+    public function getAuthorDataAttribute(): array
+    {
+        if ($this->relationLoaded('author') && $this->author) {
+            return [
+                'id'   => $this->author->id,
+                'name' => $this->author->name,
+            ];
+        }
+
+        if ($this->author_id) {
+            $user = User::find($this->author_id);
+            if ($user) {
+                return ['id' => $user->id, 'name' => $user->name];
+            }
+
+            $admin = Admin::find($this->author_id);
+            if ($admin) {
+                return ['id' => $admin->id, 'name' => $admin->name];
+            }
+        }
+
+        return [
+            'id'   => 1,
+            'name' => 'Gamerygo Admin',
+        ];
     }
 }

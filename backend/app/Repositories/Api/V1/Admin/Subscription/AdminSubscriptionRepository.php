@@ -93,9 +93,11 @@ class AdminSubscriptionRepository implements AdminSubscriptionRepositoryInterfac
     $paginator = $query->orderBy('id', 'asc')->paginate($perPage, ['*'], 'page', $page);
 
     $users = $paginator->getCollection()->map(function ($sub) {
+      $userIdFormatted = sprintf('%04d', $sub->user_id);
 
       return [
         'id'         => $sub->id,
+        'user_id'    => $userIdFormatted,
         'email'      => $sub->user?->email ?? '-',
         'plan'       => [
           'id'   => $sub->subscriptionPlan?->id ?? 0,

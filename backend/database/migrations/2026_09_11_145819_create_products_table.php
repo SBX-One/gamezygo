@@ -21,7 +21,7 @@ return new class extends Migration
             $table->foreignId('product_launcher_category_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_instruction_id')->constrained()->cascadeOnDelete();
             $table->text('steam_url'); 
-            $table->enum('status', ['listing', 'pre-order', 'archive'])->default('listing');
+            $table->string('status')->default('draft');
             $table->boolean('is_subscription_supported')->default(false);
             $table->softDeletes();
             $table->timestamps();

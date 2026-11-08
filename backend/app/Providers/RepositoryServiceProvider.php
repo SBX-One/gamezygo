@@ -4,6 +4,8 @@ namespace App\Providers;
 
 use App\Repositories\Contracts\Api\V1\Admin\Auth\AdminAuthRepositoryInterface;
 use App\Repositories\Api\V1\Admin\Auth\AdminAuthRepository;
+use App\Repositories\Contracts\Api\V1\Admin\Catalog\AdminCatalogRepositoryInterface;
+use App\Repositories\Api\V1\Admin\Catalog\AdminCatalogRepository;
 use App\Repositories\Contracts\Api\V1\Admin\Dashboard\AdminDashboardRepositoryInterface;
 use App\Repositories\Api\V1\Admin\Dashboard\AdminDashboardRepository;
 use App\Repositories\Contracts\Api\V1\User\Announcement\AnnouncementRepositoryInterface;
@@ -62,6 +64,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(GameRequestRepositoryInterface::class, GameRequestRepository::class);
         $this->app->bind(AdminAuthRepositoryInterface::class, AdminAuthRepository::class);
         $this->app->bind(AdminDashboardRepositoryInterface::class, AdminDashboardRepository::class);
+        $this->app->bind(AdminCatalogRepositoryInterface::class, AdminCatalogRepository::class);
     }
 
     /**

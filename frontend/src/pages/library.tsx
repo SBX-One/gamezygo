@@ -303,6 +303,8 @@ export const OWNED_LIBRARY_GAMES: LibraryGame[] = [
 
 export default function GameLibraryPage() {
   const router = useRouter();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
   // Search State
   const [searchQuery, setSearchQuery] = React.useState<string>("");
 
@@ -326,7 +328,7 @@ export default function GameLibraryPage() {
   const [currentPage, setCurrentPage] = React.useState<number>(1);
 
   // TanStack Query: Fetch user game library from backend API
-  const { data: libraryApiRes } = useUserLibrary({
+  const { data: libraryApiRes, isLoading: isLibraryLoading } = useUserLibrary({
     search: searchQuery || undefined,
     genre_categories: appliedGenres.length > 0 ? appliedGenres : undefined,
     page: currentPage,
@@ -375,24 +377,27 @@ export default function GameLibraryPage() {
   const totalFilterCount = appliedGenres.length + appliedLaunchers.length;
   const isHeaderFlexCol = totalFilterCount >= 4 || (isSearchActive && totalFilterCount >= 2);
 
-  // Base Library Games (from API with fallback to mock data)
+  // Base Library Games (from API when authenticated, NEVER show dummy games for logged-in user)
   const baseGames = React.useMemo(() => {
-    if (libraryApiRes?.data && libraryApiRes.data.length > 0) {
-      return libraryApiRes.data.map((item) => ({
-        id: item.slug,
-        steamAppId: item.id,
-        title: item.name,
-        imageSrc: item.thumbnail,
-        genres: item.categories?.map((c) => c.name) || [],
-        platform: "Steam",
-        launcher: "Steam",
-        originalPrice: item.price ? formatRupiah(item.price) : undefined,
-        price: formatRupiah(item.discount_price > 0 ? item.discount_price : item.price),
-        discount: item.discount > 0 ? `-${item.discount}%` : undefined,
-      }));
+    if (isAuthenticated) {
+      if (libraryApiRes?.data && libraryApiRes.data.length > 0) {
+        return libraryApiRes.data.map((item) => ({
+          id: item.slug,
+          steamAppId: item.id,
+          title: item.name,
+          imageSrc: item.thumbnail,
+          genres: item.categories?.map((c) => c.name) || [],
+          platform: "Steam",
+          launcher: "Steam",
+          originalPrice: item.price ? formatRupiah(item.price) : undefined,
+          price: formatRupiah(item.discount_price > 0 ? item.discount_price : item.price),
+          discount: item.discount > 0 ? `-${item.discount}%` : undefined,
+        }));
+      }
+      return [];
     }
     return OWNED_LIBRARY_GAMES;
-  }, [libraryApiRes]);
+  }, [isAuthenticated, libraryApiRes]);
 
   const filteredGames = React.useMemo(() => {
     let list = [...baseGames];
@@ -619,7 +624,12 @@ export default function GameLibraryPage() {
           {/* ========================================================
               GAME CARDS GRID ATAU EMPTY STATE
              ======================================================== */}
-          {baseGames.length === 0 ? (
+          {isAuthenticated && isLibraryLoading ? (
+            <div className="py-24 flex flex-col items-center justify-center w-full gap-4 text-center">
+              <div className="w-10 h-10 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+              <p className="text-body-sm text-gray-400">Memuat perpustakaan game Anda...</p>
+            </div>
+          ) : baseGames.length === 0 ? (
             /* CASE A: USER BELUM MEMILIKI GAME DI PERPUSTAKAAN */
             <div className="py-24 flex items-center justify-center w-full">
               <EmptyState

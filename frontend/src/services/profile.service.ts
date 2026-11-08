@@ -1,4 +1,4 @@
-import { apiGet, apiPatch, apiPut } from "@/lib/api-client";
+import { apiGet, apiPatch, apiPut, apiPost } from "@/lib/api-client";
 import type {
   ApiResponse,
   UserProfileResponse,
@@ -17,22 +17,35 @@ export async function fetchUserProfile(): Promise<
 
 /**
  * Update user profile
- * Primary Endpoint (Postman user > profile > update): PATCH /api/v1/user/profile
- * Fallback Endpoint: PUT /api/v1/user/profile
+ * Primary Endpoint: POST /api/v1/user/profile (for FormData with file upload) or PATCH /api/v1/user/profile
  */
 export async function updateUserProfile(
-  payload: Partial<UserProfileResponse>
+  payload: Partial<UserProfileResponse> | FormData
 ): Promise<ApiResponse<UserProfileResponse>> {
+  if (typeof FormData !== "undefined" && payload instanceof FormData) {
+    return apiPost<ApiResponse<UserProfileResponse>, FormData>(
+      "/user/profile",
+      payload,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+  }
+
+  const jsonPayload = payload as Partial<UserProfileResponse>;
+
   try {
     return await apiPatch<
       ApiResponse<UserProfileResponse>,
       Partial<UserProfileResponse>
-    >("/user/profile", payload);
+    >("/user/profile", jsonPayload);
   } catch {
     return apiPut<
       ApiResponse<UserProfileResponse>,
       Partial<UserProfileResponse>
-    >("/user/profile", payload);
+    >("/user/profile", jsonPayload);
   }
 }
 

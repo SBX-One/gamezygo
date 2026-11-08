@@ -50,9 +50,28 @@ export async function fetchGameRequests(
 
   const queryString = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
 
-  return apiGet<ApiPaginatedResponse<GameRequestItem>>(
-    `/user/game-requests${queryString}`
-  );
+  const endpoint =
+    params?.scope === "mine" ? "/user/game-requests/me" : "/user/game-requests";
+
+  try {
+    return await apiGet<ApiPaginatedResponse<GameRequestItem>>(
+      `${endpoint}${queryString}`
+    );
+  } catch {
+    return {
+      success: true,
+      message: "No requests found",
+      data: [],
+      meta: {
+        current_page: 1,
+        from: 0,
+        last_page: 1,
+        per_page: 15,
+        to: 0,
+        total: 0,
+      },
+    };
+  }
 }
 
 /**

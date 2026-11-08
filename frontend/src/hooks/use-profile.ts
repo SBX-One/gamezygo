@@ -27,7 +27,7 @@ export function useUpdateProfile() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: Partial<UserProfileResponse>) =>
+    mutationFn: (payload: Partial<UserProfileResponse> | FormData) =>
       updateUserProfile(payload),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: PROFILE_KEYS.all });

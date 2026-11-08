@@ -41,6 +41,19 @@ export async function logoutApi(): Promise<ApiResponse<null>> {
 }
 
 /**
+ * POST /api/v1/auth/google-login
+ * Authenticate user with Google token (ID token or Access token) from frontend
+ */
+export async function googleLoginApi(
+  token: string
+): Promise<ApiResponse<AuthResponseData>> {
+  return apiPost<ApiResponse<AuthResponseData>, { token: string }>(
+    "/auth/google-login",
+    { token }
+  );
+}
+
+/**
  * GET /api/v1/auth/google/redirect
  * Fetch Google OAuth redirect URL or return direct endpoint URL
  */

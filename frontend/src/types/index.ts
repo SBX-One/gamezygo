@@ -8,6 +8,7 @@ export interface User {
   role: "admin" | "customer" | "user" | "guest";
   avatarUrl?: string;
   joinedDate?: string;
+  phone?: string | null;
 }
 
 export interface Product {

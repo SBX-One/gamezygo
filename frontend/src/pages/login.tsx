@@ -1,6 +1,7 @@
 import * as React from "react";
 import Head from "next/head";
 import Link from "next/link";
+import Script from "next/script";
 import { useRouter } from "next/router";
 import { StoreLayout } from "@/components/layout";
 import { Toast } from "@/components/ui/Toast";
@@ -9,6 +10,12 @@ import { fetchGoogleAuthRedirect } from "@/services/auth.service";
 import { addToCart } from "@/services/cart.service";
 import { useCartStore } from "@/stores/use-cart-store";
 import { cn } from "@/lib/utils";
+
+declare global {
+  interface Window {
+    google?: any;
+  }
+}
 
 /**
  * Gamezygo Brand Emblem SVG
@@ -257,6 +264,7 @@ export default function LoginPage() {
 
   // Global Auth Store
   const login = useAuthStore((s) => s.login);
+  const loginWithGoogle = useAuthStore((s) => s.loginWithGoogle);
   const register = useAuthStore((s) => s.register);
   const updateUser = useAuthStore((s) => s.updateUser);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
@@ -407,49 +415,91 @@ export default function LoginPage() {
     }
   };
 
-  // Handle Google OAuth Action
+  // Handle Google OAuth Action (Client-side GSI Popup -> POST /api/v1/auth/google-login)
   const handleGoogleLogin = async () => {
     setIsSubmitting(true);
-    try {
+    const googleClientId =
+      process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
+      "984193698369-bhb0q6iqd67g4glt9ek2dmk4c8bvchb2.apps.googleusercontent.com";
+
+    const triggerGoogleTokenClient = () => {
       try {
-        const res = await fetchGoogleAuthRedirect();
-        const redirectUrl = res?.data?.url || res?.data?.redirect_url;
-        if (
-          redirectUrl &&
-          !redirectUrl.includes("YOUR_GOOGLE_OAUTH_CLIENT_ID") &&
-          typeof window !== "undefined"
-        ) {
-          window.location.href = redirectUrl;
-          return;
-        } else if (redirectUrl && redirectUrl.includes("YOUR_GOOGLE_OAUTH_CLIENT_ID")) {
-          showToast(
-            "Google OAuth Client ID belum dikonfigurasi di backend (.env). Silakan gunakan login Email & Password.",
-            "default"
-          );
-          setIsSubmitting(false);
-          return;
+        if (!window.google?.accounts?.oauth2) {
+          throw new Error("Google SDK belum siap. Silakan muat ulang halaman.");
         }
-      } catch {
-        // Fallback to simulated Google OAuth when backend is unreachable
+
+        const client = window.google.accounts.oauth2.initTokenClient({
+          client_id: googleClientId,
+          scope: "email profile openid",
+          callback: async (tokenResponse: any) => {
+            if (tokenResponse.error) {
+              setIsSubmitting(false);
+              showToast("Autentikasi Google dibatalkan.", "default");
+              return;
+            }
+
+            if (tokenResponse.access_token) {
+              try {
+                showToast("Memverifikasi akun Google dengan Gamezygo...", "default");
+                await loginWithGoogle(tokenResponse.access_token);
+
+                // Sync guest cart items to backend if any
+                const guestCartItems = useCartStore.getState().cartItems;
+                if (guestCartItems && guestCartItems.length > 0) {
+                  for (const item of guestCartItems) {
+                    const numId = Number(item.productId);
+                    if (!isNaN(numId) && numId > 0) {
+                      try {
+                        await addToCart(numId);
+                      } catch {
+                        // ignore
+                      }
+                    }
+                  }
+                }
+
+                showToast("Login Google berhasil! Mengalihkan...", "success");
+                setTimeout(() => {
+                  const destination = typeof redirect === "string" ? redirect : "/";
+                  router.push(destination);
+                }, 600);
+              } catch (apiErr) {
+                const msg =
+                  apiErr instanceof Error
+                    ? apiErr.message
+                    : "Gagal menghubungkan akun Google.";
+                showToast(msg, "error");
+              } finally {
+                setIsSubmitting(false);
+              }
+            }
+          },
+        });
+
+        client.requestAccessToken();
+      } catch (err) {
+        setIsSubmitting(false);
+        const msg =
+          err instanceof Error ? err.message : "Gagal memuat Google Sign-In.";
+        showToast(msg, "error");
       }
-      await login({ email: "google.gamer@gamezygo.com" });
-      updateUser({
-        name: "Google Gamer",
-        email: "google.gamer@gamezygo.com",
-        avatarUrl:
-          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&h=120&q=80",
-      });
-      showToast("Berhasil masuk dengan akun Google!", "success");
-      setTimeout(() => {
-        const destination = typeof redirect === "string" ? redirect : "/";
-        router.push(destination);
-      }, 700);
-    } catch (err) {
-      const errorMsg =
-        err instanceof Error ? err.message : "Gagal menghubungkan ke Google OAuth.";
-      showToast(errorMsg, "error");
-    } finally {
-      setIsSubmitting(false);
+    };
+
+    if (window.google?.accounts?.oauth2) {
+      triggerGoogleTokenClient();
+    } else {
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        triggerGoogleTokenClient();
+      };
+      script.onerror = () => {
+        setIsSubmitting(false);
+        showToast("Gagal memuat script Google OAuth. Periksa koneksi internet.", "error");
+      };
+      document.body.appendChild(script);
     }
   };
 
@@ -466,6 +516,7 @@ export default function LoginPage() {
           content="Masuk atau buat akun baru di Gamezygo untuk mengakses koleksi ribuan game original dengan harga terjangkau dan pengiriman instan."
         />
       </Head>
+      <Script src="https://accounts.google.com/gsi/client" strategy="lazyOnload" />
 
       <StoreLayout
         navbarVariant="guest"

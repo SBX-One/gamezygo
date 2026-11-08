@@ -196,11 +196,16 @@ export const INITIAL_WISHLIST_GAMES: WishlistGame[] = [
 export default function WishlistPage() {
   const router = useRouter();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const authUser = useAuthStore((s) => s.user);
+  const currentUserId = authUser?.id ? String(authUser.id) : undefined;
   const { addItem, isInCart } = useCartStore();
   const { isGameOwned } = useOwnedGames();
 
-  // Local wishlist items integration
-  const localWishlistItems = useWishlistStore((s) => s.items);
+  // Local wishlist items integration (scoped by user ID to prevent account leakage)
+  const getUserItems = useWishlistStore((s) => s.getUserItems);
+  const localWishlistItems = React.useMemo(() => {
+    return getUserItems(currentUserId);
+  }, [getUserItems, currentUserId]);
   const removeFromWishlistStore = useWishlistStore((s) => s.removeFromWishlist);
 
   // Wishlist API integration
@@ -216,17 +221,24 @@ export default function WishlistPage() {
     // Sanitize imageSrc: replace screenshot or old library 600x900 for 107410 with hero_capsule
     const sanitizedLocal: WishlistGame[] = localWishlistItems.map((item) => {
       let imageSrc = item.imageSrc;
-      const appId = item.steamAppId || (item.productId && !isNaN(Number(item.productId)) ? Number(item.productId) : undefined);
+      const appId =
+        item.steamAppId ||
+        (item.productId && !isNaN(Number(item.productId))
+          ? Number(item.productId)
+          : undefined);
 
       if (
         (appId && String(appId) === "107410") ||
         (item.title && item.title.toLowerCase().includes("targeted")) ||
         (item.id && item.id.includes("targeted"))
       ) {
-        imageSrc = "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/107410/hero_capsule.jpg";
+        imageSrc =
+          "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/107410/hero_capsule.jpg";
       } else if (
         appId &&
-        (imageSrc?.includes("steamuserimages") || imageSrc?.includes("/ss_") || imageSrc?.includes("header.jpg"))
+        (imageSrc?.includes("steamuserimages") ||
+          imageSrc?.includes("/ss_") ||
+          imageSrc?.includes("header.jpg"))
       ) {
         imageSrc = `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appId}/hero_capsule.jpg`;
       }
@@ -237,14 +249,17 @@ export default function WishlistPage() {
       };
     });
 
-    const list: WishlistGame[] = [...sanitizedLocal];
+    const list: WishlistGame[] = [];
 
+    // 1. If backend API has wishlisted products for this user
     if (wishlistApiRes?.data && wishlistApiRes.data.length > 0) {
       wishlistApiRes.data.forEach((item) => {
         const id = String(item.product?.id || item.id);
         const exists = list.some((x) => String(x.productId || x.id) === id);
         if (!exists) {
-          const appId = (item.product as { steam_app_id?: number } | undefined)?.steam_app_id || item.product?.id;
+          const appId =
+            (item.product as { steam_app_id?: number } | undefined)
+              ?.steam_app_id || item.product?.id;
           const cover = appId
             ? `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appId}/hero_capsule.jpg`
             : item.product?.thumbnail || "";
@@ -252,11 +267,18 @@ export default function WishlistPage() {
           list.push({
             id: String(item.id),
             productId: item.product?.id,
-            slug: item.product?.slug || (item.product?.id ? String(item.product.id) : undefined),
-            steamAppId: (item.product as { steam_app_id?: number } | undefined)?.steam_app_id,
+            slug:
+              item.product?.slug ||
+              (item.product?.id ? String(item.product.id) : undefined),
+            steamAppId: (
+              item.product as { steam_app_id?: number } | undefined
+            )?.steam_app_id,
             title: item.product?.name || "Game",
             imageSrc: cover,
-            genres: (item.product as { categories?: Array<{ name: string }> })?.categories?.map((c) => c.name) || ["Action", "Adventure"],
+            genres:
+              (
+                item.product as { categories?: Array<{ name: string }> }
+              )?.categories?.map((c) => c.name) || ["Action", "Adventure"],
             platform: "Steam",
             launcher: "Steam",
           });
@@ -264,8 +286,25 @@ export default function WishlistPage() {
       });
     }
 
-    return list;
-  }, [wishlistApiRes, localWishlistItems]);
+    // 2. Add local wishlist items that match current user (if any)
+    sanitizedLocal.forEach((item) => {
+      const exists = list.some(
+        (x) =>
+          (item.productId && x.productId === item.productId) ||
+          String(x.id) === String(item.id) ||
+          x.title.toLowerCase() === item.title.toLowerCase()
+      );
+      if (!exists) {
+        list.push(item);
+      }
+    });
+
+    if (isAuthenticated) {
+      return list;
+    }
+
+    return sanitizedLocal;
+  }, [wishlistApiRes, localWishlistItems, isAuthenticated]);
 
   // Search State
   // Search State moved above

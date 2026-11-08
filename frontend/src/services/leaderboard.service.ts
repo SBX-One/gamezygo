@@ -69,6 +69,7 @@ export async function fetchUserLeaderboardRank(): Promise<
       data: {
         rank: profileData?.rankings?.monthly || 1,
         point: profileData?.total_points || 0,
+        rankings: profileData?.rankings,
       },
     };
   } catch {

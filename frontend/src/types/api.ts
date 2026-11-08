@@ -279,7 +279,11 @@ export interface LeaderboardItem {
 export interface UserLeaderboardRank {
   rank: number;
   point: number;
-
+  rankings?: {
+    weekly?: number;
+    monthly?: number;
+    all_time?: number;
+  };
 }
 
 // ============================================================================
@@ -430,10 +434,16 @@ export interface UserProfileResponse {
   avatar_url?: string;
   role?: "customer" | "admin" | string;
   joined_date?: string;
-  phone?: string;
+  phone?: string | null;
   total_transactions?: number;
   total_points?: number;
   total_games?: number;
+  total_games_owned?: number;
+  rankings?: {
+    weekly?: number;
+    monthly?: number;
+    all_time?: number;
+  };
 }
 
 export interface ChangePasswordPayload {

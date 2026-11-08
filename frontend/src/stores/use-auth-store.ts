@@ -3,7 +3,7 @@ import { devtools, persist } from "zustand/middleware";
 import axios from "axios";
 import type { User } from "@/types";
 import type { AuthLoginPayload, AuthRegisterPayload } from "@/types/api";
-import { loginApi, registerApi, logoutApi } from "@/services/auth.service";
+import { loginApi, registerApi, logoutApi, googleLoginApi } from "@/services/auth.service";
 import { MOCK_USER, MOCK_TOKEN } from "@/lib/mock/data";
 
 export interface AuthState {
@@ -18,6 +18,7 @@ export interface AuthState {
 
 export interface AuthActions {
   login: (credentials: AuthLoginPayload) => Promise<void>;
+  loginWithGoogle: (googleToken: string) => Promise<void>;
   register: (payload: AuthRegisterPayload) => Promise<void>;
   logout: () => void;
   setToken: (token: string | null) => void;
@@ -70,6 +71,7 @@ export const useAuthStore = create<AuthStore>()(
                     email: apiUser.email || credentials.email,
                     role: apiUser.role === "admin" ? "admin" : "customer",
                     avatarUrl: apiUser.avatar_url || MOCK_USER.avatarUrl,
+                    phone: apiUser.phone || null,
                   }
                 : {
                     ...MOCK_USER,
@@ -78,6 +80,17 @@ export const useAuthStore = create<AuthStore>()(
 
               const mappedRole: "guest" | "user" | "admin" =
                 mappedUser.role === "admin" ? "admin" : "user";
+
+              if (typeof window !== "undefined") {
+                try {
+                  localStorage.removeItem("gamezygo-cart-storage");
+                  localStorage.removeItem("gamezygo_my_requests");
+                  localStorage.removeItem("gamezygo_user_reviews");
+                  sessionStorage.removeItem("gamezygo_checkout_items");
+                } catch {
+                  // ignore
+                }
+              }
 
               set({
                 user: mappedUser,
@@ -127,6 +140,67 @@ export const useAuthStore = create<AuthStore>()(
           }
         },
 
+        loginWithGoogle: async (googleToken: string) => {
+          set({ isLoading: true, error: null });
+          try {
+            const res = await googleLoginApi(googleToken);
+            const apiData = res?.data;
+            const token =
+              apiData?.token ||
+              apiData?.access_token ||
+              (res as unknown as { token?: string })?.token;
+            const refreshToken = apiData?.refresh_token || null;
+            const apiUser = apiData?.user;
+
+            if (!token) {
+              throw new Error("Token autentikasi tidak ditemukan dari server.");
+            }
+
+            const mappedUser: User = apiUser
+              ? {
+                  id: String(apiUser.id),
+                  name: apiUser.name || "Pengguna Google",
+                  email: apiUser.email || "",
+                  role: apiUser.role === "admin" ? "admin" : "customer",
+                  avatarUrl: apiUser.avatar_url || MOCK_USER.avatarUrl,
+                  phone: apiUser.phone || null,
+                }
+              : {
+                  ...MOCK_USER,
+                  name: "Pengguna Google",
+                };
+
+            const mappedRole: "guest" | "user" | "admin" =
+              mappedUser.role === "admin" ? "admin" : "user";
+
+            if (typeof window !== "undefined") {
+              try {
+                localStorage.removeItem("gamezygo-cart-storage");
+                sessionStorage.removeItem("gamezygo_checkout_items");
+              } catch {
+                // ignore
+              }
+            }
+
+            set({
+              user: mappedUser,
+              token,
+              refreshToken,
+              role: mappedRole,
+              isAuthenticated: true,
+              isLoading: false,
+            });
+          } catch (err) {
+            const message =
+              err instanceof Error ? err.message : "Gagal login dengan Google";
+            set({
+              error: message,
+              isLoading: false,
+            });
+            throw err;
+          }
+        },
+
         register: async (payload) => {
           set({ isLoading: true, error: null });
           try {
@@ -148,6 +222,7 @@ export const useAuthStore = create<AuthStore>()(
                     email: apiUser.email || payload.email,
                     role: apiUser.role === "admin" ? "admin" : "customer",
                     avatarUrl: apiUser.avatar_url || MOCK_USER.avatarUrl,
+                    phone: apiUser.phone || null,
                   }
                 : {
                     ...MOCK_USER,
@@ -157,6 +232,17 @@ export const useAuthStore = create<AuthStore>()(
 
               const mappedRole: "guest" | "user" | "admin" =
                 mappedUser.role === "admin" ? "admin" : "user";
+
+              if (typeof window !== "undefined") {
+                try {
+                  localStorage.removeItem("gamezygo-cart-storage");
+                  localStorage.removeItem("gamezygo_my_requests");
+                  localStorage.removeItem("gamezygo_user_reviews");
+                  sessionStorage.removeItem("gamezygo_checkout_items");
+                } catch {
+                  // ignore
+                }
+              }
 
               set({
                 user: mappedUser,
@@ -209,6 +295,16 @@ export const useAuthStore = create<AuthStore>()(
             logoutApi().catch(() => {
               // Ignore network/401 errors during logout cleanup
             });
+          }
+          if (typeof window !== "undefined") {
+            try {
+              localStorage.removeItem("gamezygo-cart-storage");
+              localStorage.removeItem("gamezygo_my_requests");
+              localStorage.removeItem("gamezygo_user_reviews");
+              sessionStorage.removeItem("gamezygo_checkout_items");
+            } catch {
+              // ignore
+            }
           }
           set({
             user: null,

@@ -2,6 +2,7 @@ import * as React from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import axios from "axios";
+import { useQueryClient } from "@tanstack/react-query";
 import { StoreLayout } from "@/components/layout";
 import { Button, Toast } from "@/components/ui";
 import { cn } from "@/lib/utils";
@@ -14,7 +15,7 @@ import {
   useCreatePayment,
   usePaymentStatus,
 } from "@/hooks/use-orders";
-import { subscribePaymentSSE } from "@/services/orders.service";
+import { subscribePaymentSSE, fetchPaymentStatus } from "@/services/orders.service";
 import { useCartStore, type CartStore } from "@/stores/use-cart-store";
 import type { CartProductItem } from "@/types/api";
 import { useMidtransSnap, createSnapToken } from "@/features/checkout";
@@ -92,10 +93,10 @@ export interface PaymentMethod {
 
 export default function CheckoutPage() {
   const router = useRouter();
-
-
+  const queryClient = useQueryClient();
 
   // Auth state
+  const authUser = useAuthStore((s) => s.user);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   // Zustand state
@@ -107,7 +108,7 @@ export default function CheckoutPage() {
   const storeCartItems = useCartStore((s: CartStore) => s.cartItems);
 
   // TanStack Query Cart data
-  const { data: cartApiRes } = useCart();
+  const { data: cartApiRes, isLoading: isCartLoading } = useCart();
 
   // Checkout items state (sourced dynamically from sessionStorage, API, or Zustand store)
   const [checkoutItems, setCheckoutItems] = React.useState<CheckoutItem[]>([]);
@@ -135,15 +136,22 @@ export default function CheckoutPage() {
       // ignore parsing error
     }
 
-    if (cartApiRes?.data?.items && cartApiRes.data.items.length > 0) {
-      const mapped: CheckoutItem[] = cartApiRes.data.items.map((item: CartProductItem) => ({
-        id: String(item.id),
-        productId: item.id,
-        title: item.name,
-        imageSrc: item.thumbnail || "",
-        price: item.discount_price > 0 ? item.discount_price : item.price,
-      }));
-      setCheckoutItems(mapped);
+    if (isAuthenticated) {
+      if (cartApiRes?.data?.items && cartApiRes.data.items.length > 0) {
+        const mapped: CheckoutItem[] = cartApiRes.data.items.map((item: CartProductItem) => ({
+          id: String(item.id),
+          productId: item.id,
+          title: item.name,
+          imageSrc: item.thumbnail || "",
+          price: item.discount_price > 0 ? item.discount_price : item.price,
+        }));
+        setCheckoutItems(mapped);
+        return;
+      }
+      if (isCartLoading) {
+        return;
+      }
+      setCheckoutItems([]);
       return;
     }
 
@@ -160,7 +168,7 @@ export default function CheckoutPage() {
     }
 
     setCheckoutItems([]);
-  }, [cartApiRes, storeCartItems]);
+  }, [isAuthenticated, isCartLoading, cartApiRes, storeCartItems]);
 
   // Midtrans Snap SDK hook
   const { openSnap } = useMidtransSnap();
@@ -385,43 +393,93 @@ export default function CheckoutPage() {
       return;
     }
 
-    // Attempt API order creation if backend is needed and payment is not standalone Midtrans showcase
+    // 1. Create order in Laravel backend for ALL items in checkoutItems
     let targetOrderId = activeOrderId;
+    let targetOrderNumber = activeOrderNumber;
+    let primaryGatewayRef = "";
 
-    if (!targetOrderId && selectedPayment !== "midtrans") {
-      const primaryProductId = checkoutItems[0]?.productId || 1;
-      const itemsPayload = checkoutItems.map((item, idx) => ({
-        product_id: item.productId || 1,
-        item_type: "product",
-      }));
-      try {
-        const orderRes = await createOrderMutation.mutateAsync({
-          item_type: "product",
-          product_id: primaryProductId,
-          items: itemsPayload,
-        });
+    const createdOrdersList: Array<{
+      orderId: string;
+      orderNumber: string;
+      gatewayRef?: string;
+      grossAmount: number;
+    }> = [];
 
-        if (orderRes?.data) {
-          targetOrderId = String(orderRes.data.id);
-          setOrderDetails(orderRes.data.order_number, String(orderRes.data.id));
+    if (activeOrderId && activeOrderNumber) {
+      createdOrdersList.push({
+        orderId: activeOrderId,
+        orderNumber: activeOrderNumber,
+        gatewayRef: activeReference || undefined,
+        grossAmount: totalBelanja,
+      });
+    } else {
+      // Loop through each game in checkoutItems to create real database orders
+      for (const item of checkoutItems) {
+        const rawProdId = Number(item.productId || item.id);
+        const prodId = !isNaN(rawProdId) && rawProdId > 0 ? rawProdId : 2;
 
-          // If voucher was entered, apply it now to the new order
-          if (appliedVoucher) {
-            try {
-              const vRes = await applyVoucherMutation.mutateAsync({
-                orderId: String(orderRes.data.id),
-                voucherCode: appliedVoucher,
-              });
-              if (vRes?.data) {
-                setApiDiscountAmount(vRes.data.discount_amount);
-              }
-            } catch {
-              // Ignore voucher re-apply error on new order
+        try {
+          const orderRes = await createOrderMutation.mutateAsync({
+            item_type: "product",
+            product_id: prodId,
+          });
+
+          if (orderRes?.data) {
+            const oId = String(orderRes.data.id);
+            const oNum = orderRes.data.order_number;
+
+            if (!targetOrderId) {
+              targetOrderId = oId;
+              targetOrderNumber = oNum;
+              setOrderDetails(oNum, oId);
             }
+
+            let gRef = "";
+            try {
+              const payRes = await createPaymentMutation.mutateAsync({
+                orderId: oId,
+                paymentMethod: "midtrans",
+              });
+              if (payRes?.data) {
+                const pData: any = payRes.data;
+                gRef =
+                  pData.gateway_reference ||
+                  pData.payment?.gateway_reference ||
+                  "";
+                if (!primaryGatewayRef && gRef) {
+                  primaryGatewayRef = gRef;
+                  setGatewayReference(gRef);
+                }
+              }
+            } catch (payErr) {
+              console.warn("Backend createPayment fallback:", payErr);
+            }
+
+            createdOrdersList.push({
+              orderId: oId,
+              orderNumber: oNum,
+              gatewayRef: gRef,
+              grossAmount: item.price,
+            });
           }
+        } catch (orderErr) {
+          console.warn("Backend order creation error:", orderErr);
         }
-      } catch {
-        // API offline fallback — proceed with local simulation
+      }
+
+      // If voucher was entered, apply it to the first order
+      if (appliedVoucher && targetOrderId) {
+        try {
+          const vRes = await applyVoucherMutation.mutateAsync({
+            orderId: targetOrderId,
+            voucherCode: appliedVoucher,
+          });
+          if (vRes?.data) {
+            setApiDiscountAmount(vRes.data.discount_amount);
+          }
+        } catch {
+          // Ignore voucher re-apply error on new order
+        }
       }
     }
 
@@ -430,6 +488,7 @@ export default function CheckoutPage() {
       try {
         setIsSnapLoading(true);
         const orderNumber =
+          targetOrderNumber ||
           activeOrderNumber ||
           `GZG-${Date.now().toString().slice(-6)}`;
 
@@ -439,24 +498,55 @@ export default function CheckoutPage() {
           "Menghubungkan ke Midtrans Sandbox Gateway..."
         );
 
-        const snapData = await createSnapToken({
-          order_id: orderNumber,
-          gross_amount: totalBelanja,
-          items: checkoutItems.map((item, idx) => ({
-            id: item.productId || item.id,
-            name: item.title,
-            price: item.price,
-            quantity: 1,
-          })),
-          customer_details: {
-            first_name: "Customer",
-            email: "customer@gamezygo.com",
-          },
-        });
+        let snapToken = "";
+        let gatewayRef = primaryGatewayRef;
 
-        if (snapData?.token) {
-          openSnap(snapData.token, {
-            onSuccess: (result) => {
+        // Attempt 1: Call Laravel backend payment endpoint to link primary order if not already obtained
+        if (targetOrderId && !snapToken) {
+          try {
+            const paymentRes = await createPaymentMutation.mutateAsync({
+              orderId: targetOrderId,
+              paymentMethod: "midtrans",
+            });
+            if (paymentRes?.data) {
+              const pData: any = paymentRes.data;
+              snapToken = pData.gateway?.snap_token || pData.snap_token || "";
+              gatewayRef =
+                gatewayRef ||
+                pData.gateway_reference ||
+                pData.payment?.gateway_reference ||
+                "";
+              if (gatewayRef) {
+                setGatewayReference(gatewayRef);
+              }
+            }
+          } catch (payErr) {
+            console.warn("Backend createPayment fallback:", payErr);
+          }
+        }
+
+        // Attempt 2: Next.js API /api/midtrans/token with orderNumber & customer info
+        if (!snapToken) {
+          const snapData = await createSnapToken({
+            order_id: orderNumber,
+            gross_amount: totalBelanja,
+            items: checkoutItems.map((item) => ({
+              id: item.productId || item.id,
+              name: item.title,
+              price: item.price,
+              quantity: 1,
+            })),
+            customer_details: {
+              first_name: authUser?.name || "Customer",
+              email: authUser?.email || "customer@gamezygo.com",
+            },
+          });
+          snapToken = snapData.token;
+        }
+
+        if (snapToken) {
+          openSnap(snapToken, {
+            onSuccess: async (result) => {
               clearCart();
               try {
                 if (typeof window !== "undefined") {
@@ -465,6 +555,61 @@ export default function CheckoutPage() {
               } catch {
                 // ignore
               }
+
+              // 1. Trigger backend order fulfillment proxy for ALL purchased games
+              const ordersPayload =
+                createdOrdersList.length > 0
+                  ? createdOrdersList.map((o) => ({
+                      order_id: o.orderNumber || o.orderId,
+                      gateway_reference: o.gatewayRef,
+                      gross_amount: o.grossAmount,
+                    }))
+                  : [
+                      {
+                        order_id:
+                          targetOrderNumber || targetOrderId || result.order_id,
+                        gateway_reference: gatewayRef || primaryGatewayRef,
+                        gross_amount: totalBelanja,
+                      },
+                    ];
+
+              try {
+                await fetch("/api/midtrans/fulfill", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    orders: ordersPayload,
+                    order_id:
+                      targetOrderNumber || targetOrderId || result.order_id,
+                    gateway_reference: gatewayRef || primaryGatewayRef,
+                    gross_amount: totalBelanja,
+                    status_code: "200",
+                  }),
+                });
+              } catch (fulfillErr) {
+                console.warn("Proxy fulfillment error:", fulfillErr);
+              }
+
+              // 2. Synchronize payment status in backend for all items
+              for (const ord of createdOrdersList) {
+                const ref = ord.gatewayRef || ord.orderNumber || ord.orderId;
+                if (ref) {
+                  try {
+                    await fetchPaymentStatus(ref);
+                  } catch {
+                    // ignore sync error
+                  }
+                }
+              }
+
+              // Invalidate React Query caches so Library, History, and Profile update immediately
+              queryClient.invalidateQueries({ queryKey: ["orders"] });
+              queryClient.invalidateQueries({ queryKey: ["user-orders"] });
+              queryClient.invalidateQueries({ queryKey: ["library"] });
+              queryClient.invalidateQueries({ queryKey: ["user-library"] });
+              queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+              queryClient.invalidateQueries({ queryKey: ["cart"] });
+
               showToast(
                 "success",
                 "Pembayaran Berhasil!",
@@ -475,6 +620,7 @@ export default function CheckoutPage() {
               }, 800);
             },
             onPending: (result) => {
+              queryClient.invalidateQueries({ queryKey: ["user-orders"] });
               showToast(
                 "success",
                 "Menunggu Pembayaran",
@@ -482,6 +628,7 @@ export default function CheckoutPage() {
               );
             },
             onError: (result) => {
+              queryClient.invalidateQueries({ queryKey: ["user-orders"] });
               showToast(
                 "error",
                 "Pembayaran Gagal",

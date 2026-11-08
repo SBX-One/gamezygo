@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
 
 export interface StatCardProps extends React.HTMLAttributes<HTMLDivElement> {
   /** Icon opsional di dalam badge icon kotak */
@@ -52,11 +53,18 @@ export function StatCard({
       )}
       {...props}
     >
-      {/* 1. Header (Icon Badge + Label) */}
+      {/* 1. Header (Icon Badge Button + Label - Figma Button Outline sm) */}
       <div className="flex items-center gap-3">
-        <div className="rounded-lg bg-deep-blue-800 border border-deep-blue-700 p-3 flex items-center justify-center text-deep-blue-100 shrink-0">
+        <Button
+          type="button"
+          variant="outline"
+          size="sm"
+          className="w-10 h-10 min-w-10 min-h-10 p-0! rounded-lg flex items-center justify-center shrink-0 cursor-default pointer-events-none text-gray-300"
+          tabIndex={-1}
+          aria-hidden="true"
+        >
           {icon || <DefaultPeopleSearchIcon />}
-        </div>
+        </Button>
         <span className="font-semibold text-gray-50 text-body-lg">
           {label}
         </span>

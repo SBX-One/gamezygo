@@ -18,8 +18,9 @@ import {
 } from "@/services/steam";
 import productsData from "@/json/products.json";
 import { OWNED_LIBRARY_GAMES } from "@/pages/library";
-import { useGameCredentials } from "@/hooks/use-library";
+import { useGameCredentials, useUserLibrary } from "@/hooks/use-library";
 import { useProductDetail } from "@/hooks/use-products";
+import { formatRupiah } from "@/utils/formatters";
 
 // ============================================================================
 // SVG ICONS
@@ -313,16 +314,35 @@ export default function GameCredentialPage() {
   const router = useRouter();
   const { id } = router.query;
   const productSlug = typeof id === "string" ? id : "";
+
+  // 1. Fetch user's purchased games in library
+  const { data: libraryRes } = useUserLibrary();
+  const libraryGame = React.useMemo(() => {
+    if (!id || !libraryRes?.data) return null;
+    const target = String(id).toLowerCase();
+    return libraryRes.data.find(
+      (g) => g.slug?.toLowerCase() === target || String(g.id) === target
+    );
+  }, [id, libraryRes]);
+
+  // 2. Fetch product catalog detail by slug
   const { data: productApiRes } = useProductDetail(productSlug);
   const apiProduct = productApiRes?.data;
 
   // Local state
   const [steamData, setSteamData] = React.useState<SteamGameDetails | null>(null);
   const [activeMediaIndex, setActiveMediaIndex] = React.useState(0);
+  const [hasImgError, setHasImgError] = React.useState(false);
   const [showUsername, setShowUsername] = React.useState(false);
   const [showPassword, setShowPassword] = React.useState(false);
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
   const [opinionInput, setOpinionInput] = React.useState("");
+
+  // Reset image error and active thumbnail on game ID change
+  React.useEffect(() => {
+    setHasImgError(false);
+    setActiveMediaIndex(0);
+  }, [id]);
 
   // Quadrupled items for seamless infinite moving carousel (matching blogs/[id].tsx)
   const infiniteTestimonials = React.useMemo(() => {
@@ -334,8 +354,8 @@ export default function GameCredentialPage() {
     ];
   }, []);
 
-  // Match game in local library games OR catalog products
-  const matchedProduct = React.useMemo(() => {
+  // Match game in local static catalog fallback if any
+  const matchedStaticProduct = React.useMemo(() => {
     if (!id || typeof id !== "string") return null;
 
     const allProducts = [
@@ -344,93 +364,46 @@ export default function GameCredentialPage() {
       ...((productsData as { tawaranKhusus?: Array<Record<string, unknown>> }).tawaranKhusus || []),
     ];
 
-    const found = allProducts.find(
-      (p) =>
-        String(p.id).toLowerCase() === id.toLowerCase() ||
-        String((p as { steamAppId?: number }).steamAppId) === id
+    return (
+      allProducts.find(
+        (p) =>
+          String(p.id).toLowerCase() === id.toLowerCase() ||
+          String((p as { steamAppId?: number }).steamAppId) === id
+      ) || null
     );
+  }, [id]);
 
-    if (found) {
-      const steamAppId =
-        (found as { steamAppId?: number }).steamAppId ||
-        Number(String((found as { imageSrc?: string }).imageSrc).match(/\/apps\/(\d+)\//)?.[1]) ||
-        242050;
-
-      return {
-        ...found,
-        steamAppId,
-        bannerSrc:
-          (found as { bannerSrc?: string }).bannerSrc ||
-          `https://cdn.akamai.steamstatic.com/steam/apps/${steamAppId}/header.jpg`,
-      };
+  // Detected Steam App ID (only if real steam URL or valid steam ID exists)
+  const detectedSteamAppId = React.useMemo(() => {
+    const rawSteamUrl =
+      apiProduct?.steam_url || (libraryGame as any)?.steam_url || "";
+    const match =
+      rawSteamUrl.match(/\/app(?:s)?\/(\d+)/i) ||
+      rawSteamUrl.match(/\/apps\/(\d+)\//i);
+    if (match && match[1]) {
+      const parsed = Number(match[1]);
+      if (!isNaN(parsed) && parsed > 0) return parsed;
     }
 
-    // If id itself is a numeric Steam App ID (e.g. /credentials/271590)
-    const numericId = Number(id);
-    if (!isNaN(numericId) && numericId > 0) {
-      return {
-        id,
-        steamAppId: numericId,
-        title: steamData?.name || `Steam Game #${numericId}`,
-        originalPrice: "Rp 350.000",
-        price: "Rp 210.000",
-        discount: "-40%",
-        imageSrc: `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${numericId}/library_600x900_2x.jpg`,
-        bannerSrc: `https://cdn.akamai.steamstatic.com/steam/apps/${numericId}/header.jpg`,
-        genres: ["Action", "Adventure"],
-      };
+    const numId = Number(id);
+    if (!isNaN(numId) && numId > 1000) return numId;
+
+    if (matchedStaticProduct && (matchedStaticProduct as any).steamAppId) {
+      return (matchedStaticProduct as any).steamAppId;
     }
 
-    return {
-      id: id,
-      steamAppId: 242050,
-      title: "Assassin's Creed : Black Flag Resynced",
-      originalPrice: "Rp 313.500",
-      price: "Rp 219.500",
-      discount: "-30%",
-      imageSrc:
-        "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/242050/library_600x900_2x.jpg",
-      bannerSrc:
-        "https://cdn.akamai.steamstatic.com/steam/apps/242050/header.jpg",
-      genres: ["Action", "Adventure"],
-    };
-  }, [id, steamData?.name]);
+    return null;
+  }, [apiProduct, libraryGame, id, matchedStaticProduct]);
 
-  // Pre-order detection: query param (?preorder=true or ?state=pre-order), product status, or game state
-  const isPreorder = React.useMemo(() => {
-    if (router.query.preorder === "true" || router.query.state === "pre-order") return true;
-    if (router.query.preorder === "false") return false;
-    const prod = matchedProduct as { isPreorder?: boolean; state?: string; status?: string } | null;
-    return Boolean(prod?.isPreorder || prod?.state === "pre-order" || prod?.status === "pre-order");
-  }, [router.query.preorder, router.query.state, matchedProduct]);
-
-  // Resolved genres list (supporting multiple genres with slider)
-  const gameGenres = React.useMemo(() => {
-    if (apiProduct?.categories && apiProduct.categories.length > 0) {
-      return apiProduct.categories.map((c) => c.name);
-    }
-    if (apiProduct?.product_genre_categories && apiProduct.product_genre_categories.length > 0) {
-      return apiProduct.product_genre_categories.map((c) => c.name);
-    }
-    if (steamData?.genres && steamData.genres.length > 0) {
-      return steamData.genres;
-    }
-    if (
-      Array.isArray((matchedProduct as { genres?: string[] })?.genres) &&
-      (matchedProduct as { genres?: string[] }).genres!.length > 0
-    ) {
-      return (matchedProduct as { genres?: string[] }).genres!;
-    }
-    return ["Aksi", "Petualangan", "RPG", "Dunia Terbuka"];
-  }, [apiProduct, steamData, matchedProduct]);
-
-  // Fetch Steam Game Details (including pc_requirements)
-  const appId = (matchedProduct as { steamAppId?: number })?.steamAppId || 242050;
-
+  // Fetch Steam Game Details only when a legitimate steamAppId exists
   React.useEffect(() => {
-    let isMounted = true;
+    if (!detectedSteamAppId) {
+      setSteamData(null);
+      return;
+    }
 
-    fetchSteamGame(appId)
+    let isMounted = true;
+    fetchSteamGame(detectedSteamAppId)
       .then((data) => {
         if (isMounted) {
           setSteamData(data);
@@ -443,47 +416,188 @@ export default function GameCredentialPage() {
     return () => {
       isMounted = false;
     };
-  }, [appId]);
+  }, [detectedSteamAppId]);
 
-  // Parse Minimum & Recommended specifications from Steam Store API
+  // Resolve Real Game Title (Prioritize user library / catalog DB over fallback)
+  const gameTitle = React.useMemo(() => {
+    if (libraryGame?.name) return libraryGame.name;
+    if (apiProduct?.name) return apiProduct.name;
+    if (steamData?.name) return steamData.name;
+    if ((matchedStaticProduct as any)?.title)
+      return (matchedStaticProduct as any).title;
+    if (typeof id === "string" && id) {
+      // Convert slug into Title Case, removing random trailing numbers
+      return id
+        .replace(/-\d+$/, "")
+        .split("-")
+        .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+        .join(" ");
+    }
+    return "Informasi Game";
+  }, [libraryGame, apiProduct, steamData, matchedStaticProduct, id]);
+
+  // Resolve Game Description
+  const gameDescription = React.useMemo(() => {
+    if (apiProduct?.description) return apiProduct.description;
+    if ((libraryGame as any)?.description)
+      return (libraryGame as any).description;
+    if (steamData?.description) return steamData.description;
+    if ((matchedStaticProduct as any)?.description)
+      return (matchedStaticProduct as any).description;
+    return "-";
+  }, [apiProduct, libraryGame, steamData, matchedStaticProduct]);
+
+  // Pre-order detection: If game is in Library, it is already owned & delivered!
+  const isPreorder = React.useMemo(() => {
+    if (libraryGame) return false;
+    if (router.query.preorder === "true" || router.query.state === "pre-order")
+      return true;
+    if (router.query.preorder === "false") return false;
+    return Boolean(
+      apiProduct?.status === "pre-order" ||
+        (matchedStaticProduct as any)?.isPreorder ||
+        (matchedStaticProduct as any)?.state === "pre-order"
+    );
+  }, [libraryGame, router.query, apiProduct, matchedStaticProduct]);
+
+  // Resolved genres list
+  const gameGenres: string[] = React.useMemo(() => {
+    if (libraryGame?.categories && libraryGame.categories.length > 0) {
+      return libraryGame.categories.map((c: any) => String(c.name || c));
+    }
+    if (apiProduct?.categories && apiProduct.categories.length > 0) {
+      return apiProduct.categories.map((c: any) => String(c.name || c));
+    }
+    if (
+      apiProduct?.product_genre_categories &&
+      apiProduct.product_genre_categories.length > 0
+    ) {
+      return apiProduct.product_genre_categories.map((c: any) => String(c.name || c));
+    }
+    if (steamData?.genres && steamData.genres.length > 0) {
+      return steamData.genres.map((g: any) => (typeof g === "string" ? g : g.description || g.name || "Action"));
+    }
+    if (
+      Array.isArray((matchedStaticProduct as any)?.genres) &&
+      (matchedStaticProduct as any).genres.length > 0
+    ) {
+      return (matchedStaticProduct as any).genres;
+    }
+    return ["Action", "Adventure", "RPG"];
+  }, [libraryGame, apiProduct, steamData, matchedStaticProduct]);
+
+  // Gallery Media List (matching store/[id].tsx without hardcoded dummy fallbacks)
+  const mediaList = React.useMemo(() => {
+    const list: string[] = [];
+    if (libraryGame?.thumbnail) list.push(libraryGame.thumbnail);
+    if (apiProduct?.thumbnail && !list.includes(apiProduct.thumbnail)) {
+      list.push(apiProduct.thumbnail);
+    }
+    if (steamData?.screenshots && steamData.screenshots.length > 0) {
+      steamData.screenshots.slice(0, 5).forEach((s) => {
+        const url = s.full || s.thumbnail;
+        if (url && !list.includes(url)) list.push(url);
+      });
+    }
+    if (
+      (matchedStaticProduct as any)?.bannerSrc &&
+      !list.includes((matchedStaticProduct as any).bannerSrc)
+    ) {
+      list.push((matchedStaticProduct as any).bannerSrc);
+    }
+    if (
+      (matchedStaticProduct as any)?.imageSrc &&
+      !list.includes((matchedStaticProduct as any).imageSrc)
+    ) {
+      list.push((matchedStaticProduct as any).imageSrc);
+    }
+    if (list.length === 0 && detectedSteamAppId && detectedSteamAppId > 0) {
+      list.push(`https://cdn.akamai.steamstatic.com/steam/apps/${detectedSteamAppId}/header.jpg`);
+    }
+    return list.filter(Boolean);
+  }, [libraryGame, apiProduct, steamData, matchedStaticProduct, detectedSteamAppId]);
+
+  // Price calculations
+  const rawPrice = libraryGame?.price || apiProduct?.price || 0;
+  const rawDiscountPrice =
+    libraryGame?.discount_price || (apiProduct as any)?.discount_price || 0;
+
+  const displayPrice = rawPrice
+    ? formatRupiah(rawDiscountPrice > 0 ? rawDiscountPrice : rawPrice)
+    : (matchedStaticProduct as any)?.price || "-";
+
+  const displayOriginalPrice =
+    rawDiscountPrice > 0 && rawPrice > rawDiscountPrice
+      ? formatRupiah(rawPrice)
+      : (matchedStaticProduct as any)?.originalPrice || null;
+
+  const displayDiscount =
+    rawDiscountPrice > 0 && rawPrice > rawDiscountPrice
+      ? `-${Math.round(((rawPrice - rawDiscountPrice) / rawPrice) * 100)}%`
+      : (matchedStaticProduct as any)?.discount || null;
+
+  const defaultEmptySpecs: ParsedSystemRequirements = {
+    os: "-",
+    cpu: "-",
+    ram: "-",
+    gpu: "-",
+    directx: "-",
+    storage: "-",
+    soundCard: "-",
+  };
+
+  // Parse Minimum & Recommended specifications matching store/[id].tsx
   const minSpecs: ParsedSystemRequirements = React.useMemo(() => {
-    return parseSteamRequirements(steamData?.pc_requirements?.minimum, {
-      os: "Windows 10 (64-bit)",
-      cpu: "Intel Core i5-2500K @ 3.3 GHz / AMD FX-6300 @ 3.5 GHz",
-      ram: "8 GB RAM",
-      gpu: "NVIDIA GeForce GTX 660 / AMD Radeon HD 7870 (2GB VRAM)",
-      directx: "Versi 11",
-      storage: "30 GB Available Space",
-      soundCard: "DX9 compliant",
-    });
-  }, [steamData?.pc_requirements?.minimum]);
+    const apiSpecs =
+      apiProduct?.specification_requirements ||
+      apiProduct?.product_specification_requirements ||
+      (libraryGame as any)?.specification_requirements ||
+      [];
+    const minApi = apiSpecs.filter((s: any) => s.type === "minimum");
+    if (minApi.length > 0) {
+      const findReq = (key: string) =>
+        minApi.find((s: any) => s.label?.toLowerCase().includes(key))?.requirement || "-";
+      return {
+        os: findReq("os"),
+        cpu: findReq("cpu") !== "-" ? findReq("cpu") : findReq("processor"),
+        ram: findReq("ram") !== "-" ? findReq("ram") : findReq("memory"),
+        gpu: findReq("gpu") !== "-" ? findReq("gpu") : findReq("graphics"),
+        directx: findReq("directx"),
+        storage: findReq("storage"),
+        soundCard: findReq("sound"),
+      };
+    }
+    if (steamData?.pc_requirements?.minimum) {
+      return parseSteamRequirements(steamData.pc_requirements.minimum, defaultEmptySpecs);
+    }
+    return defaultEmptySpecs;
+  }, [apiProduct, libraryGame, steamData?.pc_requirements?.minimum]);
 
   const recSpecs: ParsedSystemRequirements = React.useMemo(() => {
-    return parseSteamRequirements(steamData?.pc_requirements?.recommended, {
-      os: "Windows 11 (64-bit)",
-      cpu: "Intel Core i7-4770 @ 3.4 GHz / AMD Ryzen 5 1600 @ 3.2 GHz",
-      ram: "16 GB RAM",
-      gpu: "NVIDIA GeForce GTX 970 / AMD Radeon R9 290 (4GB VRAM)",
-      directx: "Versi 12",
-      storage: "30 GB Available Space",
-      soundCard: "DX9 compliant",
-    });
-  }, [steamData?.pc_requirements?.recommended]);
-
-  // Gallery screenshots from Steam or fallback
-  const mediaList = React.useMemo(() => {
-    if (steamData?.screenshots && steamData.screenshots.length > 0) {
-      return steamData.screenshots.slice(0, 5).map((s) => s.full || s.thumbnail);
+    const apiSpecs =
+      apiProduct?.specification_requirements ||
+      apiProduct?.product_specification_requirements ||
+      (libraryGame as any)?.specification_requirements ||
+      [];
+    const recApi = apiSpecs.filter((s: any) => s.type === "recommended");
+    if (recApi.length > 0) {
+      const findReq = (key: string) =>
+        recApi.find((s: any) => s.label?.toLowerCase().includes(key))?.requirement || "-";
+      return {
+        os: findReq("os"),
+        cpu: findReq("cpu") !== "-" ? findReq("cpu") : findReq("processor"),
+        ram: findReq("ram") !== "-" ? findReq("ram") : findReq("memory"),
+        gpu: findReq("gpu") !== "-" ? findReq("gpu") : findReq("graphics"),
+        directx: findReq("directx"),
+        storage: findReq("storage"),
+        soundCard: findReq("sound"),
+      };
     }
-    const banner =
-      (matchedProduct as { bannerSrc?: string })?.bannerSrc ||
-      `https://cdn.akamai.steamstatic.com/steam/apps/${appId}/header.jpg`;
-    return [
-      banner,
-      (matchedProduct as { imageSrc?: string })?.imageSrc ||
-        `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${appId}/library_600x900_2x.jpg`,
-    ];
-  }, [steamData, matchedProduct, appId]);
+    if (steamData?.pc_requirements?.recommended) {
+      return parseSteamRequirements(steamData.pc_requirements.recommended, defaultEmptySpecs);
+    }
+    return defaultEmptySpecs;
+  }, [apiProduct, libraryGame, steamData?.pc_requirements?.recommended]);
 
   // Copy helper
   const handleCopy = (text: string, label: string) => {
@@ -492,32 +606,22 @@ export default function GameCredentialPage() {
     setTimeout(() => setToastMessage(null), 3000);
   };
 
-  // Dynamic Game Title & Description
-  const gameTitle =
-    steamData?.name ||
-    (matchedProduct as { title?: string })?.title ||
-    "Assassin's Creed : Black Flag Resynced";
+  // Fetch real credentials from API (GET /api/v1/user/products/:slug/credentials)
+  const { data: credentialsRes } = useGameCredentials(productSlug);
 
-  const gameDescription =
-    (matchedProduct as { description?: string })?.description ||
-    steamData?.description ||
-    "“gue gatau ada berapa org dibalik bisnis ini, 1 atau seberapapun org terlibat, gue mengapresiasi sebesar besarnya udah ada jasa kaya gini. in this economy.”";
-
-  /* Fetch credentials from API (GET /api/v1/user/products/:slug/credentials)
-  const productSlug = typeof id === "string" ? id : "";
-  */ const { data: credentialsRes } = useGameCredentials(productSlug);
-
-  // Account Credentials for the specific game (with graceful fallback)
-  const fallbackUsername = `shared_steam_${String(
-    (matchedProduct as { title?: string })?.title || id || "ac4"
-  )
+  // Account Credentials: Real database credentials or graceful fallback
+  const cleanTitleCode = (gameTitle || productSlug || "game")
     .toLowerCase()
     .replace(/[^a-z0-9]/g, "")
-    .slice(0, 8)}_01`;
-  const fallbackPassword = "GamezygoPassword2026!";
+    .slice(0, 10);
 
-  const accountUsername = credentialsRes?.data?.username || fallbackUsername;
-  const accountPassword = credentialsRes?.data?.password || fallbackPassword;
+  const fallbackUsername = `shared_${cleanTitleCode}_01`;
+  const fallbackPassword = `Gamezygo_${cleanTitleCode.slice(0, 4)}2026!`;
+
+  const accountUsername =
+    credentialsRes?.data?.username || fallbackUsername;
+  const accountPassword =
+    credentialsRes?.data?.password || fallbackPassword;
 
   return (
     <>
@@ -546,36 +650,60 @@ export default function GameCredentialPage() {
               ]}
             />
 
-              {/* Main Media Display */}
-              <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-deep-blue-900 border border-white/10 shadow-lg group">
-                <img
-                  src={mediaList[activeMediaIndex] || mediaList[0]}
-                  alt={gameTitle}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102"
-                />
-                <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
-              </div>
+              {/* Main Media Display matching store/[id].tsx */}
+              {mediaList.length > 0 && (mediaList[activeMediaIndex] || mediaList[0]) && !hasImgError ? (
+                <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-deep-blue-900 border border-white/10 shadow-lg group">
+                  <img
+                    src={mediaList[activeMediaIndex] || mediaList[0]}
+                    alt={gameTitle}
+                    onError={() => setHasImgError(true)}
+                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102"
+                  />
+                  <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
+                </div>
+              ) : (
+                <div className="relative w-full aspect-square rounded-xl overflow-hidden bg-deep-blue-900/40 border border-white/10 shadow-lg flex flex-col items-center justify-center text-gray-500 gap-3">
+                  <div className="w-14 h-14 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center">
+                    <svg className="w-7 h-7 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                  </div>
+                  <span className="text-body-sm font-medium text-gray-400">Gambar tidak tersedia</span>
+                </div>
+              )}
 
-              {/* Thumbnails Row */}
-              <div className="w-full flex gap-3 overflow-x-auto no-scrollbar py-2 ">
-                {mediaList.map((thumb, idx) => (
-                  <button
-                    key={`thumb-${idx}`}
-                    onClick={() => setActiveMediaIndex(idx)}
-                    className={`relative w-24 sm:w-28 aspect-video rounded-lg overflow-hidden border transition-all shrink-0 cursor-pointer ${
-                      activeMediaIndex === idx
-                        ? "border-rose-500 ring-2 ring-rose-500/40 opacity-100 scale-102"
-                        : "border-white/10 opacity-60 hover:opacity-100"
-                    }`}
-                  >
-                    <img
-                      src={thumb}
-                      alt={`Thumbnail ${idx + 1}`}
-                      className="w-full h-full object-cover"
+              {/* Thumbnails Row matching store/[id].tsx */}
+              {mediaList.length > 0 && !hasImgError ? (
+                <div className="w-full flex gap-3 overflow-x-auto no-scrollbar py-2">
+                  {mediaList.map((thumb, idx) => (
+                    <button
+                      key={`thumb-${idx}`}
+                      type="button"
+                      onClick={() => setActiveMediaIndex(idx)}
+                      className={`relative w-24 sm:w-28 aspect-video rounded-lg overflow-hidden border transition-all shrink-0 cursor-pointer ${
+                        activeMediaIndex === idx
+                          ? "border-rose-500 ring-2 ring-rose-500/40 opacity-100 scale-102"
+                          : "border-white/10 opacity-60 hover:opacity-100"
+                      }`}
+                    >
+                      <img
+                        src={thumb}
+                        alt={`Thumbnail ${idx + 1}`}
+                        className="w-full h-full object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              ) : (
+                <div className="w-full flex items-center gap-2.5 sm:gap-3 py-1">
+                  {[0, 1, 2, 3].map((idx) => (
+                    <div
+                      key={`empty-thumb-${idx}`}
+                      className="w-24 sm:w-28 aspect-video rounded-lg bg-deep-blue-900/30 border border-white/5 shrink-0"
                     />
-                  </button>
-                ))}
-              </div>
+                  ))}
+                </div>
+              )}
 
               {/* Badges Row (Genre, Rating, Launcher) */}
               <div className="w-full grid grid-cols-3 items-center justify-between sm:justify-start flex-wrap sm:flex-nowrap gap-3 sm:gap-5 pt-4">
@@ -659,18 +787,22 @@ export default function GameCredentialPage() {
                 </div>
 
                 {/* Price Row */}
-                <div className="flex gap-3">
+                <div className="flex items-center gap-3">
                   <div className="flex items-center gap-2 px-2">
-                    <span className="text-body-md text-gray-400 line-through">
-                      {(matchedProduct as { originalPrice?: string })?.originalPrice || "Rp 439.000,00"}
-                    </span>
+                    {displayOriginalPrice && (
+                      <span className="text-body-md text-gray-400 line-through">
+                        {displayOriginalPrice}
+                      </span>
+                    )}
                     <span className="text-h4 font-semibold text-white">
-                      {(matchedProduct as { price?: string })?.price || "Rp 219.500"}
+                      {displayPrice}
                     </span>
                   </div>
-                  <Pill variant="primary" size="sm">
-                    {(matchedProduct as { discount?: string })?.discount || "-30%"}
-                  </Pill>
+                  {displayDiscount && (
+                    <Pill variant="primary" size="sm">
+                      {displayDiscount}
+                    </Pill>
+                  )}
                 </div>
               </div>
 
@@ -873,7 +1005,7 @@ export default function GameCredentialPage() {
                   <div className="flex flex-col gap-2 ">
                     <span className="text-body-xs text-gray-400">Sound Card</span>
                     <span className="text-body-sm text-gray-100 font-semibold">
-                      {minSpecs.soundCard || "DX Compatible"}
+                      {minSpecs.soundCard || "-"}
                     </span>
                   </div>
                 </div>
@@ -913,7 +1045,7 @@ export default function GameCredentialPage() {
                   <div className="flex flex-col gap-2 ">
                     <span className="text-body-xs text-gray-400">Sound Card</span>
                     <span className="text-body-sm text-gray-100 font-semibold">
-                      {recSpecs.soundCard || "DX Compatible"}
+                      {recSpecs.soundCard || "-"}
                     </span>
                   </div>
                 </div>

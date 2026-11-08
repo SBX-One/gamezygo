@@ -18,6 +18,7 @@ import {
   useVoteGameRequest,
   useUnvoteGameRequest,
 } from "@/hooks/use-requests";
+import { useAuthStore } from "@/stores/use-auth-store";
 import productsData from "@/json/products.json";
 
 // Storage Keys for Local Persistence
@@ -310,6 +311,7 @@ const TAB_OPTIONS: { id: TabId; label: string }[] = [
 
 export default function RequestGamePage() {
   const router = useRouter();
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   // Active Tab State
   const [activeTab, setActiveTab] = React.useState<TabId>("my-requests");
@@ -333,7 +335,10 @@ export default function RequestGamePage() {
       : activeTab === "added"
       ? "added"
       : "all";
-  const { data: requestsApiRes } = useGameRequests({ scope, page: currentPage });
+  const { data: requestsApiRes, isLoading: isRequestsLoading } = useGameRequests({
+    scope,
+    page: currentPage,
+  });
   const createRequestMutation = useCreateGameRequest();
   const deleteRequestMutation = useDeleteGameRequest();
   const voteMutation = useVoteGameRequest();
@@ -341,27 +346,26 @@ export default function RequestGamePage() {
 
   // Request Datasets with initial defaults
   const [myRequests, setMyRequests] =
-    React.useState<RequestGameData[]>(INITIAL_MY_REQUESTS);
+    React.useState<RequestGameData[]>([]);
   const [communityRequests, setCommunityRequests] =
     React.useState<RequestGameData[]>(INITIAL_COMMUNITY_REQUESTS);
   const [addedRequests] =
     React.useState<RequestGameData[]>(INITIAL_ADDED_REQUESTS);
 
-  // Hydrate from localStorage on client mount
+  // Hydrate from localStorage on client mount (only for unauthenticated guest sessions)
   React.useEffect(() => {
     try {
-      // 1. My Requests
-      const savedMy = localStorage.getItem(LOCAL_STORAGE_KEY_MY_REQUESTS);
-      if (savedMy) {
-        const parsed = JSON.parse(savedMy);
-        if (Array.isArray(parsed)) {
-          setMyRequests(parsed);
+      if (!isAuthenticated) {
+        // 1. My Requests for guest
+        const savedMy = localStorage.getItem(LOCAL_STORAGE_KEY_MY_REQUESTS);
+        if (savedMy) {
+          const parsed = JSON.parse(savedMy);
+          if (Array.isArray(parsed)) {
+            setMyRequests(parsed);
+          }
         }
       } else {
-        localStorage.setItem(
-          LOCAL_STORAGE_KEY_MY_REQUESTS,
-          JSON.stringify(INITIAL_MY_REQUESTS)
-        );
+        setMyRequests([]);
       }
 
       // 2. Upvoted Request IDs
@@ -394,7 +398,7 @@ export default function RequestGamePage() {
     } catch (err) {
       console.error("Gagal membaca request dari localStorage:", err);
     }
-  }, []);
+  }, [isAuthenticated]);
 
   const [toast, setToast] = React.useState<{
     title: string;
@@ -568,14 +572,18 @@ export default function RequestGamePage() {
         return prev;
       });
 
-      // 3. Optional: sync to backend API if available
+      // 3. Sync to backend API database
+      const validSteamUrl = trimmedUrl.startsWith("http")
+        ? trimmedUrl
+        : `https://store.steampowered.com/app/${appId}`;
+
       try {
         await createRequestMutation.mutateAsync({
           name: gameTitle,
-          steam_url: trimmedUrl,
+          steam_url: validSteamUrl,
         });
-      } catch {
-        // Backend offline or guest - ignore
+      } catch (apiErr) {
+        console.warn("Backend request submission error:", apiErr);
       }
 
       setStoreUrl("");
@@ -596,7 +604,7 @@ export default function RequestGamePage() {
     if (activeTab === "my-requests") {
       const numericId = parseInt(id.replace(/\D/g, ""), 10);
       if (numericId && !isNaN(numericId)) {
-        if (id) deleteRequestMutation.mutate(numericId);
+        deleteRequestMutation.mutate(numericId);
       }
       // Cancel request from My Requests and localStorage
       setMyRequests((prev) => {
@@ -686,30 +694,45 @@ export default function RequestGamePage() {
     const id = "";
 
     if (activeTab === "my-requests") {
-      const numericId = parseInt(id.replace(/\D/g, ""), 10);
-      if (numericId && !isNaN(numericId)) {
-        if (id) deleteRequestMutation.mutate(numericId);
-      }
-      if (requestsApiRes?.data && requestsApiRes.data.length > 0 && scope === "mine") {
-        const apiItems: RequestGameData[] = requestsApiRes.data.map((r, index) => {
-          const fallback = productsData.tawaranKhusus[index % productsData.tawaranKhusus.length];
-          const steamAppId = extractSteamAppId(r.steam_url);
-          return {
-            id: String(r.id),
-            title: r.name,
-            imageSrc: steamAppId
-              ? `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${steamAppId}/library_600x900_2x.jpg`
-              : fallback?.imageSrc ||
-                "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-            requestDate: new Date(r.created_at || Date.now()).toLocaleDateString("id-ID"),
-            requestCount: r.request_count || 1,
-            isUpvoted: false,
-          };
-        });
-        const localOnly = myRequests.filter(
-          (m) => !apiItems.some((a) => a.title.toLowerCase() === m.title.toLowerCase())
+      if (
+        requestsApiRes?.data &&
+        requestsApiRes.data.length > 0 &&
+        scope === "mine"
+      ) {
+        const apiItems: RequestGameData[] = requestsApiRes.data.map(
+          (r, index) => {
+            const fallback =
+              productsData.tawaranKhusus[
+                index % productsData.tawaranKhusus.length
+              ];
+            const steamAppId = extractSteamAppId(r.steam_url);
+            return {
+              id: String(r.id),
+              title: r.name,
+              imageSrc: steamAppId
+                ? `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${steamAppId}/library_600x900_2x.jpg`
+                : fallback?.imageSrc ||
+                  "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
+              requestDate: new Date(
+                r.created_at || Date.now()
+              ).toLocaleDateString("id-ID"),
+              requestCount: r.request_count || 1,
+              isUpvoted: false,
+            };
+          }
         );
-        return [...localOnly, ...apiItems];
+        const localOnly = isAuthenticated
+          ? []
+          : myRequests.filter(
+              (m) =>
+                !apiItems.some(
+                  (a) => a.title.toLowerCase() === m.title.toLowerCase()
+                )
+            );
+        return [...apiItems, ...localOnly];
+      }
+      if (isAuthenticated) {
+        return [];
       }
       return myRequests;
     }

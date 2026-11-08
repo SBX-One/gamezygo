@@ -409,6 +409,8 @@ export default function GameStoreDetailPage() {
   const { addItem, toggleCart, isInCart } = useCartStore();
   const { isGameOwned } = useOwnedGames();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const authUser = useAuthStore((s) => s.user);
+  const currentUserId = authUser?.id ? String(authUser.id) : undefined;
   const addToCartMutation = useAddToCart();
   const addToWishlistMutation = useAddToWishlist();
   const removeFromWishlistMutation = useRemoveFromWishlist();
@@ -735,7 +737,7 @@ export default function GameStoreDetailPage() {
   );
   const isOwned = isGameOwned(currentProdId, gameTitle, String(id));
   const isAlreadyInCart = isInCart(currentProdId, gameTitle);
-  const isWishlisted = isItemWishlisted(currentProdId, gameTitle);
+  const isWishlisted = isItemWishlisted(currentProdId, gameTitle, currentUserId);
 
   // Buy Now Handler
   const handleBuyNow = () => {
@@ -808,6 +810,7 @@ export default function GameStoreDetailPage() {
 
     const targetGame = {
       id: String(rawId),
+      userId: currentUserId,
       productId: !isNaN(numericId) && numericId > 0 ? numericId : undefined,
       slug: typeof id === "string" ? id : undefined,
       steamAppId: appId,

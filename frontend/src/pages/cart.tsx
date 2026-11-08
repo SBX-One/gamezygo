@@ -79,22 +79,29 @@ export default function CartPage() {
   const clearCartStore = useCartStore((s) => s.clearCart);
 
   // Server-side Cart API Hook
-  const { data: cartApiRes } = useCart();
+  const { data: cartApiRes, isLoading: isCartApiLoading } = useCart();
   const removeCartMutation = useRemoveFromCart();
   const clearCartMutation = useClearCart();
 
   // Computed Cart Items (prioritizes API when authenticated, else local Zustand store)
   const cartItems: CartItemData[] = React.useMemo(() => {
-    if (isAuthenticated && cartApiRes?.data?.items && cartApiRes.data.items.length > 0) {
-      return cartApiRes.data.items.map((item) => ({
-        id: String(item.id),
-        title: item.name,
-        imageSrc: item.thumbnail || "",
-        discount: formatDiscount(item.discount),
-        originalPrice: item.price,
-        originalPriceFormatted: formatRupiah(item.price),
-        price: item.discount_price > 0 ? item.discount_price : item.price,
-      }));
+    if (isAuthenticated) {
+      if (cartApiRes?.data?.items) {
+        return cartApiRes.data.items.map((item) => ({
+          id: String(item.id),
+          title: item.name,
+          imageSrc: item.thumbnail || "",
+          discount: formatDiscount(item.discount),
+          originalPrice: item.price,
+          originalPriceFormatted: formatRupiah(item.price),
+          price: item.discount_price > 0 ? item.discount_price : item.price,
+        }));
+      }
+      // While API is loading for authenticated user, do NOT flash stale local storage items
+      if (isCartApiLoading) {
+        return [];
+      }
+      return [];
     }
     return storeCartItems.map((item) => ({
       id: String(item.productId),
@@ -105,7 +112,7 @@ export default function CartPage() {
       originalPriceFormatted: formatRupiah(item.product?.originalPrice || item.product?.price || 0),
       price: item.product?.price || 0,
     }));
-  }, [isAuthenticated, cartApiRes, storeCartItems]);
+  }, [isAuthenticated, cartApiRes, isCartApiLoading, storeCartItems]);
 
   // Voucher input & applied states
   const [voucherInput, setVoucherInput] = React.useState("");
@@ -309,8 +316,13 @@ export default function CartPage() {
               </Button>
             </div>
 
-            {/* CASE A: EMPTY CART (Matching Screenshot 2) */}
-            {isEmpty ? (
+            {/* CASE A: LOADING OR EMPTY CART */}
+            {isCartApiLoading && isAuthenticated ? (
+              <div className="w-full py-16 sm:py-24 flex flex-col items-center justify-center gap-4 text-center">
+                <div className="w-10 h-10 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
+                <p className="text-body-sm text-gray-400">Memuat keranjang Anda...</p>
+              </div>
+            ) : isEmpty ? (
               <div className="w-full py-16 sm:py-24 flex flex-col items-center justify-center">
                 <EmptyState
                   icon={<CartOutlineIcon />}

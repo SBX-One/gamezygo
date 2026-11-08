@@ -8,6 +8,8 @@ use App\Repositories\Contracts\Api\V1\Admin\Catalog\AdminCatalogRepositoryInterf
 use App\Repositories\Api\V1\Admin\Catalog\AdminCatalogRepository;
 use App\Repositories\Contracts\Api\V1\Admin\Revenue\AdminRevenueRepositoryInterface;
 use App\Repositories\Api\V1\Admin\Revenue\AdminRevenueRepository;
+use App\Repositories\Contracts\Api\V1\Admin\CustomSection\AdminCustomSectionRepositoryInterface;
+use App\Repositories\Api\V1\Admin\CustomSection\AdminCustomSectionRepository;
 use App\Repositories\Contracts\Api\V1\Admin\Dashboard\AdminDashboardRepositoryInterface;
 use App\Repositories\Api\V1\Admin\Dashboard\AdminDashboardRepository;
 use App\Repositories\Contracts\Api\V1\User\Announcement\AnnouncementRepositoryInterface;
@@ -68,6 +70,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(AdminDashboardRepositoryInterface::class, AdminDashboardRepository::class);
         $this->app->bind(AdminCatalogRepositoryInterface::class, AdminCatalogRepository::class);
         $this->app->bind(AdminRevenueRepositoryInterface::class, AdminRevenueRepository::class);
+        $this->app->bind(AdminCustomSectionRepositoryInterface::class, AdminCustomSectionRepository::class);
     }
 
     /**

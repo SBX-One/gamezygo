@@ -6,9 +6,11 @@ import type {
 } from "@/types";
 import type { BannerSlide } from "@/components/ui/BannerCarousel/BannerCarousel.types";
 import type { ProductCardRowItem } from "@/components/ui/ProductCardRow/ProductCardRow.types";
+import { resolveImageUrl } from "./image-url";
+
 function getCoverImage(product: ProductListItem | ProductDetailItem): string {
   if (product.thumbnail && product.thumbnail.trim() !== "") {
-    return product.thumbnail;
+    return resolveImageUrl(product.thumbnail);
   }
   if ("steam_url" in product && product.steam_url) {
     const match = product.steam_url.match(/\/app\/(\d+)/);

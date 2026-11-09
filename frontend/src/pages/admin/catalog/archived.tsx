@@ -9,12 +9,18 @@ import {
   AdminArchivedCatalogTable,
   AdminCatalogDeleteModal,
 } from "@/features/admin/components/catalog";
-import { MOCK_ARCHIVED_CATALOG_ITEMS } from "@/features/admin/data/admin-catalog-mock-data";
 import {
   INITIAL_CATALOG_FILTER_STATE,
   type AdminCatalogFilterState,
   type AdminCatalogItem,
 } from "@/features/admin/types/admin-catalog.types";
+import {
+  useAdminArchivedCatalog,
+  useToggleProductStatus,
+  useBatchArchiveStatus,
+  useDeleteProducts,
+} from "@/hooks/use-admin-catalog";
+import { toast } from "@/stores/use-toast-store";
 
 const ChevronRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -34,15 +40,22 @@ const ChevronRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function AdminArchivedProductPage() {
   const router = useRouter();
-  const [items, setItems] = React.useState<AdminCatalogItem[]>(
-    MOCK_ARCHIVED_CATALOG_ITEMS
-  );
+
+  // 1. Live archived catalog data from backend API
+  const {
+    items: serverItems,
+    isLoading,
+    totalArchived,
+  } = useAdminArchivedCatalog();
+
+  const toggleStatusMutation = useToggleProductStatus();
+  const batchArchiveMutation = useBatchArchiveStatus();
+  const deleteMutation = useDeleteProducts();
+
   const [filters, setFilters] = React.useState<AdminCatalogFilterState>(
     INITIAL_CATALOG_FILTER_STATE
   );
-  const [selectedIds, setSelectedIds] = React.useState<string[]>(
-    MOCK_ARCHIVED_CATALOG_ITEMS.map((item) => item.id) // Pre-checked per Image 3
-  );
+  const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [deleteModalState, setDeleteModalState] = React.useState<{
     isOpen: boolean;
     type: "single" | "multiple";
@@ -54,7 +67,7 @@ export default function AdminArchivedProductPage() {
 
   // Filter & sort logic matching Image 4
   const filteredItems = React.useMemo(() => {
-    return items
+    return serverItems
       .filter((item) => {
         // 1. Search Query
         if (
@@ -93,7 +106,7 @@ export default function AdminArchivedProductPage() {
         }
         return 0;
       });
-  }, [items, filters]);
+  }, [serverItems, filters]);
 
   // Handlers
   const handleToggleSelectAll = () => {
@@ -113,14 +126,41 @@ export default function AdminArchivedProductPage() {
   };
 
   const handleUnarchiveItem = (id: string) => {
-    setItems((prev) => prev.filter((item) => item.id !== id));
     setSelectedIds((prev) => prev.filter((sId) => sId !== id));
+    toggleStatusMutation.mutate(
+      { productId: id, isActive: true },
+      {
+        onSuccess: () => {
+          toast.success("Game berhasil dikembalikan ke katalog aktif!");
+        },
+        onError: (err: unknown) => {
+          const msg =
+            (err as { response?: { data?: { message?: string } } })?.response
+              ?.data?.message || "Gagal mengembalikan game ke katalog.";
+          toast.error(msg);
+        },
+      }
+    );
   };
 
   const handleUnarchiveAll = () => {
-    // Unarchives all items -> turns to empty state per Image 5
-    setItems([]);
+    if (serverItems.length === 0) return;
+    const allIds = serverItems.map((item) => item.id);
     setSelectedIds([]);
+    batchArchiveMutation.mutate(
+      { ids: allIds, isActive: true },
+      {
+        onSuccess: () => {
+          toast.success("Semua game berhasil dikembalikan ke katalog aktif!");
+        },
+        onError: (err: unknown) => {
+          const msg =
+            (err as { response?: { data?: { message?: string } } })?.response
+              ?.data?.message || "Gagal mengembalikan game ke katalog.";
+          toast.error(msg);
+        },
+      }
+    );
   };
 
   const handleDeleteSelected = () => {
@@ -129,8 +169,21 @@ export default function AdminArchivedProductPage() {
   };
 
   const handleConfirmDelete = () => {
-    setItems((prev) => prev.filter((item) => !selectedIds.includes(item.id)));
+    const idsToDelete = [...selectedIds];
     setSelectedIds([]);
+    deleteMutation.mutate(idsToDelete, {
+      onSuccess: () => {
+        toast.success(
+          `${idsToDelete.length} game berhasil dihapus permanen dari arsip.`
+        );
+      },
+      onError: (err: unknown) => {
+        const msg =
+          (err as { response?: { data?: { message?: string } } })?.response
+            ?.data?.message || "Gagal menghapus game terpilih.";
+        toast.error(msg);
+      },
+    });
     setDeleteModalState({ isOpen: false, type: "multiple" });
   };
 
@@ -177,6 +230,7 @@ export default function AdminArchivedProductPage() {
         <div className="space-y-6">
           {/* 1. Three Action Buttons (Matching Image 5) */}
           <AdminCatalogActionButtons
+            activeButton="archived"
             onViewArchived={() => router.push("/admin/catalog")}
             onEditProductSection={() => router.push("/admin/catalog/section")}
             onPoManagement={() => {
@@ -197,7 +251,8 @@ export default function AdminArchivedProductPage() {
           {/* 3. Archived Catalog Table (Matching Image 2, 3, 5) */}
           <AdminArchivedCatalogTable
             items={filteredItems}
-            totalGamesCount={90}
+            totalGamesCount={totalArchived}
+            isLoading={isLoading}
             selectedIds={selectedIds}
             onToggleSelectAll={handleToggleSelectAll}
             onToggleSelectItem={handleToggleSelectItem}
@@ -208,7 +263,7 @@ export default function AdminArchivedProductPage() {
           />
         </div>
 
-        {/* 3. Delete Confirmation Modal */}
+        {/* 4. Delete Confirmation Modal */}
         <AdminCatalogDeleteModal
           isOpen={deleteModalState.isOpen}
           onClose={() =>

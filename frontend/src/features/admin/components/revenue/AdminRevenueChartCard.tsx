@@ -3,18 +3,40 @@ import { cn } from "@/lib/utils";
 import { AdminCard, AdminEmptyState } from "@/components/admin";
 import { MOCK_REVENUE_CHART_DATA } from "../../data/admin-revenue-mock-data";
 import type { RevenueChartPoint } from "../../types/admin-revenue.types";
-
+import { formatRupiah } from "@/utils/formatters";
 import { AdminRevenueDateRangePicker } from "./AdminRevenueDateRangePicker";
 
 export interface AdminRevenueChartCardProps {
   isEmpty?: boolean;
   data?: RevenueChartPoint[];
+  onChangeRange?: (start: Date | null, end: Date | null, label: string) => void;
   className?: string;
+}
+
+function buildSmoothPath(points: { x: number; y: number }[]): string {
+  if (points.length === 0) return "";
+  if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
+  let path = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
+  for (let i = 0; i < points.length - 1; i++) {
+    const p0 = points[i === 0 ? i : i - 1];
+    const p1 = points[i];
+    const p2 = points[i + 1];
+    const p3 = points[i + 2 < points.length ? i + 2 : i + 1];
+
+    const cp1x = p1.x + (p2.x - p0.x) / 6;
+    const cp1y = p1.y + (p2.y - p0.y) / 6;
+    const cp2x = p2.x - (p3.x - p1.x) / 6;
+    const cp2y = p2.y - (p3.y - p1.y) / 6;
+
+    path += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
+  }
+  return path;
 }
 
 export function AdminRevenueChartCard({
   isEmpty = false,
   data = MOCK_REVENUE_CHART_DATA,
+  onChangeRange,
   className,
 }: AdminRevenueChartCardProps) {
   const [hoveredIdx, setHoveredIdx] = React.useState<number | null>(null);
@@ -40,39 +62,62 @@ export function AdminRevenueChartCard({
     };
   }, []);
 
-  // Exact 10 Y-Ticks matching Gambar 1 & Gambar 3
-  const yTicks = [1300, 1200, 1100, 1000, 900, 800, 500, 200, 100, 0];
-
   const [isDatePickerOpen, setIsDatePickerOpen] = React.useState(false);
 
   // Header right slot: Interactive Date Range Calendar Picker (Gambar 1 & Gambar 2)
   const headerRight = (
     <AdminRevenueDateRangePicker
-      onChangeRange={(_start, _end, _label) => {
-        // Range updated callback hook
+      onChangeRange={(start, end, label) => {
+        onChangeRange?.(start, end, label);
       }}
       onOpenChange={setIsDatePickerOpen}
     />
   );
 
-  // High-precision smooth spline path matching Gambar 1 & Gambar 3
+  const activeData = data && data.length > 0 ? data : MOCK_REVENUE_CHART_DATA;
+
+  // Dynamically compute yTicks and chart scaling
+  const maxVal = Math.max(...activeData.map((d) => d.revenue), 0);
+  const ceilScale = maxVal > 0 ? Math.ceil(maxVal * 1.2 / 1000) * 1000 : 1000;
+
+  const yTicks = React.useMemo(() => {
+    const step = ceilScale / 5;
+    return [
+      ceilScale,
+      Math.round(step * 4),
+      Math.round(step * 3),
+      Math.round(step * 2),
+      Math.round(step * 1),
+      0,
+    ];
+  }, [ceilScale]);
+
   const svgWidth = 700;
   const svgHeight = 350;
 
-  const linePath =
-    "M 0 350 C 30 310, 60 275, 85 265 C 115 250, 145 220, 180 220 C 220 220, 260 238, 295 238 C 335 238, 375 195, 410 175 C 445 155, 475 130, 510 130 C 550 130, 580 205, 615 210 C 640 215, 660 200, 680 200 C 690 200, 696 205, 700 208";
-  const areaPath = `${linePath} L 700 350 L 0 350 Z`;
+  const chartPoints = React.useMemo(() => {
+    const n = activeData.length;
+    return activeData.map((pt, i) => {
+      const x = n > 1 ? (i / (n - 1)) * svgWidth : svgWidth / 2;
+      const ratio = ceilScale > 0 ? pt.revenue / ceilScale : 0;
+      // Reserve top 20px and bottom 10px padding inside plot
+      const y = svgHeight - 10 - ratio * (svgHeight - 40);
+      return {
+        day: pt.day,
+        revenue: pt.revenue,
+        x,
+        y,
+      };
+    });
+  }, [activeData, ceilScale, svgWidth, svgHeight]);
 
-  // Interactive day points along the curve for hover / tap inspection
-  const chartPoints = [
-    { day: "Senin", revenue: 0, x: 0, y: 350 },
-    { day: "Selasa", revenue: 600, x: 180, y: 220 },
-    { day: "Rabu", revenue: 520, x: 295, y: 238 },
-    { day: "Kamis", revenue: 850, x: 410, y: 175 },
-    { day: "Jumat", revenue: 970, x: 510, y: 130 },
-    { day: "Sabtu", revenue: 720, x: 615, y: 210 },
-    { day: "Minggu", revenue: 750, x: 680, y: 200 },
-  ];
+  const linePath = React.useMemo(() => buildSmoothPath(chartPoints), [chartPoints]);
+  const areaPath = React.useMemo(() => {
+    if (!linePath || chartPoints.length === 0) return "";
+    const lastX = chartPoints[chartPoints.length - 1].x;
+    const firstX = chartPoints[0].x;
+    return `${linePath} L ${lastX.toFixed(1)} ${svgHeight} L ${firstX.toFixed(1)} ${svgHeight} Z`;
+  }, [linePath, chartPoints, svgHeight]);
 
   return (
     <AdminCard
@@ -99,10 +144,14 @@ export function AdminRevenueChartCard({
             {/* Main Chart Graphic Row (Y-Axis + Plot Area) */}
             <div className="relative flex-1 flex min-h-[260px] sm:min-h-[340px] lg:min-h-[380px]">
               {/* Y-Axis Labels (sticky on mobile horizontal scroll) */}
-              <div className="w-12 pr-3 flex flex-col justify-between text-right text-label-xs text-gray-400 font-medium select-none py-1 shrink-0 sticky left-0 z-20 bg-deep-blue-950">
+              <div className="w-16 pr-3 flex flex-col justify-between text-right text-label-xs text-gray-400 font-medium select-none py-1 shrink-0 sticky left-0 z-20 bg-deep-blue-950">
                 {yTicks.map((tick) => (
                   <div key={tick} className="leading-none">
-                    {tick}
+                    {tick >= 1000000
+                      ? `${(tick / 1000000).toFixed(1)}M`
+                      : tick >= 1000
+                      ? `${(tick / 1000).toFixed(0)}k`
+                      : tick}
                   </div>
                 ))}
               </div>
@@ -217,7 +266,7 @@ export function AdminRevenueChartCard({
                     }}
                   >
                     <div className="text-[#FF5364] font-bold">
-                      {chartPoints[hoveredIdx].revenue}
+                      {formatRupiah(chartPoints[hoveredIdx].revenue)}
                     </div>
                     <div className="text-gray-300 text-[10px]">
                       {chartPoints[hoveredIdx].day}
@@ -230,9 +279,9 @@ export function AdminRevenueChartCard({
             {/* X-Axis Labels Row */}
             <div className="flex items-center pt-3 border-t border-deep-blue-700/60 shrink-0">
               {/* Sticky Left Spacer to align exactly with Y-Axis */}
-              <div className="w-12 shrink-0 sticky left-0 z-20 bg-deep-blue-950" />
+              <div className="w-16 shrink-0 sticky left-0 z-20 bg-deep-blue-950" />
               <div className="w-full flex items-center justify-between px-2">
-                {data.map((item) => (
+                {activeData.map((item) => (
                   <span
                     key={item.day}
                     className="text-label-xs text-gray-400 font-medium select-none text-center"

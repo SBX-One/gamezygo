@@ -2,17 +2,95 @@ import * as React from "react";
 import { AdminHeroStatCard, AdminStatCard } from "@/components/admin";
 import { ADMIN_TIMEFRAMES } from "../../data/admin-mock-data";
 
+export interface AdminRevenueMetricsData {
+  totalRevenue?: {
+    value: string;
+    subtitle?: string;
+    badge?: { text: string; trend: "up" | "down" };
+  };
+  averageOrderValue?: {
+    value: string;
+    subtitle?: string;
+    badge?: { text: string; trend: "up" | "down" };
+  };
+  totalOrders?: {
+    value: string;
+    subtitle?: string;
+  };
+  voucherBurn?: {
+    value: string;
+    subtitle?: string;
+    badge?: { text: string; trend: "up" | "down" };
+  };
+}
+
 export interface AdminRevenueMetricsSectionProps {
   isEmpty?: boolean;
+  metrics?: AdminRevenueMetricsData;
+  heroTimeframe?: string;
+  onHeroTimeframeChange?: (val: string) => void;
+  orderTimeframe?: string;
+  onOrderTimeframeChange?: (val: string) => void;
   className?: string;
 }
 
 export function AdminRevenueMetricsSection({
   isEmpty = false,
+  metrics,
+  heroTimeframe: externalHeroTimeframe,
+  onHeroTimeframeChange,
+  orderTimeframe: externalOrderTimeframe,
+  onOrderTimeframeChange,
   className,
 }: AdminRevenueMetricsSectionProps) {
-  const [heroTimeframe, setHeroTimeframe] = React.useState("today");
-  const [orderTimeframe, setOrderTimeframe] = React.useState("today");
+  const [internalHeroTimeframe, setInternalHeroTimeframe] = React.useState("today");
+  const [internalOrderTimeframe, setInternalOrderTimeframe] = React.useState("today");
+
+  const heroTimeframe = externalHeroTimeframe ?? internalHeroTimeframe;
+  const handleHeroTimeframeChange = onHeroTimeframeChange ?? setInternalHeroTimeframe;
+
+  const orderTimeframe = externalOrderTimeframe ?? internalOrderTimeframe;
+  const handleOrderTimeframeChange = onOrderTimeframeChange ?? setInternalOrderTimeframe;
+
+  const heroValue = isEmpty
+    ? "IDR 0"
+    : metrics?.totalRevenue?.value ?? "IDR 350,000";
+
+  const heroSubtitle = isEmpty
+    ? "PENDAPATAN DARI 0 TRANSAKSI"
+    : metrics?.totalRevenue?.subtitle ?? "PENDAPATAN DARI 56 TRANSAKSI";
+
+  const heroBadge = isEmpty
+    ? undefined
+    : metrics?.totalRevenue?.badge ?? { text: "50%", trend: "up" as const };
+
+  const aovValue = isEmpty
+    ? "IDR 0"
+    : metrics?.averageOrderValue?.value ?? "IDR 55,000";
+
+  const aovSubtitle = isEmpty
+    ? "FROM TODAY"
+    : metrics?.averageOrderValue?.subtitle ?? "FROM 8 DAYS AGO";
+
+  const aovBadge = isEmpty
+    ? undefined
+    : metrics?.averageOrderValue?.badge ?? { text: "50%", trend: "up" as const };
+
+  const totalOrdersValue = isEmpty
+    ? "0 Order"
+    : metrics?.totalOrders?.value ?? "80 Order";
+
+  const voucherBurnValue = isEmpty
+    ? "IDR 0"
+    : metrics?.voucherBurn?.value ?? "IDR 350,000";
+
+  const voucherBurnSubtitle = isEmpty
+    ? undefined
+    : metrics?.voucherBurn?.subtitle ?? "FROM 8 DAYS AGO";
+
+  const voucherBurnBadge = isEmpty
+    ? undefined
+    : metrics?.voucherBurn?.badge ?? { text: "50%", trend: "up" as const };
 
   return (
     <div className={`space-y-6 ${className || ""}`}>
@@ -20,12 +98,12 @@ export function AdminRevenueMetricsSection({
       <div className="relative z-20 has-[[aria-expanded='true']]:z-40">
         <AdminHeroStatCard
           title="TOTAL PENDAPATAN"
-          value={isEmpty ? "IDR 0" : "IDR 350,000"}
-          subtitle={isEmpty ? "PENDAPATAN DARI 0 TRANSAKSI" : "PENDAPATAN DARI 56 TRANSAKSI"}
-          badge={isEmpty ? undefined : { text: "50%", trend: "up" }}
+          value={heroValue}
+          subtitle={heroSubtitle}
+          badge={heroBadge}
           timeframes={ADMIN_TIMEFRAMES}
           selectedTimeframe={heroTimeframe}
-          onTimeframeChange={setHeroTimeframe}
+          onTimeframeChange={handleHeroTimeframeChange}
         />
       </div>
 
@@ -34,32 +112,32 @@ export function AdminRevenueMetricsSection({
         {/* Card 1: Average Order Value with Info Icon */}
         <AdminStatCard
           title="AVERAGE ORDER VALUE"
-          value={isEmpty ? "IDR 0" : "IDR 55,000"}
+          value={aovValue}
           hasInfoIcon={true}
           infoTooltip="Rata-rata nilai transaksi pelanggan"
-          badge={isEmpty ? undefined : { text: "50%", trend: "up" }}
-          subtitle={isEmpty ? "FROM TODAY" : "FROM 8 DAYS AGO"}
+          badge={aovBadge}
+          subtitle={aovSubtitle}
           className="h-full"
         />
 
         {/* Card 2: Total Order with Dropdown (elevates to z-50 when open) */}
         <AdminStatCard
           title="TOTAL ORDER"
-          value={isEmpty ? "0 Order" : "80 Order"}
+          value={totalOrdersValue}
           timeframes={ADMIN_TIMEFRAMES}
           selectedTimeframe={orderTimeframe}
-          onTimeframeChange={setOrderTimeframe}
+          onTimeframeChange={handleOrderTimeframeChange}
           className="h-full"
         />
 
         {/* Card 3: Voucher Burn with Info Icon */}
         <AdminStatCard
           title="VOUCHER BURN"
-          value={isEmpty ? "IDR 0" : "IDR 350,000"}
+          value={voucherBurnValue}
           hasInfoIcon={true}
           infoTooltip="Total potongan dari voucher yang digunakan"
-          badge={isEmpty ? undefined : { text: "50%", trend: "up" }}
-          subtitle={isEmpty ? undefined : "FROM 8 DAYS AGO"}
+          badge={voucherBurnBadge}
+          subtitle={voucherBurnSubtitle}
           className="h-full"
         />
       </div>

@@ -8,21 +8,34 @@ import {
 import { ADMIN_TIMEFRAMES } from "../../data/admin-mock-data";
 import { Button } from "@/components/ui";
 
+import type { IncomeSpreadSegment } from "../../types/admin-revenue.types";
+
 export interface AdminIncomeSpreadCardProps {
   isEmpty?: boolean;
+  productTypes?: IncomeSpreadSegment[];
+  products?: IncomeSpreadSegment[];
+  timeframe?: string;
+  onTimeframeChange?: (val: string) => void;
   className?: string;
 }
 
 export function AdminIncomeSpreadCard({
   isEmpty = false,
+  productTypes,
+  products,
+  timeframe: externalTimeframe,
+  onTimeframeChange,
   className,
 }: AdminIncomeSpreadCardProps) {
   const [activeTab, setActiveTab] = React.useState<"type" | "product">("type");
   const [hoveredIdx, setHoveredIdx] = React.useState<number | null>(null);
   const [selectedIdx, setSelectedIdx] = React.useState<number | null>(null);
-  const [selectedTimeframe, setSelectedTimeframe] = React.useState("this_week");
+  const [internalTimeframe, setInternalTimeframe] = React.useState("this_week");
   const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
+
+  const selectedTimeframe = externalTimeframe ?? internalTimeframe;
+  const handleTimeframeChange = onTimeframeChange ?? setInternalTimeframe;
 
   // Close selection on click/tap outside
   React.useEffect(() => {
@@ -48,15 +61,15 @@ export function AdminIncomeSpreadCard({
     <AdminDropdown
       options={ADMIN_TIMEFRAMES}
       selectedValue={selectedTimeframe}
-      onSelect={setSelectedTimeframe}
+      onSelect={handleTimeframeChange}
       onOpenChange={setIsDropdownOpen}
     />
   );
 
   const currentSegments =
     activeTab === "type"
-      ? MOCK_INCOME_SPREAD_PRODUCT_TYPE
-      : MOCK_INCOME_SPREAD_PRODUCTS;
+      ? (productTypes && productTypes.length > 0 ? productTypes : MOCK_INCOME_SPREAD_PRODUCT_TYPE)
+      : (products && products.length > 0 ? products : MOCK_INCOME_SPREAD_PRODUCTS);
 
   const activeIdx = hoveredIdx !== null ? hoveredIdx : selectedIdx;
   const activeSlice = activeIdx !== null ? currentSegments[activeIdx] : null;

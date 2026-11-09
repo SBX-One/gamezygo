@@ -55,9 +55,9 @@ export function AdminSectionGameCard({
 
       {/* 2. Category Pills (Matching Image 2: "Action", "Adventure") */}
       <div className="mt-3 flex flex-wrap items-center gap-1.5 min-h-[22px]">
-        {product.categories.slice(0, 2).map((cat) => (
+        {product.categories.slice(0, 2).map((cat, catIdx) => (
           <Pill
-            key={cat}
+            key={`${product.id}-${cat}-${catIdx}`}
             variant="secondary"
             size="xs"
           >

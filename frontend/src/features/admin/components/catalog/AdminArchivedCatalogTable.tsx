@@ -1,5 +1,7 @@
 import * as React from "react";
 import Image from "next/image";
+import { resolveImageUrl } from "@/utils/image-url";
+import { CatalogProductThumbnail } from "./CatalogProductThumbnail";
 import { cn } from "@/lib/utils";
 import { AdminCard } from "@/components/admin/AdminCard";
 import {
@@ -26,6 +28,7 @@ export interface AdminArchivedCatalogTableProps {
   onDeleteSelected?: () => void;
   onAddNew?: () => void;
   className?: string;
+  isLoading?: boolean;
 }
 
 const UnarchiveIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -98,6 +101,7 @@ export function AdminArchivedCatalogTable({
   onDeleteSelected,
   onAddNew,
   className,
+  isLoading = false,
 }: AdminArchivedCatalogTableProps) {
   const allSelected =
     items.length > 0 && items.every((item) => selectedIds.includes(item.id));
@@ -184,7 +188,28 @@ export function AdminArchivedCatalogTable({
         </AdminTableHeader>
 
         <AdminTableBody>
-          {items.length > 0 ? (
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, idx) => (
+              <AdminTableRow key={`archived-loading-${idx}`}>
+                <AdminTableCell className="pl-6">
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 rounded bg-white/10 animate-pulse" />
+                    <div className="w-10 h-10 rounded-lg bg-white/10 animate-pulse" />
+                    <div className="w-36 h-4 rounded bg-white/10 animate-pulse" />
+                  </div>
+                </AdminTableCell>
+                <AdminTableCell>
+                  <div className="w-20 h-5 rounded-full bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell>
+                  <div className="w-24 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell className="text-right pr-6">
+                  <div className="w-24 h-7 rounded bg-white/10 animate-pulse ml-auto" />
+                </AdminTableCell>
+              </AdminTableRow>
+            ))
+          ) : items.length > 0 ? (
             items.map((item) => {
               const isSelected = selectedIds.includes(item.id);
 
@@ -201,16 +226,10 @@ export function AdminArchivedCatalogTable({
                         onChange={() => onToggleSelectItem(item.id)}
                         ariaLabel={`Pilih ${item.name}`}
                       />
-                      <div className="relative w-8 h-10 rounded overflow-hidden bg-[#1E202B] border border-deep-blue-700 shrink-0">
-                        <Image
-                          src={item.imageSrc}
-                          alt={item.name}
-                          fill
-                          sizes="32px"
-                          unoptimized
-                          className="object-cover"
-                        />
-                      </div>
+                      <CatalogProductThumbnail
+                        src={item.imageSrc}
+                        alt={item.name}
+                      />
                       <span className="font-semibold text-white text-sm">
                         {item.name}
                       </span>
@@ -220,8 +239,8 @@ export function AdminArchivedCatalogTable({
                   {/* Column 2: Category Pills (max 2 pills, overflow as +N) */}
                   <AdminTableCell>
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      {item.categories.slice(0, 2).map((cat) => (
-                        <Pill key={cat} variant="secondary" size="xs">
+                      {item.categories.slice(0, 2).map((cat, catIdx) => (
+                        <Pill key={`${item.id}-${cat}-${catIdx}`} variant="secondary" size="xs">
                           {cat}
                         </Pill>
                       ))}

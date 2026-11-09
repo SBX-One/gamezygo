@@ -629,7 +629,7 @@ export default function StorePage() {
 
     let list: Array<ProductItem | ProductCardRowItem> = ALL_STORE_PRODUCTS;
 
-    if (productsApiData?.data && productsApiData.data.length > 0) {
+    if (productsApiData?.data !== undefined) {
       list = productsApiData.data.map(mapProductToCardItem);
     }
 
@@ -694,7 +694,7 @@ export default function StorePage() {
 
 
   const storeCatalogProducts = React.useMemo(() => {
-    if (productsApiData?.data && productsApiData.data.length > 0) {
+    if (productsApiData?.data !== undefined) {
       return productsApiData.data.map(mapProductToCardItem);
     }
     return ALL_STORE_PRODUCTS;
@@ -1020,27 +1020,31 @@ export default function StorePage() {
 
             {/* 3. SECTIONS: DYNAMIC CUSTOM SECTIONS OR FALLBACK */}
             {customSections && customSections.length > 0 ? (
-              customSections.map((sec) => (
-                <section key={sec.id} className="flex flex-col gap-10">
-                  <SectionHeader
-                    type="outer"
-                    title={sec.title}
-                    actionLabel="Lihat Semua"
-                    onActionClick={() => setExactState("filter-applied")}
-                  />
-                  <ProductCardRow
-                    products={enrichRowItems(mapSectionProducts(sec))}
-                    visibleCount={
-                      isUserLoggedIn
-                        ? 4
-                        : sec.slug === "rilis-terbaru" || sec.title?.toLowerCase().includes("terbaru")
-                        ? 5
-                        : 4
-                    }
-                    onAddToCart={handleAddToCart}
-                  />
-                </section>
-              ))
+              customSections.map((sec) => {
+                const secProducts = enrichRowItems(mapSectionProducts(sec));
+                if (secProducts.length === 0) return null;
+                return (
+                  <section key={sec.id} className="flex flex-col gap-10">
+                    <SectionHeader
+                      type="outer"
+                      title={sec.title}
+                      actionLabel="Lihat Semua"
+                      onActionClick={() => setExactState("filter-applied")}
+                    />
+                    <ProductCardRow
+                      products={secProducts}
+                      visibleCount={
+                        isUserLoggedIn
+                          ? 4
+                          : sec.slug === "rilis-terbaru" || sec.title?.toLowerCase().includes("terbaru")
+                          ? 5
+                          : 4
+                      }
+                      onAddToCart={handleAddToCart}
+                    />
+                  </section>
+                );
+              })
             ) : (
               <>
                 {/* Fallback TAWARAN KHUSUS! */}
@@ -1082,23 +1086,29 @@ export default function StorePage() {
                 showAction={false}
               />
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-                {storeCatalogProducts.map((product) => (
-                  <ProductCard
-                    key={product.id}
-                    title={product.title}
-                    imageSrc={product.imageSrc}
-                    genres={product.genres}
-                    originalPrice={product.originalPrice}
-                    price={product.price}
-                    discount={product.discount}
-                    platform={product.platform}
-                    href={`/store/${product.id}`}
-                    onActionClick={() => handleAddToCart(product.title)}
-                    className="pb-8xl"
-                  />
-                ))}
-              </div>
+              {storeCatalogProducts.length > 0 ? (
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                  {storeCatalogProducts.map((product) => (
+                    <ProductCard
+                      key={product.id}
+                      title={product.title}
+                      imageSrc={product.imageSrc}
+                      genres={product.genres}
+                      originalPrice={product.originalPrice}
+                      price={product.price}
+                      discount={product.discount}
+                      platform={product.platform}
+                      href={`/store/${product.id}`}
+                      onActionClick={() => handleAddToCart(product.title)}
+                      className="pb-8xl"
+                    />
+                  ))}
+                </div>
+              ) : (
+                <div className="py-12 text-center text-gray-400">
+                  <p className="text-body-md">Belum ada game yang ditampilkan di katalog toko.</p>
+                </div>
+              )}
             </section>
           </>
         )}

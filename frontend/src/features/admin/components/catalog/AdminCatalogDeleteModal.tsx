@@ -8,6 +8,7 @@ export interface AdminCatalogDeleteModalProps {
   onConfirm: () => void;
   title?: string;
   description?: string;
+  confirmText?: string;
   className?: string;
 }
 
@@ -17,6 +18,7 @@ export function AdminCatalogDeleteModal({
   onConfirm,
   title = "Are you sure to delete this product?",
   description = "If you delete this file you can’t recover it.",
+  confirmText = "Delete",
   className,
 }: AdminCatalogDeleteModalProps) {
   // Close on Escape key
@@ -89,7 +91,7 @@ export function AdminCatalogDeleteModal({
             }}
             className="px-7"
           >
-            Delete
+            {confirmText}
           </Button>
         </div>
       </div>

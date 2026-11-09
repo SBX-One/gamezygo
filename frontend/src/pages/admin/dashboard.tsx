@@ -9,11 +9,22 @@ import {
   AdminRecentTransactionsSection,
   AdminGameRequestsSection,
 } from "@/features/admin/components";
+import { useAdminDashboard } from "@/hooks/use-admin-dashboard";
 
 const emptySubscribe = () => () => {};
 
 export default function AdminDashboardPage() {
   const router = useRouter();
+  const [selectedTimeframe, setSelectedTimeframe] = React.useState("today");
+  const {
+    heroStat,
+    statCards,
+    productPerformance,
+    recentTransactions,
+    gameRequests,
+    isLoading,
+  } = useAdminDashboard(selectedTimeframe);
+
   const isMounted = React.useSyncExternalStore(
     emptySubscribe,
     () => true,
@@ -66,27 +77,41 @@ export default function AdminDashboardPage() {
                 Empty State
               </Button>
             </div>
-
           </div>
 
           {/* 1. Hero Revenue + Stat Cards (Image 1) - z-20 so dropdown floats over charts below */}
           <div className="relative z-20 has-[[aria-expanded='true']]:z-30">
-            <AdminMetricsSection isEmpty={isEmptyState} />
+            <AdminMetricsSection
+              isEmpty={isEmptyState}
+              heroStat={heroStat}
+              statCards={statCards}
+              onTimeframeChange={setSelectedTimeframe}
+            />
           </div>
 
           {/* 2. Best Performance Product Bar Chart (Image 2) */}
           <div className="relative z-10">
-            <AdminPerformanceChartSection isEmpty={isEmptyState} />
+            <AdminPerformanceChartSection
+              isEmpty={isEmptyState}
+              data={productPerformance}
+            />
           </div>
 
           {/* 3. Recent Transactions Table (Image 3) */}
           <div className="relative z-0">
-            <AdminRecentTransactionsSection isEmpty={isEmptyState} />
+            <AdminRecentTransactionsSection
+              isEmpty={isEmptyState}
+              transactions={recentTransactions}
+            />
           </div>
 
           {/* 4. Game Requests Widget */}
           <div className="relative z-0">
-            <AdminGameRequestsSection isEmpty={isEmptyState} />
+            <AdminGameRequestsSection
+              isEmpty={isEmptyState}
+              requests={gameRequests}
+              totalCount={gameRequests ? gameRequests.length : undefined}
+            />
           </div>
         </div>
       </AdminLayout>

@@ -356,7 +356,9 @@ export default function LoginPage() {
 
       showToast("Login berhasil! Mengalihkan ke Gamezygo...", "success");
       setTimeout(() => {
-        const destination = typeof redirect === "string" ? redirect : "/";
+        const userRole = useAuthStore.getState().role;
+        const defaultDest = userRole === "admin" ? "/admin/dashboard" : "/";
+        const destination = typeof redirect === "string" ? redirect : defaultDest;
         router.push(destination);
       }, 700);
     } catch (err) {

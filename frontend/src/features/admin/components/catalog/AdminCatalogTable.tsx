@@ -1,5 +1,7 @@
 import * as React from "react";
 import Image from "next/image";
+import { resolveImageUrl } from "@/utils/image-url";
+import { CatalogProductThumbnail } from "./CatalogProductThumbnail";
 import { cn } from "@/lib/utils";
 import { AdminCard } from "@/components/admin/AdminCard";
 import {
@@ -28,7 +30,13 @@ export interface AdminCatalogTableProps {
   onEditItem?: (item: AdminCatalogItem) => void;
   onDeleteItem?: (id: string) => void;
   onArchiveItem?: (id: string) => void;
+  currentPage?: number;
+  totalPages?: number;
+  onPageChange?: (page: number) => void;
+  perPage?: number;
+  onPerPageChange?: (perPage: number) => void;
   className?: string;
+  isLoading?: boolean;
 }
 
 const PlusIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -135,7 +143,11 @@ export function AdminCatalogTable({
   onEditItem,
   onDeleteItem,
   onArchiveItem,
+  currentPage,
+  totalPages,
+  onPageChange,
   className,
+  isLoading = false,
 }: AdminCatalogTableProps) {
   const [activeMenuId, setActiveMenuId] = React.useState<string | null>(null);
   const menuRef = React.useRef<HTMLDivElement>(null);
@@ -249,7 +261,43 @@ export function AdminCatalogTable({
         </AdminTableHeader>
 
         <AdminTableBody>
-          {items.length > 0 ? (
+          {isLoading ? (
+            Array.from({ length: 6 }).map((_, idx) => (
+              <AdminTableRow key={`catalog-loading-${idx}`}>
+                {/* Column 1: Switch Skeleton */}
+                <AdminTableCell className="pl-6 w-14">
+                  <div className="w-10 h-5 rounded-full bg-white/10 animate-pulse" />
+                </AdminTableCell>
+
+                {/* Column 2: Checkbox + Thumbnail + Title Skeleton */}
+                <AdminTableCell>
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 rounded bg-white/10 animate-pulse" />
+                    <div className="w-10 h-10 rounded-lg bg-white/10 animate-pulse shrink-0" />
+                    <div className="w-44 h-4 rounded bg-white/10 animate-pulse" />
+                  </div>
+                </AdminTableCell>
+
+                {/* Column 3: Category Pills Skeleton */}
+                <AdminTableCell>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-16 h-5 rounded-full bg-white/10 animate-pulse" />
+                    <div className="w-20 h-5 rounded-full bg-white/10 animate-pulse" />
+                  </div>
+                </AdminTableCell>
+
+                {/* Column 4: Price Skeleton */}
+                <AdminTableCell>
+                  <div className="w-24 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+
+                {/* Column 5: Action 3-dots Skeleton */}
+                <AdminTableCell className="pr-6 text-right">
+                  <div className="w-6 h-6 rounded-lg bg-white/10 animate-pulse ml-auto" />
+                </AdminTableCell>
+              </AdminTableRow>
+            ))
+          ) : items.length > 0 ? (
             items.map((item) => {
               const isSelected = selectedIds.includes(item.id);
               const isMenuOpen = activeMenuId === item.id;
@@ -278,16 +326,10 @@ export function AdminCatalogTable({
                         onChange={() => onToggleSelectItem(item.id)}
                         ariaLabel={`Pilih ${item.name}`}
                       />
-                      <div className="relative w-8 h-10 rounded overflow-hidden bg-[#1E202B] border border-deep-blue-700 shrink-0">
-                        <Image
-                          src={item.imageSrc}
-                          alt={item.name}
-                          fill
-                          sizes="32px"
-                          unoptimized
-                          className="object-cover"
-                        />
-                      </div>
+                      <CatalogProductThumbnail
+                        src={item.imageSrc}
+                        alt={item.name}
+                      />
                       <span className="font-semibold text-white text-sm">
                         {item.name}
                       </span>
@@ -297,9 +339,9 @@ export function AdminCatalogTable({
                   {/* Column 3: Category Pills (max 2 pills, overflow as +N) */}
                   <AdminTableCell>
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      {item.categories.slice(0, 2).map((cat) => (
+                      {item.categories.slice(0, 2).map((cat, catIdx) => (
                         <Pill
-                          key={cat}
+                          key={`${item.id}-${cat}-${catIdx}`}
                           variant="secondary"
                           size="xs"
                         >

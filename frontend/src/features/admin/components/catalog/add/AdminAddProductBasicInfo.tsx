@@ -22,6 +22,24 @@ export function AdminAddProductBasicInfo({
   showPreOrder = true,
   className,
 }: AdminAddProductBasicInfoProps) {
+  // Track any custom or legacy genres present in formData that are outside GENRE_CHOICES
+  const [extraGenres, setExtraGenres] = React.useState<string[]>([]);
+
+  React.useEffect(() => {
+    if (formData.genres?.length) {
+      setExtraGenres((prev) => {
+        const custom = formData.genres.filter(
+          (g) => !GENRE_CHOICES.includes(g as (typeof GENRE_CHOICES)[number])
+        );
+        return Array.from(new Set([...prev, ...custom]));
+      });
+    }
+  }, [formData.genres]);
+
+  const allGenres = React.useMemo(() => {
+    return Array.from(new Set([...GENRE_CHOICES, ...extraGenres]));
+  }, [extraGenres]);
+
   const toggleGenre = (genre: string) => {
     const isSelected = formData.genres.includes(genre);
     const updated = isSelected
@@ -42,6 +60,7 @@ export function AdminAddProductBasicInfo({
         <AdminAddProductMediaUpload
           value={formData.imageSrc}
           onChange={(url) => onChange({ imageSrc: url })}
+          onFileChange={(file) => onChange({ imageFile: file })}
         />
       </div>
 
@@ -101,7 +120,7 @@ export function AdminAddProductBasicInfo({
             GENRE
           </label>
           <div className="flex flex-wrap items-center gap-2">
-            {GENRE_CHOICES.map((genre, idx) => {
+            {allGenres.map((genre, idx) => {
               const isSelected = formData.genres.includes(genre);
               return (
                 <Button

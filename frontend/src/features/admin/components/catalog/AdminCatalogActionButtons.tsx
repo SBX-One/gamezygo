@@ -6,6 +6,8 @@ export interface AdminCatalogActionButtonsProps {
   onViewArchived?: () => void;
   onEditProductSection?: () => void;
   onPoManagement?: () => void;
+  viewArchivedLabel?: string;
+  activeButton?: "archived" | "section" | "po" | null;
   className?: string;
 }
 
@@ -13,21 +15,23 @@ export function AdminCatalogActionButtons({
   onViewArchived,
   onEditProductSection,
   onPoManagement,
+  viewArchivedLabel = "View Archived Product",
+  activeButton,
   className,
 }: AdminCatalogActionButtonsProps) {
   return (
     <div className={cn("flex flex-wrap items-center gap-3", className)}>
       <Button
-        variant="inactive"
+        variant={activeButton === "archived" ? "active" : "inactive"}
         size="sm"
         onClick={onViewArchived}
         className="font-medium"
       >
-        View Archived Product
+        {viewArchivedLabel}
       </Button>
 
       <Button
-        variant="inactive"
+        variant={activeButton === "section" ? "active" : "inactive"}
         size="sm"
         onClick={onEditProductSection}
         className="font-medium"
@@ -36,7 +40,7 @@ export function AdminCatalogActionButtons({
       </Button>
 
       <Button
-        variant="inactive"
+        variant={activeButton === "po" ? "active" : "inactive"}
         size="sm"
         onClick={onPoManagement}
         className="font-medium"

@@ -26,6 +26,7 @@ export interface AdminAddProductFormData {
   isPreOrder: boolean;
   genres: string[];
   imageSrc: string;
+  imageFile?: File | null;
   launcher: "Steam" | "Epic Games" | "EA" | "PS4";
   promotionSection: string;
   storeUrl: string;
@@ -258,7 +259,6 @@ export const GENRE_CHOICES = [
   "Romance",
   "Comedy",
   "Casual",
-  "Action",
 ] as const;
 
 export const LAUNCHER_CHOICES = [

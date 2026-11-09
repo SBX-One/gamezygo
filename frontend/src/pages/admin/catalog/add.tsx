@@ -15,6 +15,8 @@ import {
   DEFAULT_ADD_PRODUCT_FORM,
   type AdminAddProductFormData,
 } from "@/features/admin/types/admin-add-product.types";
+import { useCreateProduct } from "@/hooks/use-admin-catalog";
+import { toast } from "@/stores/use-toast-store";
 
 const ChevronRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -55,29 +57,113 @@ export default function AdminAddProductPage() {
     DEFAULT_ADD_PRODUCT_FORM
   );
   const [isSaving, setIsSaving] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+
+  const createProductMutation = useCreateProduct();
 
   const handleFormChange = (fields: Partial<AdminAddProductFormData>) => {
     setFormData((prev) => ({ ...prev, ...fields }));
+    if (errorMessage) setErrorMessage(null);
   };
 
-  const handleSaveAndList = () => {
+  const buildPayload = (status: "listing" | "archive") => {
+    const cleanPrice = parseInt(formData.finalPrice.replace(/\D/g, ""), 10) || 0;
+    const cleanInitialPrice = parseInt(formData.initialPrice.replace(/\D/g, ""), 10) || cleanPrice;
+
+    if (formData.imageFile) {
+      const payload = new FormData();
+      payload.append("name", formData.name.trim());
+      payload.append("price", String(cleanPrice));
+      payload.append("original_price", String(cleanInitialPrice));
+      payload.append("is_preorder", String(formData.isPreOrder));
+      payload.append("status", status);
+      payload.append("steam_url", formData.storeUrl || "");
+      if (formData.accountUsername) {
+        payload.append("game_account[username]", formData.accountUsername);
+      }
+      if (formData.accountPassword) {
+        payload.append("game_account[password]", formData.accountPassword);
+      }
+      payload.append("thumbnail", formData.imageFile);
+      formData.genres.forEach((genre) => {
+        payload.append("genres[]", genre);
+      });
+      formData.minimumSpecs.forEach((s, i) => {
+        payload.append(`specifications[minimum][${i}][type]`, s.label);
+        payload.append(`specifications[minimum][${i}][value]`, s.value);
+      });
+      formData.recommendationSpecs.forEach((s, i) => {
+        payload.append(`specifications[recommended][${i}][type]`, s.label);
+        payload.append(`specifications[recommended][${i}][value]`, s.value);
+      });
+      return payload;
+    }
+
+    return {
+      name: formData.name.trim(),
+      price: cleanPrice,
+      original_price: cleanInitialPrice,
+      is_preorder: formData.isPreOrder,
+      status: status,
+      steam_url: formData.storeUrl,
+      image_url: formData.imageSrc,
+      genres: formData.genres,
+      game_account: {
+        username: formData.accountUsername,
+        password: formData.accountPassword,
+      },
+      specifications: {
+        minimum: formData.minimumSpecs.map((s) => ({ type: s.label, value: s.value })),
+        recommended: formData.recommendationSpecs.map((s) => ({ type: s.label, value: s.value })),
+      },
+    };
+  };
+
+  const handleSaveAndList = async () => {
+    if (!formData.name.trim()) {
+      setErrorMessage("Nama produk wajib diisi.");
+      toast.warning("Nama produk wajib diisi.", "Validasi");
+      return;
+    }
     setIsSaving(true);
-    // Simulate save and redirect back to catalog
-    setTimeout(() => {
-      setIsSaving(false);
+    setErrorMessage(null);
+    try {
+      await createProductMutation.mutateAsync(buildPayload("listing"));
+      toast.success("Game baru berhasil ditambahkan dan tampil di toko!");
       router.push("/admin/catalog");
-    }, 400);
+    } catch (err: unknown) {
+      console.error(err);
+      setIsSaving(false);
+      const msg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message || "Gagal menyimpan produk baru.";
+      toast.error(msg);
+    }
   };
 
-  const handleSaveDraft = () => {
+  const handleSaveDraft = async () => {
+    if (!formData.name.trim()) {
+      setErrorMessage("Nama produk wajib diisi.");
+      toast.warning("Nama produk wajib diisi.", "Validasi");
+      return;
+    }
     setIsSaving(true);
-    setTimeout(() => {
+    setErrorMessage(null);
+    try {
+      await createProductMutation.mutateAsync(buildPayload("archive"));
+      toast.success("Game berhasil disimpan sebagai arsip/draft.");
+      router.push("/admin/catalog/archived");
+    } catch (err: unknown) {
+      console.error(err);
       setIsSaving(false);
-      router.push("/admin/catalog");
-    }, 400);
+      const msg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message || "Gagal menyimpan draft produk.";
+      toast.error(msg);
+    }
   };
 
-  // Header Left Title: Breadcrumb "Katalog > Add Product" (Matching Image 1)
+  // Header Left Title: Breadcrumb "Katalog > Add Product"
   const headerTitle = (
     <div className="flex items-center gap-2 select-none text-label-xs">
       <Link
@@ -91,7 +177,7 @@ export default function AdminAddProductPage() {
     </div>
   );
 
-  // Header Right Actions: Save and List, Save Draft, Close Button (Matching Image 1)
+  // Header Right Actions: Save and List, Save Draft, Close Button
   const headerRight = (
     <div className="flex items-center gap-3 select-none">
       <Button
@@ -102,7 +188,7 @@ export default function AdminAddProductPage() {
         onClick={handleSaveAndList}
         className="cursor-pointer"
       >
-        Save and List
+        {isSaving ? "Menyimpan..." : "Save and List"}
       </Button>
 
       <Button
@@ -132,7 +218,7 @@ export default function AdminAddProductPage() {
         <title>Add Product | Gamezygo Admin</title>
         <meta
           name="description"
-          content="Tambah produk baru ke katalog game Gamezygo"
+          content="Tambah produk katalog game baru ke Gamezygo"
         />
       </Head>
 
@@ -141,32 +227,38 @@ export default function AdminAddProductPage() {
         activeNavId="katalog"
         headerRight={headerRight}
       >
-        <div className="flex flex-col gap-8 w-full  pb-8">
-          {/* Section 1: Media Upload & Basic Details (Image 2) */}
+        <div className="space-y-6 pb-12">
+          {errorMessage && (
+            <div className="p-3.5 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-300 text-sm">
+              {errorMessage}
+            </div>
+          )}
+
+          {/* Section 1: Basic Info (Title, Prices, Pre-Order, Genres, Image Cover) */}
           <AdminAddProductBasicInfo
             formData={formData}
             onChange={handleFormChange}
           />
 
-          {/* Section 2: Launcher, Promotion & Store URL (Image 3) */}
+          {/* Section 2: Launcher & Store URL */}
           <AdminAddProductLauncherSection
             formData={formData}
             onChange={handleFormChange}
           />
 
-          {/* Section 3: Informasi Akun Game (Image 4) */}
+          {/* Section 3: Shared Account Credentials */}
           <AdminAddProductAccountInfo
             formData={formData}
             onChange={handleFormChange}
           />
 
-          {/* Section 4: Detail Spesifikasi (Image 5) */}
+          {/* Section 4: Minimum & Recommendation Hardware Specs */}
           <AdminAddProductSpecs
             formData={formData}
             onChange={handleFormChange}
           />
 
-          {/* Section 5: Template Instruksi (Image 6) */}
+          {/* Section 5: Instruction Template Accordion */}
           <AdminAddProductInstructionTemplate
             formData={formData}
             onChange={handleFormChange}

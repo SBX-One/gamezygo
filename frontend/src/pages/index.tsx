@@ -1338,49 +1338,53 @@ export default function LandingPage() {
             4 & 5. DYNAMIC CUSTOM SECTIONS OR FALLBACK (TAWARAN KHUSUS & RILISAN TERBARU)
            ======================================================== */}
         {customSections && customSections.length > 0 ? (
-          customSections.map((sec, idx) => (
-            <section
-              key={sec.id}
-              data-animate-section={
-                idx === 0 ? "tawaran-khusus" : idx === 1 ? "rilis-terbaru" : `custom-sec-${idx}`
-              }
-              className="w-full flex flex-col gap-6"
-            >
-              <div data-animate="header">
-                <SectionHeader
-                  type="outer"
-                  title={sec.title}
-                  actionLabel="Lihat Semua"
-                  onActionClick={() => router.push(`/store?section=${sec.slug}`)}
-                />
-              </div>
-              <div data-animate="cards-track">
-                <ProductCardRow
-                  products={enrichRowItems(mapSectionProducts(sec))}
-                  visibleCount={
-                    isUserLoggedIn
-                      ? 4
-                      : sec.slug === "rilis-terbaru" || sec.title?.toLowerCase().includes("terbaru")
-                      ? 5
-                      : 4
-                  }
-                  onAddToCart={(title) => {
-                    const item = mapSectionProducts(sec).find((p) => p.title === title);
-                    const price = item?.numericPrice || (item?.price ? parseInt(item.price.replace(/\D/g, '')) || 0 : 0);
-                    const origPrice = item?.originalPrice ? parseInt(item.originalPrice.replace(/\D/g, '')) || price : price;
-                    handleAddToCart({
-                      id: item?.id || 1,
-                      title: item?.title || title,
-                      imageSrc: item?.imageSrc,
-                      price,
-                      originalPrice: origPrice,
-                      discount: item?.discount,
-                    });
-                  }}
-                />
-              </div>
-            </section>
-          ))
+          customSections.map((sec, idx) => {
+            const secProducts = enrichRowItems(mapSectionProducts(sec));
+            if (secProducts.length === 0) return null;
+            return (
+              <section
+                key={sec.id}
+                data-animate-section={
+                  idx === 0 ? "tawaran-khusus" : idx === 1 ? "rilis-terbaru" : `custom-sec-${idx}`
+                }
+                className="w-full flex flex-col gap-6"
+              >
+                <div data-animate="header">
+                  <SectionHeader
+                    type="outer"
+                    title={sec.title}
+                    actionLabel="Lihat Semua"
+                    onActionClick={() => router.push(`/store?section=${sec.slug}`)}
+                  />
+                </div>
+                <div data-animate="cards-track">
+                  <ProductCardRow
+                    products={secProducts}
+                    visibleCount={
+                      isUserLoggedIn
+                        ? 4
+                        : sec.slug === "rilis-terbaru" || sec.title?.toLowerCase().includes("terbaru")
+                        ? 5
+                        : 4
+                    }
+                    onAddToCart={(title) => {
+                      const item = mapSectionProducts(sec).find((p) => p.title === title);
+                      const price = item?.numericPrice || (item?.price ? parseInt(item.price.replace(/\D/g, '')) || 0 : 0);
+                      const origPrice = item?.originalPrice ? parseInt(item.originalPrice.replace(/\D/g, '')) || price : price;
+                      handleAddToCart({
+                        id: item?.id || 1,
+                        title: item?.title || title,
+                        imageSrc: item?.imageSrc,
+                        price,
+                        originalPrice: origPrice,
+                        discount: item?.discount,
+                      });
+                    }}
+                  />
+                </div>
+              </section>
+            );
+          })
         ) : (
           <>
             {/* 4. TAWARAN KHUSUS */}

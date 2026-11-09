@@ -146,20 +146,47 @@ export const MOCK_CATALOG_TABLE_GAMES: SectionProduct[] = [
 
 export const INITIAL_PRODUCT_SECTIONS: ProductSection[] = [
   {
-    id: "sec-tawaran-khusus",
+    id: "sec-1",
     title: "Tawaran Khusus!",
     slug: "tawaran-khusus",
     products: [
-      MOCK_SECTION_GAMES[0], // Assassin's Creed Black Flag Resynced
-      MOCK_SECTION_GAMES[1], // 007 - First Light
-      MOCK_SECTION_GAMES[2], // EA College Football 27
-      MOCK_SECTION_GAMES[3], // Subnautica 2
+      MOCK_SECTION_GAMES[0],
+      MOCK_SECTION_GAMES[1],
+      MOCK_SECTION_GAMES[2],
+      MOCK_SECTION_GAMES[3],
     ],
   },
   {
-    id: "sec-empty-header",
-    title: "Section header",
-    slug: "section-header",
-    products: [],
+    id: "sec-2",
+    title: "Game Terlaris & Populer",
+    slug: "game-terlaris-dan-populer",
+    products: [
+      MOCK_SECTION_GAMES[4],
+      MOCK_SECTION_GAMES[5],
+      MOCK_SECTION_GAMES[6],
+      MOCK_SECTION_GAMES[7],
+    ],
+  },
+  {
+    id: "sec-3",
+    title: "Rilis Terbaru",
+    slug: "rilis-terbaru",
+    products: [
+      MOCK_SECTION_GAMES[2],
+      MOCK_SECTION_GAMES[3],
+      MOCK_SECTION_GAMES[4],
+      MOCK_SECTION_GAMES[5],
+    ],
+  },
+  {
+    id: "sec-4",
+    title: "Diskon Spesial Minggu Ini",
+    slug: "diskon-spesial-minggu-ini",
+    products: [
+      MOCK_SECTION_GAMES[0],
+      MOCK_SECTION_GAMES[1],
+      MOCK_SECTION_GAMES[6],
+      MOCK_SECTION_GAMES[7],
+    ],
   },
 ];

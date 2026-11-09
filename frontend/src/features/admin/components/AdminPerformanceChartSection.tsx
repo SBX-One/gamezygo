@@ -25,6 +25,24 @@ export function AdminPerformanceChartSection({
     value: item.revenue,
   }));
 
+  const maxVal = Math.max(0, ...chartData.map((d) => d.value));
+
+  const { dynamicMaxScale, dynamicYTicks } = React.useMemo(() => {
+    if (maxVal <= 10) {
+      return { dynamicMaxScale: 10, dynamicYTicks: [10, 8, 6, 4, 2, 0] };
+    }
+    if (maxVal <= 50) {
+      return { dynamicMaxScale: 50, dynamicYTicks: [50, 40, 30, 20, 10, 0] };
+    }
+    if (maxVal <= 100) {
+      return { dynamicMaxScale: 100, dynamicYTicks: [100, 80, 60, 40, 20, 0] };
+    }
+    return {
+      dynamicMaxScale: Math.max(900, Math.ceil(maxVal / 100) * 100),
+      dynamicYTicks: [900, 800, 600, 400, 200, 100, 0],
+    };
+  }, [maxVal]);
+
   return (
     <div className={className}>
       <AdminBarChart
@@ -32,8 +50,8 @@ export function AdminPerformanceChartSection({
         data={chartData}
         isEmpty={isEmpty}
         onAddProduct={onAddProduct}
-        maxScale={900}
-        yTicks={[900, 800, 600, 400, 200, 100, 0]}
+        maxScale={dynamicMaxScale}
+        yTicks={dynamicYTicks}
         barColor="#FF5364"
       />
     </div>

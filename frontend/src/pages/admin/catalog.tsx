@@ -2,6 +2,7 @@ import * as React from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { AdminLayout } from "@/components/layout/AdminLayout";
+import { Pagination } from "@/components/ui/Pagination";
 import {
   AdminCatalogTopBar,
   AdminCatalogActionButtons,
@@ -9,28 +10,28 @@ import {
   AdminCatalogAddModal,
   AdminCatalogDeleteModal,
 } from "@/features/admin/components/catalog";
-import {
-  MOCK_ADMIN_CATALOG_ITEMS,
-} from "@/features/admin/data/admin-catalog-mock-data";
+import { MOCK_ADMIN_CATALOG_ITEMS } from "@/features/admin/data/admin-catalog-mock-data";
 import {
   INITIAL_CATALOG_FILTER_STATE,
   type AdminCatalogFilterState,
   type AdminCatalogItem,
 } from "@/features/admin/types/admin-catalog.types";
+import {
+  useAdminCatalog,
+  useToggleProductStatus,
+  useDeleteProducts,
+} from "@/hooks/use-admin-catalog";
+import { toast } from "@/stores/use-toast-store";
 
 export default function AdminCatalogPage() {
   const router = useRouter();
-  const [items, setItems] = React.useState<AdminCatalogItem[]>(
-    MOCK_ADMIN_CATALOG_ITEMS
-  );
+
   const [filters, setFilters] = React.useState<AdminCatalogFilterState>(
     INITIAL_CATALOG_FILTER_STATE
   );
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
-  const [editingItem, setEditingItem] = React.useState<AdminCatalogItem | null>(
-    null
-  );
+  const [editingItem, setEditingItem] = React.useState<AdminCatalogItem | null>(null);
   const [deleteModalState, setDeleteModalState] = React.useState<{
     isOpen: boolean;
     type: "single" | "multiple";
@@ -40,6 +41,33 @@ export default function AdminCatalogPage() {
     isOpen: false,
     type: "single",
   });
+
+  const [currentPage, setCurrentPage] = React.useState(1);
+
+  // Live database catalog hook
+  const {
+    items: serverItems,
+    totalProducts,
+    meta,
+    isLoading,
+    isError,
+  } = useAdminCatalog({
+    page: currentPage,
+    per_page: 20,
+    search: filters.searchQuery.trim() || undefined,
+    sort_by: filters.sortBy === "name_asc" ? "a_z" : "latest",
+  });
+
+  const toggleStatusMutation = useToggleProductStatus();
+  const deleteMutation = useDeleteProducts();
+
+  // Live database items
+  const items = React.useMemo(() => serverItems || [], [serverItems]);
+
+  // Reset to page 1 whenever filters change
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [filters]);
 
   // Filter & sort logic
   const filteredItems = React.useMemo(() => {
@@ -108,9 +136,32 @@ export default function AdminCatalogPage() {
     }
   };
 
+  /**
+   * Switch toggle on the far left column:
+   * Sets whether the game is actively listed in the user store catalog (status = 'listing')
+   * or archived/hidden (status = 'archive').
+   */
   const handleToggleStatus = (id: string, active: boolean) => {
-    setItems((prev) =>
-      prev.map((item) => (item.id === id ? { ...item, isActive: active } : item))
+    toggleStatusMutation.mutate(
+      {
+        productId: id,
+        isActive: active,
+      },
+      {
+        onSuccess: () => {
+          toast.success(
+            active
+              ? "Game berhasil diaktifkan dan tampil di toko!"
+              : "Game dinonaktifkan."
+          );
+        },
+        onError: (err: unknown) => {
+          const msg =
+            (err as { response?: { data?: { message?: string } } })?.response
+              ?.data?.message || "Gagal mengubah status game.";
+          toast.error(msg);
+        },
+      }
     );
   };
 
@@ -132,20 +183,55 @@ export default function AdminCatalogPage() {
   const handleConfirmDelete = () => {
     if (deleteModalState.type === "single" && deleteModalState.targetId) {
       const id = deleteModalState.targetId;
-      setItems((prev) => prev.filter((item) => item.id !== id));
       setSelectedIds((prev) => prev.filter((sId) => sId !== id));
-    } else if (deleteModalState.type === "multiple") {
-      setItems((prev) => prev.filter((item) => !selectedIds.includes(item.id)));
+
+      deleteMutation.mutate([id], {
+        onSuccess: () => {
+          toast.success("Game berhasil dihapus.");
+        },
+        onError: (err: unknown) => {
+          const msg =
+            (err as { response?: { data?: { message?: string } } })?.response
+              ?.data?.message || "Gagal menghapus game.";
+          toast.error(msg);
+        },
+      });
+    } else if (deleteModalState.type === "multiple" && selectedIds.length > 0) {
+      const idsToDelete = [...selectedIds];
       setSelectedIds([]);
+
+      deleteMutation.mutate(idsToDelete, {
+        onSuccess: () => {
+          toast.success(`${idsToDelete.length} game berhasil dihapus.`);
+        },
+        onError: (err: unknown) => {
+          const msg =
+            (err as { response?: { data?: { message?: string } } })?.response
+              ?.data?.message || "Gagal menghapus game terpilih.";
+          toast.error(msg);
+        },
+      });
     }
     setDeleteModalState({ isOpen: false, type: "single" });
   };
 
   const handleArchiveItem = (id: string) => {
-    setItems((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, isUnlisted: true, isActive: false } : item
-      )
+    toggleStatusMutation.mutate(
+      {
+        productId: id,
+        isActive: false,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Game berhasil dipindahkan ke arsip.");
+        },
+        onError: (err: unknown) => {
+          const msg =
+            (err as { response?: { data?: { message?: string } } })?.response
+              ?.data?.message || "Gagal mengarsipkan game.";
+          toast.error(msg);
+        },
+      }
     );
   };
 
@@ -192,7 +278,7 @@ export default function AdminCatalogPage() {
         headerRight={headerRight}
       >
         <div className="space-y-6">
-          {/* 1. Three Action Buttons (Figma Image 2) */}
+          {/* 1. Three Action Buttons (View Archived, Edit Section, PO Management) */}
           <AdminCatalogActionButtons
             onViewArchived={() => router.push("/admin/catalog/archived")}
             onEditProductSection={() => router.push("/admin/catalog/section")}
@@ -204,7 +290,7 @@ export default function AdminCatalogPage() {
             }
           />
 
-          {/* 2. Mobile-Only Search & Filter Bar (Placed below the 3 Action Buttons per user request) */}
+          {/* 2. Mobile-Only Search & Filter Bar */}
           <div className="sm:hidden w-full">
             <AdminCatalogTopBar
               filters={filters}
@@ -214,10 +300,11 @@ export default function AdminCatalogPage() {
             />
           </div>
 
-          {/* 3. Catalog Table Card (Figma Image 3 & Image 4) */}
+          {/* 3. Catalog Table Card */}
           <AdminCatalogTable
             items={filteredItems}
-            totalGamesCount={90}
+            totalGamesCount={totalProducts || filteredItems.length}
+            isLoading={isLoading}
             selectedIds={selectedIds}
             onToggleSelectAll={handleToggleSelectAll}
             onToggleSelectItem={handleToggleSelectItem}
@@ -232,9 +319,23 @@ export default function AdminCatalogPage() {
             onDeleteItem={handleDeleteItem}
             onArchiveItem={handleArchiveItem}
           />
+
+          {/* 4. Separated Centered Pagination Component */}
+          {filteredItems.length > 0 && (
+            <div className="flex justify-center pt-2 pb-8">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={
+                  meta?.last_page ||
+                  Math.max(1, Math.ceil((totalProducts || filteredItems.length) / 20))
+                }
+                onPageChange={(page) => setCurrentPage(page)}
+              />
+            </div>
+          )}
         </div>
 
-        {/* 3. Add / Edit Product Modal */}
+        {/* Add / Edit Product Modal */}
         <AdminCatalogAddModal
           isOpen={isAddModalOpen}
           initialData={editingItem}
@@ -245,7 +346,7 @@ export default function AdminCatalogPage() {
           onSave={handleSaveItem}
         />
 
-        {/* 4. Delete Confirmation Modal (matching user image) */}
+        {/* Delete Confirmation Modal */}
         <AdminCatalogDeleteModal
           isOpen={deleteModalState.isOpen}
           onClose={() =>
@@ -254,10 +355,10 @@ export default function AdminCatalogPage() {
           onConfirm={handleConfirmDelete}
           title={
             deleteModalState.type === "multiple"
-              ? `Are you sure to delete ${selectedIds.length} selected products?`
-              : "Are you sure to delete this product?"
+              ? `Yakin ingin menghapus ${selectedIds.length} produk terpilih?`
+              : "Yakin ingin menghapus produk ini?"
           }
-          description="If you delete this file you can’t recover it."
+          description="Produk yang dihapus tidak dapat dipulihkan."
         />
       </AdminLayout>
     </>

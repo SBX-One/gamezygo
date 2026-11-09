@@ -13,11 +13,38 @@ import {
 } from "@/features/admin/components/catalog/section";
 import { INITIAL_PRODUCT_SECTIONS } from "@/features/admin/data/admin-section-mock-data";
 import type { ProductSection, SectionProduct } from "@/features/admin/types/admin-section.types";
+import {
+  useAdminSections,
+  useUpdateSection,
+  useReorderSections,
+  useAddGamesToSection,
+  useRemoveGameFromSection,
+  useClearSection,
+  useCreateSection,
+  useDeleteSection,
+} from "@/hooks/use-admin-sections";
+import { toast } from "@/stores/use-toast-store";
 
 export default function AdminProductSectionPage() {
+  const { data: serverSections, isLoading } = useAdminSections();
+  const updateSectionMutation = useUpdateSection();
+  const reorderSectionsMutation = useReorderSections();
+  const addGamesMutation = useAddGamesToSection();
+  const removeGameMutation = useRemoveGameFromSection();
+  const clearSectionMutation = useClearSection();
+  const createSectionMutation = useCreateSection();
+  const deleteSectionMutation = useDeleteSection();
+
   const [sections, setSections] = React.useState<ProductSection[]>(
-    INITIAL_PRODUCT_SECTIONS
+    serverSections ?? []
   );
+
+  // Sync server sections into local state when fetched
+  React.useEffect(() => {
+    if (serverSections !== undefined) {
+      setSections(serverSections);
+    }
+  }, [serverSections]);
 
   // Drag-and-drop state for Notion-style reordering
   const [draggedIdx, setDraggedIdx] = React.useState<number | null>(null);
@@ -96,6 +123,7 @@ export default function AdminProductSectionPage() {
       return;
     }
 
+    let nextOrder: ProductSection[] = [];
     setSections((prev) => {
       const next = [...prev];
       const [draggedItem] = next.splice(draggedIdx, 1);
@@ -106,8 +134,13 @@ export default function AdminProductSectionPage() {
         insertionIndex = dropIndicator === "bottom" ? targetIdx + 1 : targetIdx;
       }
       next.splice(insertionIndex, 0, draggedItem);
+      nextOrder = next;
       return next;
     });
+
+    if (nextOrder.length > 0) {
+      reorderSectionsMutation.mutate(nextOrder.map((s) => s.id));
+    }
 
     setDraggedIdx(null);
     setDragOverIdx(null);
@@ -123,22 +156,32 @@ export default function AdminProductSectionPage() {
   // Keyboard / Click accessible reorder
   const handleMoveUp = (idx: number) => {
     if (idx === 0) return;
+    let nextOrder: ProductSection[] = [];
     setSections((prev) => {
       const next = [...prev];
       const [item] = next.splice(idx, 1);
       next.splice(idx - 1, 0, item);
+      nextOrder = next;
       return next;
     });
+    if (nextOrder.length > 0) {
+      reorderSectionsMutation.mutate(nextOrder.map((s) => s.id));
+    }
   };
 
   const handleMoveDown = (idx: number) => {
     if (idx === sections.length - 1) return;
+    let nextOrder: ProductSection[] = [];
     setSections((prev) => {
       const next = [...prev];
       const [item] = next.splice(idx, 1);
       next.splice(idx + 1, 0, item);
+      nextOrder = next;
       return next;
     });
+    if (nextOrder.length > 0) {
+      reorderSectionsMutation.mutate(nextOrder.map((s) => s.id));
+    }
   };
 
   // Title modification handlers
@@ -146,24 +189,29 @@ export default function AdminProductSectionPage() {
     setSections((prev) =>
       prev.map((s) => (s.id === sectionId ? { ...s, title: newTitle } : s))
     );
+    updateSectionMutation.mutate({
+      sectionId,
+      data: { title: newTitle },
+    });
   };
 
   const handleClearTitle = (sectionId: string) => {
     setSections((prev) =>
       prev.map((s) => (s.id === sectionId ? { ...s, title: "" } : s))
     );
+    updateSectionMutation.mutate({
+      sectionId,
+      data: { title: "" },
+    });
   };
 
   // Add new section (Image 4)
   const handleAddNewSection = () => {
-    const newId = `sec-${Date.now()}`;
-    const newSection: ProductSection = {
-      id: newId,
-      title: "Section header",
-      slug: `section-${sections.length + 1}`,
-      products: [],
-    };
-    setSections((prev) => [...prev, newSection]);
+    createSectionMutation.mutate("Section header", {
+      onSuccess: (newSec) => {
+        setSections((prev) => [...prev, newSec]);
+      },
+    });
   };
 
   // Game management within section
@@ -180,6 +228,11 @@ export default function AdminProductSectionPage() {
         return s;
       })
     );
+
+    addGamesMutation.mutate({
+      sectionId: targetSectionId,
+      productIds: games.map((g) => g.id),
+    });
   };
 
   const handleAddGameToSection = (game: SectionProduct) => {
@@ -198,6 +251,11 @@ export default function AdminProductSectionPage() {
         return s;
       })
     );
+
+    removeGameMutation.mutate({
+      sectionId,
+      productId: gameId,
+    });
   };
 
   // Clear Section (Image 3)
@@ -207,6 +265,8 @@ export default function AdminProductSectionPage() {
     setSections((prev) =>
       prev.map((s) => (s.id === sectionId ? { ...s, products: [] } : s))
     );
+    clearSectionMutation.mutate(sectionId);
+    setClearModalState({ isOpen: false, section: null });
   };
 
   // Delete Section
@@ -214,6 +274,8 @@ export default function AdminProductSectionPage() {
     if (!deleteModalState.section) return;
     const sectionId = deleteModalState.section.id;
     setSections((prev) => prev.filter((s) => s.id !== sectionId));
+    deleteSectionMutation.mutate(sectionId);
+    setDeleteModalState({ isOpen: false, section: null });
   };
 
   // Save Edit Section Modal
@@ -221,6 +283,10 @@ export default function AdminProductSectionPage() {
     setSections((prev) =>
       prev.map((s) => (s.id === updatedSection.id ? updatedSection : s))
     );
+    updateSectionMutation.mutate({
+      sectionId: updatedSection.id,
+      data: { title: updatedSection.title },
+    });
   };
 
   // Breadcrumb Title matching Image 1: [ ◫ ] | Katalog > Product Section
@@ -252,44 +318,53 @@ export default function AdminProductSectionPage() {
         activeNavId="katalog"
       >
         <div className="space-y-10 pb-16">
-          {/* Section Blocks List */}
-          {sections.map((section, idx) => (
-            <AdminProductSectionBlock
-              key={section.id}
-              section={section}
-              index={idx}
-              totalSections={sections.length}
-              isDragging={draggedIdx === idx}
-              dropIndicator={dragOverIdx === idx ? dropIndicator : null}
-              onTitleChange={(val) => handleTitleChange(section.id, val)}
-              onClearTitle={() => handleClearTitle(section.id)}
-              onEditSection={() =>
-                setEditSectionModalState({ isOpen: true, section })
-              }
-              onClearSection={() =>
-                setClearModalState({ isOpen: true, section })
-              }
-              onDeleteSection={() =>
-                setDeleteModalState({ isOpen: true, section })
-              }
-              onAddGame={() =>
-                setAddGameModalState({ isOpen: true, section })
-              }
-              onRemoveGame={(gameId) =>
-                handleRemoveGameFromSection(section.id, gameId)
-              }
-              onMoveUp={() => handleMoveUp(idx)}
-              onMoveDown={() => handleMoveDown(idx)}
-              onDragStart={(e) => handleDragStart(idx, e)}
-              onDragOver={(e) => handleDragOver(idx, e)}
-              onDragLeave={() => handleDragLeave(idx)}
-              onDrop={(e) => handleDrop(idx, e)}
-              onDragEnd={handleDragEnd}
-            />
-          ))}
+          {isLoading && sections.length === 0 ? (
+            <div className="py-20 flex flex-col items-center justify-center text-center px-4 select-none">
+              <span className="w-8 h-8 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin mb-4" />
+              <p className="text-sm text-gray-400">Memuat susunan product section...</p>
+            </div>
+          ) : (
+            <>
+              {/* Section Blocks List */}
+              {sections.map((section, idx) => (
+                <AdminProductSectionBlock
+                  key={section.id}
+                  section={section}
+                  index={idx}
+                  totalSections={sections.length}
+                  isDragging={draggedIdx === idx}
+                  dropIndicator={dragOverIdx === idx ? dropIndicator : null}
+                  onTitleChange={(val) => handleTitleChange(section.id, val)}
+                  onClearTitle={() => handleClearTitle(section.id)}
+                  onEditSection={() =>
+                    setEditSectionModalState({ isOpen: true, section })
+                  }
+                  onClearSection={() =>
+                    setClearModalState({ isOpen: true, section })
+                  }
+                  onDeleteSection={() =>
+                    setDeleteModalState({ isOpen: true, section })
+                  }
+                  onAddGame={() =>
+                    setAddGameModalState({ isOpen: true, section })
+                  }
+                  onRemoveGame={(gameId) =>
+                    handleRemoveGameFromSection(section.id, gameId)
+                  }
+                  onMoveUp={() => handleMoveUp(idx)}
+                  onMoveDown={() => handleMoveDown(idx)}
+                  onDragStart={(e) => handleDragStart(idx, e)}
+                  onDragOver={(e) => handleDragOver(idx, e)}
+                  onDragLeave={() => handleDragLeave(idx)}
+                  onDrop={(e) => handleDrop(idx, e)}
+                  onDragEnd={handleDragEnd}
+                />
+              ))}
 
-          {/* Add New Section Dashed Box (Image 4) */}
-          <AdminAddSectionDashedBox onClick={handleAddNewSection} />
+              {/* Add New Section Dashed Box (Image 4) */}
+              <AdminAddSectionDashedBox onClick={handleAddNewSection} />
+            </>
+          )}
         </div>
 
         {/* 1. Modal: Add Game to Section */}

@@ -1,10 +1,12 @@
 import * as React from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
+import { resolveImageUrl } from "@/utils/image-url";
 
 export interface AdminAddProductMediaUploadProps {
   value?: string;
   onChange?: (url: string) => void;
+  onFileChange?: (file: File | null) => void;
   className?: string;
 }
 
@@ -46,6 +48,7 @@ const TrashIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export function AdminAddProductMediaUpload({
   value,
   onChange,
+  onFileChange,
   className,
 }: AdminAddProductMediaUploadProps) {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
@@ -53,6 +56,7 @@ export function AdminAddProductMediaUpload({
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
+      onFileChange?.(file);
       const url = URL.createObjectURL(file);
       onChange?.(url);
     }
@@ -60,6 +64,7 @@ export function AdminAddProductMediaUpload({
 
   const handleRemove = (e: React.MouseEvent) => {
     e.stopPropagation();
+    onFileChange?.(null);
     onChange?.("");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
@@ -85,7 +90,7 @@ export function AdminAddProductMediaUpload({
       {value ? (
         <div className="relative w-full h-full rounded-lg overflow-hidden">
           <Image
-            src={value}
+            src={resolveImageUrl(value)}
             alt="Product cover preview"
             fill
             unoptimized

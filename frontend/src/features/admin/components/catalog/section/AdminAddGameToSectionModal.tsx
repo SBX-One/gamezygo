@@ -11,7 +11,8 @@ import {
   FilterTaperIcon,
   GamepadIcon,
 } from "./AdminSectionIcons";
-import { MOCK_CATALOG_TABLE_GAMES } from "../../../data/admin-section-mock-data";
+import { CatalogProductThumbnail } from "../CatalogProductThumbnail";
+import { useAdminCatalog } from "@/hooks/use-admin-catalog";
 import type { SectionProduct } from "../../../types/admin-section.types";
 
 export interface AdminAddGameToSectionModalProps {
@@ -37,6 +38,25 @@ export function AdminAddGameToSectionModal({
   const [selectedCategory, setSelectedCategory] = React.useState<string>("All");
   const [isFilterDropdownOpen, setIsFilterDropdownOpen] = React.useState(false);
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
+
+  // Fetch only ACTIVE products in catalog ('listing')
+  const { items: activeCatalogGames, isLoading } = useAdminCatalog({
+    status: ["listing"],
+    per_page: 100,
+  });
+
+  const availableGames: SectionProduct[] = React.useMemo(() => {
+    if (!activeCatalogGames || activeCatalogGames.length === 0) return [];
+    return activeCatalogGames
+      .filter((item) => item.isActive) // Strictly enforce game must be active in catalog
+      .map((item) => ({
+        id: item.id,
+        title: item.name,
+        imageSrc: item.imageSrc,
+        categories: item.categories,
+        price: item.price,
+      }));
+  }, [activeCatalogGames]);
 
   // Reset state when modal opens
   React.useEffect(() => {
@@ -65,8 +85,8 @@ export function AdminAddGameToSectionModal({
 
   if (!isOpen) return null;
 
-  // Filter games based on search query and category
-  const filteredGames = MOCK_CATALOG_TABLE_GAMES.filter((game) => {
+  // Filter games based on search query, category, and exclude already added games
+  const filteredGames = availableGames.filter((game) => {
     if (
       searchQuery.trim() &&
       !game.title.toLowerCase().includes(searchQuery.trim().toLowerCase())
@@ -82,23 +102,28 @@ export function AdminAddGameToSectionModal({
     return true;
   });
 
+  const selectableGames = filteredGames.filter(
+    (g) => !existingProductIds.includes(g.id)
+  );
+
   const isAllSelected =
-    filteredGames.length > 0 &&
-    filteredGames.every((game) => selectedIds.includes(game.id));
+    selectableGames.length > 0 &&
+    selectableGames.every((game) => selectedIds.includes(game.id));
 
   const handleToggleSelectAll = (checked: boolean) => {
     if (checked) {
       const allIds = Array.from(
-        new Set([...selectedIds, ...filteredGames.map((g) => g.id)])
+        new Set([...selectedIds, ...selectableGames.map((g) => g.id)])
       );
       setSelectedIds(allIds);
     } else {
-      const filteredIdSet = new Set(filteredGames.map((g) => g.id));
-      setSelectedIds(selectedIds.filter((id) => !filteredIdSet.has(id)));
+      const selectableIdSet = new Set(selectableGames.map((g) => g.id));
+      setSelectedIds(selectedIds.filter((id) => !selectableIdSet.has(id)));
     }
   };
 
   const handleToggleRow = (id: string) => {
+    if (existingProductIds.includes(id)) return;
     if (selectedIds.includes(id)) {
       setSelectedIds(selectedIds.filter((item) => item !== id));
     } else {
@@ -107,7 +132,7 @@ export function AdminAddGameToSectionModal({
   };
 
   const handleSave = () => {
-    const selectedGames = MOCK_CATALOG_TABLE_GAMES.filter((g) =>
+    const selectedGames = availableGames.filter((g) =>
       selectedIds.includes(g.id)
     );
 
@@ -125,16 +150,9 @@ export function AdminAddGameToSectionModal({
     router.push("/admin/catalog/add");
   };
 
-  const categories = [
-    "All",
-    "Action",
-    "Adventure",
-    "Open World",
-    "Crime",
-    "Shooter",
-    "RPG",
-    "Sport-Racing",
-  ];
+  const categories = Array.from(
+    new Set(["All", ...availableGames.flatMap((g) => g.categories)])
+  );
 
   return (
     <div
@@ -211,9 +229,9 @@ export function AdminAddGameToSectionModal({
           {/* Quick Category Filter Pills when filter button is toggled */}
           {isFilterDropdownOpen && (
             <div className="flex items-center gap-2 mt-3 pt-2 overflow-x-auto scrollbar-none animate-in fade-in duration-150">
-              {categories.map((cat) => (
+              {categories.map((cat, idx) => (
                 <button
-                  key={cat}
+                  key={`${cat}-${idx}`}
                   type="button"
                   onClick={() => setSelectedCategory(cat)}
                   className={cn(
@@ -261,21 +279,46 @@ export function AdminAddGameToSectionModal({
           </div>
 
           {/* Table Body */}
-          {filteredGames.length > 0 ? (
+          {isLoading ? (
+            <div className="divide-y divide-deep-blue-700/60">
+              {Array.from({ length: 5 }).map((_, idx) => (
+                <div
+                  key={`modal-loading-${idx}`}
+                  className="grid grid-cols-[1.5fr_1fr_1fr] px-6 py-3.5 items-center"
+                >
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 rounded bg-white/10 animate-pulse" />
+                    <div className="w-9 h-9 rounded-lg bg-white/10 animate-pulse shrink-0" />
+                    <div className="w-36 h-4 rounded bg-white/10 animate-pulse" />
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <div className="w-14 h-5 rounded-full bg-white/10 animate-pulse" />
+                    <div className="w-14 h-5 rounded-full bg-white/10 animate-pulse" />
+                  </div>
+                  <div className="sm:pl-8">
+                    <div className="w-20 h-4 rounded bg-white/10 animate-pulse ml-auto sm:ml-0" />
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredGames.length > 0 ? (
             /* Populated Table Rows (Screenshots 1 & 3) */
             <div className="max-h-[380px] overflow-y-auto divide-y divide-deep-blue-700/60 scrollbar-none">
               {filteredGames.map((game) => {
-                const isChecked = selectedIds.includes(game.id);
+                const isAlreadyAdded = existingProductIds.includes(game.id);
+                const isChecked = selectedIds.includes(game.id) || isAlreadyAdded;
 
                 return (
                   <div
                     key={game.id}
-                    onClick={() => handleToggleRow(game.id)}
+                    onClick={() => !isAlreadyAdded && handleToggleRow(game.id)}
                     className={cn(
-                      "grid grid-cols-[1.5fr_1fr_1fr] px-6 py-3.5 items-center transition-colors cursor-pointer select-none",
-                      isChecked
-                        ? "bg-deep-blue-900/40 hover:bg-deep-blue-900/60"
-                        : "hover:bg-deep-blue-900/30"
+                      "grid grid-cols-[1.5fr_1fr_1fr] px-6 py-3.5 items-center transition-colors select-none",
+                      isAlreadyAdded
+                        ? "opacity-50 cursor-not-allowed bg-deep-blue-900/10"
+                        : isChecked
+                        ? "bg-deep-blue-900/40 hover:bg-deep-blue-900/60 cursor-pointer"
+                        : "hover:bg-deep-blue-900/30 cursor-pointer"
                     )}
                   >
                     {/* Col 1: Checkbox + Thumbnail + Title */}
@@ -283,28 +326,30 @@ export function AdminAddGameToSectionModal({
                       <div onClick={(e) => e.stopPropagation()}>
                         <AdminCheckbox
                           checked={isChecked}
-                          onChange={() => handleToggleRow(game.id)}
+                          disabled={isAlreadyAdded}
+                          onChange={() => !isAlreadyAdded && handleToggleRow(game.id)}
                         />
                       </div>
-                      <div className="relative w-7 h-7 sm:w-8 sm:h-8 rounded-lg overflow-hidden shrink-0 border border-deep-blue-700 bg-deep-blue-900">
-                        <Image
-                          src={game.imageSrc}
-                          alt={game.title}
-                          fill
-                          unoptimized
-                          className="object-cover"
-                        />
-                      </div>
+                      <CatalogProductThumbnail
+                        src={game.imageSrc}
+                        alt={game.title}
+                        size="sm"
+                      />
                       <span className="text-label-xs sm:text-sm font-semibold text-gray-50 truncate">
                         {game.title}
+                        {isAlreadyAdded && (
+                          <span className="ml-2 text-label-xs text-gray-400 font-normal">
+                            (Sudah di section)
+                          </span>
+                        )}
                       </span>
                     </div>
 
                     {/* Col 2: Category Pills (Action, Adventure, +2) */}
                     <div className="flex items-center gap-1.5 flex-wrap">
-                      {game.categories.slice(0, 2).map((cat) => (
+                      {game.categories.slice(0, 2).map((cat, catIdx) => (
                         <Pill
-                          key={cat}
+                          key={`${game.id}-${cat}-${catIdx}`}
                           variant="secondary"
                           size="xs"
                         >

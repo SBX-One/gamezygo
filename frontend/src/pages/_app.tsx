@@ -5,6 +5,7 @@ import { Inter } from "next/font/google";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
 import { AuthRouteGuard } from "@/components/shared/AuthRouteGuard";
+import { ToastContainer } from "@/components/ui/Toast/ToastContainer";
 import "@/styles/globals.css";
 
 const inter = Inter({
@@ -37,6 +38,7 @@ export default function App({ Component, pageProps }: AppProps) {
         <AuthRouteGuard>
           <Component {...pageProps} />
         </AuthRouteGuard>
+        <ToastContainer />
       </div>
     </QueryClientProvider>
   );

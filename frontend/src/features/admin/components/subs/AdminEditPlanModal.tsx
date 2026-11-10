@@ -12,6 +12,7 @@ import type { SubscriptionPlan } from "../../types/admin-subscription.types";
 export interface AdminEditPlanModalProps {
   isOpen: boolean;
   plan: SubscriptionPlan | null;
+  isSaving?: boolean;
   onClose: () => void;
   onSave: (updatedPlan: SubscriptionPlan) => void;
   className?: string;
@@ -20,6 +21,7 @@ export interface AdminEditPlanModalProps {
 export function AdminEditPlanModal({
   isOpen,
   plan,
+  isSaving = false,
   onClose,
   onSave,
   className,
@@ -249,9 +251,10 @@ export function AdminEditPlanModal({
               type="submit"
               variant="primary"
               size="sm"
+              disabled={isSaving}
               className="cursor-pointer min-w-24 justify-center shadow-md"
             >
-              Simpan
+              {isSaving ? "Menyimpan..." : "Simpan"}
             </Button>
           </div>
         </form>

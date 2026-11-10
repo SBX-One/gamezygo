@@ -60,7 +60,7 @@ const ArrowRightThinIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export function AdminPreOrderTable({
   items,
-  totalCount = 90,
+  totalCount,
   selectedIds,
   onToggleSelectAll,
   onToggleSelectItem,
@@ -74,6 +74,13 @@ export function AdminPreOrderTable({
 }: AdminPreOrderTableProps) {
   const [activeMenuId, setActiveMenuId] = React.useState<string | null>(null);
   const menuRef = React.useRef<HTMLDivElement>(null);
+
+  const displayTotal =
+    items.length === 0
+      ? 0
+      : totalCount !== undefined
+      ? totalCount
+      : items.length;
 
   const isAllSelected =
     items.length > 0 && items.every((item) => selectedIds.includes(item.id));
@@ -104,7 +111,7 @@ export function AdminPreOrderTable({
         <span className="text-label-xs font-semibold text-gray-400 uppercase tracking-widest shrink-0 whitespace-nowrap">
           TOTAL PRODUCT :{" "}
           <span className="text-gray-50 font-bold tracking-normal whitespace-nowrap">
-            {totalCount} Games Listed
+            {displayTotal} Games Listed
           </span>
         </span>
 

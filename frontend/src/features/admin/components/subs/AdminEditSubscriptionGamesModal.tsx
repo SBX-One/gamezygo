@@ -2,6 +2,7 @@ import * as React from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
+import { CatalogProductThumbnail } from "../catalog/CatalogProductThumbnail";
 import {
   CloseXIcon,
   SearchIcon,
@@ -14,8 +15,11 @@ import type { SectionProduct } from "../../types/admin-section.types";
 export interface AdminEditSubscriptionGamesModalProps {
   isOpen: boolean;
   initialAddedGames: SectionProduct[];
+  availablePool?: SectionProduct[];
   subsWorth?: string;
   totalGamesCount?: number;
+  isLoadingAvailable?: boolean;
+  isSaving?: boolean;
   onClose: () => void;
   onSave: (updatedGames: SectionProduct[]) => void;
   className?: string;
@@ -68,8 +72,11 @@ const DEFAULT_AVAILABLE_GAMES: SectionProduct[] = [
 export function AdminEditSubscriptionGamesModal({
   isOpen,
   initialAddedGames,
+  availablePool,
   subsWorth = "IDR 120.000",
   totalGamesCount = 200,
+  isLoadingAvailable = false,
+  isSaving = false,
   onClose,
   onSave,
   className,
@@ -86,18 +93,25 @@ export function AdminEditSubscriptionGamesModal({
   React.useEffect(() => {
     if (isOpen) {
       setAddedGames(initialAddedGames);
-      // Available games: pool minus existing
-      const addedIds = initialAddedGames.map((g) => g.id);
-      const filteredPool = DEFAULT_AVAILABLE_GAMES.filter(
-        (g) => !addedIds.includes(g.id)
-      );
-      setAvailableGames(
-        filteredPool.length > 0 ? filteredPool : DEFAULT_AVAILABLE_GAMES
-      );
+      const addedIds = new Set(initialAddedGames.map((g) => String(g.id)));
+      const pool =
+        availablePool && availablePool.length > 0
+          ? availablePool
+          : DEFAULT_AVAILABLE_GAMES;
+      const filteredPool = pool.filter((g) => !addedIds.has(String(g.id)));
+      setAvailableGames(filteredPool);
       setAddedSearch("");
       setAvailableSearch("");
     }
-  }, [isOpen, initialAddedGames]);
+  }, [isOpen, initialAddedGames, availablePool]);
+
+  // Compute live totals strictly based on included games
+  const effectiveTotalWorth = React.useMemo(() => {
+    const sum = addedGames.reduce((acc, g) => acc + (Number(g.price) || 0), 0);
+    return `IDR ${sum.toLocaleString("id-ID")}`;
+  }, [addedGames]);
+
+  const effectiveGamesCount = addedGames.length;
 
   // Handle escape key
   React.useEffect(() => {
@@ -183,7 +197,7 @@ export function AdminEditSubscriptionGamesModal({
                 SUBS WORTH :
               </span>
               <span className="text-label-xs sm:text-sm font-bold text-gray-50">
-                {subsWorth}
+                {effectiveTotalWorth}
               </span>
             </div>
 
@@ -194,7 +208,7 @@ export function AdminEditSubscriptionGamesModal({
                 TOTAL GAMES :
               </span>
               <span className="text-label-xs sm:text-sm font-bold text-gray-50">
-                {totalGamesCount} Games
+                {effectiveGamesCount} Games
               </span>
             </div>
           </div>
@@ -249,15 +263,12 @@ export function AdminEditSubscriptionGamesModal({
                     >
                       {/* Left: Poster + Info */}
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-11 h-14 rounded-lg overflow-hidden relative shrink-0 bg-deep-blue-950 border border-deep-blue-700/60">
-                          <Image
-                            src={game.imageSrc}
-                            alt={game.title}
-                            fill
-                            sizes="48px"
-                            className="object-cover"
-                          />
-                        </div>
+                        <CatalogProductThumbnail
+                          src={game.imageSrc}
+                          alt={game.title}
+                          size="custom"
+                          className="w-11 h-14 rounded-lg shrink-0 border border-deep-blue-700/60"
+                        />
                         <div className="min-w-0 space-y-1">
                           <h5 className="text-label-xs sm:text-sm font-bold text-gray-50 truncate">
                             {game.title}
@@ -348,15 +359,12 @@ export function AdminEditSubscriptionGamesModal({
                     >
                       {/* Left: Poster + Info */}
                       <div className="flex items-center gap-3 min-w-0">
-                        <div className="w-11 h-14 rounded-lg overflow-hidden relative shrink-0 bg-deep-blue-950 border border-deep-blue-700/60">
-                          <Image
-                            src={game.imageSrc}
-                            alt={game.title}
-                            fill
-                            sizes="48px"
-                            className="object-cover"
-                          />
-                        </div>
+                        <CatalogProductThumbnail
+                          src={game.imageSrc}
+                          alt={game.title}
+                          size="custom"
+                          className="w-11 h-14 rounded-lg shrink-0 border border-deep-blue-700/60"
+                        />
                         <div className="min-w-0 space-y-1">
                           <h5 className="text-label-xs sm:text-sm font-bold text-gray-50 truncate">
                             {game.title}
@@ -427,10 +435,11 @@ export function AdminEditSubscriptionGamesModal({
             type="button"
             variant="primary"
             size="sm"
+            disabled={isSaving}
             onClick={handleSave}
             className="cursor-pointer min-w-24 justify-center shadow-md"
           >
-            Simpan
+            {isSaving ? "Menyimpan..." : "Simpan"}
           </Button>
         </div>
       </div>

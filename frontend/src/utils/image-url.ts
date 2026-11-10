@@ -13,11 +13,18 @@ export function resolveImageUrl(
 
   const trimmed = url.trim();
 
-  // If accidentally formatted as http://localhost/storage/ without port 8000
-  if (trimmed.startsWith("http://localhost/storage/")) {
-    const subPath = trimmed.replace("http://localhost/storage/", "").trim();
+  // If accidentally formatted as http://localhost/ without port 8000
+  if (trimmed.startsWith("http://localhost/") && !trimmed.startsWith("http://localhost:8000/")) {
+    const subPath = trimmed.replace("http://localhost/", "").trim();
     if (!subPath) return fallback;
-    return `http://localhost:8000/storage/${subPath}`;
+    return `http://localhost:8000/${subPath}`;
+  }
+
+  // If accidentally formatted as http://127.0.0.1/ without port 8000
+  if (trimmed.startsWith("http://127.0.0.1/") && !trimmed.startsWith("http://127.0.0.1:8000/")) {
+    const subPath = trimmed.replace("http://127.0.0.1/", "").trim();
+    if (!subPath) return fallback;
+    return `http://localhost:8000/${subPath}`;
   }
 
   // If accidentally formatted as http://localhost:8000/storage/ but path is empty

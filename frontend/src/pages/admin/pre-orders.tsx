@@ -108,7 +108,15 @@ export default function AdminPreOrdersPage() {
     );
   }, [items, selectedCategories]);
 
-  const totalPages = meta?.last_page || Math.max(1, Math.ceil(totalProducts / itemsPerPage));
+  const displayTotalPreOrders =
+    filteredItems.length === 0
+      ? 0
+      : selectedCategories.length > 0
+      ? filteredItems.length
+      : (meta?.total ?? totalProducts ?? filteredItems.length);
+
+  const totalPages =
+    meta?.last_page || Math.max(1, Math.ceil(displayTotalPreOrders / itemsPerPage));
 
   // Selection handlers
   const handleToggleSelectAll = () => {
@@ -334,7 +342,7 @@ export default function AdminPreOrdersPage() {
           {/* Pre-order Table Card */}
           <AdminPreOrderTable
             items={filteredItems}
-            totalCount={totalProducts || filteredItems.length}
+            totalCount={displayTotalPreOrders}
             isLoading={isLoading}
             selectedIds={selectedIds}
             onToggleSelectAll={handleToggleSelectAll}

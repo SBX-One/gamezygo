@@ -123,6 +123,22 @@ export default function AdminCatalogPage() {
       });
   }, [items, filters]);
 
+  const hasActiveClientFilters =
+    Boolean(filters.isPreOrder) ||
+    Boolean(filters.isDraft) ||
+    Boolean(filters.isUnlisted) ||
+    filters.categories.length > 0 ||
+    filters.statusActive !== null ||
+    filters.priceRange[0] > 0 ||
+    filters.priceRange[1] < 200000;
+
+  const displayTotalGames =
+    filteredItems.length === 0
+      ? 0
+      : hasActiveClientFilters
+      ? filteredItems.length
+      : (meta?.total ?? totalProducts ?? filteredItems.length);
+
   // Handlers
   const handleToggleSelectAll = () => {
     if (filteredItems.every((item) => selectedIds.includes(item.id))) {
@@ -327,7 +343,7 @@ export default function AdminCatalogPage() {
           {/* 3. Catalog Table Card */}
           <AdminCatalogTable
             items={filteredItems}
-            totalGamesCount={totalProducts || filteredItems.length}
+            totalGamesCount={displayTotalGames}
             isLoading={isLoading}
             selectedIds={selectedIds}
             onToggleSelectAll={handleToggleSelectAll}
@@ -351,7 +367,7 @@ export default function AdminCatalogPage() {
                 currentPage={currentPage}
                 totalPages={
                   meta?.last_page ||
-                  Math.max(1, Math.ceil((totalProducts || filteredItems.length) / 20))
+                  Math.max(1, Math.ceil(displayTotalGames / 20))
                 }
                 onPageChange={(page) => setCurrentPage(page)}
               />

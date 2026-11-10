@@ -6,7 +6,7 @@ import { resolveImageUrl } from "@/utils/image-url";
 export interface CatalogProductThumbnailProps {
   src?: string | null;
   alt: string;
-  size?: "sm" | "md" | "lg";
+  size?: "sm" | "md" | "lg" | "custom";
   className?: string;
 }
 
@@ -60,6 +60,7 @@ export function CatalogProductThumbnail({
     sm: "w-8 h-10 rounded-md", // 32px x 40px - clean portrait poster
     md: "w-9 h-12 rounded-lg", // 36px x 48px - standard 3:4 game box ratio
     lg: "w-12 h-16 rounded-lg", // 48px x 64px
+    custom: "",
   }[size];
 
   if (!cleanSrc) {

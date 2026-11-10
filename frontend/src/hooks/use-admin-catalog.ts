@@ -69,7 +69,12 @@ export function useAdminCatalog(params?: AdminCatalogQueryParams) {
     });
   }, [rawData?.products]);
 
-  const totalProducts = rawData?.total_products ?? items.length;
+  const totalProducts =
+    rawData?.meta?.total !== undefined
+      ? rawData.meta.total
+      : rawData?.total_products !== undefined
+      ? rawData.total_products
+      : items.length;
 
   return {
     ...query,

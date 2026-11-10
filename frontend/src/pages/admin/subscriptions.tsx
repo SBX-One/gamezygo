@@ -8,9 +8,16 @@ import {
   AdminSubscriptionTable,
   AdminEditPlanModal,
   AdminEditSubscriptionGamesModal,
+  AdminSubscriptionSkeleton,
 } from "@/features/admin/components/subs";
 import { ChevronRightIcon } from "@/features/admin/components/catalog/section";
 import { Pagination } from "@/components/ui/Pagination";
+import {
+  useAdminSubscriptions,
+  useAdminAvailableSubscriptionGames,
+  useUpdateSubscriptionPlan,
+  useUpdateSubscriptionGames,
+} from "@/hooks/use-admin-subscriptions";
 import {
   INITIAL_SUBSCRIPTION_PLANS,
   SUBSCRIPTION_GAME_STATS,
@@ -25,28 +32,65 @@ import type {
 import type { SectionProduct } from "@/features/admin/types/admin-section.types";
 
 export default function AdminSubscriptionManagementPage() {
-  const [plans, setPlans] = React.useState<SubscriptionPlan[]>(
-    INITIAL_SUBSCRIPTION_PLANS
-  );
-  const [gameStats, setGameStats] = React.useState<SubscriptionGameStats>(
-    SUBSCRIPTION_GAME_STATS
-  );
-  const [games, setGames] = React.useState<SectionProduct[]>(
-    SUBSCRIPTION_GAMES
-  );
-  const [subscribers, setSubscribers] = React.useState<SubscriberAccount[]>(
-    MOCK_SUBSCRIBERS
-  );
-
-  // Pagination state (Separated from table, matching Image 4)
   const [currentPage, setCurrentPage] = React.useState(1);
-  const itemsPerPage = 5;
-  const totalPages = Math.max(25, Math.ceil(subscribers.length / itemsPerPage));
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentSubscribers = subscribers.slice(
-    startIndex,
-    startIndex + itemsPerPage
-  );
+  const itemsPerPage = 10;
+
+  // Live database queries and mutations
+  const {
+    plans: serverPlans,
+    gameStats: serverGameStats,
+    games: serverGames,
+    subscribers: serverSubscribers,
+    meta,
+    isLoading,
+  } = useAdminSubscriptions({
+    page: currentPage,
+    per_page: itemsPerPage,
+  });
+
+  const { data: availableGamesPool, isLoading: isLoadingAvailable } =
+    useAdminAvailableSubscriptionGames();
+
+  const updatePlanMutation = useUpdateSubscriptionPlan();
+  const updateGamesMutation = useUpdateSubscriptionGames();
+
+  // Active state initialized with server data or graceful fallbacks
+  const plans: SubscriptionPlan[] = React.useMemo(() => {
+    if (serverPlans && serverPlans.length > 0) return serverPlans;
+    return INITIAL_SUBSCRIPTION_PLANS;
+  }, [serverPlans]);
+
+  const gameStats: SubscriptionGameStats = React.useMemo(() => {
+    if (serverGameStats && serverGameStats.totalGames !== undefined) {
+      return serverGameStats;
+    }
+    return SUBSCRIPTION_GAME_STATS;
+  }, [serverGameStats]);
+
+  const games: SectionProduct[] = React.useMemo(() => {
+    if (Array.isArray(serverGames)) return serverGames;
+    return SUBSCRIPTION_GAMES;
+  }, [serverGames]);
+
+  // Total worth and total count strictly calculated from the included games
+  const effectiveTotalWorth = React.useMemo(() => {
+    if (!games.length) return "IDR 0";
+    const sum = games.reduce((acc, g) => acc + (Number(g.price) || 0), 0);
+    return `IDR ${sum.toLocaleString("id-ID")}`;
+  }, [games]);
+
+  const effectiveTotalGames = games.length;
+
+  const subscribers: SubscriberAccount[] = React.useMemo(() => {
+    if (serverSubscribers && serverSubscribers.length > 0) {
+      return serverSubscribers;
+    }
+    return MOCK_SUBSCRIBERS;
+  }, [serverSubscribers]);
+
+  const totalPages =
+    meta?.last_page ||
+    Math.max(1, Math.ceil((meta?.total || subscribers.length) / itemsPerPage));
 
   // Modal states
   const [editingPlan, setEditingPlan] = React.useState<SubscriptionPlan | null>(
@@ -54,20 +98,34 @@ export default function AdminSubscriptionManagementPage() {
   );
   const [isEditGamesModalOpen, setIsEditGamesModalOpen] = React.useState(false);
 
-  // Plan Edit Handler
+  // Plan Edit Handler: Save directly to database
   const handleSavePlan = (updatedPlan: SubscriptionPlan) => {
-    setPlans((prev) =>
-      prev.map((p) => (p.id === updatedPlan.id ? updatedPlan : p))
+    updatePlanMutation.mutate(
+      {
+        id: updatedPlan.id,
+        data: {
+          title: updatedPlan.title,
+          price: updatedPlan.price,
+          duration: updatedPlan.duration,
+          benefits: updatedPlan.benefits,
+        },
+      },
+      {
+        onSuccess: () => {
+          setEditingPlan(null);
+        },
+      }
     );
   };
 
-  // Game List Edit Handler (Matching Image 4 & Image 5)
+  // Game List Edit Handler: Sync database games supported for subscription
   const handleSaveGames = (updatedGames: SectionProduct[]) => {
-    setGames(updatedGames);
-    setGameStats((stats) => ({
-      ...stats,
-      totalGames: updatedGames.length,
-    }));
+    const gameIds = updatedGames.map((g) => g.id);
+    updateGamesMutation.mutate(gameIds, {
+      onSuccess: () => {
+        setIsEditGamesModalOpen(false);
+      },
+    });
   };
 
   // Header Title matching design system: [ ◫ ] | Dashboard > Subs Management
@@ -80,17 +138,17 @@ export default function AdminSubscriptionManagementPage() {
         Dashboard
       </Link>
       <ChevronRightIcon className="w-3.5 h-3.5 text-gray-500 shrink-0" />
-      <span className="text-white font-semibold">Subs Management</span>
+      <span className="text-white font-semibold">Paket / Bundles Management</span>
     </div>
   );
 
   return (
     <>
       <Head>
-        <title>Subs Management | Gamezygo Admin</title>
+        <title>Paket & Bundles Management | Gamezygo Admin</title>
         <meta
           name="description"
-          content="Subscription Management Dashboard for Gamezygo"
+          content="Paket and Subscription Bundles Management Dashboard for Gamezygo"
         />
       </Head>
 
@@ -98,47 +156,54 @@ export default function AdminSubscriptionManagementPage() {
         title={headerTitle}
         activeNavId="paket"
       >
-        <div className="space-y-8 pb-16">
-          {/* Section 1: 3 Subscription Plan Cards (Image 2) */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-            {plans.map((plan) => (
-              <AdminSubscriptionPlanCard
-                key={plan.id}
-                plan={plan}
-                onEdit={(p) => setEditingPlan(p)}
+        {isLoading && !serverPlans.length ? (
+          <AdminSubscriptionSkeleton />
+        ) : (
+          <div className="space-y-8 pb-16">
+            {/* Section 1: 3 Subscription Plan Cards (Image 2) */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              {plans.map((plan) => (
+                <AdminSubscriptionPlanCard
+                  key={plan.id}
+                  plan={plan}
+                  onEdit={(p) => setEditingPlan(p)}
+                />
+              ))}
+            </div>
+
+            {/* Section 2: Total List Game Card (Image 3) */}
+            <AdminSubscriptionGameListCard
+              totalGames={effectiveTotalGames}
+              totalValue={effectiveTotalWorth}
+              games={games}
+              onEditGameList={() => setIsEditGamesModalOpen(true)}
+            />
+
+            {/* Section 3: Total Active Subs Table & Separated Pagination (Image 3 & Image 4) */}
+            <div className="space-y-6">
+              <AdminSubscriptionTable
+                subscribers={subscribers}
+                totalActiveCount={meta?.total || subscribers.length}
               />
-            ))}
+
+              {/* Separated Pagination Component */}
+              {totalPages > 1 && (
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                  className="justify-center pt-2"
+                />
+              )}
+            </div>
           </div>
-
-          {/* Section 2: Total List Game Card (Image 3) */}
-          <AdminSubscriptionGameListCard
-            totalGames={gameStats.totalGames}
-            totalValue={gameStats.totalValue}
-            games={games}
-            onEditGameList={() => setIsEditGamesModalOpen(true)}
-          />
-
-          {/* Section 3: Total Active Subs Table & Separated Pagination (Image 3 & Image 4) */}
-          <div className="space-y-6">
-            <AdminSubscriptionTable
-              subscribers={currentSubscribers}
-              totalActiveCount={subscribers.length}
-            />
-
-            {/* Separated Pagination Component (Using existing @/components/ui/Pagination) */}
-            <Pagination
-              currentPage={currentPage}
-              totalPages={totalPages}
-              onPageChange={setCurrentPage}
-              className="justify-center pt-2"
-            />
-          </div>
-        </div>
+        )}
 
         {/* Modal 1: Edit Subscription Plan (Image 1 & Image 2) */}
         <AdminEditPlanModal
           isOpen={Boolean(editingPlan)}
           plan={editingPlan}
+          isSaving={updatePlanMutation.isPending}
           onClose={() => setEditingPlan(null)}
           onSave={handleSavePlan}
         />
@@ -147,8 +212,11 @@ export default function AdminSubscriptionManagementPage() {
         <AdminEditSubscriptionGamesModal
           isOpen={isEditGamesModalOpen}
           initialAddedGames={games}
-          subsWorth={gameStats.totalValue}
-          totalGamesCount={gameStats.totalGames}
+          availablePool={availableGamesPool}
+          isLoadingAvailable={isLoadingAvailable}
+          isSaving={updateGamesMutation.isPending}
+          subsWorth={effectiveTotalWorth}
+          totalGamesCount={effectiveTotalGames}
           onClose={() => setIsEditGamesModalOpen(false)}
           onSave={handleSaveGames}
         />

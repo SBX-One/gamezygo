@@ -124,29 +124,17 @@ class GoogleAuthTest extends TestCase
       ->assertJsonPath('data.user.email', 'jane@example.com');
   }
 
-  public function test_authenticated_user_can_access_me_endpoint(): void
+  public function test_me_endpoint_has_been_removed(): void
   {
-    $user = User::factory()->create([
-      'name'   => 'Arya Test',
-      'email'  => 'arya@gamezygo.com',
-      'status' => 'active',
-    ]);
-
+    $user = User::factory()->create();
     $token = $user->createToken('test_token')->plainTextToken;
 
-    $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->getJson('/api/v1/auth/me');
+    $this->withHeader('Authorization', "Bearer {$token}")
+      ->getJson('/api/v1/auth/me')
+      ->assertStatus(404);
 
-    $response->assertStatus(200)
-      ->assertJsonPath('data.name', 'Arya Test')
-      ->assertJsonPath('data.email', 'arya@gamezygo.com');
-  }
-
-  public function test_unauthenticated_request_to_me_returns_401(): void
-  {
-    $response = $this->getJson('/api/v1/auth/me');
-
-    $response->assertStatus(401);
+    $this->getJson('/api/v1/auth/me')
+      ->assertStatus(404);
   }
 
   public function test_logout_revokes_current_token(): void
@@ -164,5 +152,42 @@ class GoogleAuthTest extends TestCase
       ]);
 
     $this->assertCount(0, $user->fresh()->tokens);
+  }
+
+  public function test_google_callback_authenticates_user_and_returns_token(): void
+  {
+    $abstractUser = Mockery::mock(SocialiteUser::class);
+    $abstractUser->shouldReceive('getId')->andReturn('google-uid-777');
+    $abstractUser->shouldReceive('getName')->andReturn('OAuth User');
+    $abstractUser->shouldReceive('getEmail')->andReturn('oauth.user@example.com');
+    $abstractUser->shouldReceive('getAvatar')->andReturn('https://example.com/avatar.jpg');
+
+    $provider = Mockery::mock(\Laravel\Socialite\Contracts\Provider::class);
+    $provider->shouldReceive('stateless')->andReturnSelf();
+    $provider->shouldReceive('user')->andReturn($abstractUser);
+
+    Socialite::shouldReceive('driver')->with('google')->andReturn($provider);
+
+    $response = $this->getJson('/api/v1/auth/google/callback');
+
+    $response->assertStatus(200)
+      ->assertJsonStructure([
+        'success',
+        'message',
+        'data' => [
+          'token',
+          'token_type',
+          'user' => [
+            'id',
+            'name',
+            'email',
+          ],
+        ],
+      ]);
+
+    $this->assertDatabaseHas('users', [
+      'email'     => 'oauth.user@example.com',
+      'google_id' => 'google-uid-777',
+    ]);
   }
 }

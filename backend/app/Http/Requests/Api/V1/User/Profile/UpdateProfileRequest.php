@@ -30,7 +30,7 @@ class UpdateProfileRequest extends FormRequest
     ];
 
     if ($this->hasFile('avatar')) {
-      $rules['avatar'] = ['nullable', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'];
+      $rules['avatar'] = ['nullable', 'file', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'];
     } else {
       $rules['avatar'] = ['nullable', 'string', 'max:500'];
     }
@@ -46,12 +46,13 @@ class UpdateProfileRequest extends FormRequest
   public function messages(): array
   {
     return [
-      'name.required'  => 'Name cannot be empty.',
-      'name.string'    => 'Name must be a valid string.',
-      'name.max'       => 'Name may not exceed 255 characters.',
-      'avatar.image'   => 'Avatar must be an image file (jpeg, png, jpg, webp).',
-      'avatar.max'     => 'Avatar image size may not exceed 2MB.',
-      'phone.max'      => 'Phone number may not exceed 20 characters.',
+      'name.required' => 'Name cannot be empty.',
+      'name.string'   => 'Name must be a valid string.',
+      'name.max'      => 'Name may not exceed 255 characters.',
+      'avatar.image'  => 'Avatar must be an image file (jpeg, png, jpg, webp).',
+      'avatar.mimes'  => 'Avatar must be a file of type: jpeg, png, jpg, webp.',
+      'avatar.max'    => 'Avatar image size may not exceed 2MB.',
+      'phone.max'     => 'Phone number may not exceed 20 characters.',
     ];
   }
 

@@ -23,6 +23,7 @@ class ProfileService
    */
   public function getProfile(User $user): array
   {
+    $user->loadMissing('avatar');
     $rankings = $this->profileRepository->getUserRankings($user);
     $totalGames = $this->profileRepository->getTotalGamesOwned($user);
     $recentTransactions = $this->profileRepository->getRecentTransactions($user, 3);
@@ -45,6 +46,10 @@ class ProfileService
    */
   public function updateProfile(User $user, array $data, ?UploadedFile $avatarFile = null): User
   {
+    if (!$avatarFile && isset($data['avatar']) && $data['avatar'] instanceof UploadedFile) {
+      $avatarFile = $data['avatar'];
+    }
+
     $updateData = [];
 
     if (isset($data['name'])) {
@@ -56,7 +61,28 @@ class ProfileService
     }
 
     if ($avatarFile) {
-      $path = Storage::disk('public')->putFile('avatars', $avatarFile);
+      $path = Storage::disk('public')->putFile('avatars/' . $user->id, $avatarFile, 'public');
+
+      $existingAvatar = $user->avatar()->first();
+      if ($existingAvatar) {
+        if ($existingAvatar->file_path && Storage::disk('public')->exists($existingAvatar->file_path)) {
+          Storage::disk('public')->delete($existingAvatar->file_path);
+        }
+        $existingAvatar->update([
+          'file_name' => $avatarFile->getClientOriginalName(),
+          'file_type' => $avatarFile->getClientMimeType() ?? $avatarFile->extension(),
+          'file_path' => $path,
+          'file_size' => $avatarFile->getSize(),
+        ]);
+      } else {
+        $user->avatar()->create([
+          'file_name' => $avatarFile->getClientOriginalName(),
+          'file_type' => $avatarFile->getClientMimeType() ?? $avatarFile->extension(),
+          'file_path' => $path,
+          'file_size' => $avatarFile->getSize(),
+        ]);
+      }
+
       $updateData['avatar_url'] = Storage::disk('public')->url($path);
     } elseif (!empty($data['avatar_url'])) {
       $updateData['avatar_url'] = $data['avatar_url'];
@@ -68,7 +94,7 @@ class ProfileService
       return $this->profileRepository->updateProfile($user, $updateData);
     }
 
-    return $user;
+    return $user->fresh(['avatar']);
   }
 
   /**
@@ -99,5 +125,28 @@ class ProfileService
   public function getOwnedProducts(User $user, array $filters = []): LengthAwarePaginator
   {
     return $this->profileRepository->getUserOwnedProducts($user, $filters);
+  }
+
+  /**
+   * Get current leaderboard rank and points for the user.
+   *
+   * @param User $user
+   * @param string|null $period
+   * @return array
+   */
+  public function getUserLeaderboard(User $user, ?string $period = null): array
+  {
+    $rankings = $this->profileRepository->getUserRankings($user);
+
+    $rank = match ($period) {
+      'weekly'  => $rankings['weekly'],
+      'monthly' => $rankings['monthly'],
+      default   => $rankings['all_time'],
+    };
+
+    return [
+      'rank'  => (int) $rank,
+      'point' => (int) ($user->total_points ?? 0),
+    ];
   }
 }

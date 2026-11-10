@@ -69,7 +69,20 @@ class GameRequestController extends Controller
    */
   public function userRequests(Request $request): GameRequestCollection
   {
-    $user = $request->user() ?? auth('api')->user();
+    $user = $request->user('api') ?? auth('api')->user() ?? $request->user('sanctum') ?? auth('sanctum')->user() ?? $request->user();
+
+    if (!$user) {
+      throw new AuthenticationException('Unauthenticated.');
+    }
+
+    $scope = $request->query('scope');
+    if ($scope === 'all') {
+      $filters = $request->only(['search', 'status', 'page', 'per_page']);
+      $requests = $this->gameRequestService->getAllRequests($filters);
+
+      return new GameRequestCollection($requests, isPublic: true);
+    }
+
     $filters = $request->only(['page', 'per_page', 'search', 'status']);
     $requests = $this->gameRequestService->getUserRequests($user, $filters);
 

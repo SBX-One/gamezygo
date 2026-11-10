@@ -142,7 +142,7 @@ class JwtAuthTest extends TestCase
       ]);
   }
 
-  public function test_authenticated_user_can_access_me_endpoint(): void
+  public function test_me_endpoint_is_removed(): void
   {
     $user = User::create([
       'name'     => 'Arya Active',
@@ -156,9 +156,7 @@ class JwtAuthTest extends TestCase
     $response = $this->withHeader('Authorization', "Bearer {$token}")
       ->getJson('/api/v1/auth/me');
 
-    $response->assertStatus(200)
-      ->assertJsonPath('data.name', 'Arya Active')
-      ->assertJsonPath('data.email', 'arya.active@example.com');
+    $response->assertStatus(404);
   }
 
   public function test_authenticated_user_can_refresh_token(): void

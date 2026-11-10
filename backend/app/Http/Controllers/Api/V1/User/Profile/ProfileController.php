@@ -8,6 +8,7 @@ use App\Http\Requests\Api\V1\User\Profile\GetProfileProductsRequest;
 use App\Http\Requests\Api\V1\User\Profile\UpdateProfileRequest;
 use App\Http\Resources\Api\V1\User\Product\ProductResource;
 use App\Http\Resources\Api\V1\User\Profile\ProfileResource;
+use App\Http\Resources\Api\V1\User\Profile\UserLeaderboardResource;
 use App\Services\Api\V1\User\Profile\ProfileService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
@@ -36,6 +37,26 @@ class ProfileController extends Controller
       'success' => true,
       'message' => 'User profile retrieved successfully',
       'data'    => new ProfileResource($profile),
+    ]);
+  }
+
+  /**
+   * Display current leaderboard rank and points for the authenticated user.
+   *
+   * @param Request $request
+   * @return JsonResponse
+   */
+  public function leaderboard(Request $request): JsonResponse
+  {
+    $user = $request->user('api') ?? auth('api')->user() ?? $request->user('sanctum') ?? auth('sanctum')->user() ?? $request->user();
+
+    $period = $request->query('period');
+    $leaderboard = $this->profileService->getUserLeaderboard($user, $period);
+
+    return response()->json([
+      'success' => true,
+      'message' => 'User leaderboard retrieved successfully',
+      'data'    => (new UserLeaderboardResource($leaderboard))->resolve(),
     ]);
   }
 

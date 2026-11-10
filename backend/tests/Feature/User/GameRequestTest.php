@@ -37,7 +37,7 @@ class GameRequestTest extends TestCase
       'admin_note'    => null,
     ]);
 
-    $response = $this->getJson('/api/v1/user/game-requests');
+    $response = $this->getJson('/api/v1/game-requests');
 
     $response->assertStatus(200)
       ->assertJson([
@@ -66,7 +66,7 @@ class GameRequestTest extends TestCase
     $user = User::factory()->create();
     GameRequest::factory()->count(25)->create(['user_id' => $user->id]);
 
-    $response = $this->getJson('/api/v1/user/game-requests?page=2&per_page=10');
+    $response = $this->getJson('/api/v1/game-requests?page=2&per_page=10');
 
     $response->assertStatus(200);
     $data = $response->json('data');
@@ -76,65 +76,6 @@ class GameRequestTest extends TestCase
     $this->assertEquals(2, $meta['current_page']);
     $this->assertEquals(10, $meta['per_page']);
     $this->assertEquals(25, $meta['total']);
-  }
-
-  public function test_unauthenticated_user_cannot_view_personal_game_requests(): void
-  {
-    $response = $this->getJson('/api/v1/user/profile/game-requests');
-
-    $response->assertStatus(401);
-  }
-
-  public function test_authenticated_user_can_view_own_game_requests(): void
-  {
-    $userA = User::factory()->create();
-    $userB = User::factory()->create();
-
-    GameRequest::create([
-      'user_id'       => $userA->id,
-      'name'          => 'User A Game 1',
-      'steam_url'     => 'https://store.steampowered.com/app/111/',
-      'request_count' => 1,
-      'status'        => 'pending',
-    ]);
-
-    GameRequest::create([
-      'user_id'       => $userA->id,
-      'name'          => 'User A Game 2',
-      'steam_url'     => 'https://store.steampowered.com/app/222/',
-      'request_count' => 1,
-      'status'        => 'pending',
-    ]);
-
-    GameRequest::create([
-      'user_id'       => $userB->id,
-      'name'          => 'User B Game 1',
-      'steam_url'     => 'https://store.steampowered.com/app/333/',
-      'request_count' => 1,
-      'status'        => 'pending',
-    ]);
-
-    $token = auth('api')->login($userA);
-
-    $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->getJson('/api/v1/user/profile/game-requests');
-
-    $response->assertStatus(200)
-      ->assertJson([
-        'success' => true,
-        'message' => 'Game requests retrieved successfully',
-      ]);
-
-    $data = $response->json('data');
-    $this->assertCount(2, $data);
-
-    // Ensure request_count is included in personal list
-    $this->assertArrayHasKey('request_count', $data[0]);
-    $this->assertEquals(1, $data[0]['request_count']);
-    $this->assertArrayHasKey('id', $data[0]);
-    $this->assertArrayHasKey('name', $data[0]);
-    $this->assertArrayHasKey('steam_url', $data[0]);
-    $this->assertArrayHasKey('status', $data[0]);
   }
 
   public function test_authenticated_user_can_view_own_game_requests_via_scope_mine(): void
@@ -161,7 +102,7 @@ class GameRequestTest extends TestCase
     $token = auth('api')->login($userA);
 
     $response = $this->withHeader('Authorization', "Bearer {$token}")
-      ->getJson('/api/v1/user/game-requests?scope=mine');
+      ->getJson('/api/v1/game-requests?scope=mine');
 
     $response->assertStatus(200)
       ->assertJson([
@@ -182,7 +123,66 @@ class GameRequestTest extends TestCase
 
   public function test_unauthenticated_user_cannot_view_game_requests_with_scope_mine(): void
   {
-    $response = $this->getJson('/api/v1/user/game-requests?scope=mine');
+    $response = $this->getJson('/api/v1/game-requests?scope=mine');
+
+    $response->assertStatus(401);
+  }
+
+  public function test_authenticated_user_can_view_own_game_requests_via_user_game_requests_endpoints(): void
+  {
+    $userA = User::factory()->create();
+    $userB = User::factory()->create();
+
+    GameRequest::create([
+      'user_id'       => $userA->id,
+      'name'          => 'User A Game',
+      'steam_url'     => 'https://store.steampowered.com/app/111/',
+      'request_count' => 10,
+      'status'        => 'pending',
+    ]);
+
+    GameRequest::create([
+      'user_id'       => $userB->id,
+      'name'          => 'User B Game',
+      'steam_url'     => 'https://store.steampowered.com/app/222/',
+      'request_count' => 5,
+      'status'        => 'pending',
+    ]);
+
+    $token = auth('api')->login($userA);
+
+    // Test GET /api/v1/user/game-requests
+    $response = $this->withHeader('Authorization', "Bearer {$token}")
+      ->getJson('/api/v1/user/game-requests');
+
+    $response->assertStatus(200)
+      ->assertJson([
+        'success' => true,
+        'message' => 'Game requests retrieved successfully',
+      ]);
+    $data = $response->json('data');
+    $this->assertCount(1, $data);
+    $this->assertEquals('User A Game', $data[0]['name']);
+    $this->assertEquals(10, $data[0]['request_count']);
+
+    // Test GET /api/v1/user/game-requests/mine
+    $responseMine = $this->withHeader('Authorization', "Bearer {$token}")
+      ->getJson('/api/v1/user/game-requests/mine');
+
+    $responseMine->assertStatus(200);
+    $this->assertCount(1, $responseMine->json('data'));
+
+    // Test GET /api/v1/user/game-requests/user
+    $responseUser = $this->withHeader('Authorization', "Bearer {$token}")
+      ->getJson('/api/v1/user/game-requests/user');
+
+    $responseUser->assertStatus(200);
+    $this->assertCount(1, $responseUser->json('data'));
+  }
+
+  public function test_unauthenticated_user_cannot_access_user_game_requests_endpoint(): void
+  {
+    $response = $this->getJson('/api/v1/user/game-requests');
 
     $response->assertStatus(401);
   }
@@ -207,7 +207,7 @@ class GameRequestTest extends TestCase
       'status'        => 'pending',
     ]);
 
-    $response = $this->getJson('/api/v1/user/game-requests?scope=added');
+    $response = $this->getJson('/api/v1/game-requests?scope=added');
 
     $response->assertStatus(200)
       ->assertJson([
@@ -439,7 +439,7 @@ class GameRequestTest extends TestCase
       ])
       ->assertStatus(201);
 
-    $response = $this->getJson('/api/v1/user/game-requests');
+    $response = $this->getJson('/api/v1/game-requests');
     $response->assertStatus(200);
 
     $items = $response->json('data');

@@ -79,7 +79,7 @@ class ProfileRepository implements ProfileRepositoryInterface
   {
     $user->update($data);
 
-    return $user->fresh();
+    return $user->fresh(['avatar']);
   }
 
   /**

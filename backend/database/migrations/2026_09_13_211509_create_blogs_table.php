@@ -19,7 +19,7 @@ return new class extends Migration
             $table->text('short_description')->nullable();
             $table->text('content');
             $table->foreignId('blog_category_id')->nullable()->constrained()->nullOnDelete();
-            $table->foreignId('author_id')->nullable()->constrained('users')->nullOnDelete();
+            $table->foreignId('author_id')->nullable();
             $table->enum('status', ['draft', 'published', 'archived'])->default('draft');
             $table->string('meta_title')->nullable();
             $table->text('meta_description')->nullable();

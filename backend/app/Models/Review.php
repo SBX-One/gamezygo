@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 #[Fillable([
     'user_id',
     'product_id',
+    'order_item_id',
     'review',
     'rating',
     'status',
@@ -29,6 +30,11 @@ class Review extends Model
     public function product(): BelongsTo
     {
         return $this->belongsTo(Product::class);
+    }
+
+    public function orderItem(): BelongsTo
+    {
+        return $this->belongsTo(OrderItem::class);
     }
 
     public function replies(): HasMany

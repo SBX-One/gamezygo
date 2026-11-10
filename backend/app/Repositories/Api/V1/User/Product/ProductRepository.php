@@ -2,8 +2,10 @@
 
 namespace App\Repositories\Api\V1\User\Product;
 
+use App\Models\GenreCategory;
 use App\Models\Product;
 use App\Models\ProductGameAccount;
+use App\Models\ProductLauncherCategory;
 use App\Models\User;
 use App\Repositories\Contracts\Api\V1\User\Product\ProductRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
@@ -71,10 +73,13 @@ class ProductRepository implements ProductRepositoryInterface
             })
             ->when($sortBy, function ($query) use ($sortBy) {
                 match ($sortBy) {
-                    'price_asc'  => $query->orderBy('price'),
-                    'price_desc' => $query->orderByDesc('price'),
-                    'newest'     => $query->orderByDesc('created_at'),
-                    default      => $query->latest(),
+                    'price_asc'        => $query->orderBy('price'),
+                    'price_desc'       => $query->orderByDesc('price'),
+                    'newest', 'latest' => $query->orderByDesc('created_at'),
+                    'oldest'           => $query->orderBy('created_at'),
+                    'a_z'              => $query->orderBy('name', 'asc'),
+                    'z_a'              => $query->orderBy('name', 'desc'),
+                    default            => $query->latest(),
                 };
             }, function ($query) {
                 $query->latest();
@@ -137,5 +142,54 @@ class ProductRepository implements ProductRepositoryInterface
     public function getGameAccount(Product $product): ?ProductGameAccount
     {
         return $product->gameAccounts()->first();
+    }
+
+    /**
+     * Get available product filter data.
+     *
+     * @return array<string, mixed>
+     */
+    public function getProductFilters(): array
+    {
+        $categories = GenreCategory::query()->orderBy('id')->get();
+        $launchers  = ProductLauncherCategory::query()->orderBy('id')->get();
+        $maxPrice   = Product::max('price');
+
+        return [
+            'categories'   => $categories,
+            'launcher'     => $launchers,
+            'statuses'     => [
+                [
+                    'label' => 'Active',
+                    'value' => true,
+                ],
+                [
+                    'label' => 'Inactive',
+                    'value' => false,
+                ],
+            ],
+            'price_range'  => [
+                'min' => 0,
+                'max' => ($maxPrice && $maxPrice > 1500000) ? (int) $maxPrice : 1500000,
+            ],
+            'sort_options' => [
+                [
+                    'label' => 'Terbaru',
+                    'value' => 'latest',
+                ],
+                [
+                    'label' => 'Terlama',
+                    'value' => 'oldest',
+                ],
+                [
+                    'label' => 'Nama A-Z',
+                    'value' => 'a_z',
+                ],
+                [
+                    'label' => 'Nama Z-A',
+                    'value' => 'z_a',
+                ],
+            ],
+        ];
     }
 }

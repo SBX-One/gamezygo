@@ -75,4 +75,14 @@ class ProductService
 
         return $gameAccount;
     }
+
+    /**
+     * Retrieve available product filters including categories, launchers, statuses, price range, and sort options.
+     *
+     * @return array<string, mixed>
+     */
+    public function getProductFilters(): array
+    {
+        return $this->productRepository->getProductFilters();
+    }
 }

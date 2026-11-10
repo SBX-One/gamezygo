@@ -29,6 +29,7 @@ export interface AdminVoucherTableProps {
   onEditItem?: (item: AdminVoucherItem) => void;
   onDeleteItem?: (id: string) => void;
   className?: string;
+  isLoading?: boolean;
 }
 
 // Back Chevron Icon for Draft View (Matching Image 3)
@@ -195,6 +196,7 @@ export function AdminVoucherTable({
   onEditItem,
   onDeleteItem,
   className,
+  isLoading = false,
 }: AdminVoucherTableProps) {
   const [activeMenuId, setActiveMenuId] = React.useState<string | null>(null);
   const menuRef = React.useRef<HTMLDivElement>(null);
@@ -346,7 +348,40 @@ export function AdminVoucherTable({
         </AdminTableHeader>
 
         <AdminTableBody>
-          {items.length > 0 ? (
+          {isLoading ? (
+            Array.from({ length: 5 }).map((_, idx) => (
+              <AdminTableRow key={`voucher-skel-${idx}`}>
+                <AdminTableCell className="pl-6 w-14">
+                  <div className="w-9 h-5 rounded-full bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell>
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 rounded bg-white/10 animate-pulse" />
+                    <div className="w-32 h-4 rounded bg-white/10 animate-pulse" />
+                  </div>
+                </AdminTableCell>
+                {!isDraftViewActive && (
+                  <AdminTableCell>
+                    <div className="w-12 h-4 rounded bg-white/10 animate-pulse" />
+                  </AdminTableCell>
+                )}
+                <AdminTableCell>
+                  <div className="w-24 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                {!isDraftViewActive && (
+                  <AdminTableCell>
+                    <div className="w-16 h-6 rounded-full bg-white/10 animate-pulse" />
+                  </AdminTableCell>
+                )}
+                <AdminTableCell>
+                  <div className="w-24 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell className="pr-6 text-right">
+                  <div className="w-6 h-6 rounded bg-white/10 animate-pulse ml-auto" />
+                </AdminTableCell>
+              </AdminTableRow>
+            ))
+          ) : items.length > 0 ? (
             items.map((item) => {
               const isSelected = selectedIds.includes(item.id);
               const isMenuOpen = activeMenuId === item.id;

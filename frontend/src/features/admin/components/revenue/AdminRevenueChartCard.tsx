@@ -11,6 +11,7 @@ export interface AdminRevenueChartCardProps {
   data?: RevenueChartPoint[];
   onChangeRange?: (start: Date | null, end: Date | null, label: string) => void;
   className?: string;
+  isLoading?: boolean;
 }
 
 function buildSmoothPath(points: { x: number; y: number }[]): string {
@@ -38,6 +39,7 @@ export function AdminRevenueChartCard({
   data = MOCK_REVENUE_CHART_DATA,
   onChangeRange,
   className,
+  isLoading = false,
 }: AdminRevenueChartCardProps) {
   const [hoveredIdx, setHoveredIdx] = React.useState<number | null>(null);
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -118,6 +120,27 @@ export function AdminRevenueChartCard({
     const firstX = chartPoints[0].x;
     return `${linePath} L ${lastX.toFixed(1)} ${svgHeight} L ${firstX.toFixed(1)} ${svgHeight} Z`;
   }, [linePath, chartPoints, svgHeight]);
+
+  if (isLoading) {
+    return (
+      <div
+        className={`rounded-xl border border-deep-blue-700/60 bg-deep-blue-900/60 p-6 shadow-lg select-none ${
+          className || ""
+        }`}
+      >
+        <div className="flex items-center justify-between mb-8">
+          <div className="space-y-1.5">
+            <div className="w-36 h-4 rounded bg-white/10 animate-pulse" />
+            <div className="w-48 h-7 rounded bg-white/10 animate-pulse" />
+          </div>
+          <div className="w-32 h-8 rounded-lg bg-white/10 animate-pulse" />
+        </div>
+        <div className="h-64 rounded-lg bg-white/5 flex items-center justify-center p-4">
+          <div className="w-full h-32 rounded bg-white/10 animate-pulse" />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <AdminCard

@@ -19,6 +19,7 @@ export interface AdminRecentTransactionsSectionProps {
   transactions?: AdminTransaction[];
   viewAllHref?: string;
   className?: string;
+  isLoading?: boolean;
 }
 
 const ArrowRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -43,6 +44,7 @@ export function AdminRecentTransactionsSection({
   transactions,
   viewAllHref = "/admin/transactions",
   className,
+  isLoading = false,
 }: AdminRecentTransactionsSectionProps) {
   const activeTransactions = isEmpty
     ? []
@@ -76,7 +78,27 @@ export function AdminRecentTransactionsSection({
           </tr>
         </AdminTableHeader>
         <AdminTableBody>
-          {activeTransactions.length === 0 ? (
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, idx) => (
+              <AdminTableRow key={`tx-skel-${idx}`}>
+                <AdminTableCell className="pl-6">
+                  <div className="w-40 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell>
+                  <div className="w-36 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell>
+                  <div className="w-24 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell>
+                  <div className="w-20 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell className="pr-6">
+                  <div className="w-16 h-6 rounded-full bg-white/10 animate-pulse" />
+                </AdminTableCell>
+              </AdminTableRow>
+            ))
+          ) : activeTransactions.length === 0 ? (
             <tr>
               <td colSpan={5} className="py-16 sm:py-20 px-4 text-center">
                 <AdminEmptyState

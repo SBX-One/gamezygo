@@ -33,6 +33,7 @@ export interface AdminGameRequestTableCardProps {
   emptyDescription?: string;
   showCardHeaderActions?: boolean;
   className?: string;
+  isLoading?: boolean;
 }
 
 function getEmptyDescription(sectionTitle: string): string {
@@ -71,6 +72,7 @@ export function AdminGameRequestTableCard({
   emptyDescription,
   showCardHeaderActions = true,
   className,
+  isLoading = false,
 }: AdminGameRequestTableCardProps) {
   const currentTab =
     tabType ||
@@ -184,7 +186,30 @@ export function AdminGameRequestTableCard({
           </AdminTableHeader>
 
           <AdminTableBody>
-            {items.length > 0 ? (
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, idx) => (
+                <AdminTableRow key={`req-skel-${idx}`}>
+                  <AdminTableCell className="py-4 pl-6 pr-4">
+                    <div className="flex items-center gap-3">
+                      <div className="w-4 h-4 rounded bg-white/10 animate-pulse" />
+                      <div className="w-44 h-4 rounded bg-white/10 animate-pulse" />
+                    </div>
+                  </AdminTableCell>
+                  <AdminTableCell className="py-4 px-4">
+                    <div className="w-20 h-6 rounded-full bg-white/10 animate-pulse" />
+                  </AdminTableCell>
+                  <AdminTableCell className="py-4 px-4">
+                    <div className="w-24 h-4 rounded bg-white/10 animate-pulse" />
+                  </AdminTableCell>
+                  <AdminTableCell className="py-4 pr-6 pl-4 text-right">
+                    <div className="flex items-center justify-end gap-2">
+                      <div className="w-24 h-8 rounded-lg bg-white/10 animate-pulse" />
+                      <div className="w-16 h-8 rounded-lg bg-white/10 animate-pulse" />
+                    </div>
+                  </AdminTableCell>
+                </AdminTableRow>
+              ))
+            ) : items.length > 0 ? (
               items.map((item) => {
                 const isSelected = selectedIds.includes(item.id);
 

@@ -1,4 +1,5 @@
 import * as React from "react";
+import { useRouter } from "next/router";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { InputField } from "@/components/ui/InputField";
@@ -11,6 +12,7 @@ import {
 export interface AdminAddProductInstructionTemplateProps {
   formData: AdminAddProductFormData;
   onChange: (fields: Partial<AdminAddProductFormData>) => void;
+  onCreateNewTemplate?: () => void;
   className?: string;
 }
 
@@ -103,14 +105,71 @@ const FilterIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export function AdminAddProductInstructionTemplate({
   formData,
   onChange,
+  onCreateNewTemplate,
   className,
 }: AdminAddProductInstructionTemplateProps) {
+  const router = useRouter();
   const [templates, setTemplates] = React.useState<InstructionTemplateItem[]>(
     DEFAULT_INSTRUCTION_TEMPLATES
   );
   const [isChooseModalOpen, setIsChooseModalOpen] = React.useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
+
+  // Load custom templates created from /admin/instructions/add
+  React.useEffect(() => {
+    try {
+      const stored = localStorage.getItem("gamezygo_admin_instruction_templates");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          const formatted: InstructionTemplateItem[] = parsed.map((item) => ({
+            id: item.id || `tpl-${Date.now()}`,
+            title: item.title || "Custom Instruction",
+            badge: item.badge === "Draft" ? "Draft" : "Listed",
+            createdAt: item.createdAt || "Baru saja",
+            lastEdit: item.lastEdit || "Baru saja",
+            steps: Array.isArray(item.steps) && item.steps.length > 0
+              ? item.steps
+              : [{ stepNumber: 1, title: item.title, description: "Instruksi khusus." }],
+          }));
+
+          setTemplates((prev) => {
+            const combined = [...formatted, ...prev];
+            return combined.filter(
+              (tpl, idx, arr) => arr.findIndex((t) => t.id === tpl.id) === idx
+            );
+          });
+        }
+      }
+    } catch {
+      // LocalStorage fallback
+    }
+  }, []);
+
+  // Auto-select template if newTemplateId is passed via router query
+  React.useEffect(() => {
+    const newId = router.query.newTemplateId;
+    if (newId && typeof newId === "string") {
+      const match = templates.find((t) => t.id === newId);
+      if (match) {
+        onChange({
+          selectedTemplate: match,
+          hasInstructionTemplate: true,
+        });
+      }
+    }
+  }, [router.query.newTemplateId, templates]);
+
+  // Directs to /admin/instructions/add preserving the current page as returnUrl or invokes callback to auto-save edits
+  const handleNavigateToCreateTemplate = () => {
+    if (onCreateNewTemplate) {
+      onCreateNewTemplate();
+      return;
+    }
+    const returnUrl = router.asPath;
+    router.push(`/admin/instructions/add?returnUrl=${encodeURIComponent(returnUrl)}`);
+  };
 
   // Create template form state
   const [newTitle, setNewTitle] = React.useState("");
@@ -209,11 +268,7 @@ export function AdminAddProductInstructionTemplate({
             type="button"
             variant="inactive"
             size="sm"
-            onClick={() => {
-              setNewTitle("");
-              setNewDescription("");
-              setIsCreateModalOpen(true);
-            }}
+            onClick={handleNavigateToCreateTemplate}
             className="cursor-pointer"
           >
             Create New Template
@@ -264,10 +319,7 @@ export function AdminAddProductInstructionTemplate({
               type="button"
               variant="outline"
               size="sm"
-              onClick={() => {
-                setSearchQuery("");
-                setIsChooseModalOpen(true);
-              }}
+              onClick={handleNavigateToCreateTemplate}
               leftIcon={<PlusIcon className="w-3.5 h-3.5" />}
             >
               <span>Create New Template</span>
@@ -351,7 +403,7 @@ export function AdminAddProductInstructionTemplate({
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={handleOpenCreateFromChoose}
+                onClick={handleNavigateToCreateTemplate}
                 leftIcon={<PlusIcon className="w-3.5 h-3.5" />}
               >
                 <span>Create New Template</span>

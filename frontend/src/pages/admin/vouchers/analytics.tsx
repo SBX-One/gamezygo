@@ -15,6 +15,8 @@ import {
   MOCK_VOUCHER_ANALYTICS_DATA,
   MOCK_VOUCHER_ANALYTICS_EMPTY_DATA,
 } from "@/features/admin/data/admin-voucher-analytics-mock-data";
+import { useVoucherAnalytics } from "@/hooks/use-admin-vouchers";
+import { toast } from "@/stores/use-toast-store";
 import type { VoucherAnalyticsData } from "@/features/admin/types/admin-voucher-analytics.types";
 
 const ChevronRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -36,11 +38,16 @@ const ChevronRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export default function AdminVoucherAnalyticsPage() {
   const router = useRouter();
   const { code, empty } = router.query;
+  const voucherCode = typeof code === "string" ? code : undefined;
 
   const [isEmptyMode, setIsEmptyMode] = React.useState<boolean>(
     empty === "true" || empty === "1"
   );
   const [currentPage, setCurrentPage] = React.useState<number>(1);
+
+  const { data: serverAnalytics, isLoading } = useVoucherAnalytics({
+    code: voucherCode,
+  });
 
   React.useEffect(() => {
     if (empty === "true" || empty === "1") {
@@ -49,21 +56,24 @@ export default function AdminVoucherAnalyticsPage() {
   }, [empty]);
 
   const analyticsData: VoucherAnalyticsData = React.useMemo(() => {
-    const base = isEmptyMode
-      ? MOCK_VOUCHER_ANALYTICS_EMPTY_DATA
-      : MOCK_VOUCHER_ANALYTICS_DATA;
-
-    if (typeof code === "string" && code.trim()) {
+    if (isEmptyMode) {
+      return MOCK_VOUCHER_ANALYTICS_EMPTY_DATA;
+    }
+    if (serverAnalytics?.data) {
+      return serverAnalytics.data;
+    }
+    const base = MOCK_VOUCHER_ANALYTICS_DATA;
+    if (voucherCode && voucherCode.trim()) {
       return {
         ...base,
         summary: {
           ...base.summary,
-          voucherCode: code.toUpperCase(),
+          voucherCode: voucherCode.toUpperCase(),
         },
       };
     }
     return base;
-  }, [isEmptyMode, code]);
+  }, [isEmptyMode, serverAnalytics, voucherCode]);
 
   // Export CSV Handler
   const handleExportCSV = () => {

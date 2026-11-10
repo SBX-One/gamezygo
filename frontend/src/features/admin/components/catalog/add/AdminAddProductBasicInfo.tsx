@@ -16,35 +16,68 @@ export interface AdminAddProductBasicInfoProps {
   className?: string;
 }
 
+// Map legacy or synonym genres to standard design tokens
+function normalizeGenreName(rawGenre: string): string {
+  const trimmed = rawGenre.trim();
+  const lower = trimmed.toLowerCase();
+
+  // Normalize legacy sports/racing variations to the standard "Sport-Racing"
+  if (
+    lower === "sports" ||
+    lower === "sport" ||
+    lower === "racing" ||
+    lower === "sport-racing"
+  ) {
+    return "Sport-Racing";
+  }
+
+  // Case-insensitive match against standard GENRE_CHOICES
+  const matched = GENRE_CHOICES.find(
+    (choice) => choice.toLowerCase() === lower
+  );
+  if (matched) return matched;
+
+  // Capitalize custom genre
+  return trimmed.charAt(0).toUpperCase() + trimmed.slice(1);
+}
+
 export function AdminAddProductBasicInfo({
   formData,
   onChange,
   showPreOrder = true,
   className,
 }: AdminAddProductBasicInfoProps) {
-  // Track any custom or legacy genres present in formData that are outside GENRE_CHOICES
-  const [extraGenres, setExtraGenres] = React.useState<string[]>([]);
-
-  React.useEffect(() => {
-    if (formData.genres?.length) {
-      setExtraGenres((prev) => {
-        const custom = formData.genres.filter(
-          (g) => !GENRE_CHOICES.includes(g as (typeof GENRE_CHOICES)[number])
-        );
-        return Array.from(new Set([...prev, ...custom]));
-      });
-    }
+  // Canonical active genres from formData
+  const canonicalSelectedGenres = React.useMemo(() => {
+    if (!formData.genres?.length) return [];
+    return Array.from(
+      new Set(formData.genres.map(normalizeGenreName).filter(Boolean))
+    );
   }, [formData.genres]);
 
+  // Combine standard GENRE_CHOICES with any unique custom genres
   const allGenres = React.useMemo(() => {
-    return Array.from(new Set([...GENRE_CHOICES, ...extraGenres]));
-  }, [extraGenres]);
+    const list = [...GENRE_CHOICES] as string[];
+    canonicalSelectedGenres.forEach((g) => {
+      if (!list.some((choice) => choice.toLowerCase() === g.toLowerCase())) {
+        list.push(g);
+      }
+    });
+    return list;
+  }, [canonicalSelectedGenres]);
 
   const toggleGenre = (genre: string) => {
-    const isSelected = formData.genres.includes(genre);
+    const targetNorm = normalizeGenreName(genre);
+    const isSelected = canonicalSelectedGenres.some(
+      (g) => g.toLowerCase() === targetNorm.toLowerCase()
+    );
+
     const updated = isSelected
-      ? formData.genres.filter((g) => g !== genre)
-      : [...formData.genres, genre];
+      ? canonicalSelectedGenres.filter(
+          (g) => g.toLowerCase() !== targetNorm.toLowerCase()
+        )
+      : [...canonicalSelectedGenres, targetNorm];
+
     onChange({ genres: updated });
   };
 
@@ -120,11 +153,13 @@ export function AdminAddProductBasicInfo({
             GENRE
           </label>
           <div className="flex flex-wrap items-center gap-2">
-            {allGenres.map((genre, idx) => {
-              const isSelected = formData.genres.includes(genre);
+            {allGenres.map((genre) => {
+              const isSelected = canonicalSelectedGenres.some(
+                (g) => g.toLowerCase() === genre.toLowerCase()
+              );
               return (
                 <Button
-                  key={`${genre}-${idx}`}
+                  key={genre}
                   type="button"
                   variant={isSelected ? "active" : "inactive"}
                   size="sm"

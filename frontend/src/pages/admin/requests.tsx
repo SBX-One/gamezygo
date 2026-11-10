@@ -8,52 +8,32 @@ import {
   AdminGameRequestActionModal,
   AdminGameRequestDetailModal,
 } from "@/features/admin/components/game-requests";
-import {
-  MOCK_PINNED_GAME_REQUESTS,
-  MOCK_REQUESTED_GAMES,
-  MOCK_ACCEPTED_GAMES,
-  MOCK_DECLINED_GAMES,
-} from "@/features/admin/data/admin-game-request-mock-data";
 import type {
   AdminGameRequestItem,
   GameRequestTab,
 } from "@/features/admin/types/admin-game-request.types";
-
-const GAME_REQUEST_TABS: TabItem[] = [
-  { id: "requested", label: "Requested Game" },
-  { id: "accepted", label: "Accepted" },
-  { id: "declined", label: "Declined" },
-];
+import {
+  useAdminGameRequests,
+  useUpdateGameRequestStatus,
+  useBatchUpdateGameRequestStatus,
+  useToggleGameRequestPin,
+} from "@/hooks/use-admin-game-requests";
+import { toast } from "@/stores/use-toast-store";
 
 export default function AdminRequestsPage() {
   const router = useRouter();
 
-  // Tabs state: "requested" | "accepted" | "declined" (Matching Image 2)
+  // Tabs state: "requested" | "accepted" | "declined"
   const [activeTab, setActiveTab] = React.useState<GameRequestTab>("requested");
 
   // Preview Item for Detail Modal
   const [previewItem, setPreviewItem] = React.useState<AdminGameRequestItem | null>(null);
 
-  // Datasets state
-  const [pinnedGames, setPinnedGames] = React.useState<AdminGameRequestItem[]>(
-    MOCK_PINNED_GAME_REQUESTS
-  );
-  const [requestedGames, setRequestedGames] = React.useState<AdminGameRequestItem[]>(
-    MOCK_REQUESTED_GAMES
-  );
-  const [acceptedGames, setAcceptedGames] = React.useState<AdminGameRequestItem[]>(
-    MOCK_ACCEPTED_GAMES
-  );
-  const [declinedGames, setDeclinedGames] = React.useState<AdminGameRequestItem[]>(
-    MOCK_DECLINED_GAMES
-  );
-
   // Checkbox Selection state
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
 
-  // Pagination state (Matching Image 5)
+  // Pagination state
   const [currentPage, setCurrentPage] = React.useState<number>(1);
-  const totalPages = 25; // 25 pages as shown in Image 5
 
   // Modal confirmation state
   const [modalState, setModalState] = React.useState<{
@@ -66,6 +46,32 @@ export default function AdminRequestsPage() {
     actionType: "accept",
   });
 
+  // Live database hook
+  const {
+    items,
+    pinnedItems,
+    unpinnedItems,
+    counts,
+    totalPages,
+    isLoading,
+  } = useAdminGameRequests({
+    status: activeTab,
+    page: currentPage,
+    per_page: 20,
+  });
+
+  // Mutations
+  const updateStatusMutation = useUpdateGameRequestStatus();
+  const batchUpdateStatusMutation = useBatchUpdateGameRequestStatus();
+  const togglePinMutation = useToggleGameRequestPin();
+
+  // Reset to page 1 and clear selected IDs when tab changes
+  const handleTabChange = (newTab: GameRequestTab) => {
+    setActiveTab(newTab);
+    setSelectedIds([]);
+    setCurrentPage(1);
+  };
+
   // Toggle selection for a single game
   const handleToggleSelectItem = (id: string) => {
     setSelectedIds((prev) =>
@@ -75,8 +81,9 @@ export default function AdminRequestsPage() {
 
   // Toggle select all for pinned games
   const handleToggleSelectAllPinned = () => {
-    const pinnedIds = pinnedGames.map((g) => g.id);
-    const allPinnedSelected = pinnedIds.every((id) => selectedIds.includes(id));
+    const pinnedIds = pinnedItems.map((g) => g.id);
+    const allPinnedSelected =
+      pinnedIds.length > 0 && pinnedIds.every((id) => selectedIds.includes(id));
 
     if (allPinnedSelected) {
       setSelectedIds((prev) => prev.filter((id) => !pinnedIds.includes(id)));
@@ -87,10 +94,10 @@ export default function AdminRequestsPage() {
 
   // Toggle select all for requested games
   const handleToggleSelectAllRequested = () => {
-    const requestedIds = requestedGames.map((g) => g.id);
-    const allRequestedSelected = requestedIds.every((id) =>
-      selectedIds.includes(id)
-    );
+    const requestedIds = unpinnedItems.map((g) => g.id);
+    const allRequestedSelected =
+      requestedIds.length > 0 &&
+      requestedIds.every((id) => selectedIds.includes(id));
 
     if (allRequestedSelected) {
       setSelectedIds((prev) => prev.filter((id) => !requestedIds.includes(id)));
@@ -101,8 +108,10 @@ export default function AdminRequestsPage() {
 
   // Toggle select all for accepted games
   const handleToggleSelectAllAccepted = () => {
-    const acceptedIds = acceptedGames.map((g) => g.id);
-    const allAcceptedSelected = acceptedIds.every((id) => selectedIds.includes(id));
+    const acceptedIds = items.map((g) => g.id);
+    const allAcceptedSelected =
+      acceptedIds.length > 0 &&
+      acceptedIds.every((id) => selectedIds.includes(id));
 
     if (allAcceptedSelected) {
       setSelectedIds((prev) => prev.filter((id) => !acceptedIds.includes(id)));
@@ -113,8 +122,10 @@ export default function AdminRequestsPage() {
 
   // Toggle select all for declined games
   const handleToggleSelectAllDeclined = () => {
-    const declinedIds = declinedGames.map((g) => g.id);
-    const allDeclinedSelected = declinedIds.every((id) => selectedIds.includes(id));
+    const declinedIds = items.map((g) => g.id);
+    const allDeclinedSelected =
+      declinedIds.length > 0 &&
+      declinedIds.every((id) => selectedIds.includes(id));
 
     if (allDeclinedSelected) {
       setSelectedIds((prev) => prev.filter((id) => !declinedIds.includes(id)));
@@ -125,22 +136,24 @@ export default function AdminRequestsPage() {
 
   // Pin / Unpin Toggle
   const handlePinToggle = (id: string) => {
-    // Check if in pinned
-    const pinnedIndex = pinnedGames.findIndex((g) => g.id === id);
-    if (pinnedIndex !== -1) {
-      const item = pinnedGames[pinnedIndex];
-      setPinnedGames((prev) => prev.filter((g) => g.id !== id));
-      setRequestedGames((prev) => [{ ...item, isPinned: false }, ...prev]);
-      return;
-    }
+    const target = items.find((g) => g.id === id);
+    const willPin = target ? !target.isPinned : true;
 
-    // Check if in requested
-    const requestedIndex = requestedGames.findIndex((g) => g.id === id);
-    if (requestedIndex !== -1) {
-      const item = requestedGames[requestedIndex];
-      setRequestedGames((prev) => prev.filter((g) => g.id !== id));
-      setPinnedGames((prev) => [{ ...item, isPinned: true }, ...prev]);
-    }
+    togglePinMutation.mutate(
+      { id, isPinned: willPin },
+      {
+        onSuccess: () => {
+          toast.success(
+            willPin
+              ? `Game "${target?.name || id}" berhasil disematkan di atas!`
+              : `Sematan game "${target?.name || id}" dilepas.`
+          );
+        },
+        onError: () => {
+          toast.error("Gagal mengubah status sematan game.");
+        },
+      }
+    );
   };
 
   // Open modal handlers
@@ -199,67 +212,102 @@ export default function AdminRequestsPage() {
   // Confirm modal action execution
   const handleConfirmAction = () => {
     const { actionType, targetItem, targetSection } = modalState;
+    setModalState((prev) => ({ ...prev, isOpen: false }));
 
     if (actionType === "accept" && targetItem) {
-      // Remove from pinned or requested, add to accepted
-      setPinnedGames((prev) => prev.filter((g) => g.id !== targetItem.id));
-      setRequestedGames((prev) => prev.filter((g) => g.id !== targetItem.id));
-      setAcceptedGames((prev) => [
-        { ...targetItem, status: "accepted", isPinned: false },
-        ...prev,
-      ]);
-      setSelectedIds((prev) => prev.filter((id) => id !== targetItem.id));
+      updateStatusMutation.mutate(
+        { id: targetItem.id, status: "accepted" },
+        {
+          onSuccess: () => {
+            toast.success(`Game "${targetItem.name}" berhasil disetujui!`);
+            setSelectedIds((prev) => prev.filter((id) => id !== targetItem.id));
+          },
+          onError: () => {
+            toast.error("Gagal menyetujui permintaan game.");
+          },
+        }
+      );
     } else if (actionType === "decline" && targetItem) {
-      // Remove from pinned or requested, add to declined
-      setPinnedGames((prev) => prev.filter((g) => g.id !== targetItem.id));
-      setRequestedGames((prev) => prev.filter((g) => g.id !== targetItem.id));
-      setDeclinedGames((prev) => [
-        { ...targetItem, status: "declined", isPinned: false },
-        ...prev,
-      ]);
-      setSelectedIds((prev) => prev.filter((id) => id !== targetItem.id));
+      updateStatusMutation.mutate(
+        { id: targetItem.id, status: "declined" },
+        {
+          onSuccess: () => {
+            toast.info(`Game "${targetItem.name}" ditolak.`);
+            setSelectedIds((prev) => prev.filter((id) => id !== targetItem.id));
+          },
+          onError: () => {
+            toast.error("Gagal menolak permintaan game.");
+          },
+        }
+      );
     } else if (actionType === "cancel" && targetItem) {
-      // Move from accepted or declined back to requested
-      if (targetSection === "accepted") {
-        setAcceptedGames((prev) => prev.filter((g) => g.id !== targetItem.id));
-      } else {
-        setDeclinedGames((prev) => prev.filter((g) => g.id !== targetItem.id));
-      }
-      setRequestedGames((prev) => [
-        { ...targetItem, status: "requested" as const, isPinned: false },
-        ...prev,
-      ]);
-      setSelectedIds((prev) => prev.filter((id) => id !== targetItem.id));
+      updateStatusMutation.mutate(
+        { id: targetItem.id, status: "requested" },
+        {
+          onSuccess: () => {
+            toast.success(
+              `Permintaan game "${targetItem.name}" dikembalikan ke daftar request.`
+            );
+            setSelectedIds((prev) => prev.filter((id) => id !== targetItem.id));
+          },
+          onError: () => {
+            toast.error("Gagal membatalkan status game.");
+          },
+        }
+      );
     } else if (actionType === "accept-all") {
-      if (targetSection === "pinned") {
-        setAcceptedGames((prev) => [
-          ...pinnedGames.map((g) => ({ ...g, status: "accepted" as const, isPinned: false })),
-          ...prev,
-        ]);
-        setPinnedGames([]);
-      } else {
-        setAcceptedGames((prev) => [
-          ...requestedGames.map((g) => ({ ...g, status: "accepted" as const, isPinned: false })),
-          ...prev,
-        ]);
-        setRequestedGames([]);
-      }
+      const targetList = targetSection === "pinned" ? pinnedItems : unpinnedItems;
+      const ids = targetList.map((g) => g.id);
+
+      if (ids.length === 0) return;
+
+      batchUpdateStatusMutation.mutate(
+        { ids, status: "accepted" },
+        {
+          onSuccess: () => {
+            toast.success(`${ids.length} game berhasil disetujui!`);
+            setSelectedIds((prev) => prev.filter((id) => !ids.includes(id)));
+          },
+          onError: () => {
+            toast.error("Gagal menyetujui game terpilih.");
+          },
+        }
+      );
     } else if (actionType === "decline-all") {
-      if (targetSection === "pinned") {
-        setDeclinedGames((prev) => [
-          ...pinnedGames.map((g) => ({ ...g, status: "declined" as const, isPinned: false })),
-          ...prev,
-        ]);
-        setPinnedGames([]);
-      } else {
-        setDeclinedGames((prev) => [
-          ...requestedGames.map((g) => ({ ...g, status: "declined" as const, isPinned: false })),
-          ...prev,
-        ]);
-        setRequestedGames([]);
-      }
+      const targetList = targetSection === "pinned" ? pinnedItems : unpinnedItems;
+      const ids = targetList.map((g) => g.id);
+
+      if (ids.length === 0) return;
+
+      batchUpdateStatusMutation.mutate(
+        { ids, status: "declined" },
+        {
+          onSuccess: () => {
+            toast.info(`${ids.length} game ditolak.`);
+            setSelectedIds((prev) => prev.filter((id) => !ids.includes(id)));
+          },
+          onError: () => {
+            toast.error("Gagal menolak game terpilih.");
+          },
+        }
+      );
     }
   };
+
+  const dynamicTabs: TabItem[] = [
+    {
+      id: "requested",
+      label: counts.requested > 0 ? `Requested Game (${counts.requested})` : "Requested Game",
+    },
+    {
+      id: "accepted",
+      label: counts.accepted > 0 ? `Accepted (${counts.accepted})` : "Accepted",
+    },
+    {
+      id: "declined",
+      label: counts.declined > 0 ? `Declined (${counts.declined})` : "Declined",
+    },
+  ];
 
   return (
     <>
@@ -271,50 +319,49 @@ export default function AdminRequestsPage() {
         />
       </Head>
 
-      {/* AdminLayout provides the Top Navigation Header with Toggle Icon + Divider + "Game Request" (Image 1) */}
       <AdminLayout title="Game Request" activeNavId="game-request">
         <div className="w-full space-y-6 pb-12">
-          {/* Section 1: Tab Navigation (Matching Image 2: Requested Game | Accepted | Declined) */}
+          {/* Section 1: Tab Navigation with Live Counts */}
           <Tabs
-            items={GAME_REQUEST_TABS}
+            items={dynamicTabs}
             activeId={activeTab}
-            onChange={(id) => {
-              setActiveTab(id as GameRequestTab);
-              setSelectedIds([]);
-              setCurrentPage(1);
-            }}
+            onChange={(id) => handleTabChange(id as GameRequestTab)}
             className="border-deep-blue-700"
           />
 
           {/* Section 2: Tab Content */}
           {activeTab === "requested" && (
             <div className="space-y-6">
-              {/* Pinned Game Section (Matching Image 2 & Image 3) */}
-              <AdminGameRequestTableCard
-                sectionTitle="Pinned Game"
-                totalLabel="Games Pinned"
-                totalCount={pinnedGames.length}
-                items={pinnedGames}
-                selectedIds={selectedIds}
-                tabType="requested"
-                onToggleSelectAll={handleToggleSelectAllPinned}
-                onToggleSelectItem={handleToggleSelectItem}
-                onPinToggle={handlePinToggle}
-                onAcceptItem={triggerAcceptItem}
-                onDeclineItem={triggerDeclineItem}
-                onAcceptAll={() => triggerAcceptAll("pinned")}
-                onDeclineAll={() => triggerDeclineAll("pinned")}
-                emptyDescription="Anda belum menyematkan permintaan game apapun."
-              />
+              {/* Pinned Game Section */}
+              {(isLoading || pinnedItems.length > 0) && (
+                <AdminGameRequestTableCard
+                  sectionTitle="Pinned Game"
+                  totalLabel="Games Pinned"
+                  totalCount={pinnedItems.length}
+                  items={pinnedItems}
+                  selectedIds={selectedIds}
+                  tabType="requested"
+                  isLoading={isLoading}
+                  onToggleSelectAll={handleToggleSelectAllPinned}
+                  onToggleSelectItem={handleToggleSelectItem}
+                  onPinToggle={handlePinToggle}
+                  onAcceptItem={triggerAcceptItem}
+                  onDeclineItem={triggerDeclineItem}
+                  onAcceptAll={() => triggerAcceptAll("pinned")}
+                  onDeclineAll={() => triggerDeclineAll("pinned")}
+                  emptyDescription="Anda belum menyematkan permintaan game apapun."
+                />
+              )}
 
-              {/* Requested Game Section (Matching Image 3 & Image 4) */}
+              {/* Requested Game Section */}
               <AdminGameRequestTableCard
                 sectionTitle="Requested Game"
-                totalLabel="Games Reqeuested"
-                totalCount={requestedGames.length}
-                items={requestedGames}
+                totalLabel="Games Requested"
+                totalCount={unpinnedItems.length}
+                items={unpinnedItems}
                 selectedIds={selectedIds}
                 tabType="requested"
+                isLoading={isLoading}
                 onToggleSelectAll={handleToggleSelectAllRequested}
                 onToggleSelectItem={handleToggleSelectItem}
                 onPinToggle={handlePinToggle}
@@ -325,8 +372,8 @@ export default function AdminRequestsPage() {
                 emptyDescription="Belum ada riwayat permintaan game dari customer."
               />
 
-              {/* Pagination Component (Matching Image 5: < 1 2 3 4 5 ... 25 >) */}
-              {requestedGames.length > 0 && (
+              {/* Pagination Component */}
+              {!isLoading && totalPages > 1 && (
                 <div className="pt-2">
                   <Pagination
                     currentPage={currentPage}
@@ -340,14 +387,15 @@ export default function AdminRequestsPage() {
 
           {activeTab === "accepted" && (
             <div className="space-y-6">
-              {/* Accepted Game Section: 3 buttons (View on Steam, Add Product, Cancel) - Image 1 */}
+              {/* Accepted Game Section */}
               <AdminGameRequestTableCard
                 sectionTitle="Accepted Game"
                 totalLabel="Games Accepted"
-                totalCount={acceptedGames.length}
-                items={acceptedGames}
+                totalCount={items.length}
+                items={items}
                 selectedIds={selectedIds}
                 tabType="accepted"
+                isLoading={isLoading}
                 onToggleSelectAll={handleToggleSelectAllAccepted}
                 onToggleSelectItem={handleToggleSelectItem}
                 onAddProduct={handleAddProduct}
@@ -356,11 +404,11 @@ export default function AdminRequestsPage() {
                 emptyDescription="Anda belum menyetujui permintaan game apapun."
               />
 
-              {acceptedGames.length > 0 && (
+              {!isLoading && totalPages > 1 && (
                 <div className="pt-2">
                   <Pagination
                     currentPage={currentPage}
-                    totalPages={Math.max(1, Math.ceil(acceptedGames.length / 10))}
+                    totalPages={totalPages}
                     onPageChange={setCurrentPage}
                   />
                 </div>
@@ -370,14 +418,15 @@ export default function AdminRequestsPage() {
 
           {activeTab === "declined" && (
             <div className="space-y-6">
-              {/* Declined Game Section: 2 buttons (View on Steam, Cancel) - Image 2 */}
+              {/* Declined Game Section */}
               <AdminGameRequestTableCard
                 sectionTitle="Declined Game"
                 totalLabel="Games Declined"
-                totalCount={declinedGames.length}
-                items={declinedGames}
+                totalCount={items.length}
+                items={items}
                 selectedIds={selectedIds}
                 tabType="declined"
+                isLoading={isLoading}
                 onToggleSelectAll={handleToggleSelectAllDeclined}
                 onToggleSelectItem={handleToggleSelectItem}
                 onCancelItem={(item) => triggerCancelItem(item, "declined")}
@@ -385,11 +434,11 @@ export default function AdminRequestsPage() {
                 emptyDescription="Anda belum menolak permintaan game apapun."
               />
 
-              {declinedGames.length > 0 && (
+              {!isLoading && totalPages > 1 && (
                 <div className="pt-2">
                   <Pagination
                     currentPage={currentPage}
-                    totalPages={Math.max(1, Math.ceil(declinedGames.length / 10))}
+                    totalPages={totalPages}
                     onPageChange={setCurrentPage}
                   />
                 </div>
@@ -398,15 +447,15 @@ export default function AdminRequestsPage() {
           )}
         </div>
 
-        {/* Action Confirmation Modal (Matching Image 1) */}
+        {/* Action Confirmation Modal */}
         <AdminGameRequestActionModal
           isOpen={modalState.isOpen}
           actionType={modalState.actionType}
           targetName={modalState.targetItem?.name}
           count={
             modalState.targetSection === "pinned"
-              ? pinnedGames.length
-              : requestedGames.length
+              ? pinnedItems.length
+              : unpinnedItems.length
           }
           onClose={() => setModalState((prev) => ({ ...prev, isOpen: false }))}
           onConfirm={handleConfirmAction}

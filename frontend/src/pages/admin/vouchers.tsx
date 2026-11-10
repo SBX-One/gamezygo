@@ -9,27 +9,30 @@ import {
   AdminVoucherAddEditModal,
   AdminVoucherDeleteModal,
 } from "@/features/admin/components/vouchers";
-import { MOCK_ADMIN_VOUCHERS } from "@/features/admin/data/admin-voucher-mock-data";
 import {
   INITIAL_VOUCHER_FILTER_STATE,
   type AdminVoucherItem,
   type AdminVoucherFilterState,
 } from "@/features/admin/types/admin-voucher.types";
+import {
+  useAdminVouchers,
+  useToggleVoucherStatus,
+  useDeleteVoucher,
+  useBatchDeleteVouchers,
+  useUpdateVoucher,
+  useCreateVoucher,
+} from "@/hooks/use-admin-vouchers";
+import type { AdminVoucherQueryParams } from "@/services/admin-voucher.service";
+import { toast } from "@/stores/use-toast-store";
 
 export default function AdminVouchersPage() {
   const router = useRouter();
-  const [vouchers, setVouchers] = React.useState<AdminVoucherItem[]>(
-    MOCK_ADMIN_VOUCHERS
-  );
   const [filters, setFilters] = React.useState<AdminVoucherFilterState>(
     INITIAL_VOUCHER_FILTER_STATE
   );
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [isDraftViewActive, setIsDraftViewActive] = React.useState<boolean>(false);
-
-  // Pagination state (Matching Image 4: < 1 2 3 4 5 ... 25 >)
   const [currentPage, setCurrentPage] = React.useState<number>(1);
-  const totalPages = 25; // 25 pages as shown in Image 4
 
   // Modals state
   const [isAddEditModalOpen, setIsAddEditModalOpen] = React.useState(false);
@@ -44,63 +47,47 @@ export default function AdminVouchersPage() {
     isOpen: false,
   });
 
-  // Filter & Sort Logic
-  const filteredVouchers = React.useMemo(() => {
-    return vouchers
-      .filter((item) => {
-        // 1. Search Query
-        if (
-          filters.searchQuery.trim() &&
-          !item.code
-            .toLowerCase()
-            .includes(filters.searchQuery.trim().toLowerCase())
-        ) {
-          return false;
-        }
+  // Query parameters for backend
+  const queryParams: AdminVoucherQueryParams = React.useMemo(() => {
+    return {
+      search: filters.searchQuery.trim() || undefined,
+      status: isDraftViewActive ? "draft" : filters.status,
+      sort_by: filters.sortBy,
+      page: currentPage,
+      per_page: 10,
+    };
+  }, [filters.searchQuery, filters.status, filters.sortBy, isDraftViewActive, currentPage]);
 
-        // 2. Draft Button Toggle View (Image 5)
-        if (isDraftViewActive && item.status !== "draft") {
-          return false;
-        }
+  // Live queries & mutations
+  const { data: serverResponse, isLoading } = useAdminVouchers(queryParams);
+  const toggleStatusMutation = useToggleVoucherStatus();
+  const deleteMutation = useDeleteVoucher();
+  const batchDeleteMutation = useBatchDeleteVouchers();
+  const updateMutation = useUpdateVoucher();
+  const createMutation = useCreateVoucher();
 
-        // 3. Status Filter from TopBar Popover
-        if (filters.status !== "all" && item.status !== filters.status) {
-          return false;
-        }
+  const vouchers: AdminVoucherItem[] = React.useMemo(() => {
+    return serverResponse?.data?.vouchers ?? [];
+  }, [serverResponse?.data?.vouchers]);
 
-        return true;
-      })
-      .sort((a, b) => {
-        if (filters.sortBy === "code_asc") {
-          return a.code.localeCompare(b.code);
-        }
-        if (filters.sortBy === "value_desc") {
-          return b.discountAmount - a.discountAmount;
-        }
-        if (filters.sortBy === "value_asc") {
-          return a.discountAmount - b.discountAmount;
-        }
-        return 0; // Default: terbaru / original order
-      });
-  }, [vouchers, filters, isDraftViewActive]);
+  const totalPages = serverResponse?.data?.meta?.last_page || 1;
+  const totalCount = serverResponse?.data?.meta?.total ?? vouchers.length;
 
   // Handlers
-  const handleToggleStatus = (id: string, active: boolean) => {
-    setVouchers((prev) =>
-      prev.map((v) =>
-        v.id === id
-          ? {
-              ...v,
-              isActive: active,
-              status: active ? "active" : "inactive",
-            }
-          : v
-      )
-    );
+  const handleToggleStatus = async (id: string, active: boolean) => {
+    try {
+      await toggleStatusMutation.mutateAsync({ id, isActive: active });
+      toast.success(
+        `Voucher berhasil ${active ? "diaktifkan" : "dinonaktifkan"}.`,
+        "Status Voucher"
+      );
+    } catch {
+      toast.error("Gagal mengubah status voucher.", "Gagal");
+    }
   };
 
   const handleToggleSelectAll = () => {
-    const visibleIds = filteredVouchers.map((v) => v.id);
+    const visibleIds = vouchers.map((v) => v.id);
     const isAllVisibleSelected =
       visibleIds.length > 0 &&
       visibleIds.every((id) => selectedIds.includes(id));
@@ -121,6 +108,7 @@ export default function AdminVouchersPage() {
   const handleToggleDraftView = () => {
     setIsDraftViewActive((prev) => !prev);
     setCurrentPage(1);
+    setSelectedIds([]);
   };
 
   const handleAddNew = () => {
@@ -132,20 +120,41 @@ export default function AdminVouchersPage() {
     setIsAddEditModalOpen(true);
   };
 
-  const handleSaveVoucher = (
+  const handleSaveVoucher = async (
     data: Omit<AdminVoucherItem, "id">,
     id?: string
   ) => {
-    if (id) {
-      setVouchers((prev) =>
-        prev.map((v) => (v.id === id ? { ...v, ...data } : v))
-      );
-    } else {
-      const newVoucher: AdminVoucherItem = {
-        ...data,
-        id: `vouch-${Date.now()}`,
-      };
-      setVouchers((prev) => [newVoucher, ...prev]);
+    try {
+      if (id) {
+        await updateMutation.mutateAsync({
+          id,
+          data: {
+            code: data.code,
+            discount_type: data.discountType === "percentage" ? "percentage" : "fixed",
+            discount_amount: data.discountAmount,
+            slot: data.usageLimit || 0,
+            is_active: data.isActive,
+          },
+        });
+        toast.success("Perubahan voucher berhasil disimpan.", "Voucher Updated");
+      } else {
+        await createMutation.mutateAsync({
+          name: data.code,
+          code: data.code,
+          discount_type: data.discountType === "percentage" ? "percentage" : "fixed",
+          discount_amount: data.discountAmount,
+          slot: data.usageLimit || 0,
+          is_active: data.isActive,
+        });
+        toast.success("Voucher baru berhasil dibuat.", "Voucher Created");
+      }
+      setIsAddEditModalOpen(false);
+      setEditingItem(null);
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message || "Gagal menyimpan voucher.";
+      toast.error(msg, "Gagal");
     }
   };
 
@@ -166,19 +175,26 @@ export default function AdminVouchersPage() {
     });
   };
 
-  const handleConfirmDelete = () => {
+  const handleConfirmDelete = async () => {
     const { targetId, selectedCount } = deleteModalState;
+    setDeleteModalState({ isOpen: false });
 
-    if (targetId) {
-      setVouchers((prev) => prev.filter((v) => v.id !== targetId));
-      setSelectedIds((prev) => prev.filter((id) => id !== targetId));
-    } else if (selectedCount) {
-      setVouchers((prev) => prev.filter((v) => !selectedIds.includes(v.id)));
-      setSelectedIds([]);
+    try {
+      if (targetId) {
+        await deleteMutation.mutateAsync(targetId);
+        setSelectedIds((prev) => prev.filter((id) => id !== targetId));
+        toast.success("Voucher berhasil dihapus.", "Terhapus");
+      } else if (selectedCount && selectedIds.length > 0) {
+        await batchDeleteMutation.mutateAsync(selectedIds);
+        setSelectedIds([]);
+        toast.success(`${selectedCount} voucher berhasil dihapus.`, "Terhapus");
+      }
+    } catch {
+      toast.error("Gagal menghapus voucher.", "Gagal");
     }
   };
 
-  // HeaderRight content for top bar (Matching Image 1: Cari voucher + Filter Button)
+  // HeaderRight content for top bar
   const headerRight = (
     <AdminVoucherTopBar
       filters={filters}
@@ -199,32 +215,33 @@ export default function AdminVouchersPage() {
         />
       </Head>
 
-      {/* AdminLayout provides the Top Navigation Header with Toggle Icon + Divider + "Voucher" (Image 1) */}
       <AdminLayout
         title="Voucher"
         activeNavId="voucher"
         headerRight={headerRight}
       >
         <div className="w-full space-y-6 pb-12 select-none">
-          {/* Main Voucher Table Card (Matching Image 2, Image 3 & Image 5) */}
           <AdminVoucherTable
-            items={filteredVouchers}
-            totalVouchersCount={105}
+            items={vouchers}
+            totalVouchersCount={totalCount}
             selectedIds={selectedIds}
             isDraftViewActive={isDraftViewActive}
+            isLoading={isLoading}
             onToggleSelectAll={handleToggleSelectAll}
             onToggleSelectItem={handleToggleSelectItem}
             onToggleStatus={handleToggleStatus}
             onAddNew={handleAddNew}
             onToggleDraftView={handleToggleDraftView}
-            onBackFromDraft={() => setIsDraftViewActive(false)}
+            onBackFromDraft={() => {
+              setIsDraftViewActive(false);
+              setCurrentPage(1);
+            }}
             onDeleteSelected={handleDeleteSelected}
             onEditItem={handleEditItem}
             onDeleteItem={handleDeleteSingle}
           />
 
-          {/* Pagination Component (Matching Image 4: < 1 2 3 4 5 ... 25 >) */}
-          {filteredVouchers.length > 0 && (
+          {vouchers.length > 0 && totalPages > 1 && (
             <div className="pt-2">
               <Pagination
                 currentPage={currentPage}
@@ -235,7 +252,6 @@ export default function AdminVouchersPage() {
           )}
         </div>
 
-        {/* Add / Edit Voucher Modal */}
         <AdminVoucherAddEditModal
           isOpen={isAddEditModalOpen}
           item={editingItem}
@@ -246,7 +262,6 @@ export default function AdminVouchersPage() {
           onSave={handleSaveVoucher}
         />
 
-        {/* Delete Confirmation Modal */}
         <AdminVoucherDeleteModal
           isOpen={deleteModalState.isOpen}
           voucherCode={deleteModalState.voucherCode}

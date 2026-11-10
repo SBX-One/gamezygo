@@ -60,3 +60,4 @@ export const toast = {
     useToastStore.getState().addToast({ title, description, variant: "default" }),
   dismiss: (id: string) => useToastStore.getState().removeToast(id),
 };
+

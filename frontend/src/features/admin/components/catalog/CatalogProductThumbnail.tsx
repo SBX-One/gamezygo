@@ -39,11 +39,17 @@ export function CatalogProductThumbnail({
   const cleanSrc = React.useMemo(() => {
     if (!src || hasError) return null;
     const resolved = resolveImageUrl(src);
-    // If backend returns placehold.co or invalid storage, use clean SVG poster
+    const lower = resolved.toLowerCase();
+    // If backend returns placehold.co, via.placeholder, or invalid storage, use clean SVG poster
     if (
-      resolved.includes("placehold.co") ||
-      resolved.endsWith("/storage/") ||
-      resolved.endsWith("/storage")
+      lower.includes("placehold.co") ||
+      lower.includes("via.placeholder") ||
+      lower.includes("placeholder.com") ||
+      lower.includes("dummyimage.com") ||
+      lower.includes("placeholder") ||
+      lower.endsWith("/storage/") ||
+      lower.endsWith("/storage") ||
+      lower.includes("text=")
     ) {
       return null;
     }
@@ -51,22 +57,22 @@ export function CatalogProductThumbnail({
   }, [src, hasError]);
 
   const sizeClasses = {
-    sm: "w-8 h-8 rounded-md",
-    md: "w-9 h-11 rounded-lg", // 36px x 44px - sharp 3:4 poster ratio
-    lg: "w-12 h-16 rounded-lg",
+    sm: "w-8 h-10 rounded-md", // 32px x 40px - clean portrait poster
+    md: "w-9 h-12 rounded-lg", // 36px x 48px - standard 3:4 game box ratio
+    lg: "w-12 h-16 rounded-lg", // 48px x 64px
   }[size];
 
   if (!cleanSrc) {
     return (
       <div
         className={cn(
-          "relative shrink-0 flex items-center justify-center bg-gradient-to-b from-[#1E202B] to-[#14151E] border border-deep-blue-700 select-none shadow-sm",
+          "relative shrink-0 flex items-center justify-center bg-gradient-to-b from-[#1E202B] to-[#14151E] border border-deep-blue-700/80 select-none shadow-sm",
           sizeClasses,
           className
         )}
         title={alt}
       >
-        <GamepadCoverIcon className="w-4 h-4 text-indigo-400/70" />
+        <GamepadCoverIcon className="w-4 h-4 text-indigo-400/80" />
       </div>
     );
   }
@@ -83,10 +89,13 @@ export function CatalogProductThumbnail({
         src={cleanSrc}
         alt={alt}
         fill
-        sizes="80px"
+        sizes="96px"
         unoptimized
         onError={() => setHasError(true)}
-        className="object-cover object-center"
+        className="object-cover object-center transition-transform duration-200"
+        style={{
+          imageRendering: "auto",
+        }}
       />
     </div>
   );

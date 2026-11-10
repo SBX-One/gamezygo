@@ -18,6 +18,16 @@ export const ADMIN_CATALOG_KEYS = {
   archived: () => [...ADMIN_CATALOG_KEYS.all, "archived"] as const,
 };
 
+function normalizeCatalogCategory(name?: string): string {
+  if (!name) return "";
+  const trimmed = name.trim();
+  const lower = trimmed.toLowerCase();
+  if (lower === "sports" || lower === "sport" || lower === "racing") {
+    return "Sport-Racing";
+  }
+  return trimmed;
+}
+
 export function useAdminCatalog(params?: AdminCatalogQueryParams) {
   const query = useQuery({
     queryKey: ADMIN_CATALOG_KEYS.list(params),
@@ -41,7 +51,13 @@ export function useAdminCatalog(params?: AdminCatalogQueryParams) {
         name: p.name,
         imageSrc: resolveImageUrl(p.image_url),
         categories: p.categories
-          ? Array.from(new Set(p.categories.map((c) => c.name.trim()).filter(Boolean)))
+          ? Array.from(
+              new Set(
+                p.categories
+                  .map((c) => normalizeCatalogCategory(c.name))
+                  .filter(Boolean)
+              )
+            )
           : [],
         price: p.price,
         isActive: isActive,
@@ -127,7 +143,13 @@ export function useAdminArchivedCatalog() {
         name: p.name,
         imageSrc: resolveImageUrl(p.image_url),
         categories: p.categories
-          ? Array.from(new Set(p.categories.map((c) => c.name.trim()).filter(Boolean)))
+          ? Array.from(
+              new Set(
+                p.categories
+                  .map((c) => normalizeCatalogCategory(c.name))
+                  .filter(Boolean)
+              )
+            )
           : [],
         price: p.price,
         isActive: false,

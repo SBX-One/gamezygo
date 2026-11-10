@@ -11,6 +11,7 @@ export interface AdminGameRequestsSectionProps {
   viewAllHref?: string;
   onRequestGame?: () => void;
   className?: string;
+  isLoading?: boolean;
 }
 
 const PlusIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -54,6 +55,7 @@ export function AdminGameRequestsSection({
   viewAllHref = "/admin/requests",
   onRequestGame,
   className,
+  isLoading = false,
 }: AdminGameRequestsSectionProps) {
   const activeRequests = isEmpty
     ? []
@@ -95,12 +97,30 @@ export function AdminGameRequestsSection({
       headerRight={headerRight}
       className={className}
       bodyClassName={
-        isRequestsEmpty
+        isLoading
+          ? "p-0 divide-y divide-deep-blue-700"
+          : isRequestsEmpty
           ? "py-16 sm:py-20 flex items-center justify-center"
           : "p-0 divide-y divide-deep-blue-700"
       }
     >
-      {isRequestsEmpty ? (
+      {isLoading ? (
+        Array.from({ length: 3 }).map((_, idx) => (
+          <div
+            key={`req-skel-${idx}`}
+            className="flex items-center justify-between px-6 py-4"
+          >
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 rounded-lg bg-white/10 animate-pulse shrink-0" />
+              <div className="space-y-1.5">
+                <div className="w-40 h-4 rounded bg-white/10 animate-pulse" />
+                <div className="w-20 h-3 rounded bg-white/10 animate-pulse" />
+              </div>
+            </div>
+            <div className="w-24 h-7 rounded-lg bg-white/10 animate-pulse" />
+          </div>
+        ))
+      ) : isRequestsEmpty ? (
         <AdminEmptyState
           category="Game Request"
           actionLabel="Tambah Request"

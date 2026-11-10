@@ -229,10 +229,20 @@ export default function AdminProductSectionPage() {
       })
     );
 
-    addGamesMutation.mutate({
-      sectionId: targetSectionId,
-      productIds: games.map((g) => g.id),
-    });
+    addGamesMutation.mutate(
+      {
+        sectionId: targetSectionId,
+        productIds: games.map((g) => g.id),
+      },
+      {
+        onSuccess: () => {
+          toast.success(`${games.length} game berhasil ditambahkan ke section!`);
+        },
+        onError: () => {
+          toast.error("Gagal menambahkan game ke section.");
+        },
+      }
+    );
   };
 
   const handleAddGameToSection = (game: SectionProduct) => {
@@ -252,10 +262,20 @@ export default function AdminProductSectionPage() {
       })
     );
 
-    removeGameMutation.mutate({
-      sectionId,
-      productId: gameId,
-    });
+    removeGameMutation.mutate(
+      {
+        sectionId,
+        productId: gameId,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Game berhasil dihapus dari section.");
+        },
+        onError: () => {
+          toast.error("Gagal menghapus game dari section.");
+        },
+      }
+    );
   };
 
   // Clear Section (Image 3)
@@ -265,7 +285,14 @@ export default function AdminProductSectionPage() {
     setSections((prev) =>
       prev.map((s) => (s.id === sectionId ? { ...s, products: [] } : s))
     );
-    clearSectionMutation.mutate(sectionId);
+    clearSectionMutation.mutate(sectionId, {
+      onSuccess: () => {
+        toast.success("Section berhasil dikosongkan.");
+      },
+      onError: () => {
+        toast.error("Gagal mengosongkan section.");
+      },
+    });
     setClearModalState({ isOpen: false, section: null });
   };
 
@@ -274,7 +301,14 @@ export default function AdminProductSectionPage() {
     if (!deleteModalState.section) return;
     const sectionId = deleteModalState.section.id;
     setSections((prev) => prev.filter((s) => s.id !== sectionId));
-    deleteSectionMutation.mutate(sectionId);
+    deleteSectionMutation.mutate(sectionId, {
+      onSuccess: () => {
+        toast.success("Section berhasil dihapus.");
+      },
+      onError: () => {
+        toast.error("Gagal menghapus section.");
+      },
+    });
     setDeleteModalState({ isOpen: false, section: null });
   };
 
@@ -283,10 +317,20 @@ export default function AdminProductSectionPage() {
     setSections((prev) =>
       prev.map((s) => (s.id === updatedSection.id ? updatedSection : s))
     );
-    updateSectionMutation.mutate({
-      sectionId: updatedSection.id,
-      data: { title: updatedSection.title },
-    });
+    updateSectionMutation.mutate(
+      {
+        sectionId: updatedSection.id,
+        data: { title: updatedSection.title },
+      },
+      {
+        onSuccess: () => {
+          toast.success("Judul section berhasil diperbarui.");
+        },
+        onError: () => {
+          toast.error("Gagal memperbarui judul section.");
+        },
+      }
+    );
   };
 
   // Breadcrumb Title matching Image 1: [ ◫ ] | Katalog > Product Section
@@ -319,9 +363,26 @@ export default function AdminProductSectionPage() {
       >
         <div className="space-y-10 pb-16">
           {isLoading && sections.length === 0 ? (
-            <div className="py-20 flex flex-col items-center justify-center text-center px-4 select-none">
-              <span className="w-8 h-8 border-2 border-indigo-400 border-t-transparent rounded-full animate-spin mb-4" />
-              <p className="text-sm text-gray-400">Memuat susunan product section...</p>
+            <div className="space-y-8 select-none">
+              {Array.from({ length: 3 }).map((_, idx) => (
+                <div
+                  key={`section-skel-${idx}`}
+                  className="rounded-xl border border-deep-blue-700/60 bg-[#161822]/80 p-6 space-y-4 shadow-md"
+                >
+                  <div className="flex items-center justify-between">
+                    <div className="w-48 h-6 rounded bg-white/10 animate-pulse" />
+                    <div className="w-24 h-8 rounded bg-white/10 animate-pulse" />
+                  </div>
+                  <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-4 pt-2">
+                    {Array.from({ length: 4 }).map((_, cIdx) => (
+                      <div
+                        key={`card-skel-${cIdx}`}
+                        className="h-44 rounded-lg bg-white/10 animate-pulse"
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
             </div>
           ) : (
             <>

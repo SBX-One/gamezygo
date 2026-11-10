@@ -1,9 +1,9 @@
 import * as React from "react";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
 import { AdminCheckbox } from "@/components/admin/AdminCheckbox";
+import { CatalogProductThumbnail } from "../catalog/CatalogProductThumbnail";
 import {
   PlusIcon,
   EditPencilIcon,
@@ -24,6 +24,7 @@ export interface AdminPreOrderTableProps {
   onDeleteItem?: (id: string) => void;
   onContinueToList?: (item: PreOrderItem) => void;
   className?: string;
+  isLoading?: boolean;
 }
 
 const MoreVerticalIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -69,6 +70,7 @@ export function AdminPreOrderTable({
   onDeleteItem,
   onContinueToList,
   className,
+  isLoading = false,
 }: AdminPreOrderTableProps) {
   const [activeMenuId, setActiveMenuId] = React.useState<string | null>(null);
   const menuRef = React.useRef<HTMLDivElement>(null);
@@ -140,7 +142,7 @@ export function AdminPreOrderTable({
 
       {/* Table Container */}
       <div className="w-full overflow-x-auto min-h-95">
-        {items.length > 0 ? (
+        {isLoading || items.length > 0 ? (
           <table className="w-full text-left text-sm text-gray-300 border-collapse">
             {/* Table Header */}
             <thead className="bg-deep-blue-900">
@@ -174,48 +176,69 @@ export function AdminPreOrderTable({
 
             {/* Table Body (Matching Image 3) */}
             <tbody className="divide-y divide-deep-blue-700/60">
-              {items.map((item, idx) => {
-                const isSelected = selectedIds.includes(item.id);
-                const isNearBottom = idx >= Math.max(0, items.length - 2);
-
-                return (
-                  <tr
-                    key={item.id}
-                    className={cn(
-                      "transition-colors",
-                      isSelected
-                        ? "bg-deep-blue-900/40 hover:bg-deep-blue-900/50"
-                        : "hover:bg-deep-blue-900/25"
-                    )}
-                  >
-                    {/* Column 1: Checkbox + Game Thumbnail + Title */}
+              {isLoading ? (
+                Array.from({ length: 5 }).map((_, idx) => (
+                  <tr key={`po-skel-${idx}`}>
                     <td className="py-3.5 px-6">
                       <div className="flex items-center gap-3">
-                        <AdminCheckbox
-                          checked={isSelected}
-                          onChange={() => onToggleSelectItem(item.id)}
-                          ariaLabel={`Pilih ${item.title}`}
-                        />
-                        <button
-                          type="button"
-                          onClick={() => onEditItem?.(item)}
-                          className="flex items-center gap-3 text-left group cursor-pointer focus:outline-none"
-                        >
-                          <div className="w-8 h-8 rounded-md overflow-hidden relative shrink-0 bg-deep-blue-900 border border-deep-blue-700/60 shadow-xs group-hover:border-indigo-400/80 transition-colors">
-                            <Image
-                              src={item.imageSrc}
-                              alt={item.title}
-                              fill
-                              sizes="32px"
-                              className="object-cover group-hover:scale-105 transition-transform duration-200"
-                            />
-                          </div>
-                          <span className="font-semibold text-gray-100 group-hover:text-white group-hover:underline text-label-xs sm:text-sm whitespace-nowrap transition-colors">
-                            {item.title}
-                          </span>
-                        </button>
+                        <div className="w-4 h-4 rounded bg-white/10 animate-pulse" />
+                        <div className="w-9 h-12 rounded-lg bg-white/10 animate-pulse shrink-0" />
+                        <div className="w-44 h-4 rounded bg-white/10 animate-pulse" />
                       </div>
                     </td>
+                    <td className="py-3.5 px-6">
+                      <div className="flex items-center gap-1.5">
+                        <div className="w-14 h-5 rounded-full bg-white/10 animate-pulse" />
+                        <div className="w-14 h-5 rounded-full bg-white/10 animate-pulse" />
+                      </div>
+                    </td>
+                    <td className="py-3.5 px-6">
+                      <div className="w-24 h-4 rounded bg-white/10 animate-pulse" />
+                    </td>
+                    <td className="py-3.5 px-6 text-right">
+                      <div className="w-6 h-6 rounded bg-white/10 animate-pulse ml-auto" />
+                    </td>
+                  </tr>
+                ))
+              ) : (
+                items.map((item, idx) => {
+                  const isSelected = selectedIds.includes(item.id);
+                  const isNearBottom = idx >= Math.max(0, items.length - 2);
+
+                  return (
+                    <tr
+                      key={item.id}
+                      className={cn(
+                        "transition-colors",
+                        isSelected
+                          ? "bg-deep-blue-900/40 hover:bg-deep-blue-900/50"
+                          : "hover:bg-deep-blue-900/25"
+                      )}
+                    >
+                      {/* Column 1: Checkbox + Game Thumbnail + Title */}
+                      <td className="py-3.5 px-6">
+                        <div className="flex items-center gap-3">
+                          <AdminCheckbox
+                            checked={isSelected}
+                            onChange={() => onToggleSelectItem(item.id)}
+                            ariaLabel={`Pilih ${item.title}`}
+                          />
+                          <button
+                            type="button"
+                            onClick={() => onEditItem?.(item)}
+                            className="flex items-center gap-3 text-left group cursor-pointer focus:outline-none"
+                          >
+                            <CatalogProductThumbnail
+                              src={item.imageSrc}
+                              alt={item.title}
+                              size="sm"
+                            />
+                            <span className="font-semibold text-gray-100 group-hover:text-white group-hover:underline text-label-xs sm:text-sm whitespace-nowrap transition-colors">
+                              {item.title}
+                            </span>
+                          </button>
+                        </div>
+                      </td>
 
                     {/* Column 2: Category Pills (Action, Adventure, +2) */}
                     <td className="py-3.5 px-6">
@@ -322,7 +345,8 @@ export function AdminPreOrderTable({
                     </td>
                   </tr>
                 );
-              })}
+              })
+            )}
             </tbody>
           </table>
         ) : (

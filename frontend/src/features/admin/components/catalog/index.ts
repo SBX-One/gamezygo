@@ -5,6 +5,7 @@ export * from "./CatalogProductThumbnail";
 export * from "./AdminCatalogFilterPopover";
 export * from "./AdminCatalogAddModal";
 export * from "./AdminCatalogDeleteModal";
+export * from "./AdminConfirmSaveModal";
 export * from "./AdminArchivedCatalogTable";
 export * from "./add";
 export * from "./section";

@@ -20,6 +20,8 @@ import {
   useAdminCatalog,
   useToggleProductStatus,
   useDeleteProducts,
+  useCreateProduct,
+  useUpdateProduct,
 } from "@/hooks/use-admin-catalog";
 import { toast } from "@/stores/use-toast-store";
 
@@ -60,6 +62,8 @@ export default function AdminCatalogPage() {
 
   const toggleStatusMutation = useToggleProductStatus();
   const deleteMutation = useDeleteProducts();
+  const createProductMutation = useCreateProduct();
+  const updateProductMutation = useUpdateProduct();
 
   // Live database items
   const items = React.useMemo(() => serverItems || [], [serverItems]);
@@ -240,15 +244,40 @@ export default function AdminCatalogPage() {
     id?: string
   ) => {
     if (id) {
-      setItems((prev) =>
-        prev.map((item) => (item.id === id ? { ...item, ...itemData } : item))
+      updateProductMutation.mutate(
+        {
+          id,
+          data: {
+            name: itemData.name,
+            price: itemData.price,
+            genres: itemData.categories,
+          },
+        },
+        {
+          onSuccess: () => {
+            toast.success("Game berhasil diperbarui!");
+          },
+          onError: () => {
+            toast.error("Gagal memperbarui game.");
+          },
+        }
       );
     } else {
-      const created: AdminCatalogItem = {
-        ...itemData,
-        id: `prod-${Date.now()}`,
-      };
-      setItems((prev) => [created, ...prev]);
+      createProductMutation.mutate(
+        {
+          name: itemData.name,
+          price: itemData.price,
+          genres: itemData.categories,
+        },
+        {
+          onSuccess: () => {
+            toast.success("Game berhasil ditambahkan ke katalog!");
+          },
+          onError: () => {
+            toast.error("Gagal menambahkan game ke katalog.");
+          },
+        }
+      );
     }
   };
 
@@ -282,12 +311,7 @@ export default function AdminCatalogPage() {
           <AdminCatalogActionButtons
             onViewArchived={() => router.push("/admin/catalog/archived")}
             onEditProductSection={() => router.push("/admin/catalog/section")}
-            onPoManagement={() =>
-              setFilters((prev) => ({
-                ...prev,
-                isPreOrder: !prev.isPreOrder,
-              }))
-            }
+            onPoManagement={() => router.push("/admin/pre-orders")}
           />
 
           {/* 2. Mobile-Only Search & Filter Bar */}

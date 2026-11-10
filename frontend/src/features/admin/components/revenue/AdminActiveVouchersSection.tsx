@@ -22,6 +22,7 @@ export interface AdminActiveVouchersSectionProps {
   addVoucherHref?: string;
   onAddVoucher?: () => void;
   className?: string;
+  isLoading?: boolean;
 }
 
 const PlusIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -104,6 +105,7 @@ export function AdminActiveVouchersSection({
   addVoucherHref = "/admin/vouchers/new",
   onAddVoucher,
   className,
+  isLoading = false,
 }: AdminActiveVouchersSectionProps) {
   const [activeMenuId, setActiveMenuId] = React.useState<string | null>(null);
   const menuContainerRef = React.useRef<HTMLDivElement>(null);
@@ -182,7 +184,24 @@ export function AdminActiveVouchersSection({
           </tr>
         </AdminTableHeader>
         <AdminTableBody>
-          {isEmpty || activeVouchers.length === 0 ? (
+          {isLoading ? (
+            Array.from({ length: 4 }).map((_, idx) => (
+              <AdminTableRow key={`vouch-skel-${idx}`}>
+                <AdminTableCell className="pl-6">
+                  <div className="w-28 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell>
+                  <div className="w-16 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell>
+                  <div className="w-24 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell className="pr-6 text-center">
+                  <div className="w-6 h-6 rounded bg-white/10 animate-pulse mx-auto" />
+                </AdminTableCell>
+              </AdminTableRow>
+            ))
+          ) : isEmpty || activeVouchers.length === 0 ? (
             <tr>
               <td colSpan={isEmpty ? 3 : 4} className="py-16 sm:py-20 px-4 text-center">
                 <AdminEmptyState

@@ -10,6 +10,7 @@ export interface AdminBundleStatisticSectionProps {
   isEmpty?: boolean;
   data?: BundleStatisticData;
   className?: string;
+  isLoading?: boolean;
 }
 
 const ArrowUpBigIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -29,10 +30,51 @@ export function AdminBundleStatisticSection({
   isEmpty = false,
   data,
   className,
+  isLoading = false,
 }: AdminBundleStatisticSectionProps) {
   const activeData = isEmpty
     ? EMPTY_BUNDLE_STATISTIC
     : data || MOCK_BUNDLE_STATISTIC;
+
+  if (isLoading) {
+    return (
+      <AdminCard
+        title="BUNDLE STATISTIC"
+        className={className}
+        bodyClassName="p-6 select-none"
+      >
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
+          {/* 1. Left Highlight Box Skeleton */}
+          <div className="rounded-lg border border-deep-blue-700/60 p-6 flex flex-col justify-between gap-6">
+            <div className="space-y-2">
+              <div className="w-32 h-4 rounded bg-white/10 animate-pulse" />
+              <div className="w-48 h-8 rounded bg-white/10 animate-pulse" />
+            </div>
+            <div className="space-y-2">
+              <div className="w-40 h-4 rounded bg-white/10 animate-pulse" />
+              <div className="w-24 h-4 rounded bg-white/10 animate-pulse" />
+            </div>
+          </div>
+
+          {/* 2. Right Chart Skeleton */}
+          <div className="rounded-lg border border-deep-blue-700/60 p-6 flex items-end justify-between gap-4 h-48">
+            {[50, 80, 40, 95, 60, 75].map((h, i) => (
+              <div
+                key={`bundle-skel-${i}`}
+                className="flex-1 flex flex-col items-center gap-2"
+              >
+                <div
+                  style={{ height: `${h}%` }}
+                  className="w-full rounded-t bg-white/10 animate-pulse"
+                />
+                <div className="w-8 h-3 rounded bg-white/10 animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </AdminCard>
+    );
+  }
 
   return (
     <AdminCard

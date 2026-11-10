@@ -32,6 +32,7 @@ export interface AdminRevenueMetricsSectionProps {
   orderTimeframe?: string;
   onOrderTimeframeChange?: (val: string) => void;
   className?: string;
+  isLoading?: boolean;
 }
 
 export function AdminRevenueMetricsSection({
@@ -42,6 +43,7 @@ export function AdminRevenueMetricsSection({
   orderTimeframe: externalOrderTimeframe,
   onOrderTimeframeChange,
   className,
+  isLoading = false,
 }: AdminRevenueMetricsSectionProps) {
   const [internalHeroTimeframe, setInternalHeroTimeframe] = React.useState("today");
   const [internalOrderTimeframe, setInternalOrderTimeframe] = React.useState("today");
@@ -51,6 +53,38 @@ export function AdminRevenueMetricsSection({
 
   const orderTimeframe = externalOrderTimeframe ?? internalOrderTimeframe;
   const handleOrderTimeframeChange = onOrderTimeframeChange ?? setInternalOrderTimeframe;
+
+  if (isLoading) {
+    return (
+      <div className={`space-y-6 ${className || ""}`}>
+        {/* Hero Card Skeleton */}
+        <div className="rounded-xl border border-deep-blue-700/60 bg-deep-blue-900/60 p-6 flex flex-col justify-between gap-6 shadow-lg select-none">
+          <div className="flex items-center justify-between">
+            <div className="w-36 h-4 rounded bg-white/10 animate-pulse" />
+            <div className="w-24 h-8 rounded-lg bg-white/10 animate-pulse" />
+          </div>
+          <div className="space-y-3">
+            <div className="w-64 h-9 rounded bg-white/10 animate-pulse" />
+            <div className="w-48 h-4 rounded bg-white/10 animate-pulse" />
+          </div>
+        </div>
+
+        {/* 3 Stat Cards Skeleton */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 select-none">
+          {Array.from({ length: 3 }).map((_, idx) => (
+            <div
+              key={`rev-stat-skel-${idx}`}
+              className="rounded-xl border border-deep-blue-700/60 bg-deep-blue-900/60 p-5 flex flex-col justify-between h-[120px] shadow-lg"
+            >
+              <div className="w-28 h-4 rounded bg-white/10 animate-pulse" />
+              <div className="w-36 h-7 rounded bg-white/10 animate-pulse" />
+              <div className="w-24 h-3 rounded bg-white/10 animate-pulse" />
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   const heroValue = isEmpty
     ? "IDR 0"

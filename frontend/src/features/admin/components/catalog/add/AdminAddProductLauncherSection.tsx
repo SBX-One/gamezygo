@@ -2,6 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { AdminDropdown } from "@/components/admin/AdminDropdown";
+import { useAdminSections } from "@/hooks/use-admin-sections";
 import {
   LAUNCHER_CHOICES,
   PROMOTION_SECTION_OPTIONS,
@@ -38,6 +39,22 @@ export function AdminAddProductLauncherSection({
 }: AdminAddProductLauncherSectionProps) {
   const [isUrlSaved, setIsUrlSaved] = React.useState(false);
 
+  // Dynamically load sections from Product Section Management
+  const { data: serverSections } = useAdminSections();
+  const promotionOptions = React.useMemo(() => {
+    if (serverSections && serverSections.length > 0) {
+      const customOptions = serverSections.map((s) => ({
+        label: s.title,
+        value: s.title,
+      }));
+      return [
+        { label: "Pilih section", value: "" },
+        ...customOptions,
+      ];
+    }
+    return PROMOTION_SECTION_OPTIONS;
+  }, [serverSections]);
+
   return (
     <div className={cn("flex flex-col gap-6 w-full", className)}>
       {/* 1. Launcher & Promotion Section Row (Berdampingan) */}
@@ -73,8 +90,8 @@ export function AdminAddProductLauncherSection({
           </label>
           <div className="w-full">
             <AdminDropdown
-              options={PROMOTION_SECTION_OPTIONS}
-              selectedValue={formData.promotionSection}
+              options={promotionOptions}
+              selectedValue={formData.promotionSection || "Pilih section"}
               onSelect={(value) => onChange({ promotionSection: value })}
               placeholder="Pilih section"
               fullWidth

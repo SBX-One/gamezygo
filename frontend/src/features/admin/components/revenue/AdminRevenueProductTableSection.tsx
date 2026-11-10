@@ -20,6 +20,7 @@ export interface AdminRevenueProductTableSectionProps {
   addProductHref?: string;
   onAddProduct?: () => void;
   className?: string;
+  isLoading?: boolean;
 }
 
 const PlusIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -61,6 +62,7 @@ export function AdminRevenueProductTableSection({
   addProductHref = "/admin/products/new",
   onAddProduct,
   className,
+  isLoading = false,
 }: AdminRevenueProductTableSectionProps) {
   const displayCount = isEmpty ? 0 : totalGamesCount;
   const activeProducts = isEmpty ? [] : products;
@@ -97,7 +99,30 @@ export function AdminRevenueProductTableSection({
           </tr>
         </AdminTableHeader>
         <AdminTableBody>
-          {isEmpty || activeProducts.length === 0 ? (
+          {isLoading ? (
+            Array.from({ length: 5 }).map((_, idx) => (
+              <AdminTableRow key={`rev-prod-skel-${idx}`}>
+                <AdminTableCell className="pl-6">
+                  <div className="w-36 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell>
+                  <div className="w-20 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell>
+                  <div className="w-24 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell>
+                  <div className="w-20 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell>
+                  <div className="w-16 h-6 rounded-full bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell className="pr-6 text-center">
+                  <div className="w-6 h-6 rounded bg-white/10 animate-pulse mx-auto" />
+                </AdminTableCell>
+              </AdminTableRow>
+            ))
+          ) : isEmpty || activeProducts.length === 0 ? (
             <tr>
               <td colSpan={isEmpty ? 5 : 6} className="py-16 sm:py-20 px-4 text-center">
                 <AdminEmptyState

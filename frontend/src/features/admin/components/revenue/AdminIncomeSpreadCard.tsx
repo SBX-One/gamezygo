@@ -17,6 +17,7 @@ export interface AdminIncomeSpreadCardProps {
   timeframe?: string;
   onTimeframeChange?: (val: string) => void;
   className?: string;
+  isLoading?: boolean;
 }
 
 export function AdminIncomeSpreadCard({
@@ -26,6 +27,7 @@ export function AdminIncomeSpreadCard({
   timeframe: externalTimeframe,
   onTimeframeChange,
   className,
+  isLoading = false,
 }: AdminIncomeSpreadCardProps) {
   const [activeTab, setActiveTab] = React.useState<"type" | "product">("type");
   const [hoveredIdx, setHoveredIdx] = React.useState<number | null>(null);
@@ -56,6 +58,38 @@ export function AdminIncomeSpreadCard({
       document.removeEventListener("touchstart", handleOutsideClick);
     };
   }, []);
+
+  if (isLoading) {
+    return (
+      <div
+        className={`rounded-xl border border-deep-blue-700/60 bg-deep-blue-900/60 p-6 shadow-lg select-none ${
+          className || ""
+        }`}
+      >
+        <div className="flex items-center justify-between mb-6">
+          <div className="w-40 h-5 rounded bg-white/10 animate-pulse" />
+          <div className="w-24 h-8 rounded-lg bg-white/10 animate-pulse" />
+        </div>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-8 py-6">
+          <div className="w-40 h-40 rounded-full border-8 border-white/10 animate-pulse shrink-0" />
+          <div className="space-y-3 w-full sm:w-48">
+            {Array.from({ length: 4 }).map((_, idx) => (
+              <div
+                key={`spread-skel-${idx}`}
+                className="flex items-center justify-between"
+              >
+                <div className="flex items-center gap-2">
+                  <div className="w-3 h-3 rounded-full bg-white/10 animate-pulse" />
+                  <div className="w-20 h-4 rounded bg-white/10 animate-pulse" />
+                </div>
+                <div className="w-10 h-4 rounded bg-white/10 animate-pulse" />
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    );
+  }
 
   const headerRight = (
     <AdminDropdown

@@ -233,9 +233,7 @@ export default function AdminArchivedProductPage() {
             activeButton="archived"
             onViewArchived={() => router.push("/admin/catalog")}
             onEditProductSection={() => router.push("/admin/catalog/section")}
-            onPoManagement={() => {
-              // Action handler
-            }}
+            onPoManagement={() => router.push("/admin/pre-orders")}
           />
 
           {/* 2. Mobile-Only Search & Filter Bar (Placed below the 3 Action Buttons per user request) */}

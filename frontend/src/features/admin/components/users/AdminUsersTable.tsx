@@ -15,12 +15,14 @@ export interface AdminUsersTableProps {
   users: AdminUserItem[];
   onSelectUser?: (user: AdminUserItem) => void;
   className?: string;
+  isLoading?: boolean;
 }
 
 export function AdminUsersTable({
   users,
   onSelectUser,
   className,
+  isLoading = false,
 }: AdminUsersTableProps) {
   return (
     <div
@@ -60,7 +62,39 @@ export function AdminUsersTable({
         </AdminTableHeader>
 
         <AdminTableBody className="divide-y divide-deep-blue-700/60">
-          {users.length === 0 ? (
+          {isLoading ? (
+            Array.from({ length: 5 }).map((_, idx) => (
+              <AdminTableRow
+                key={`user-skel-${idx}`}
+                className="border-b border-deep-blue-700/50"
+              >
+                <AdminTableCell className="py-4 px-5">
+                  <div className="w-24 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell className="py-4 px-5">
+                  <div className="w-36 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell className="py-4 px-5">
+                  <div className="w-24 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell className="py-4 px-5">
+                  <div className="w-16 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell className="py-4 px-5">
+                  <div className="w-20 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell className="py-4 px-5">
+                  <div className="w-20 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell className="py-4 px-5">
+                  <div className="w-16 h-6 rounded-full bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell className="py-4 px-5">
+                  <div className="w-20 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+              </AdminTableRow>
+            ))
+          ) : users.length === 0 ? (
             <AdminTableRow>
               <AdminTableCell colSpan={8} className="py-12 text-center text-gray-400">
                 <p className="text-sm font-medium">Tidak ada data pengguna ditemukan.</p>

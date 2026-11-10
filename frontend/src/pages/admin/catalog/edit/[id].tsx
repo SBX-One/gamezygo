@@ -10,12 +10,16 @@ import {
   AdminAddProductAccountInfo,
   AdminAddProductSpecs,
   AdminAddProductInstructionTemplate,
+  AdminEditProductSkeleton,
 } from "@/features/admin/components/catalog/add";
 import {
   MOCK_EDIT_PRODUCT_FORM,
   type AdminAddProductFormData,
 } from "@/features/admin/types/admin-add-product.types";
-import { AdminCatalogDeleteModal } from "@/features/admin/components/catalog/AdminCatalogDeleteModal";
+import {
+  AdminCatalogDeleteModal,
+  AdminConfirmSaveModal,
+} from "@/features/admin/components/catalog";
 import {
   useAdminProductDetail,
   useUpdateProduct,
@@ -41,14 +45,18 @@ const ChevronRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function AdminEditProductPage() {
   const router = useRouter();
-  const { id } = router.query;
+  const { id, from } = router.query;
   const productId = typeof id === "string" ? id : "";
+  const isFromPreOrder = from === "pre-orders" || from === "pre-order";
+  const backHref = isFromPreOrder ? "/admin/pre-orders" : "/admin/catalog";
+  const backLabel = isFromPreOrder ? "Pre-order" : "Katalog";
 
   const [formData, setFormData] = React.useState<AdminAddProductFormData>(
     MOCK_EDIT_PRODUCT_FORM
   );
   const [isSaving, setIsSaving] = React.useState(false);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = React.useState(false);
+  const [isConfirmSaveOpen, setIsConfirmSaveOpen] = React.useState(false);
 
   // Live database hooks
   const { data: serverProduct, isLoading: isFetchingProduct } =
@@ -68,11 +76,19 @@ export default function AdminEditProductPage() {
         ),
         isPreOrder: Boolean(serverProduct.is_preorder),
         genres: serverProduct.categories
-          ? serverProduct.categories.map((c) => c.name)
+          ? Array.from(
+              new Set(
+                serverProduct.categories
+                  .map((c) => (c.name ? c.name.trim() : ""))
+                  .filter(Boolean)
+              )
+            )
           : prev.genres,
         imageSrc: serverProduct.image_url || prev.imageSrc,
         launcher:
           (serverProduct.launchers?.[0]?.name as "Steam") || prev.launcher,
+        promotionSection:
+          serverProduct.promotion_section || prev.promotionSection || "Pilih section",
         storeUrl: serverProduct.steam_url || prev.storeUrl,
         accountUsername:
           serverProduct.game_account?.username || prev.accountUsername,
@@ -96,23 +112,185 @@ export default function AdminEditProductPage() {
                 value: s.value,
               }))
             : prev.recommendationSpecs,
+        hasInstructionTemplate: Boolean(serverProduct.instruction_template),
+        selectedTemplate: serverProduct.instruction_template
+          ? {
+              id: String(serverProduct.instruction_template.id),
+              title: serverProduct.instruction_template.name,
+              badge: "Listed",
+              createdAt: "22/07/2026",
+              lastEdit: "Last edit 7 days ago",
+              steps: prev.selectedTemplate?.steps || [
+                {
+                  stepNumber: 1,
+                  title: serverProduct.instruction_template.name,
+                  description:
+                    "Ikuti langkah download dan login sesuai panduan resmi akun game.",
+                },
+              ],
+            }
+          : prev.selectedTemplate,
       }));
     }
   }, [serverProduct]);
+
+  // Restore draft from sessionStorage if admin previously clicked "Create New Template"
+  React.useEffect(() => {
+    if (!productId) return;
+    try {
+      const savedDraft = sessionStorage.getItem(`edit_product_draft_${productId}`);
+      if (savedDraft) {
+        const parsed = JSON.parse(savedDraft);
+        if (parsed && typeof parsed === "object") {
+          setFormData((prev) => ({
+            ...prev,
+            ...parsed,
+          }));
+        }
+        sessionStorage.removeItem(`edit_product_draft_${productId}`);
+      }
+    } catch {
+      // ignore
+    }
+  }, [productId]);
 
   const handleFormChange = (fields: Partial<AdminAddProductFormData>) => {
     setFormData((prev) => ({ ...prev, ...fields }));
   };
 
-  const handleSaveAndList = async () => {
+  // Auto-save current edits to DB and sessionStorage before navigating to create new instruction
+  const handleCreateNewTemplateWithAutoSave = async () => {
+    try {
+      sessionStorage.setItem(
+        `edit_product_draft_${productId}`,
+        JSON.stringify(formData)
+      );
+    } catch {
+      // ignore
+    }
+
+    if (formData.name.trim()) {
+      try {
+        setIsSaving(true);
+        const cleanPrice =
+          parseInt(formData.finalPrice.replace(/\D/g, ""), 10) || 0;
+
+        const specifications = {
+          minimum: (formData.minimumSpecs || []).map((s) => ({
+            type: s.label,
+            value: s.value,
+          })),
+          recommended: (formData.recommendationSpecs || []).map((s) => ({
+            type: s.label,
+            value: s.value,
+          })),
+        };
+
+        const promoSection =
+          formData.promotionSection && formData.promotionSection !== "Pilih section"
+            ? formData.promotionSection
+            : "";
+
+        const rawTemplateId = formData.selectedTemplate?.id;
+        const isDbId =
+          rawTemplateId &&
+          /^\d+$/.test(String(rawTemplateId)) &&
+          Number(rawTemplateId) < 100000;
+        const instructionId = isDbId ? Number(rawTemplateId) : undefined;
+        const instructionTitle = formData.selectedTemplate?.title || undefined;
+
+        if (formData.imageFile) {
+          const payload = new FormData();
+          payload.append("name", formData.name.trim());
+          payload.append("price", String(cleanPrice));
+          payload.append("steam_url", formData.storeUrl || "");
+          payload.append("status", "listing");
+          if (formData.accountUsername) {
+            payload.append("game_account[username]", formData.accountUsername);
+          }
+          if (formData.accountPassword) {
+            payload.append("game_account[password]", formData.accountPassword);
+          }
+          payload.append("thumbnail", formData.imageFile);
+          formData.genres.forEach((g) => payload.append("genres[]", g));
+          payload.append("specifications", JSON.stringify(specifications));
+          payload.append("promotion_section", promoSection);
+          if (instructionId) {
+            payload.append("instruction_template_id", String(instructionId));
+          }
+          if (instructionTitle) {
+            payload.append("instruction_title", instructionTitle);
+          }
+          await updateProductMutation.mutateAsync({ id: productId, data: payload });
+        } else {
+          await updateProductMutation.mutateAsync({
+            id: productId,
+            data: {
+              name: formData.name.trim(),
+              price: cleanPrice,
+              steam_url: formData.storeUrl,
+              status: "listing",
+              image_url: formData.imageSrc,
+              genres: formData.genres,
+              game_account: {
+                username: formData.accountUsername,
+                password: formData.accountPassword,
+              },
+              specifications,
+              promotion_section: promoSection,
+              instruction_template_id: instructionId,
+              instruction_title: instructionTitle,
+            },
+          });
+        }
+        toast.info("Perubahan produk tersimpan sebelum membuka pembuat instruksi.", "Tersimpan");
+      } catch (err) {
+        console.warn("Auto-save sebelum buat instruksi:", err);
+      } finally {
+        setIsSaving(false);
+      }
+    }
+
+    const returnUrl = router.asPath;
+    router.push(`/admin/instructions/add?returnUrl=${encodeURIComponent(returnUrl)}&productId=${productId}`);
+  };
+
+  const handleSaveAndList = () => {
     if (!formData.name.trim()) {
       toast.warning("Nama produk wajib diisi.", "Validasi");
       return;
     }
+    setIsConfirmSaveOpen(true);
+  };
 
+  const handleExecuteSave = async () => {
     setIsSaving(true);
     const cleanPrice =
       parseInt(formData.finalPrice.replace(/\D/g, ""), 10) || 0;
+
+    const specifications = {
+      minimum: (formData.minimumSpecs || []).map((s) => ({
+        type: s.label,
+        value: s.value,
+      })),
+      recommended: (formData.recommendationSpecs || []).map((s) => ({
+        type: s.label,
+        value: s.value,
+      })),
+    };
+
+    const promoSection =
+      formData.promotionSection && formData.promotionSection !== "Pilih section"
+        ? formData.promotionSection
+        : "";
+
+    const rawTemplateId = formData.selectedTemplate?.id;
+    const isDbId =
+      rawTemplateId &&
+      /^\d+$/.test(String(rawTemplateId)) &&
+      Number(rawTemplateId) < 100000;
+    const instructionId = isDbId ? Number(rawTemplateId) : undefined;
+    const instructionTitle = formData.selectedTemplate?.title || undefined;
 
     try {
       if (formData.imageFile) {
@@ -134,6 +312,15 @@ export default function AdminEditProductPage() {
           payload.append("genres[]", genre);
         });
 
+        payload.append("specifications", JSON.stringify(specifications));
+        payload.append("promotion_section", promoSection);
+        if (instructionId) {
+          payload.append("instruction_template_id", String(instructionId));
+        }
+        if (instructionTitle) {
+          payload.append("instruction_title", instructionTitle);
+        }
+
         await updateProductMutation.mutateAsync({
           id: productId,
           data: payload,
@@ -152,11 +339,16 @@ export default function AdminEditProductPage() {
               username: formData.accountUsername,
               password: formData.accountPassword,
             },
+            specifications,
+            promotion_section: promoSection,
+            instruction_template_id: instructionId,
+            instruction_title: instructionTitle,
           },
         });
       }
+      setIsConfirmSaveOpen(false);
       toast.success("Perubahan produk berhasil disimpan!");
-      router.push("/admin/catalog");
+      router.push(backHref);
     } catch (err: unknown) {
       console.error("Gagal mengupdate produk:", err);
       setIsSaving(false);
@@ -168,7 +360,7 @@ export default function AdminEditProductPage() {
   };
 
   const handleCancelEdit = () => {
-    router.push("/admin/catalog");
+    router.push(backHref);
   };
 
   const handleConfirmArchive = async () => {
@@ -180,7 +372,7 @@ export default function AdminEditProductPage() {
         isActive: false, // status = 'archive'
       });
       toast.success("Game berhasil diarsipkan.");
-      router.push("/admin/catalog");
+      router.push(backHref);
     } catch (err: unknown) {
       console.error(err);
       setIsSaving(false);
@@ -190,18 +382,15 @@ export default function AdminEditProductPage() {
       toast.error(msg);
     }
   };
-      router.push("/admin/catalog");
-    }
-  };
 
-  // Header Left Title: Breadcrumb "Katalog > Edit Product"
+  // Header Left Title: Breadcrumb "Katalog / Pre-order > Edit Product"
   const headerTitle = (
     <div className="flex items-center gap-2 select-none text-label-xs">
       <Link
-        href="/admin/catalog"
+        href={backHref}
         className="text-gray-400 hover:text-white transition-colors"
       >
-        Katalog
+        {backLabel}
       </Link>
       <ChevronRightIcon className="w-3.5 h-3.5 text-gray-500 shrink-0" />
       <span className="text-white font-semibold">
@@ -211,13 +400,14 @@ export default function AdminEditProductPage() {
   );
 
   // Header Right Actions: Save and List, Cancel Edit, Archive Product
+  const isFormLocked = isSaving || (isFetchingProduct && !serverProduct);
   const headerRight = (
     <div className="flex items-center gap-3 select-none">
       <Button
         type="button"
         variant="primary"
         size="sm"
-        disabled={isSaving}
+        disabled={isFormLocked}
         onClick={handleSaveAndList}
         className="cursor-pointer"
       >
@@ -228,7 +418,7 @@ export default function AdminEditProductPage() {
         type="button"
         variant="inactive"
         size="sm"
-        disabled={isSaving}
+        disabled={isFormLocked}
         onClick={handleCancelEdit}
         className="cursor-pointer"
       >
@@ -239,7 +429,7 @@ export default function AdminEditProductPage() {
         type="button"
         variant="inactive"
         size="sm"
-        disabled={isSaving}
+        disabled={isFormLocked}
         onClick={() => setIsArchiveModalOpen(true)}
         className="cursor-pointer"
       >
@@ -260,48 +450,57 @@ export default function AdminEditProductPage() {
 
       <AdminLayout
         title={headerTitle}
-        activeNavId="katalog"
+        activeNavId={isFromPreOrder ? "pre-order" : "katalog"}
         headerRight={headerRight}
       >
-        <div className="flex flex-col gap-8 w-full pb-8">
-          {isFetchingProduct && (
-            <div className="p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
-              Memuat data produk dari database...
-            </div>
-          )}
+        {isFetchingProduct && !serverProduct ? (
+          <AdminEditProductSkeleton showPreOrder={isFromPreOrder} />
+        ) : (
+          <div className="flex flex-col gap-8 w-full pb-8">
+            {/* Section 1: Media & Basic Info */}
+            <AdminAddProductBasicInfo
+              formData={formData}
+              onChange={handleFormChange}
+              showPreOrder={false}
+            />
 
-          {/* Section 1: Media & Basic Info */}
-          <AdminAddProductBasicInfo
-            formData={formData}
-            onChange={handleFormChange}
-            showPreOrder={false}
-          />
+            {/* Section 2: Launcher & Promotion Section */}
+            <AdminAddProductLauncherSection
+              formData={formData}
+              onChange={handleFormChange}
+            />
 
-          {/* Section 2: Launcher & Promotion Section */}
-          <AdminAddProductLauncherSection
-            formData={formData}
-            onChange={handleFormChange}
-          />
+            {/* Section 3: Shared Account Credentials */}
+            <AdminAddProductAccountInfo
+              formData={formData}
+              onChange={handleFormChange}
+            />
 
-          {/* Section 3: Shared Account Credentials */}
-          <AdminAddProductAccountInfo
-            formData={formData}
-            onChange={handleFormChange}
-          />
+            {/* Section 4: Minimum & Recommendation Hardware Specs */}
+            <AdminAddProductSpecs
+              formData={formData}
+              onChange={handleFormChange}
+            />
 
-          {/* Section 4: Minimum & Recommendation Hardware Specs */}
-          <AdminAddProductSpecs
-            formData={formData}
-            onChange={handleFormChange}
-          />
+            {/* Section 5: Instruction Template Accordion */}
+            <AdminAddProductInstructionTemplate
+              formData={formData}
+              onChange={handleFormChange}
+              onCreateNewTemplate={handleCreateNewTemplateWithAutoSave}
+            />
+          </div>
+        )}
 
-          {/* Section 5: Instruction Template Accordion */}
-          <AdminAddProductInstructionTemplate
-            formData={formData}
-            onChange={handleFormChange}
-          />
-        </div>
+        {/* Save Confirmation Modal */}
+        <AdminConfirmSaveModal
+          isOpen={isConfirmSaveOpen}
+          onClose={() => setIsConfirmSaveOpen(false)}
+          onConfirm={handleExecuteSave}
+          isLoading={isSaving}
+          title="Simpan Perubahan Produk?"
+          description="Apakah Anda yakin ingin menyimpan perubahan pada konfigurasi dan detail produk ini ke database?"
+          confirmText="Simpan Perubahan"
+        />
 
         {/* Archive Confirmation Modal */}
         <AdminCatalogDeleteModal

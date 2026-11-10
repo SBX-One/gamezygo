@@ -89,6 +89,9 @@ export interface AdminCatalogProductDetailResponse {
       id: number;
       name: string;
     } | null;
+    promotion_section?: string | null;
+    promotion_section_id?: number | null;
+    custom_sections?: Array<{ id: number; title: string }>;
     created_at: string | null;
   };
 }

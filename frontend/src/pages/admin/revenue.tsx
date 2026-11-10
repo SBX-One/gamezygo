@@ -93,12 +93,6 @@ export default function AdminRevenuePage() {
                   {isEmptyState ? "Empty State (Sesuai Desain)" : "Data Terisi (Database)"}
                 </span>
               </span>
-              {isLoading && (
-                <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium bg-indigo-500/10 text-indigo-400 border border-indigo-500/20">
-                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-400 animate-pulse" />
-                  Memuat data...
-                </span>
-              )}
               {isError && (
                 <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded text-[11px] font-medium bg-rose-500/10 text-rose-400 border border-rose-500/20">
                   Koneksi API offline (menggunakan fallback)
@@ -129,6 +123,7 @@ export default function AdminRevenuePage() {
           <div className="relative z-30">
             <AdminRevenueMetricsSection
               isEmpty={isEmptyState}
+              isLoading={isLoading}
               metrics={metrics}
               heroTimeframe={selectedPeriod}
               onHeroTimeframeChange={setSelectedPeriod}
@@ -141,11 +136,13 @@ export default function AdminRevenuePage() {
           <div className="relative z-20 grid grid-cols-1 xl:grid-cols-2 gap-6 items-stretch">
             <AdminRevenueChartCard
               isEmpty={isEmptyState}
+              isLoading={isLoading}
               data={chartData}
               onChangeRange={handleDateRangeChange}
             />
             <AdminIncomeSpreadCard
               isEmpty={isEmptyState}
+              isLoading={isLoading}
               productTypes={incomeSpreadProductTypes}
               products={incomeSpreadProducts}
               timeframe={selectedPeriod}
@@ -157,6 +154,7 @@ export default function AdminRevenuePage() {
           <div className="relative z-10">
             <AdminRevenueProductTableSection
               isEmpty={isEmptyState}
+              isLoading={isLoading}
               products={products}
               totalGamesCount={totalGamesCount}
             />
@@ -166,6 +164,7 @@ export default function AdminRevenuePage() {
           <div className="relative z-0">
             <AdminBundleStatisticSection
               isEmpty={isEmptyState}
+              isLoading={isLoading}
               data={bundleStatistics}
             />
           </div>
@@ -174,6 +173,7 @@ export default function AdminRevenuePage() {
           <div className="relative z-0">
             <AdminActiveVouchersSection
               isEmpty={isEmptyState}
+              isLoading={isLoading}
               vouchers={vouchers}
               totalVouchersCount={totalVouchersCount}
               burnRateText={voucherBurnAllTime ? `Total Burn: ${voucherBurnAllTime}` : undefined}

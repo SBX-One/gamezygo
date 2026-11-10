@@ -83,6 +83,7 @@ export default function AdminDashboardPage() {
           <div className="relative z-20 has-[[aria-expanded='true']]:z-30">
             <AdminMetricsSection
               isEmpty={isEmptyState}
+              isLoading={isLoading}
               heroStat={heroStat}
               statCards={statCards}
               onTimeframeChange={setSelectedTimeframe}
@@ -93,6 +94,7 @@ export default function AdminDashboardPage() {
           <div className="relative z-10">
             <AdminPerformanceChartSection
               isEmpty={isEmptyState}
+              isLoading={isLoading}
               data={productPerformance}
             />
           </div>
@@ -101,6 +103,7 @@ export default function AdminDashboardPage() {
           <div className="relative z-0">
             <AdminRecentTransactionsSection
               isEmpty={isEmptyState}
+              isLoading={isLoading}
               transactions={recentTransactions}
             />
           </div>
@@ -109,6 +112,7 @@ export default function AdminDashboardPage() {
           <div className="relative z-0">
             <AdminGameRequestsSection
               isEmpty={isEmptyState}
+              isLoading={isLoading}
               requests={gameRequests}
               totalCount={gameRequests ? gameRequests.length : undefined}
             />

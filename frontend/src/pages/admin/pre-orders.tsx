@@ -7,18 +7,22 @@ import {
   AdminPreOrderAddModal,
   AdminPreOrderPublishModal,
 } from "@/features/admin/components/preorder";
-import { AdminCatalogDeleteModal } from "@/features/admin/components/catalog/AdminCatalogDeleteModal";
+import { AdminCatalogDeleteModal } from "@/features/admin/components/catalog";
 import {
   SearchIcon,
   CloseXIcon,
-  FilterTaperIcon,
 } from "@/features/admin/components/catalog/section/AdminSectionIcons";
 import { cn } from "@/lib/utils";
 import { FilterModal } from "@/components/ui/FilterModal";
 import { Pagination } from "@/components/ui/Pagination";
-import { Button } from "@/components/ui/Button";
-import { MOCK_PREORDER_ITEMS } from "@/features/admin/data/admin-preorder-mock-data";
 import type { PreOrderItem } from "@/features/admin/types/admin-preorder.types";
+import {
+  useAdminCatalog,
+  useUpdateProduct,
+  useDeleteProducts,
+  useCreateProduct,
+} from "@/hooks/use-admin-catalog";
+import { toast } from "@/stores/use-toast-store";
 
 const FilterIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -55,7 +59,8 @@ const ClearIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 export default function AdminPreOrdersPage() {
-  const [items, setItems] = React.useState<PreOrderItem[]>(MOCK_PREORDER_ITEMS);
+  const router = useRouter();
+
   const [searchQuery, setSearchQuery] = React.useState("");
   const [selectedCategories, setSelectedCategories] = React.useState<string[]>([]);
   const [sortBy, setSortBy] = React.useState<"terbaru" | "name_asc">("terbaru");
@@ -64,42 +69,53 @@ export default function AdminPreOrdersPage() {
   const [currentPage, setCurrentPage] = React.useState(1);
   const itemsPerPage = 10;
 
-  // Filter items by search query & categories & sort
-  const filteredItems = React.useMemo(() => {
-    let result = items;
-    if (searchQuery.trim()) {
-      const q = searchQuery.trim().toLowerCase();
-      result = result.filter(
-        (item) =>
-          item.title.toLowerCase().includes(q) ||
-          item.categories.some((c) => c.toLowerCase().includes(q))
-      );
-    }
-    if (selectedCategories.length > 0) {
-      result = result.filter((item) =>
-        item.categories.some((c) => selectedCategories.includes(c))
-      );
-    }
-    if (sortBy === "name_asc") {
-      result = [...result].sort((a, b) => a.title.localeCompare(b.title));
-    }
-    return result;
-  }, [items, searchQuery, selectedCategories, sortBy]);
+  // Live database hook for Pre-order products (PO Management)
+  const {
+    items: serverItems,
+    totalProducts,
+    meta,
+    isLoading,
+  } = useAdminCatalog({
+    page: currentPage,
+    per_page: itemsPerPage,
+    search: searchQuery.trim() || undefined,
+    status: ["pre-order"],
+    sort_by: sortBy === "name_asc" ? "a_z" : "latest",
+  });
 
-  // Pagination calculation (25 pages as shown in Image 4)
-  const totalPages = Math.max(25, Math.ceil(filteredItems.length / itemsPerPage));
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const currentItems = filteredItems.slice(
-    startIndex,
-    startIndex + itemsPerPage
-  );
+  const updateProductMutation = useUpdateProduct();
+  const deleteMutation = useDeleteProducts();
+  const createProductMutation = useCreateProduct();
+
+  // Map server items to PreOrderItem
+  const items: PreOrderItem[] = React.useMemo(() => {
+    return (serverItems || []).map((p) => ({
+      id: p.id,
+      title: p.name,
+      categories: p.categories,
+      price: p.price,
+      imageSrc: p.imageSrc,
+      formattedPrice: `Rp ${p.price.toLocaleString("id-ID")}`,
+      status: "pre-order" as const,
+    }));
+  }, [serverItems]);
+
+  // Client-side category filtering if categories selected
+  const filteredItems = React.useMemo(() => {
+    if (selectedCategories.length === 0) return items;
+    return items.filter((item) =>
+      item.categories.some((c) => selectedCategories.includes(c))
+    );
+  }, [items, selectedCategories]);
+
+  const totalPages = meta?.last_page || Math.max(1, Math.ceil(totalProducts / itemsPerPage));
 
   // Selection handlers
   const handleToggleSelectAll = () => {
-    const currentPageIds = currentItems.map((item) => item.id);
-    const isAllCurrentSelected = currentPageIds.every((id) =>
-      selectedIds.includes(id)
-    );
+    const currentPageIds = filteredItems.map((item) => item.id);
+    const isAllCurrentSelected =
+      currentPageIds.length > 0 &&
+      currentPageIds.every((id) => selectedIds.includes(id));
 
     if (isAllCurrentSelected) {
       setSelectedIds((prev) => prev.filter((id) => !currentPageIds.includes(id)));
@@ -116,14 +132,9 @@ export default function AdminPreOrdersPage() {
 
   // Modals state
   const [isAddModalOpen, setIsAddModalOpen] = React.useState(false);
-  const [editingItem, setEditingItem] = React.useState<PreOrderItem | null>(
-    null
-  );
-  const [publishingItem, setPublishingItem] =
-    React.useState<PreOrderItem | null>(null);
-  const [deleteTargetId, setDeleteTargetId] = React.useState<
-    string | "selected" | null
-  >(null);
+  const [editingItem, setEditingItem] = React.useState<PreOrderItem | null>(null);
+  const [publishingItem, setPublishingItem] = React.useState<PreOrderItem | null>(null);
+  const [deleteTargetId, setDeleteTargetId] = React.useState<string | "selected" | null>(null);
 
   // Add / Edit Save Handler
   const handleSaveItem = (
@@ -131,42 +142,88 @@ export default function AdminPreOrdersPage() {
     existingId?: string
   ) => {
     if (existingId) {
-      setItems((prev) =>
-        prev.map((item) =>
-          item.id === existingId ? { ...item, ...data } : item
-        )
+      updateProductMutation.mutate(
+        {
+          id: existingId,
+          data: {
+            name: data.title,
+            price: data.price,
+            genres: data.categories,
+            status: "pre-order",
+          },
+        },
+        {
+          onSuccess: () => {
+            toast.success("Game pre-order berhasil diperbarui!");
+            setIsAddModalOpen(false);
+            setEditingItem(null);
+          },
+          onError: () => {
+            toast.error("Gagal memperbarui game pre-order.");
+          },
+        }
       );
     } else {
-      const newItem: PreOrderItem = {
-        ...data,
-        id: `preorder-${Date.now()}`,
-      };
-      setItems((prev) => [newItem, ...prev]);
+      createProductMutation.mutate(
+        {
+          name: data.title,
+          price: data.price,
+          genres: data.categories,
+          status: "pre-order",
+          is_preorder: true,
+        },
+        {
+          onSuccess: () => {
+            toast.success("Game pre-order berhasil ditambahkan!");
+            setIsAddModalOpen(false);
+          },
+          onError: () => {
+            toast.error("Gagal menambahkan game pre-order.");
+          },
+        }
+      );
     }
   };
 
-  // Publish / Continue to List Handler
-  const handleConfirmPublish = (item: PreOrderItem) => {
-    setItems((prev) => prev.filter((i) => i.id !== item.id));
-    setSelectedIds((prev) => prev.filter((id) => id !== item.id));
-    setPublishingItem(null);
+  // Publish / Continue to List Handler: Converts Pre-order to active listing in store!
+  const handleConfirmPublish = async (item: PreOrderItem) => {
+    try {
+      await updateProductMutation.mutateAsync({
+        id: item.id,
+        data: {
+          name: item.title,
+          status: "listing", // publishes it into the regular active storefront catalog!
+        },
+      });
+      toast.success(`Game "${item.title}" berhasil dipublikasikan ke toko!`);
+      setSelectedIds((prev) => prev.filter((id) => id !== item.id));
+      setPublishingItem(null);
+    } catch {
+      toast.error("Gagal mempublikasikan game ke toko.");
+    }
   };
 
   // Delete Handler
-  const handleConfirmDelete = () => {
-    if (deleteTargetId === "selected") {
-      setItems((prev) => prev.filter((item) => !selectedIds.includes(item.id)));
-      setSelectedIds([]);
-    } else if (deleteTargetId) {
-      setItems((prev) => prev.filter((item) => item.id !== deleteTargetId));
-      setSelectedIds((prev) => prev.filter((id) => id !== deleteTargetId));
+  const handleConfirmDelete = async () => {
+    try {
+      if (deleteTargetId === "selected" && selectedIds.length > 0) {
+        await deleteMutation.mutateAsync(selectedIds);
+        toast.success(`${selectedIds.length} game pre-order berhasil dihapus.`);
+        setSelectedIds([]);
+      } else if (deleteTargetId && deleteTargetId !== "selected") {
+        await deleteMutation.mutateAsync([deleteTargetId]);
+        toast.success("Game pre-order berhasil dihapus.");
+        setSelectedIds((prev) => prev.filter((id) => id !== deleteTargetId));
+      }
+    } catch {
+      toast.error("Gagal menghapus game pre-order.");
     }
     setDeleteTargetId(null);
   };
 
   const hasActiveFilters = selectedCategories.length > 0 || sortBy !== "terbaru";
 
-  // Header Right Actions (Exact Match with Catalog TopBar)
+  // Header Right Actions (Search & Filter)
   const headerRight = (
     <div className="relative flex items-center gap-3 sm:gap-4 select-none">
       {/* 1. Search Field */}
@@ -258,15 +315,13 @@ export default function AdminPreOrdersPage() {
     </div>
   );
 
-  const router = useRouter();
-
   return (
     <>
       <Head>
         <title>Pre-order | Gamezygo Admin</title>
         <meta
           name="description"
-          content="Pre-order Catalog Management Dashboard for Gamezygo"
+          content="Pre-order Catalog Management Dashboard for Gamezygo Administration"
         />
       </Head>
 
@@ -276,10 +331,11 @@ export default function AdminPreOrdersPage() {
         headerRight={headerRight}
       >
         <div className="space-y-6 pb-16">
-          {/* Section 1: Pre-order Table Card (Image 2 & Image 3) */}
+          {/* Pre-order Table Card */}
           <AdminPreOrderTable
-            items={currentItems}
-            totalCount={items.length}
+            items={filteredItems}
+            totalCount={totalProducts || filteredItems.length}
+            isLoading={isLoading}
             selectedIds={selectedIds}
             onToggleSelectAll={handleToggleSelectAll}
             onToggleSelectItem={handleToggleSelectItem}
@@ -288,19 +344,23 @@ export default function AdminPreOrdersPage() {
             }}
             onDeleteSelected={() => setDeleteTargetId("selected")}
             onEditItem={(item) => {
-              router.push(`/admin/catalog/edit/${item.id}`);
+              router.push(`/admin/pre-orders/edit/${item.id}`);
             }}
             onDeleteItem={(id) => setDeleteTargetId(id)}
-            onContinueToList={(item) => setPublishingItem(item)}
+            onContinueToList={(item) => {
+              router.push(`/admin/pre-orders/edit/${item.id}?action=list`);
+            }}
           />
 
-          {/* Section 2: Separated Pagination Component (Image 4) */}
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-            className="justify-center pt-4"
-          />
+          {/* Section 3: Pagination Component */}
+          {!isLoading && totalPages > 1 && (
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+              className="justify-center pt-4"
+            />
+          )}
         </div>
 
         {/* Modal: Add or Edit Pre-order Game */}
@@ -322,13 +382,14 @@ export default function AdminPreOrdersPage() {
           onConfirm={handleConfirmPublish}
         />
 
-        {/* Modal: Delete Confirmation (Matching Image 3) */}
+        {/* Modal: Delete Confirmation */}
         <AdminCatalogDeleteModal
           isOpen={Boolean(deleteTargetId)}
           onClose={() => setDeleteTargetId(null)}
           onConfirm={handleConfirmDelete}
-          title="Are you sure to delete this product?"
-          description="If you delete this file you can't recover it."
+          title="Yakin ingin menghapus produk pre-order ini?"
+          description="Produk yang dihapus tidak dapat dipulihkan kembali."
+          confirmText="Hapus Produk"
         />
       </AdminLayout>
     </>

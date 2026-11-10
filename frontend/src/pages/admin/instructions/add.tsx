@@ -285,18 +285,32 @@ export default function AdminAddNewInstructionPage() {
     return newInstruction;
   };
 
+  const returnUrl = (router.query.returnUrl as string) || (router.query.from as string) || "/admin/instructions";
+
+  // Helper to build return URL with newly created template ID
+  const getReturnUrlWithTemplate = (createdId: string) => {
+    if (!router.query.returnUrl) return returnUrl;
+    const separator = returnUrl.includes("?") ? "&" : "?";
+    return `${returnUrl}${separator}newTemplateId=${encodeURIComponent(createdId)}`;
+  };
+
   // Save Draft Handler
   const handleSaveDraft = () => {
-    saveInstructionToStorage("Draft");
+    const created = saveInstructionToStorage("Draft");
     showToast("Draft instruksi berhasil disimpan!");
+    if (router.query.returnUrl) {
+      setTimeout(() => {
+        router.push(getReturnUrlWithTemplate(created.id));
+      }, 600);
+    }
   };
 
   // Publish Handler
   const handlePublish = () => {
-    saveInstructionToStorage("Listed");
+    const created = saveInstructionToStorage("Listed");
     showToast("Instruksi berhasil dipublikasikan!");
     setTimeout(() => {
-      router.push("/admin/instructions");
+      router.push(getReturnUrlWithTemplate(created.id));
     }, 600);
   };
 
@@ -304,10 +318,10 @@ export default function AdminAddNewInstructionPage() {
   const headerTitle = (
     <div className="flex items-center gap-2 select-none text-label-xs">
       <Link
-        href="/admin/instructions"
+        href={returnUrl}
         className="text-gray-400 hover:text-white transition-colors"
       >
-        Instruksi
+        {router.query.returnUrl ? "Kembali ke Edit Produk" : "Instruksi"}
       </Link>
       <ChevronRightIcon className="w-3.5 h-3.5 text-gray-500 shrink-0" />
       <span className="text-white font-semibold">Add New Instruction</span>

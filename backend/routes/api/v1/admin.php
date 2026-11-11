@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\Admin\Blog\AdminBlogController;
 use App\Http\Controllers\Api\V1\Admin\Catalog\AdminCatalogController;
 use App\Http\Controllers\Api\V1\Admin\CustomSection\AdminCustomSectionController;
 use App\Http\Controllers\Api\V1\Admin\Dashboard\AdminDashboardController;
+use App\Http\Controllers\Api\V1\Admin\Faq\AdminFaqController;
 use App\Http\Controllers\Api\V1\Admin\GameRequest\AdminGameRequestController;
 use App\Http\Controllers\Api\V1\Admin\Instruction\AdminInstructionController;
 use App\Http\Controllers\Api\V1\Admin\Revenue\AdminRevenueController;
@@ -148,5 +149,21 @@ Route::prefix('admin')
         Route::get('/{instructionId}', 'show')->name('show')->whereNumber('instructionId');
         Route::match(['put', 'patch', 'post'], '/{instructionId}', 'update')->name('update')->whereNumber('instructionId');
         Route::delete('/{instructionId}', 'destroy')->name('destroy')->whereNumber('instructionId');
+      });
+
+    // FAQ Management
+    Route::controller(AdminFaqController::class)
+      ->prefix('faqs')
+      ->name('faqs.')
+      ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/pages', 'pages')->name('pages');
+        Route::post('/sort', 'sort')->name('sort');
+        Route::post('/', 'store')->name('store');
+        Route::delete('/', 'destroy')->name('destroy.bulk');
+        Route::get('/{faqId}', 'show')->name('show')->whereNumber('faqId');
+        Route::match(['put', 'patch', 'post'], '/{faqId}', 'update')->name('update')->whereNumber('faqId');
+        Route::match(['put', 'patch', 'post'], '/{faqId}/status', 'status')->name('status')->whereNumber('faqId');
+        Route::delete('/{faqId}', 'destroy')->name('destroy')->whereNumber('faqId');
       });
   });

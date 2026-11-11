@@ -51,4 +51,18 @@ Route::middleware(['auth:admin', 'admin.only'])
                 Route::match(['put', 'patch', 'post'], '/{instructionId}', 'update')->whereNumber('instructionId');
                 Route::delete('/{instructionId}', 'destroy')->whereNumber('instructionId');
             });
+
+        Route::controller(\App\Http\Controllers\Api\V1\Admin\Faq\AdminFaqController::class)
+            ->prefix('faqs')
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::get('/pages', 'pages');
+                Route::post('/sort', 'sort');
+                Route::post('/', 'store');
+                Route::delete('/', 'destroy');
+                Route::get('/{faqId}', 'show')->whereNumber('faqId');
+                Route::match(['put', 'patch', 'post'], '/{faqId}', 'update')->whereNumber('faqId');
+                Route::match(['put', 'patch', 'post'], '/{faqId}/status', 'status')->whereNumber('faqId');
+                Route::delete('/{faqId}', 'destroy')->whereNumber('faqId');
+            });
     });

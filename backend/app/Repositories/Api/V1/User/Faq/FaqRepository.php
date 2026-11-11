@@ -11,13 +11,17 @@ class FaqRepository implements FaqRepositoryInterface
     /**
      * Get active FAQs ordered by order_number.
      *
+     * @param string|null $page
      * @return Collection
      */
-    public function getActiveFaqs(): Collection
+    public function getActiveFaqs(?string $page = null): Collection
     {
-        return Faq::query()
-            ->where('is_active', true)
-            ->orderBy('order_number')
-            ->get();
+        $query = Faq::query()->where('is_active', true);
+
+        if ($page) {
+            $query->where('page', $page);
+        }
+
+        return $query->orderBy('order_number')->get();
     }
 }

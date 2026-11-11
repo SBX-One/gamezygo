@@ -7,6 +7,7 @@ use App\Http\Controllers\Api\V1\Admin\Dashboard\AdminDashboardController;
 use App\Http\Controllers\Api\V1\Admin\GameRequest\AdminGameRequestController;
 use App\Http\Controllers\Api\V1\Admin\Revenue\AdminRevenueController;
 use App\Http\Controllers\Api\V1\Admin\Subscription\AdminSubscriptionController;
+use App\Http\Controllers\Api\V1\Admin\Voucher\AdminVoucherController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -111,5 +112,28 @@ Route::prefix('admin')
         Route::match(['post', 'put', 'patch'], '/status', 'updateStatus')->name('status');
         Route::get('/{gameRequestId}', 'show')->name('show')->whereNumber('gameRequestId');
         Route::match(['post', 'put', 'patch'], '/{gameRequestId}/pin', 'togglePin')->name('pin')->whereNumber('gameRequestId');
+      });
+
+    // Voucher Management
+    Route::controller(AdminVoucherController::class)
+      ->prefix('vouchers')
+      ->name('vouchers.')
+      ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::delete('/', 'destroy')->name('destroy.bulk');
+        Route::get('/export', 'export')->name('export');
+        Route::get('/eligible-products', 'eligibleProducts')->name('eligible-products');
+        Route::get('/eligible-users', 'eligibleUsers')->name('eligible-users');
+        Route::get('/{voucherId}', 'show')->name('show')->whereNumber('voucherId');
+        Route::match(['put', 'patch', 'post'], '/{voucherId}', 'update')->name('update')->whereNumber('voucherId');
+        Route::match(['put', 'patch', 'post'], '/{voucherId}/status', 'status')->name('status')->whereNumber('voucherId');
+        Route::get('/{voucherId}/analytics', 'analytics')->name('analytics')->whereNumber('voucherId');
+        Route::get('/{voucherId}/usages', 'usages')->name('usages')->whereNumber('voucherId');
+        Route::get('/{voucherId}/usages/export', 'exportUsages')->name('usages.export')->whereNumber('voucherId');
+        Route::post('/{voucherId}/products', 'addProducts')->name('products.store')->whereNumber('voucherId');
+        Route::delete('/{voucherId}/products', 'removeProducts')->name('products.destroy')->whereNumber('voucherId');
+        Route::post('/{voucherId}/users', 'addUsers')->name('users.store')->whereNumber('voucherId');
+        Route::delete('/{voucherId}/users', 'removeUsers')->name('users.destroy')->whereNumber('voucherId');
       });
   });

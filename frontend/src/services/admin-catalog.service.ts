@@ -130,8 +130,13 @@ export const adminCatalogService = {
    * Fetch catalog filters metadata
    */
   async getFilters(): Promise<AdminCatalogFiltersResponse["data"]> {
-    const response = await apiClient.get<AdminCatalogFiltersResponse>("/admin/catalog/filters");
-    return response.data.data;
+    try {
+      const response = await apiClient.get<AdminCatalogFiltersResponse>("/products/filters");
+      return response.data.data;
+    } catch {
+      const response = await apiClient.get<AdminCatalogFiltersResponse>("/admin/catalog/filters");
+      return response.data.data;
+    }
   },
 
   /**

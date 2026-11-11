@@ -28,10 +28,6 @@ export async function fetchGameRequests(
 ): Promise<ApiPaginatedResponse<GameRequestItem>> {
   const queryParts: string[] = [];
 
-  if (params?.scope) {
-    queryParts.push(`scope=${encodeURIComponent(params.scope)}`);
-  }
-
   if (params?.search) {
     queryParts.push(`search=${encodeURIComponent(params.search)}`);
   }
@@ -48,16 +44,25 @@ export async function fetchGameRequests(
     queryParts.push(`per_page=${params.per_page}`);
   }
 
-  const queryString = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
+  let endpoint = "/game-requests";
 
-  const endpoint =
-    params?.scope === "mine" ? "/user/game-requests/me" : "/user/game-requests";
+  if (params?.scope === "mine") {
+    endpoint = "/user/game-requests/mine";
+  } else if (params?.scope === "added") {
+    queryParts.push("scope=added");
+    endpoint = "/game-requests";
+  } else if (params?.scope === "all") {
+    endpoint = "/game-requests";
+  }
+
+  const queryString = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
 
   try {
     return await apiGet<ApiPaginatedResponse<GameRequestItem>>(
       `${endpoint}${queryString}`
     );
-  } catch {
+  } catch (error) {
+    console.warn("fetchGameRequests fallback:", error);
     return {
       success: true,
       message: "No requests found",

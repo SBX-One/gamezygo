@@ -1,8 +1,13 @@
 import { useQuery } from "@tanstack/react-query";
-import { fetchAnnouncements, fetchFaqs } from "@/services/common.service";
+import {
+  fetchAnnouncements,
+  fetchCommunities,
+  fetchFaqs,
+} from "@/services/common.service";
 
 export const COMMON_KEYS = {
   announcements: ["announcements"] as const,
+  communities: ["communities"] as const,
   faqs: ["faqs"] as const,
 };
 
@@ -23,5 +28,15 @@ export function useFaqs() {
   return useQuery({
     queryKey: COMMON_KEYS.faqs,
     queryFn: () => fetchFaqs(),
+  });
+}
+
+/**
+ * Hook to fetch active public communities
+ */
+export function useCommunities() {
+  return useQuery({
+    queryKey: COMMON_KEYS.communities,
+    queryFn: () => fetchCommunities(),
   });
 }

@@ -20,6 +20,19 @@ export async function loginApi(
 }
 
 /**
+ * POST /api/v1/admin/login
+ * Authenticate administrator with email & password
+ */
+export async function adminLoginApi(
+  payload: AuthLoginPayload
+): Promise<any> {
+  return apiPost<any, AuthLoginPayload>(
+    "/admin/login",
+    payload
+  );
+}
+
+/**
  * POST /api/v1/auth/register
  * Register a new customer account
  */

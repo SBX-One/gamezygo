@@ -15,7 +15,8 @@ import {
   DEFAULT_ADD_PRODUCT_FORM,
   type AdminAddProductFormData,
 } from "@/features/admin/types/admin-add-product.types";
-import { useCreateProduct } from "@/hooks/use-admin-catalog";
+import { useCreateProduct, useAdminCatalogFilters } from "@/hooks/use-admin-catalog";
+import { useAdminSections } from "@/hooks/use-admin-sections";
 import { toast } from "@/stores/use-toast-store";
 
 const ChevronRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -60,6 +61,8 @@ export default function AdminAddProductPage() {
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
   const createProductMutation = useCreateProduct();
+  const { data: filterMeta } = useAdminCatalogFilters();
+  const { data: serverSections } = useAdminSections();
 
   const handleFormChange = (fields: Partial<AdminAddProductFormData>) => {
     setFormData((prev) => ({ ...prev, ...fields }));
@@ -69,6 +72,33 @@ export default function AdminAddProductPage() {
   const buildPayload = (status: "listing" | "archive") => {
     const cleanPrice = parseInt(formData.finalPrice.replace(/\D/g, ""), 10) || 0;
     const cleanInitialPrice = parseInt(formData.initialPrice.replace(/\D/g, ""), 10) || cleanPrice;
+
+    // Resolve category IDs from genre names
+    const categoryIds = (formData.genres || [])
+      .map((g) => {
+        const match = filterMeta?.categories?.find(
+          (c: any) => c.name?.toLowerCase() === g.toLowerCase()
+        );
+        return match ? match.id : null;
+      })
+      .filter((id): id is number => id !== null);
+
+    // Resolve launcher ID
+    const launcherMatch = (filterMeta as any)?.launcher?.find(
+      (l: any) => l.name?.toLowerCase() === (formData.launcher || "").toLowerCase()
+    );
+    const launcherId = launcherMatch ? launcherMatch.id : undefined;
+
+    // Resolve promotion section ID
+    const sectionMatch = serverSections?.find(
+      (s) => s.title === formData.promotionSection
+    );
+    const promoSectionId = sectionMatch ? sectionMatch.id : undefined;
+
+    // Resolve instruction template ID
+    const rawTemplateId = formData.selectedTemplate?.id;
+    const isDbId = rawTemplateId && /^\d+$/.test(String(rawTemplateId));
+    const instructionId = isDbId ? Number(rawTemplateId) : undefined;
 
     if (formData.imageFile) {
       const payload = new FormData();
@@ -88,6 +118,18 @@ export default function AdminAddProductPage() {
       formData.genres.forEach((genre) => {
         payload.append("genres[]", genre);
       });
+      categoryIds.forEach((cid) => {
+        payload.append("category_ids[]", String(cid));
+      });
+      if (launcherId) {
+        payload.append("launcher_ids[]", String(launcherId));
+      }
+      if (promoSectionId) {
+        payload.append("promotion_section_id", String(promoSectionId));
+      }
+      if (instructionId) {
+        payload.append("instruction_template_id", String(instructionId));
+      }
       formData.minimumSpecs.forEach((s, i) => {
         payload.append(`specifications[minimum][${i}][type]`, s.label);
         payload.append(`specifications[minimum][${i}][value]`, s.value);
@@ -108,6 +150,10 @@ export default function AdminAddProductPage() {
       steam_url: formData.storeUrl,
       image_url: formData.imageSrc,
       genres: formData.genres,
+      category_ids: categoryIds,
+      launcher_ids: launcherId ? [launcherId] : undefined,
+      promotion_section_id: promoSectionId,
+      instruction_template_id: instructionId,
       game_account: {
         username: formData.accountUsername,
         password: formData.accountPassword,

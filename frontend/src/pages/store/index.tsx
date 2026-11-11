@@ -583,28 +583,6 @@ export default function StorePage() {
     router.replace("/store", undefined, { shallow: true });
   };
 
-  // Dynamic local admin banners loaded safely after mount to avoid hydration mismatch
-  const [localAdminBanners, setLocalAdminBanners] = React.useState<BannerSlide[] | null>(null);
-
-  React.useEffect(() => {
-    try {
-      const stored = localStorage.getItem("gamezygo_admin_announcements");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const published = (parsed as AnnouncementLike[]).filter(
-            (a) => a.isPublished !== false
-          );
-          if (published.length > 0) {
-            setLocalAdminBanners(published.map(mapAnnouncementToSlide));
-          }
-        }
-      }
-    } catch {
-      // Fallback
-    }
-  }, []);
-
   // Dynamic Banners from Backend (fallback to PROMO_BANNERS)
   const heroBanners = React.useMemo(() => {
     if (announcementsData?.data && announcementsData.data.length > 0) {

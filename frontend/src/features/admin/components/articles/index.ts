@@ -2,6 +2,7 @@ export * from "./AdminArticlesTopBar";
 export * from "./AdminArticleCard";
 export * from "./AdminArticlesGrid";
 export * from "./AdminArticleAddEditModal";
+export * from "./AdminArticlePreviewModal";
 export * from "./AdminArticleDeleteModal";
 export * from "./AdminArticlesFilterPopover";
 export * from "./AdminArticleEditorToolbar";

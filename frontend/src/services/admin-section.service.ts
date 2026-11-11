@@ -40,10 +40,20 @@ export const adminSectionService = {
    * Reorder sections by list of IDs
    */
   async reorderSections(sectionIds: Array<string | number>): Promise<unknown> {
-    const response = await apiClient.put("/admin/custom-sections/reorder", {
-      section_ids: sectionIds,
-    });
-    return response.data;
+    const numericIds = sectionIds.map((id) =>
+      typeof id === "string" ? parseInt(id.replace("sec-", ""), 10) || id : id
+    );
+    try {
+      const response = await apiClient.post("/admin/custom-sections/sort", {
+        section_ids: numericIds,
+      });
+      return response.data;
+    } catch {
+      const response = await apiClient.put("/admin/custom-sections/reorder", {
+        section_ids: numericIds,
+      });
+      return response.data;
+    }
   },
 
   /**
@@ -73,8 +83,13 @@ export const adminSectionService = {
    */
   async clearSection(sectionId: string | number): Promise<unknown> {
     const cleanSecId = typeof sectionId === "string" ? sectionId.replace("sec-", "") : sectionId;
-    const response = await apiClient.post(`/admin/custom-sections/${cleanSecId}/clear`);
-    return response.data;
+    try {
+      const response = await apiClient.delete(`/admin/custom-sections/${cleanSecId}/products`);
+      return response.data;
+    } catch {
+      const response = await apiClient.post(`/admin/custom-sections/${cleanSecId}/clear`);
+      return response.data;
+    }
   },
 
   /**

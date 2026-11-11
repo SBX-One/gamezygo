@@ -754,10 +754,7 @@ export default function RequestGamePage() {
             isUpvoted: false,
           };
         });
-        const localOnly = communityRequests.filter(
-          (c) => !apiItems.some((a) => a.title.toLowerCase() === c.title.toLowerCase())
-        );
-        return [...localOnly, ...apiItems];
+        return apiItems;
       }
       return communityRequests;
     }

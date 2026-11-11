@@ -5,6 +5,7 @@ import type { AdminCommunityItem } from "../../types/admin-community.types";
 
 export interface AdminCommunityDeleteModalProps {
   isOpen: boolean;
+  isDeleting?: boolean;
   item?: AdminCommunityItem | null;
   onClose: () => void;
   onConfirm: () => void;
@@ -13,6 +14,7 @@ export interface AdminCommunityDeleteModalProps {
 
 export function AdminCommunityDeleteModal({
   isOpen,
+  isDeleting = false,
   item,
   onClose,
   onConfirm,
@@ -20,13 +22,13 @@ export function AdminCommunityDeleteModal({
 }: AdminCommunityDeleteModalProps) {
   React.useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape" && isOpen) {
+      if (e.key === "Escape" && isOpen && !isDeleting) {
         onClose();
       }
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, isDeleting, onClose]);
 
   if (!isOpen) return null;
 
@@ -37,7 +39,12 @@ export function AdminCommunityDeleteModal({
       aria-labelledby="delete-community-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-150 select-none font-sans"
     >
-      <div className="fixed inset-0" onClick={onClose} />
+      <div
+        className="fixed inset-0"
+        onClick={() => {
+          if (!isDeleting) onClose();
+        }}
+      />
 
       <div
         className={cn(
@@ -56,7 +63,7 @@ export function AdminCommunityDeleteModal({
           {item ? (
             <>
               You are about to remove{" "}
-              <span className="text-white font-medium">"{item.name}"</span>. If
+              <span className="text-white font-medium">&ldquo;{item.name}&rdquo;</span>. If
               you remove this section you can’t recover it.
             </>
           ) : (
@@ -67,8 +74,10 @@ export function AdminCommunityDeleteModal({
         {/* Action Buttons: [ Batal ] & [ Remove ] */}
         <div className="flex items-center justify-end gap-3 mt-6 sm:mt-7">
           <Button
+            type="button"
             variant="inactive"
             size="sm"
+            disabled={isDeleting}
             onClick={onClose}
             className="px-5 py-2.5"
           >
@@ -79,9 +88,10 @@ export function AdminCommunityDeleteModal({
             type="button"
             variant="primary"
             size="sm"
+            disabled={isDeleting}
             onClick={onConfirm}
           >
-            Remove
+            {isDeleting ? "Removing..." : "Remove"}
           </Button>
         </div>
       </div>

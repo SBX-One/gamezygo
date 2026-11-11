@@ -472,6 +472,25 @@ export interface AuthResponseData {
   user?: UserProfileResponse;
 }
 
+// ============================================================================
+// 14. COMMUNITIES
+// ============================================================================
+
+export interface CommunityTagItem {
+  id: number;
+  name: string;
+  slug: string;
+}
+
+export interface CommunityItem {
+  id: number;
+  name: string;
+  banner_file_url: string;
+  link: string;
+  order_number: number;
+  tags: CommunityTagItem[];
+}
+
 interface _Unused {
   _unused?: never;
 }

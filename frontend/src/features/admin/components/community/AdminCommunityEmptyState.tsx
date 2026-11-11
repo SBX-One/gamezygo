@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 export interface AdminCommunityEmptyStateProps {
   title?: string;
   description?: string;
+  buttonLabel?: string;
   onReload?: () => void;
   className?: string;
 }
@@ -49,7 +50,8 @@ const ReloadIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export function AdminCommunityEmptyState({
   title = "Tidak Ada Data Komunitas",
-  description = "This page you're looking for doesn't exist or has been moved. Please check the URL or return to the homepage.",
+  description = "Belum ada grup komunitas yang tersedia atau tidak ada yang cocok dengan pencarian Anda.",
+  buttonLabel = "Reload",
   onReload,
   className,
 }: AdminCommunityEmptyStateProps) {
@@ -84,7 +86,7 @@ export function AdminCommunityEmptyState({
           leftIcon={<ReloadIcon className="w-4 h-4" />}
           className="border-gradient-inactive"
         >
-          Reload
+          {buttonLabel}
         </Button>
       )}
     </div>

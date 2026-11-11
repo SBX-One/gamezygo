@@ -1,8 +1,10 @@
 import * as React from "react";
+import { useRouter } from "next/router";
 import { cn } from "@/lib/utils";
 import { AdminSidebar } from "./AdminSidebar";
 import { AdminHeader } from "./AdminHeader";
 import { useUiStore } from "@/stores/use-ui-store";
+import { useAuthStore } from "@/stores/use-auth-store";
 import type { AdminLayoutProps } from "./AdminLayout.types";
 
 export function AdminLayout({
@@ -13,8 +15,37 @@ export function AdminLayout({
   className,
   headerClassName,
 }: AdminLayoutProps) {
+  const router = useRouter();
+  const { token, role, isAuthenticated } = useAuthStore();
   const { isAdminSidebarCollapsed, toggleAdminSidebar } = useUiStore();
   const [isMobileOpen, setIsMobileOpen] = React.useState(false);
+  const [isCheckingAuth, setIsCheckingAuth] = React.useState(true);
+
+  // Route protection: verify admin session on mount
+  React.useEffect(() => {
+    let currentToken = token;
+    let currentRole = role;
+
+    if (!currentToken && typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem("gamezygo-auth-storage");
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          currentToken = parsed?.state?.token || null;
+          currentRole = parsed?.state?.role || "guest";
+        }
+      } catch {
+        // ignore
+      }
+    }
+
+    if (!currentToken || currentRole !== "admin") {
+      const redirectTarget = encodeURIComponent(router.asPath || "/admin/dashboard");
+      router.replace(`/login?redirect=${redirectTarget}`);
+    } else {
+      setIsCheckingAuth(false);
+    }
+  }, [token, role, router]);
 
   // Toggle handler for both desktop and mobile
   const handleToggleSidebar = () => {
@@ -25,6 +56,17 @@ export function AdminLayout({
       toggleAdminSidebar();
     }
   };
+
+  if (isCheckingAuth) {
+    return (
+      <div className="h-screen w-full bg-deep-blue-900 text-gray-100 flex flex-col items-center justify-center gap-4">
+        <div className="w-10 h-10 border-3 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />
+        <p className="text-sm font-medium text-gray-400 animate-pulse">
+          Memverifikasi akses Administrator Gamezygo...
+        </p>
+      </div>
+    );
+  }
 
   return (
     <div className="h-screen w-full bg-deep-blue-900 text-gray-100 flex flex-row overflow-hidden">

@@ -2,19 +2,16 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { AdminCheckbox } from "@/components/admin/AdminCheckbox";
 import { FilterModal } from "@/components/ui/FilterModal";
-import type { AdminArticleFilterState } from "../../types/admin-article.types";
-
-const ARTICLE_CATEGORIES = [
-  "Tutorials",
-  "Review & Recommendations",
-  "Game Guides",
-  "News & Update",
-];
+import type {
+  AdminArticleFilterState,
+  AdminBlogCategoryItem,
+} from "../../types/admin-article.types";
 
 const ARTICLE_STATUS_OPTIONS = ["Published", "Draft", "Unpublished"];
 
 export interface AdminArticlesTopBarProps {
   filters: AdminArticleFilterState;
+  categories?: AdminBlogCategoryItem[];
   onFilterChange: (filters: AdminArticleFilterState) => void;
   className?: string;
 }
@@ -74,17 +71,22 @@ const FilterIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export function AdminArticlesTopBar({
   filters,
+  categories = [],
   onFilterChange,
   className,
 }: AdminArticlesTopBarProps) {
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
+
+  const categoryNames = React.useMemo(
+    () => categories.map((c) => c.name),
+    [categories]
+  );
 
   const hasActiveFilters =
     (filters.categories && filters.categories.length > 0) ||
     filters.isPublished ||
     filters.isDraft ||
     filters.isUnpublished ||
-    (filters.priceRange && filters.priceRange[1] < 200000) ||
     filters.sortBy !== "terbaru";
 
   return (
@@ -166,7 +168,7 @@ export function AdminArticlesTopBar({
           placement="content"
           onClose={() => setIsFilterOpen(false)}
           title="Filter & Sort"
-          categories={ARTICLE_CATEGORIES}
+          categories={categoryNames}
           selectedCategories={filters.categories || []}
           onToggleCategory={(cat) => {
             const current = filters.categories || [];
@@ -192,17 +194,7 @@ export function AdminArticlesTopBar({
               onFilterChange({ ...filters, isUnpublished: !filters.isUnpublished });
             }
           }}
-          showPriceRange={true}
-          minPrice={0}
-          maxPrice={200000}
-          priceRange={
-            filters.priceRange && filters.priceRange[1] <= 200000
-              ? filters.priceRange
-              : [0, 200000]
-          }
-          onPriceRangeChange={(range) =>
-            onFilterChange({ ...filters, priceRange: range })
-          }
+          showPriceRange={false}
           sortOptions={["Terbaru", "Nama (A - Z)"]}
           selectedSort={
             filters.sortBy === "name_asc" ? "Nama (A - Z)" : "Terbaru"

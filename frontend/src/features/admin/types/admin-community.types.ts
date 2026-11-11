@@ -3,9 +3,11 @@ export interface AdminCommunityItem {
   name: string;
   pageLink: string;
   tag: string;
+  tags: string[];
   imageUrl: string;
   orderNumber: number;
+  isActive: boolean;
   createdAt?: string;
 }
 
-export type CommunityPlatformTag = "All" | "Whatsapp" | "Telegram" | "Discord";
+export type CommunityPlatformTag = string;

@@ -1,14 +1,25 @@
 export type AdminArticleStatus = "published" | "draft" | "unpublished";
 
+export type BackendBlogStatus = "published" | "draft" | "archived";
+
+export interface AdminBlogCategoryItem {
+  id: number;
+  name: string;
+  slug: string;
+}
+
 export interface AdminArticle {
   id: string;
   title: string;
+  slug?: string;
   coverImage: string;
   status: AdminArticleStatus;
   publishedAt?: string;
   lastEdited: string;
   views: number;
   category?: string;
+  categoryId?: number | null;
+  authorName?: string;
   excerpt?: string;
   content?: string;
   blocks?: ArticleEditorBlock[];

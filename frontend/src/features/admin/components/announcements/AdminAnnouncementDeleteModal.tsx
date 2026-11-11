@@ -4,26 +4,28 @@ import { Button } from "@/components/ui/Button";
 
 export interface AdminAnnouncementDeleteModalProps {
   isOpen: boolean;
+  isDeleting?: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   className?: string;
 }
 
 export function AdminAnnouncementDeleteModal({
   isOpen,
+  isDeleting = false,
   onClose,
   onConfirm,
   className,
 }: AdminAnnouncementDeleteModalProps) {
   React.useEffect(() => {
     function handleKeyDown(e: KeyboardEvent) {
-      if (e.key === "Escape" && isOpen) {
+      if (e.key === "Escape" && isOpen && !isDeleting) {
         onClose();
       }
     }
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
-  }, [isOpen, onClose]);
+  }, [isOpen, isDeleting, onClose]);
 
   if (!isOpen) return null;
 
@@ -34,7 +36,12 @@ export function AdminAnnouncementDeleteModal({
       aria-labelledby="delete-announcement-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-xs animate-in fade-in duration-150 select-none font-sans"
     >
-      <div className="fixed inset-0" onClick={onClose} />
+      <div
+        className="fixed inset-0"
+        onClick={() => {
+          if (!isDeleting) onClose();
+        }}
+      />
 
       <div
         className={cn(
@@ -59,6 +66,7 @@ export function AdminAnnouncementDeleteModal({
             type="button"
             variant="secondary"
             size="sm"
+            disabled={isDeleting}
             onClick={onClose}
           >
             Batal
@@ -68,9 +76,12 @@ export function AdminAnnouncementDeleteModal({
             type="button"
             variant="primary"
             size="sm"
-            onClick={onConfirm}
+            disabled={isDeleting}
+            onClick={() => {
+              void onConfirm();
+            }}
           >
-            Remove
+            {isDeleting ? "Removing..." : "Remove"}
           </Button>
         </div>
       </div>

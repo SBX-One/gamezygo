@@ -70,13 +70,28 @@ const processQueue = (error: unknown, token: string | null = null) => {
   failedQueue = [];
 };
 
-// Response Interceptor: Handle global errors (401 with Silent Refresh)
+// Response Interceptor: Handle global errors (401 with Silent Refresh / Login Redirect)
 apiClient.interceptors.response.use(
   (response: AxiosResponse) => {
     return response;
   },
   async (error) => {
     const originalRequest = error.config;
+
+    // If an admin endpoint returns 401 Unauthorized, redirect to /login
+    if (
+      error.response?.status === 401 &&
+      originalRequest?.url?.includes("/admin/") &&
+      !originalRequest?.url?.includes("/admin/login")
+    ) {
+      const { logout } = useAuthStore.getState();
+      logout();
+      if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+        const redirectPath = encodeURIComponent(window.location.pathname + window.location.search);
+        window.location.href = `/login?redirect=${redirectPath}`;
+      }
+      return Promise.reject(error);
+    }
 
     if (error.response?.status === 401 && !originalRequest?._retry) {
       const { token, refreshToken, setToken, logout } = useAuthStore.getState();

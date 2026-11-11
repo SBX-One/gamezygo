@@ -721,6 +721,7 @@ export function AdminArticleBlockEditor({
                           alt={block.imageCaption || "Gambar konten artikel"}
                           width={1200}
                           height={600}
+                          unoptimized
                           className="w-full h-auto max-h-115 object-cover rounded-lg"
                         />
                         <div className="absolute top-3 right-3 flex items-center gap-2 opacity-0 group-hover/img:opacity-100 transition-opacity">

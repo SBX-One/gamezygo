@@ -5,6 +5,7 @@ import { cn } from "@/lib/utils";
 export interface AdminArticleCoverUploadProps {
   coverUrl?: string;
   onCoverChange: (url: string) => void;
+  onCoverFileChange?: (file: File | null) => void;
   onRemoveCover?: () => void;
   className?: string;
 }
@@ -68,6 +69,7 @@ const SAMPLE_COVER =
 export function AdminArticleCoverUpload({
   coverUrl,
   onCoverChange,
+  onCoverFileChange,
   onRemoveCover,
   className,
 }: AdminArticleCoverUploadProps) {
@@ -77,6 +79,7 @@ export function AdminArticleCoverUpload({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    onCoverFileChange?.(file);
     const reader = new FileReader();
     reader.onload = () => {
       if (typeof reader.result === "string") {
@@ -107,6 +110,7 @@ export function AdminArticleCoverUpload({
             src={coverUrl}
             alt="Article thumbnail cover"
             fill
+            unoptimized
             sizes="100vw"
             className="object-cover"
             priority
@@ -117,7 +121,10 @@ export function AdminArticleCoverUpload({
             {onRemoveCover && (
               <button
                 type="button"
-                onClick={onRemoveCover}
+                onClick={() => {
+                  onCoverFileChange?.(null);
+                  onRemoveCover();
+                }}
                 aria-label="Hapus gambar"
                 className="px-3 py-1.5 rounded-lg bg-deep-blue-950/85 hover:bg-rose-500/80 border border-white/20 text-label-xs font-medium text-white flex items-center gap-1.5 backdrop-blur-md cursor-pointer transition-colors"
               >
@@ -155,7 +162,10 @@ export function AdminArticleCoverUpload({
           <div className="flex items-center justify-end">
             <button
               type="button"
-              onClick={() => onCoverChange(SAMPLE_COVER)}
+              onClick={() => {
+                onCoverFileChange?.(null);
+                onCoverChange(SAMPLE_COVER);
+              }}
               className="text-[11px] text-gray-400 hover:text-white underline underline-offset-4 cursor-pointer transition-colors"
             >
               Gunakan Gambar Sampel Summer Promo

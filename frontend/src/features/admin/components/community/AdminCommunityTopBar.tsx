@@ -8,6 +8,7 @@ export interface AdminCommunityTopBarProps {
   onSearchChange: (value: string) => void;
   selectedTag: CommunityPlatformTag;
   onSelectTag: (tag: CommunityPlatformTag) => void;
+  tagOptions?: CommunityPlatformTag[];
   onAddNew: () => void;
   className?: string;
 }
@@ -80,9 +81,9 @@ const PlusIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-const TAG_OPTIONS: CommunityPlatformTag[] = [
+const DEFAULT_TAG_OPTIONS: CommunityPlatformTag[] = [
   "All",
-  "Whatsapp",
+  "WhatsApp",
   "Telegram",
   "Discord",
 ];
@@ -92,9 +93,15 @@ export function AdminCommunityTopBar({
   onSearchChange,
   selectedTag,
   onSelectTag,
+  tagOptions,
   onAddNew,
   className,
 }: AdminCommunityTopBarProps) {
+  const resolvedTagOptions = React.useMemo(() => {
+    if (!tagOptions || tagOptions.length === 0) return DEFAULT_TAG_OPTIONS;
+    const withoutAll = tagOptions.filter((t) => t.toLowerCase() !== "all");
+    return ["All", ...withoutAll];
+  }, [tagOptions]);
   const [isFilterOpen, setIsFilterOpen] = React.useState(false);
   const filterRef = React.useRef<HTMLDivElement>(null);
 
@@ -177,7 +184,7 @@ export function AdminCommunityTopBar({
             launchers={[]}
             showPriceRange={false}
             genresLabel="PLATFORM"
-            genres={TAG_OPTIONS}
+            genres={resolvedTagOptions}
             selectedGenres={[selectedTag]}
             onToggleGenre={(tag) => {
               onSelectTag(tag as CommunityPlatformTag);

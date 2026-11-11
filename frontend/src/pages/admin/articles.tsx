@@ -1,6 +1,5 @@
 import * as React from "react";
 import Head from "next/head";
-import Link from "next/link";
 import { useRouter } from "next/router";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Pagination } from "@/components/ui/Pagination";
@@ -9,15 +8,29 @@ import {
   AdminArticlesTopBar,
   AdminArticlesGrid,
   AdminArticleAddEditModal,
+  AdminArticlePreviewModal,
   AdminArticleDeleteModal,
+  type AdminArticleModalSavePayload,
 } from "@/features/admin/components/articles";
-import { MOCK_ADMIN_ARTICLES } from "@/features/admin/data/admin-articles-mock-data";
 import {
   INITIAL_ARTICLE_FILTER_STATE,
   type AdminArticleFilterState,
   type AdminArticle,
   type AdminArticleStatus,
+  type BackendBlogStatus,
 } from "@/features/admin/types/admin-article.types";
+import {
+  useAdminBlogs,
+  useAdminBlogCategories,
+  useCreateAdminBlog,
+  useUpdateAdminBlog,
+  usePublishAdminBlog,
+  useBulkPublishAdminBlogs,
+  useDeleteAdminBlog,
+  useBulkDeleteAdminBlogs,
+} from "@/hooks/use-admin-blogs";
+import { mapUiStatusToBackend } from "@/features/admin/utils/article-content.utils";
+import { toast } from "@/stores/use-toast-store";
 
 const PlusIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -36,7 +49,6 @@ const PlusIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-// Article Document Icon for empty state
 const ArticleDocumentIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     width="32"
@@ -57,36 +69,30 @@ const ArticleDocumentIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+function getErrorMessage(error: unknown, fallback: string): string {
+  const err = error as {
+    response?: { data?: { message?: string } };
+    message?: string;
+  };
+  return err?.response?.data?.message || err?.message || fallback;
+}
+
 export default function AdminArticlesPage() {
   const router = useRouter();
-  // Initialize with mock articles and check localStorage
-  const [articles, setArticles] = React.useState<AdminArticle[]>(MOCK_ADMIN_ARTICLES);
-
-  React.useEffect(() => {
-    try {
-      const stored = localStorage.getItem("gamezygo_admin_articles");
-      if (stored) {
-        const parsed: AdminArticle[] = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          // Merge stored articles with mock articles (unique by id)
-          const merged = [...parsed, ...MOCK_ADMIN_ARTICLES.filter(
-            (m) => !parsed.some((p) => p.id === m.id)
-          )];
-          setArticles(merged);
-        }
-      }
-    } catch {
-      // Storage parsing ignore
-    }
-  }, []);
 
   const [filters, setFilters] = React.useState<AdminArticleFilterState>(
     INITIAL_ARTICLE_FILTER_STATE
   );
+  const [debouncedSearch, setDebouncedSearch] = React.useState("");
   const [selectedIds, setSelectedIds] = React.useState<string[]>([]);
   const [currentPage, setCurrentPage] = React.useState<number>(1);
   const [isAddModalOpen, setIsAddModalOpen] = React.useState<boolean>(false);
-  const [editingArticle, setEditingArticle] = React.useState<AdminArticle | null>(null);
+  const [editingArticle, setEditingArticle] = React.useState<AdminArticle | null>(
+    null
+  );
+  const [previewArticleId, setPreviewArticleId] = React.useState<string | null>(
+    null
+  );
   const [deleteModalState, setDeleteModalState] = React.useState<{
     isOpen: boolean;
     type: "single" | "multiple";
@@ -96,91 +102,144 @@ export default function AdminArticlesPage() {
     type: "single",
   });
 
-  // Filter & Search logic
-  const filteredArticles = React.useMemo(() => {
-    return articles.filter((article) => {
-      // 1. Search query match
-      if (
-        filters.searchQuery.trim() &&
-        !article.title
-          .toLowerCase()
-          .includes(filters.searchQuery.trim().toLowerCase())
-      ) {
-        return false;
-      }
+  // Debounce search input
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(filters.searchQuery.trim());
+    }, 350);
+    return () => clearTimeout(timer);
+  }, [filters.searchQuery]);
 
-      // 2. Status checkbox filter
-      const hasAnyStatusFilter =
-        filters.isPublished || filters.isDraft || filters.isUnpublished;
+  // Reset pagination when filter criteria change
+  const handleFilterChange = React.useCallback(
+    (nextFilters: AdminArticleFilterState) => {
+      setFilters(nextFilters);
+      setCurrentPage(1);
+    },
+    []
+  );
 
-      if (hasAnyStatusFilter) {
-        const matchesPublished = filters.isPublished && article.status === "published";
-        const matchesDraft = filters.isDraft && article.status === "draft";
-        const matchesUnpublished =
-          filters.isUnpublished && article.status === "unpublished";
+  // Fetch blog categories from PostgreSQL
+  const { data: blogCategories = [] } = useAdminBlogCategories();
 
-        if (!matchesPublished && !matchesDraft && !matchesUnpublished) {
-          return false;
-        }
-      }
+  // Map UI filter state -> Backend API query parameters
+  const selectedStatuses: BackendBlogStatus[] = React.useMemo(() => {
+    const list: BackendBlogStatus[] = [];
+    if (filters.isPublished) list.push("published");
+    if (filters.isDraft) list.push("draft");
+    if (filters.isUnpublished) list.push("archived");
+    return list;
+  }, [filters.isPublished, filters.isDraft, filters.isUnpublished]);
 
-      // 3. Category tag filter (from Filter & Sort popover)
-      if (
-        filters.categories &&
-        filters.categories.length > 0 &&
-        article.category &&
-        !filters.categories.some((c) =>
-          article.category?.toLowerCase().includes(c.toLowerCase())
-        )
-      ) {
-        return false;
-      }
+  const selectedCategoryIds: number[] = React.useMemo(() => {
+    if (!filters.categories?.length || blogCategories.length === 0) return [];
+    return blogCategories
+      .filter((cat) => filters.categories?.includes(cat.name))
+      .map((cat) => cat.id);
+  }, [filters.categories, blogCategories]);
 
-      return true;
-    }).sort((a, b) => {
-      if (filters.sortBy === "name_asc") {
-        return a.title.localeCompare(b.title);
-      }
-      return 0; // Default: terbaru
-    });
-  }, [articles, filters]);
+  const queryParams = React.useMemo(
+    () => ({
+      search: debouncedSearch || undefined,
+      status: selectedStatuses.length === 1 ? selectedStatuses[0] : undefined,
+      statuses: selectedStatuses.length > 1 ? selectedStatuses : undefined,
+      category_ids:
+        selectedCategoryIds.length > 0 ? selectedCategoryIds : undefined,
+      sort_by: (filters.sortBy === "name_asc" ? "name_asc" : "latest") as
+        | "name_asc"
+        | "latest",
+      page: currentPage,
+      per_page: 9,
+    }),
+    [
+      debouncedSearch,
+      selectedStatuses,
+      selectedCategoryIds,
+      filters.sortBy,
+      currentPage,
+    ]
+  );
+
+  // Live TanStack Query hooks
+  const {
+    articles,
+    totalBlog,
+    overallTotal,
+    totalPages,
+    isLoading,
+    isError,
+    refetch,
+  } = useAdminBlogs(queryParams);
+
+  const createMutation = useCreateAdminBlog();
+  const updateMutation = useUpdateAdminBlog();
+  const publishMutation = usePublishAdminBlog();
+  const bulkPublishMutation = useBulkPublishAdminBlogs();
+  const deleteMutation = useDeleteAdminBlog();
+  const bulkDeleteMutation = useBulkDeleteAdminBlogs();
+
+  const isDeleting = deleteMutation.isPending || bulkDeleteMutation.isPending;
+
+  const hasAnyActiveFilter =
+    Boolean(debouncedSearch) ||
+    selectedStatuses.length > 0 ||
+    selectedCategoryIds.length > 0 ||
+    filters.sortBy === "name_asc";
 
   // Selection handlers
   const handleToggleSelectItem = (id: string) => {
-    if (selectedIds.includes(id)) {
-      setSelectedIds(selectedIds.filter((item) => item !== id));
-    } else {
-      setSelectedIds([...selectedIds, id]);
-    }
-  };
-
-  // Status and edit handlers
-  const handleStatusChange = (id: string, newStatus: AdminArticleStatus) => {
-    setArticles((prev) =>
-      prev.map((art) =>
-        art.id === id
-          ? {
-              ...art,
-              status: newStatus,
-              publishedAt:
-                newStatus === "published"
-                  ? art.publishedAt ||
-                    new Date().toLocaleDateString("id-ID", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    })
-                  : art.publishedAt,
-              lastEdited: "Just now",
-            }
-          : art
-      )
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((item) => item !== id) : [...prev, id]
     );
   };
 
+  // Status transition handler (Publish / Unpublish -> archived)
+  const handleStatusChange = async (
+    id: string,
+    newStatus: AdminArticleStatus
+  ) => {
+    try {
+      if (newStatus === "published") {
+        await publishMutation.mutateAsync(id);
+        toast.success("Artikel berhasil dipublikasikan.");
+      } else {
+        await updateMutation.mutateAsync({
+          id,
+          payload: { status: mapUiStatusToBackend(newStatus) },
+        });
+        toast.success(
+          newStatus === "unpublished"
+            ? "Artikel berhasil di-unpublish (archived)."
+            : "Status artikel diubah ke draft."
+        );
+      }
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Gagal memperbarui status artikel."));
+    }
+  };
+
+  // Bulk Publish handler
+  const handlePublishSelected = async () => {
+    if (selectedIds.length === 0) return;
+    try {
+      await bulkPublishMutation.mutateAsync(selectedIds);
+      toast.success(`${selectedIds.length} artikel berhasil dipublikasikan.`);
+      setSelectedIds([]);
+    } catch (error) {
+      toast.error(
+        getErrorMessage(error, "Gagal mempublikasikan artikel terpilih.")
+      );
+    }
+  };
+
+  // Edit navigates to full Notion-style block editor page
   const handleEdit = (article: AdminArticle) => {
-    setEditingArticle(article);
-    setIsAddModalOpen(true);
+    router.push(`/admin/articles/edit/${article.id}`);
+  };
+
+  // Preview opens authenticated detail modal
+  const handlePreview = (article: AdminArticle) => {
+    setPreviewArticleId(article.id);
   };
 
   const handleDeleteItem = (id: string) => {
@@ -199,49 +258,69 @@ export default function AdminArticlesPage() {
     });
   };
 
-  const handleConfirmDelete = () => {
-    if (deleteModalState.type === "single" && deleteModalState.targetId) {
-      const id = deleteModalState.targetId;
-      setArticles((prev) => prev.filter((art) => art.id !== id));
-      setSelectedIds((prev) => prev.filter((sId) => sId !== id));
-    } else if (deleteModalState.type === "multiple") {
-      setArticles((prev) => prev.filter((art) => !selectedIds.includes(art.id)));
-      setSelectedIds([]);
+  const handleConfirmDelete = async () => {
+    try {
+      if (deleteModalState.type === "single" && deleteModalState.targetId) {
+        const id = deleteModalState.targetId;
+        await deleteMutation.mutateAsync(id);
+        setSelectedIds((prev) => prev.filter((sId) => sId !== id));
+        toast.success("Artikel berhasil dihapus.");
+      } else if (deleteModalState.type === "multiple" && selectedIds.length > 0) {
+        const count = selectedIds.length;
+        await bulkDeleteMutation.mutateAsync(selectedIds);
+        setSelectedIds([]);
+        toast.success(`${count} artikel berhasil dihapus.`);
+      }
+      setDeleteModalState({ isOpen: false, type: "single" });
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Gagal menghapus artikel."));
     }
-    setDeleteModalState({ isOpen: false, type: "single" });
   };
 
-  const handleSaveArticle = (
-    data: Omit<AdminArticle, "id">,
+  const handleQuickSaveArticle = async (
+    data: AdminArticleModalSavePayload,
     id?: string
   ) => {
-    if (id) {
-      setArticles((prev) =>
-        prev.map((art) => (art.id === id ? { ...art, ...data } : art))
-      );
-    } else {
-      const created: AdminArticle = {
-        ...data,
-        id: `art-${Date.now()}`,
-      };
-      setArticles((prev) => [created, ...prev]);
+    try {
+      const backendStatus = mapUiStatusToBackend(data.status);
+      if (id) {
+        await updateMutation.mutateAsync({
+          id,
+          payload: {
+            title: data.title,
+            status: backendStatus,
+            category_id: data.categoryId ?? null,
+            banner_file: data.coverFile || data.coverImage,
+          },
+        });
+        toast.success("Artikel berhasil diperbarui.");
+      } else {
+        await createMutation.mutateAsync({
+          title: data.title,
+          content: `<p>${data.title}</p>`,
+          status: backendStatus,
+          category_id: data.categoryId ?? null,
+          banner_file: data.coverFile || data.coverImage,
+        });
+        toast.success("Artikel baru berhasil ditambahkan.");
+      }
+      setIsAddModalOpen(false);
+      setEditingArticle(null);
+    } catch (error) {
+      toast.error(getErrorMessage(error, "Gagal menyimpan artikel."));
     }
-    setIsAddModalOpen(false);
-    setEditingArticle(null);
   };
 
-  // Helper to populate demo articles from Image 2 & 3
-  const handleLoadDemoArticles = () => {
-    setArticles(MOCK_ADMIN_ARTICLES);
-  };
-
-  // HeaderRight content matching Image 1
   const headerRight = (
     <AdminArticlesTopBar
       filters={filters}
-      onFilterChange={setFilters}
+      categories={blogCategories}
+      onFilterChange={handleFilterChange}
     />
   );
+
+  const showEmptyDatabaseState =
+    !isLoading && !isError && overallTotal === 0 && !hasAnyActiveFilter;
 
   return (
     <>
@@ -259,28 +338,38 @@ export default function AdminArticlesPage() {
         headerRight={headerRight}
       >
         <div className="space-y-6 sm:space-y-7 pb-10">
-          {/* Top Action Row (Exact Match with Image 1) */}
-          <div className="flex items-center justify-between gap-4">
-            {/* Left: Total Artikel (Image 1: 102 Artikel) */}
+          {/* Top Action Row */}
+          <div className="flex flex-wrap items-center justify-between gap-4">
             <h2 className="text-xl sm:text-2xl font-bold text-white tracking-tight">
-              {articles.length === 9 ? 102 : filteredArticles.length} Artikel
+              {isLoading ? "Memuat Artikel..." : `${totalBlog} Artikel`}
             </h2>
 
-            {/* Right: Actions */}
             <div className="flex items-center gap-3">
-              {/* Delete Button: Only shown when one or more cards are checked per user instruction */}
               {selectedIds.length > 0 && (
-                <Button
-                  variant="inactive"
-                  size="xs"
-                  onClick={handleDeleteSelected}
-                  className="px-3 py-2"
-                >
-                  Delete ({selectedIds.length})
-                </Button>
+                <>
+                  <Button
+                    variant="secondary"
+                    size="xs"
+                    disabled={bulkPublishMutation.isPending}
+                    onClick={handlePublishSelected}
+                    className="px-3 py-2"
+                  >
+                    {bulkPublishMutation.isPending
+                      ? "Publishing..."
+                      : `Publish (${selectedIds.length})`}
+                  </Button>
+                  <Button
+                    variant="inactive"
+                    size="xs"
+                    disabled={isDeleting}
+                    onClick={handleDeleteSelected}
+                    className="px-3 py-2"
+                  >
+                    Delete ({selectedIds.length})
+                  </Button>
+                </>
               )}
 
-              {/* Add New Button: Always shown (Matching Image 1) */}
               <Button
                 variant="outline"
                 size="xs"
@@ -293,29 +382,31 @@ export default function AdminArticlesPage() {
             </div>
           </div>
 
-          {/* Horizontal Divider Line across the full container width (Matching Image 1) */}
           <div className="w-full h-px bg-white/10 -mt-2" />
 
-          {/* Conditional Rendering: Empty State vs Cards Grid */}
-          {articles.length === 0 ? (
-            /* EMPTY STATE VIEW (max rounded-lg, no shadow per user instructions) */
+          {isError ? (
+            <div className="w-full py-16 rounded-lg bg-[#13151F] border border-rose-500/30 flex flex-col items-center justify-center text-center gap-3 px-4">
+              <p className="text-sm text-rose-300 font-medium">
+                Gagal memuat daftar artikel dari database. Pastikan Anda sudah login sebagai Admin.
+              </p>
+              <Button variant="secondary" size="sm" onClick={() => refetch()}>
+                Muat Ulang
+              </Button>
+            </div>
+          ) : showEmptyDatabaseState ? (
             <div className="w-full min-h-115 py-20 flex flex-col items-center justify-center text-center select-none animate-in fade-in duration-200">
-              {/* Article Document Icon in max rounded-lg box, no shadow */}
               <div className="w-16 h-16 rounded-lg bg-[#161822] border border-white/5 flex items-center justify-center text-gray-200 mb-5">
                 <ArticleDocumentIcon className="w-8 h-8 text-gray-200" />
               </div>
 
-              {/* Title */}
               <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 tracking-tight">
                 Belum Ada Data Artikel
               </h3>
 
-              {/* Subtitle */}
               <p className="text-label-xs sm:text-sm text-gray-400 mb-6 font-normal">
                 Katalog artikel Anda saat ini masih kosong.
               </p>
 
-              {/* Action Button: + Tambah Artikel */}
               <Button
                 variant="outline"
                 size="sm"
@@ -326,54 +417,72 @@ export default function AdminArticlesPage() {
               </Button>
             </div>
           ) : (
-            /* POPULATED STATE: 3 Columns Grid & Pagination (Matching Image 2 & 4) */
             <>
               <AdminArticlesGrid
-                articles={filteredArticles}
+                articles={articles}
                 selectedIds={selectedIds}
+                isLoading={isLoading}
                 onToggleSelect={handleToggleSelectItem}
                 onEdit={handleEdit}
+                onPreview={handlePreview}
                 onDelete={handleDeleteItem}
                 onStatusChange={handleStatusChange}
-                onResetFilters={() => setFilters(INITIAL_ARTICLE_FILTER_STATE)}
+                onResetFilters={() => {
+                  setFilters(INITIAL_ARTICLE_FILTER_STATE);
+                  setCurrentPage(1);
+                }}
               />
 
-              {/* Pagination matching Image 4 */}
-              <div className="pt-6 sm:pt-10 flex justify-center w-full">
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={articles.length === 9 ? 25 : Math.max(1, Math.ceil(filteredArticles.length / 9))}
-                  onPageChange={setCurrentPage}
-                  className="justify-center"
-                />
-              </div>
+              {!isLoading && totalPages > 1 && (
+                <div className="pt-6 sm:pt-10 flex justify-center w-full">
+                  <Pagination
+                    currentPage={currentPage}
+                    totalPages={totalPages}
+                    onPageChange={setCurrentPage}
+                    className="justify-center"
+                  />
+                </div>
+              )}
             </>
           )}
         </div>
 
-        {/* Add / Edit Article Modal */}
+        {/* Quick Add / Edit Modal (Authenticated & DB-Connected) */}
         <AdminArticleAddEditModal
           isOpen={isAddModalOpen}
+          isSubmitting={createMutation.isPending || updateMutation.isPending}
           initialData={editingArticle}
           onClose={() => {
             setIsAddModalOpen(false);
             setEditingArticle(null);
           }}
-          onSave={handleSaveArticle}
+          onSave={handleQuickSaveArticle}
+          onOpenFullEditor={(id) => router.push(`/admin/articles/edit/${id}`)}
         />
 
-        {/* Delete Confirmation Modal (Exact Match with Image 4 & AdminCatalogDeleteModal) */}
+        {/* Authenticated Article Preview Modal */}
+        <AdminArticlePreviewModal
+          isOpen={Boolean(previewArticleId)}
+          articleId={previewArticleId}
+          onClose={() => setPreviewArticleId(null)}
+          onEdit={(id) => router.push(`/admin/articles/edit/${id}`)}
+        />
+
+        {/* Delete Confirmation Modal */}
         <AdminArticleDeleteModal
           isOpen={deleteModalState.isOpen}
+          isDeleting={isDeleting}
           title={
             deleteModalState.type === "multiple"
               ? `Are you sure to delete ${selectedIds.length} articles?`
               : "Are you sure to delete this article?"
           }
-          description="If you this you can't recover it."
-          onClose={() =>
-            setDeleteModalState((prev) => ({ ...prev, isOpen: false }))
-          }
+          description="If you delete this article you can't recover it."
+          onClose={() => {
+            if (!isDeleting) {
+              setDeleteModalState({ isOpen: false, type: "single" });
+            }
+          }}
           onConfirm={handleConfirmDelete}
         />
       </AdminLayout>

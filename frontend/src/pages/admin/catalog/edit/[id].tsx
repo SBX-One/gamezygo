@@ -24,7 +24,9 @@ import {
   useAdminProductDetail,
   useUpdateProduct,
   useToggleProductStatus,
+  useAdminCatalogFilters,
 } from "@/hooks/use-admin-catalog";
+import { useAdminSections } from "@/hooks/use-admin-sections";
 import { toast } from "@/stores/use-toast-store";
 
 const ChevronRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -63,6 +65,8 @@ export default function AdminEditProductPage() {
     useAdminProductDetail(productId);
   const updateProductMutation = useUpdateProduct();
   const toggleStatusMutation = useToggleProductStatus();
+  const { data: filterMeta } = useAdminCatalogFilters();
+  const { data: serverSections } = useAdminSections();
 
   // Populate form with real database data
   React.useEffect(() => {
@@ -199,6 +203,28 @@ export default function AdminEditProductPage() {
         const instructionId = isDbId ? Number(rawTemplateId) : undefined;
         const instructionTitle = formData.selectedTemplate?.title || undefined;
 
+        // Resolve category IDs from genre names
+        const categoryIds = (formData.genres || [])
+          .map((g) => {
+            const match = filterMeta?.categories?.find(
+              (c: any) => c.name?.toLowerCase() === g.toLowerCase()
+            );
+            return match ? match.id : null;
+          })
+          .filter((id): id is number => id !== null);
+
+        // Resolve launcher ID
+        const launcherMatch = (filterMeta as any)?.launcher?.find(
+          (l: any) => l.name?.toLowerCase() === (formData.launcher || "").toLowerCase()
+        );
+        const launcherId = launcherMatch ? launcherMatch.id : undefined;
+
+        // Resolve promotion section ID
+        const sectionMatch = serverSections?.find(
+          (s) => s.title === promoSection
+        );
+        const promoSectionId = sectionMatch ? sectionMatch.id : undefined;
+
         if (formData.imageFile) {
           const payload = new FormData();
           payload.append("name", formData.name.trim());
@@ -213,6 +239,9 @@ export default function AdminEditProductPage() {
           }
           payload.append("thumbnail", formData.imageFile);
           formData.genres.forEach((g) => payload.append("genres[]", g));
+          categoryIds.forEach((cid) => payload.append("category_ids[]", String(cid)));
+          if (launcherId) payload.append("launcher_ids[]", String(launcherId));
+          if (promoSectionId) payload.append("promotion_section_id", String(promoSectionId));
           payload.append("specifications", JSON.stringify(specifications));
           payload.append("promotion_section", promoSection);
           if (instructionId) {
@@ -232,6 +261,9 @@ export default function AdminEditProductPage() {
               status: "listing",
               image_url: formData.imageSrc,
               genres: formData.genres,
+              category_ids: categoryIds.length ? categoryIds : undefined,
+              launcher_ids: launcherId ? [launcherId] : undefined,
+              promotion_section_id: promoSectionId,
               game_account: {
                 username: formData.accountUsername,
                 password: formData.accountPassword,
@@ -292,6 +324,28 @@ export default function AdminEditProductPage() {
     const instructionId = isDbId ? Number(rawTemplateId) : undefined;
     const instructionTitle = formData.selectedTemplate?.title || undefined;
 
+    // Resolve category IDs from genre names
+    const categoryIds = (formData.genres || [])
+      .map((g) => {
+        const match = filterMeta?.categories?.find(
+          (c: any) => c.name?.toLowerCase() === g.toLowerCase()
+        );
+        return match ? match.id : null;
+      })
+      .filter((id): id is number => id !== null);
+
+    // Resolve launcher ID
+    const launcherMatch = (filterMeta as any)?.launcher?.find(
+      (l: any) => l.name?.toLowerCase() === (formData.launcher || "").toLowerCase()
+    );
+    const launcherId = launcherMatch ? launcherMatch.id : undefined;
+
+    // Resolve promotion section ID
+    const sectionMatch = serverSections?.find(
+      (s) => s.title === promoSection
+    );
+    const promoSectionId = sectionMatch ? sectionMatch.id : undefined;
+
     try {
       if (formData.imageFile) {
         const payload = new FormData();
@@ -307,10 +361,19 @@ export default function AdminEditProductPage() {
         }
         payload.append("thumbnail", formData.imageFile);
 
-        // Include selected genres
+        // Include selected genres and category IDs
         formData.genres.forEach((genre) => {
           payload.append("genres[]", genre);
         });
+        categoryIds.forEach((cid) => {
+          payload.append("category_ids[]", String(cid));
+        });
+        if (launcherId) {
+          payload.append("launcher_ids[]", String(launcherId));
+        }
+        if (promoSectionId) {
+          payload.append("promotion_section_id", String(promoSectionId));
+        }
 
         payload.append("specifications", JSON.stringify(specifications));
         payload.append("promotion_section", promoSection);
@@ -335,6 +398,9 @@ export default function AdminEditProductPage() {
             status: "listing", // ensure active in user store
             image_url: formData.imageSrc,
             genres: formData.genres,
+            category_ids: categoryIds.length ? categoryIds : undefined,
+            launcher_ids: launcherId ? [launcherId] : undefined,
+            promotion_section_id: promoSectionId,
             game_account: {
               username: formData.accountUsername,
               password: formData.accountPassword,

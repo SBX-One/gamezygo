@@ -1,15 +1,21 @@
 import * as React from "react";
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import type { AdminCommunityItem } from "../../types/admin-community.types";
+
+const FALLBACK_COMMUNITY_IMAGE =
+  "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg";
 
 export interface AdminCommunityCardProps {
   item: AdminCommunityItem;
   index: number;
   isDragging?: boolean;
+  isBusy?: boolean;
   dropPosition?: "top" | "bottom" | null;
   onEdit: (item: AdminCommunityItem) => void;
   onDelete: (item: AdminCommunityItem) => void;
+  onToggleActive?: (item: AdminCommunityItem, nextActive: boolean) => void;
   onDragStart: (index: number, e: React.DragEvent) => void;
   onDragOver: (index: number, e: React.DragEvent) => void;
   onDragLeave: (index: number) => void;
@@ -60,9 +66,11 @@ export function AdminCommunityCard({
   item,
   index,
   isDragging,
+  isBusy = false,
   dropPosition,
   onEdit,
   onDelete,
+  onToggleActive,
   onDragStart,
   onDragOver,
   onDragLeave,
@@ -71,12 +79,23 @@ export function AdminCommunityCard({
   className,
 }: AdminCommunityCardProps) {
   const cardRef = React.useRef<HTMLDivElement>(null);
+  const [failedSrc, setFailedSrc] = React.useState<string | null>(null);
 
-  // Parse comma-separated tags
   const tagsList = React.useMemo(() => {
-    if (!item.tag) return ["Whatsapp"];
-    return item.tag.split(",").map((t) => t.trim()).filter(Boolean);
-  }, [item.tag]);
+    if (Array.isArray(item.tags) && item.tags.length > 0) {
+      return item.tags;
+    }
+    if (!item.tag) return [];
+    return item.tag
+      .split(",")
+      .map((t) => t.trim())
+      .filter(Boolean);
+  }, [item.tags, item.tag]);
+
+  const effectiveImageSrc =
+    item.imageUrl && failedSrc !== item.imageUrl
+      ? item.imageUrl
+      : FALLBACK_COMMUNITY_IMAGE;
 
   return (
     <div
@@ -87,6 +106,7 @@ export function AdminCommunityCard({
       className={cn(
         "relative w-full flex flex-col transition-all duration-200 select-none",
         isDragging && "opacity-40 scale-[0.99] border-dashed border-indigo-500/50",
+        isBusy && "opacity-75 pointer-events-none",
         className
       )}
     >
@@ -95,13 +115,12 @@ export function AdminCommunityCard({
         <div className="w-full h-1 bg-linear-to-r from-indigo-500 via-rose-500 to-indigo-500 rounded-full -mt-1.5 mb-1.5 shadow-[0_0_12px_rgba(99,102,241,0.8)] animate-pulse" />
       )}
 
-      {/* Main Card Row matching Image 3 */}
-      <div className="w-full flex items-center justify-between gap-4 p-3 sm:p-4 rounded-lg sm:rounded-lg bg-deep-blue-900 border border-deep-blue-700 hover:border-deep-blue-600 transition-colors shadow-xs">
+      {/* Main Card Row */}
+      <div className="w-full flex items-center justify-between gap-4 p-3 sm:p-4 rounded-lg bg-deep-blue-900 border border-deep-blue-700 hover:border-deep-blue-600 transition-colors shadow-xs">
         {/* Left Side: Drag Handle + Cover Image + Community Info */}
         <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
-          {/* Drag Handle with drag image set to full card */}
           <div
-            draggable
+            draggable={!isBusy}
             onDragStart={(e) => {
               if (cardRef.current) {
                 const rect = cardRef.current.getBoundingClientRect();
@@ -125,55 +144,88 @@ export function AdminCommunityCard({
 
           {/* Cover Image (3:4 vertical poster) */}
           <div className="relative w-12 h-16 sm:w-14 sm:h-18.5 rounded-lg overflow-hidden shrink-0 border border-deep-blue-700 bg-deep-blue-950">
-            <img
-              src={
-                item.imageUrl ||
-                "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg"
-              }
+            <Image
+              src={effectiveImageSrc}
               alt={item.name}
-              className="w-full h-full object-cover object-center"
-              onError={(e) => {
-                // Fallback to GTA cover if custom image fails to load
-                (e.target as HTMLImageElement).src =
-                  "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg";
+              fill
+              unoptimized
+              sizes="64px"
+              className="object-cover object-center"
+              onError={() => {
+                if (item.imageUrl && failedSrc !== item.imageUrl) {
+                  setFailedSrc(item.imageUrl);
+                }
               }}
             />
           </div>
 
-          {/* Title & Tag Pills */}
+          {/* Title, Link & Tag Pills */}
           <div className="flex flex-col min-w-0 gap-1.5">
-            <h3 className="text-sm sm:text-base font-semibold text-white tracking-normal truncate">
-              {item.name}
-            </h3>
-            <div className="flex items-center gap-1.5 flex-wrap">
-              {tagsList.map((tag) => (
-                <span
-                  key={tag}
-                  className="inline-flex items-center px-2.5 py-0.5 rounded-full text-label-xs font-medium bg-deep-blue-950 border border-deep-blue-700 text-gray-300 w-fit"
+            <div className="flex items-center gap-2 min-w-0">
+              <h3 className="text-sm sm:text-base font-semibold text-white tracking-normal truncate">
+                {item.name}
+              </h3>
+              {onToggleActive ? (
+                <button
+                  type="button"
+                  disabled={isBusy}
+                  onClick={() => onToggleActive(item, !item.isActive)}
+                  className={cn(
+                    "px-2 py-0.5 rounded-full text-[11px] font-semibold border transition-colors cursor-pointer shrink-0",
+                    item.isActive
+                      ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20"
+                      : "bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20"
+                  )}
+                  title={
+                    item.isActive
+                      ? "Klik untuk menonaktifkan"
+                      : "Klik untuk mengaktifkan"
+                  }
                 >
-                  {tag}
-                </span>
-              ))}
+                  {item.isActive ? "Aktif" : "Nonaktif"}
+                </button>
+              ) : (
+                !item.isActive && (
+                  <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 border border-amber-500/30 text-amber-300 shrink-0">
+                    Nonaktif
+                  </span>
+                )
+              )}
+            </div>
+
+            <div className="flex items-center gap-1.5 flex-wrap">
+              {tagsList.length > 0 ? (
+                tagsList.map((tag) => (
+                  <span
+                    key={tag}
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-label-xs font-medium bg-deep-blue-950 border border-deep-blue-700 text-gray-300 w-fit"
+                  >
+                    {tag}
+                  </span>
+                ))
+              ) : (
+                <span className="text-xs text-gray-500">Tanpa tag</span>
+              )}
             </div>
           </div>
         </div>
 
-        {/* Right Side: Edit & Delete buttons using Button variant="inactive" size="sm" */}
+        {/* Right Side: Edit & Delete buttons */}
         <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
-          {/* Edit Button */}
           <Button
             variant="inactive"
             size="sm"
+            disabled={isBusy}
             onClick={() => onEdit(item)}
             leftIcon={<EditIcon className="w-3.5 h-3.5" />}
           >
             Edit
           </Button>
 
-          {/* Delete Button */}
           <Button
             variant="inactive"
             size="sm"
+            disabled={isBusy}
             onClick={() => onDelete(item)}
           >
             Delete

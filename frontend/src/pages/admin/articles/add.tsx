@@ -12,8 +12,13 @@ import {
 import type {
   ArticleBlockType,
   ArticleEditorBlock,
-  AdminArticle,
 } from "@/features/admin/types/admin-article.types";
+import {
+  useAdminBlogCategories,
+  useCreateAdminBlog,
+} from "@/hooks/use-admin-blogs";
+import { serializeArticleBlocksToHtml } from "@/features/admin/utils/article-content.utils";
+import { toast } from "@/stores/use-toast-store";
 
 const ChevronRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -31,23 +36,6 @@ const ChevronRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-const CheckCircleIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-    <polyline points="22 4 12 14.01 9 11.01" />
-  </svg>
-);
-
 const INITIAL_BLOCKS: ArticleEditorBlock[] = [
   {
     id: "blk-initial",
@@ -56,13 +44,36 @@ const INITIAL_BLOCKS: ArticleEditorBlock[] = [
   },
 ];
 
+function getErrorMessage(error: unknown, fallback: string): string {
+  const err = error as {
+    response?: {
+      data?: { message?: string; errors?: Record<string, string[]> };
+    };
+    message?: string;
+  };
+  const firstValidationError = err?.response?.data?.errors
+    ? Object.values(err.response.data.errors)[0]?.[0]
+    : undefined;
+  return (
+    firstValidationError ||
+    err?.response?.data?.message ||
+    err?.message ||
+    fallback
+  );
+}
+
 export default function AdminAddBlogPage() {
   const router = useRouter();
 
   // Blog document states
   const [title, setTitle] = React.useState<string>("");
   const [coverUrl, setCoverUrl] = React.useState<string>("");
-  const [blocks, setBlocks] = React.useState<ArticleEditorBlock[]>(INITIAL_BLOCKS);
+  const [coverFile, setCoverFile] = React.useState<File | null>(null);
+  const [selectedCategoryId, setSelectedCategoryId] = React.useState<
+    number | "" | null
+  >(null);
+  const [blocks, setBlocks] =
+    React.useState<ArticleEditorBlock[]>(INITIAL_BLOCKS);
   const [activeBlockId, setActiveBlockId] = React.useState<string | null>(
     INITIAL_BLOCKS[0].id
   );
@@ -74,19 +85,15 @@ export default function AdminAddBlogPage() {
   ]);
   const [historyIndex, setHistoryIndex] = React.useState<number>(0);
 
-  // Toast notification state
-  const [toastMessage, setToastMessage] = React.useState<string | null>(null);
+  // Backend hooks
+  const { data: categories = [] } = useAdminBlogCategories();
+  const createMutation = useCreateAdminBlog();
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 2800);
-  };
+  const effectiveCategoryId: number | "" =
+    selectedCategoryId === null ? (categories[0]?.id ?? "") : selectedCategoryId;
 
   const handleBlocksChange = (newBlocks: ArticleEditorBlock[]) => {
     setBlocks(newBlocks);
-    // Push to history
     const nextHistory = history.slice(0, historyIndex + 1);
     nextHistory.push(newBlocks);
     setHistory(nextHistory);
@@ -109,12 +116,10 @@ export default function AdminAddBlogPage() {
     }
   };
 
-  // Find active block
   const activeBlock = React.useMemo(() => {
     return blocks.find((b) => b.id === activeBlockId) || null;
   }, [blocks, activeBlockId]);
 
-  // Toolbar actions applied to active block
   const handleSelectHeading = (headingType: ArticleBlockType) => {
     if (!activeBlockId) return;
     handleBlocksChange(
@@ -218,58 +223,54 @@ export default function AdminAddBlogPage() {
     handleBlocksChange([...blocks, tableBlock]);
   };
 
-  // Helper to persist article in localStorage
-  const saveArticleToStorage = (status: "published" | "draft") => {
-    const finalTitle = title.trim() || "Untitled Blog Post";
-    const newArticle: AdminArticle = {
-      id: `art-${Date.now()}`,
-      title: finalTitle,
-      coverImage:
-        coverUrl ||
-        "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&w=1200&q=80",
-      status,
-      publishedAt:
-        status === "published"
-          ? new Date().toLocaleDateString("id-ID", {
-              day: "2-digit",
-              month: "2-digit",
-              year: "numeric",
-            })
-          : undefined,
-      lastEdited: "Baru saja",
-      views: 0,
-      category: "Panduan",
-      blocks,
-    };
+  // Persist article directly to Laravel backend
+  const submitArticle = async (targetStatus: "draft" | "published") => {
+    if (createMutation.isPending) return;
 
-    try {
-      const existing = localStorage.getItem("gamezygo_admin_articles");
-      const list: AdminArticle[] = existing ? JSON.parse(existing) : [];
-      list.unshift(newArticle);
-      localStorage.setItem("gamezygo_admin_articles", JSON.stringify(list));
-    } catch {
-      // LocalStorage fallback
+    const trimmedTitle = title.trim();
+    if (!trimmedTitle) {
+      toast.error("Judul artikel wajib diisi.");
+      return;
     }
 
-    return newArticle;
+    const serializedContent = serializeArticleBlocksToHtml(blocks).trim();
+    if (!serializedContent) {
+      toast.error("Konten artikel tidak boleh kosong.");
+      return;
+    }
+
+    try {
+      const created = await createMutation.mutateAsync({
+        title: trimmedTitle,
+        content: serializedContent,
+        status: targetStatus,
+        category_id:
+          effectiveCategoryId === "" ? null : Number(effectiveCategoryId),
+        banner_file: coverFile
+          ? coverFile
+          : coverUrl.trim() && !coverUrl.startsWith("data:")
+          ? coverUrl.trim()
+          : undefined,
+      });
+
+      if (targetStatus === "draft") {
+        toast.success("Draft blog berhasil disimpan ke database.");
+        if (created?.id) {
+          router.replace(`/admin/articles/edit/${created.id}`);
+        } else {
+          router.push("/admin/articles");
+        }
+      } else {
+        toast.success("Blog berhasil dipublikasikan!");
+        router.push("/admin/articles");
+      }
+    } catch (error) {
+      toast.error(
+        getErrorMessage(error, "Gagal menyimpan artikel ke database.")
+      );
+    }
   };
 
-  // Save Draft Handler
-  const handleSaveDraft = () => {
-    saveArticleToStorage("draft");
-    showToast("Draft blog berhasil disimpan!");
-  };
-
-  // Publish Handler
-  const handlePublish = () => {
-    saveArticleToStorage("published");
-    showToast("Blog berhasil dipublikasikan!");
-    setTimeout(() => {
-      router.push("/admin/articles");
-    }, 600);
-  };
-
-  // Header Title: Breadcrumb "Artikel > Add New Blog" (Matching Image 1)
   const headerTitle = (
     <div className="flex items-center gap-2 select-none text-label-xs">
       <Link
@@ -283,23 +284,24 @@ export default function AdminAddBlogPage() {
     </div>
   );
 
-  // Header Right Actions: Save Draft & Publish (Matching Image 1)
   const headerRight = (
     <div className="flex items-center gap-3 select-none">
       <Button
         variant="inactive"
         size="sm"
-        onClick={handleSaveDraft}
+        disabled={createMutation.isPending}
+        onClick={() => submitArticle("draft")}
       >
-        Save Draft
+        {createMutation.isPending ? "Menyimpan..." : "Save Draft"}
       </Button>
 
       <Button
         variant="primary"
         size="sm"
-        onClick={handlePublish}
+        disabled={createMutation.isPending}
+        onClick={() => submitArticle("published")}
       >
-        Publish
+        {createMutation.isPending ? "Memproses..." : "Publish"}
       </Button>
     </div>
   );
@@ -319,15 +321,6 @@ export default function AdminAddBlogPage() {
         activeNavId="artikel"
         headerRight={headerRight}
       >
-        {/* Toast Alert */}
-        {toastMessage && (
-          <div className="fixed top-20 right-8 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-[#181A26] border border-emerald-500/40 text-emerald-300 text-label-xs sm:text-sm font-medium shadow-none animate-in fade-in slide-in-from-top-2 duration-150">
-            <CheckCircleIcon className="w-4 h-4 text-emerald-400" />
-            <span>{toastMessage}</span>
-          </div>
-        )}
-
-        {/* Outer Editor Container Card (Matching Image 2, 3, 4, 5) */}
         <div className="w-full rounded-lg bg-[#13151F] border border-white/10 overflow-hidden shadow-none pb-16">
           {/* 1. Top Formatting Toolbar */}
           <AdminArticleEditorToolbar
@@ -338,7 +331,8 @@ export default function AdminAddBlogPage() {
             zoom={zoom}
             onZoomChange={setZoom}
             activeHeading={
-              activeBlock?.type && ["h1", "h2", "h3", "h4"].includes(activeBlock.type)
+              activeBlock?.type &&
+              ["h1", "h2", "h3", "h4"].includes(activeBlock.type)
                 ? activeBlock.type
                 : null
             }
@@ -367,14 +361,50 @@ export default function AdminAddBlogPage() {
 
           {/* 2. Editor Body */}
           <div className="p-6 sm:p-10 space-y-6">
-            {/* Thumbnail / Cover Image Area (Matching Image 3, 4, 5) */}
+            {/* Thumbnail / Cover Image Area */}
             <AdminArticleCoverUpload
               coverUrl={coverUrl}
               onCoverChange={setCoverUrl}
-              onRemoveCover={() => setCoverUrl("")}
+              onCoverFileChange={setCoverFile}
+              onRemoveCover={() => {
+                setCoverFile(null);
+                setCoverUrl("");
+              }}
             />
 
-            {/* Subtle Divider Line below Thumbnail (Matching Image 3, 4, 5) */}
+            {/* Category Metadata Bar */}
+            <div className="flex flex-wrap items-center justify-between gap-4 py-3 px-4 rounded-lg bg-white/3 border border-white/10">
+              <div className="flex items-center gap-3">
+                <label
+                  htmlFor="blog-category-select"
+                  className="text-label-xs font-semibold text-gray-300 uppercase tracking-wider shrink-0"
+                >
+                  Kategori
+                </label>
+                <select
+                  id="blog-category-select"
+                  value={effectiveCategoryId}
+                  onChange={(e) =>
+                    setSelectedCategoryId(
+                      e.target.value ? Number(e.target.value) : ""
+                    )
+                  }
+                  className="h-9 px-3 rounded-lg bg-[#181A26] border border-white/10 text-label-xs text-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
+                >
+                  <option value="">-- Pilih Kategori --</option>
+                  {categories.map((cat) => (
+                    <option key={cat.id} value={cat.id}>
+                      {cat.name}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <span className="text-[11px] text-gray-400">
+                Ketik <code className="text-indigo-300">/</code> di editor untuk menyisipkan Heading, Gambar, Tabel, Quote, atau Callout.
+              </span>
+            </div>
+
             <div className="w-full h-px bg-white/10" />
 
             {/* Notion-style Interactive Block Editor */}

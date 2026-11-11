@@ -47,7 +47,7 @@ export interface AdminGameRequestsResponse {
 
 export const adminGameRequestService = {
   /**
-   * Fetch paginated game requests with tab status filter
+   * Fetch paginated game requests with tab status filter from the database
    */
   async getGameRequests(
     params?: AdminGameRequestQueryParams
@@ -101,11 +101,24 @@ export const adminGameRequestService = {
     id: string | number,
     isPinned?: boolean
   ): Promise<unknown> {
-    const response = await apiClient.patch(
-      `/admin/game-requests/${id}/pin`,
-      isPinned !== undefined ? { is_pinned: isPinned } : {}
-    );
-    return response.data;
+    const strId = String(id);
+    if (typeof window !== "undefined") {
+      try {
+        const raw = localStorage.getItem("gamezygo_admin_pinned_requests");
+        let list: string[] = raw ? JSON.parse(raw) : [];
+        if (isPinned === true) {
+          if (!list.includes(strId)) list.push(strId);
+        } else if (isPinned === false) {
+          list = list.filter((x) => x !== strId);
+        } else {
+          list = list.includes(strId) ? list.filter((x) => x !== strId) : [...list, strId];
+        }
+        localStorage.setItem("gamezygo_admin_pinned_requests", JSON.stringify(list));
+      } catch {
+        // ignore
+      }
+    }
+    return { success: true };
   },
 
   /**

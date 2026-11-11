@@ -6,6 +6,8 @@ export const MOCK_ADMIN_COMMUNITIES: AdminCommunityItem[] = [
     name: "Komunitas GTA | Gamezygo",
     pageLink: "https://chat.whatsapp.com/gta-gamezygo-01",
     tag: "Whatsapp",
+    tags: ["Whatsapp"],
+    isActive: true,
     imageUrl:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
     orderNumber: 1,
@@ -16,6 +18,8 @@ export const MOCK_ADMIN_COMMUNITIES: AdminCommunityItem[] = [
     name: "Komunitas GTA | Gamezygo",
     pageLink: "https://chat.whatsapp.com/gta-gamezygo-02",
     tag: "Whatsapp",
+    tags: ["Whatsapp"],
+    isActive: true,
     imageUrl:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
     orderNumber: 2,
@@ -26,6 +30,8 @@ export const MOCK_ADMIN_COMMUNITIES: AdminCommunityItem[] = [
     name: "Komunitas GTA | Gamezygo",
     pageLink: "https://chat.whatsapp.com/gta-gamezygo-03",
     tag: "Whatsapp",
+    tags: ["Whatsapp"],
+    isActive: true,
     imageUrl:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
     orderNumber: 3,
@@ -36,6 +42,8 @@ export const MOCK_ADMIN_COMMUNITIES: AdminCommunityItem[] = [
     name: "Komunitas GTA | Gamezygo",
     pageLink: "https://chat.whatsapp.com/gta-gamezygo-04",
     tag: "Whatsapp",
+    tags: ["Whatsapp"],
+    isActive: true,
     imageUrl:
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
     orderNumber: 4,

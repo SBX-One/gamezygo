@@ -26,7 +26,8 @@ import { useAuthStore } from "@/stores/use-auth-store";
 import { useCartStore } from "@/stores/use-cart-store";
 import { useAddToCart } from "@/hooks/use-cart";
 import { useOwnedGames } from "@/hooks/use-library";
-import { useAnnouncements, useFaqs } from "@/hooks/use-common";
+import { useAnnouncements, useCommunities, useFaqs } from "@/hooks/use-common";
+import { resolveImageUrl } from "@/utils/image-url";
 import { useCustomSections, useProducts } from "@/hooks/use-products";
 import { useLeaderboard } from "@/hooks/use-leaderboard";
 import { useReviews } from "@/hooks/use-reviews";
@@ -391,6 +392,41 @@ export default function LandingPage() {
     }
     return FALLBACK_BANNERS;
   }, [announcementsRes]);
+
+  // 1b. Public Communities
+  const { data: communitiesRes } = useCommunities();
+  const [showAllCommunities, setShowAllCommunities] = React.useState(false);
+
+  const communityGroups = React.useMemo(() => {
+    const apiCommunities = communitiesRes?.data;
+    if (apiCommunities && apiCommunities.length > 0) {
+      return apiCommunities.map((item) => ({
+        id: String(item.id),
+        title: item.name,
+        platforms:
+          item.tags && item.tags.length > 0
+            ? item.tags.map((t) => t.name)
+            : ["Community"],
+        coverImage: resolveImageUrl(
+          item.banner_file_url,
+          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg"
+        ),
+        link: item.link || "https://chat.whatsapp.com",
+      }));
+    }
+    return COMMUNITY_GROUPS.map((g) => ({
+      id: g.id,
+      title: g.title,
+      platforms: [g.platform],
+      coverImage: g.coverImage,
+      link: g.link,
+    }));
+  }, [communitiesRes]);
+
+  const visibleCommunities = React.useMemo(() => {
+    if (showAllCommunities) return communityGroups;
+    return communityGroups.slice(0, 4);
+  }, [communityGroups, showAllCommunities]);
 
   // 2. Custom Sections & Products
   const { data: sectionsRes } = useCustomSections();
@@ -1850,19 +1886,19 @@ export default function LandingPage() {
               </div>
 
               <span className="text-body-sm text-gray-400 font-medium">
-                50 Grup
+                {communityGroups.length} Grup
               </span>
             </div>
 
             {/* 2x2 Grid of Community Cards */}
             <div data-animate="cards-grid" className="grid grid-cols-1 md:grid-cols-2 gap-6 w-full">
-              {COMMUNITY_GROUPS.map((group) => (
+              {visibleCommunities.map((group) => (
                 <ProductCard
                   key={group.id}
                   orientation="horizontal"
                   title={group.title}
                   imageSrc={group.coverImage}
-                  genres={[group.platform]}
+                  genres={group.platforms}
                   platform=""
                   isBestSeller={false}
                   showPrice={false}
@@ -1877,28 +1913,21 @@ export default function LandingPage() {
             </div>
 
             {/* Bottom: Muat Lebih Banyak */}
-            <div data-animate="load-more" className="flex justify-center w-full pt-4">
-              <button
-                type="button"
-                className="flex items-center gap-2 text-body-sm font-semibold text-gray-300 hover:text-white transition-colors cursor-pointer"
-                onClick={() => showToast("Memuat grup komunitas lainnya...")}
-              >
-                <span>Muat Lebih Banyak</span>
-                <svg
-                  width="16"
-                  height="16"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  stroke="currentColor"
-                  strokeWidth="2"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  className="w-4 h-4 text-gray-400 animate-spin"
+            {communityGroups.length > 4 && (
+              <div data-animate="load-more" className="flex justify-center w-full pt-4">
+                <button
+                  type="button"
+                  className="flex items-center gap-2 text-body-sm font-semibold text-gray-300 hover:text-white transition-colors cursor-pointer"
+                  onClick={() => setShowAllCommunities((prev) => !prev)}
                 >
-                  <path d="M21 12a9 9 0 1 1-6.219-8.56" />
-                </svg>
-              </button>
-            </div>
+                  <span>
+                    {showAllCommunities
+                      ? "Tampilkan Lebih Sedikit"
+                      : "Muat Lebih Banyak"}
+                  </span>
+                </button>
+              </div>
+            )}
           </div>
         </section>
 

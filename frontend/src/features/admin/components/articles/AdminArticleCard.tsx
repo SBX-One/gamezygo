@@ -307,10 +307,17 @@ export function AdminArticleCard({
         </div>
       </div>
 
-      {/* 2. Below Cover Image: Status Badge + Title + Footer Meta */}
+      {/* 2. Below Cover Image: Status Badge + Category + Title + Footer Meta */}
       <div className="flex flex-col mt-4">
-        {/* Status Badge */}
-        <div className="w-fit">{renderStatusBadge()}</div>
+        {/* Status & Category Row */}
+        <div className="flex flex-wrap items-center gap-2">
+          {renderStatusBadge()}
+          {article.category && (
+            <span className="inline-flex items-center px-2.5 py-1 rounded-full text-[11px] font-medium bg-white/5 text-gray-300 border border-white/10">
+              {article.category}
+            </span>
+          )}
+        </div>
 
         {/* Title */}
         <h3

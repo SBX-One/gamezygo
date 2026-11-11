@@ -4,8 +4,9 @@ import { Button } from "@/components/ui/Button";
 
 export interface AdminArticleDeleteModalProps {
   isOpen: boolean;
+  isDeleting?: boolean;
   onClose: () => void;
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   title?: string;
   description?: string;
   className?: string;
@@ -13,6 +14,7 @@ export interface AdminArticleDeleteModalProps {
 
 export function AdminArticleDeleteModal({
   isOpen,
+  isDeleting = false,
   onClose,
   onConfirm,
   title = "Are you sure to delete this article?",
@@ -22,7 +24,7 @@ export function AdminArticleDeleteModal({
   // Close on Escape key
   React.useEffect(() => {
     function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === "Escape") {
+      if (event.key === "Escape" && !isDeleting) {
         onClose();
       }
     }
@@ -32,7 +34,7 @@ export function AdminArticleDeleteModal({
     return () => {
       window.removeEventListener("keydown", handleKeyDown);
     };
-  }, [isOpen, onClose]);
+  }, [isOpen, isDeleting, onClose]);
 
   if (!isOpen) return null;
 
@@ -43,18 +45,18 @@ export function AdminArticleDeleteModal({
       aria-labelledby="delete-dialog-title"
       className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/75 backdrop-blur-sm animate-in fade-in duration-150"
       onClick={(e) => {
-        if (e.target === e.currentTarget) {
+        if (e.target === e.currentTarget && !isDeleting) {
           onClose();
         }
       }}
     >
       <div
         className={cn(
-          "w-full max-w-105 rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-6 select-none animate-in zoom-in-95 duration-150 text-left",
+          "w-[420px] max-w-[95vw] rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-6 select-none animate-in zoom-in-95 duration-150 text-left",
           className
         )}
       >
-        {/* Title (Matching Image 4) */}
+        {/* Title */}
         <h3
           id="delete-dialog-title"
           className="text-lg sm:text-xl font-bold text-white tracking-tight leading-snug"
@@ -62,17 +64,18 @@ export function AdminArticleDeleteModal({
           {title}
         </h3>
 
-        {/* Subtitle (Matching Image 4) */}
+        {/* Subtitle */}
         <p className="text-label-xs sm:text-sm text-gray-400 mt-2 font-normal leading-relaxed">
           {description}
         </p>
 
-        {/* Actions (Matching Image 4) */}
+        {/* Actions */}
         <div className="flex items-center justify-end gap-3 mt-6">
           <Button
             type="button"
             variant="secondary"
             size="sm"
+            disabled={isDeleting}
             onClick={onClose}
           >
             Batal
@@ -81,12 +84,12 @@ export function AdminArticleDeleteModal({
             type="button"
             variant="primary"
             size="sm"
+            disabled={isDeleting}
             onClick={() => {
-              onConfirm();
-              onClose();
+              void onConfirm();
             }}
           >
-            Delete
+            {isDeleting ? "Deleting..." : "Delete"}
           </Button>
         </div>
       </div>

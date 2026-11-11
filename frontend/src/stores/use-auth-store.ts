@@ -3,7 +3,7 @@ import { devtools, persist } from "zustand/middleware";
 import axios from "axios";
 import type { User } from "@/types";
 import type { AuthLoginPayload, AuthRegisterPayload } from "@/types/api";
-import { loginApi, registerApi, logoutApi, googleLoginApi } from "@/services/auth.service";
+import { loginApi, adminLoginApi, registerApi, logoutApi, googleLoginApi } from "@/services/auth.service";
 import { MOCK_USER, MOCK_TOKEN } from "@/lib/mock/data";
 
 export interface AuthState {
@@ -47,6 +47,53 @@ export const useAuthStore = create<AuthStore>()(
           try {
             if (!credentials.email) {
               throw new Error("Email is required");
+            }
+
+            // If logging in as administrator, authenticate via admin guard
+            if (credentials.email.toLowerCase().includes("admin")) {
+              try {
+                const adminRes = await adminLoginApi({
+                  email: credentials.email,
+                  password: credentials.password || "password",
+                });
+                const apiData = adminRes?.data;
+                const token = apiData?.token;
+                if (token) {
+                  if (typeof window !== "undefined") {
+                    localStorage.setItem("gamezygo-admin-token", token);
+                  }
+                  const adminObj = apiData?.admin;
+                  const mappedUser: User = {
+                    id: String(adminObj?.id || 1),
+                    name: adminObj?.name || "Administrator",
+                    email: adminObj?.email || credentials.email,
+                    role: "admin",
+                    avatarUrl: MOCK_USER.avatarUrl,
+                    phone: null,
+                  };
+
+                  set({
+                    user: mappedUser,
+                    token,
+                    refreshToken: null,
+                    role: "admin",
+                    isAuthenticated: true,
+                    isLoading: false,
+                  });
+                  return;
+                }
+              } catch (adminErr) {
+                if (
+                  axios.isAxiosError(adminErr) &&
+                  adminErr.response &&
+                  (adminErr.response.status === 401 || adminErr.response.status === 422)
+                ) {
+                  const msg =
+                    (adminErr.response.data as { message?: string })?.message ||
+                    "Email atau password admin tidak valid.";
+                  throw new Error(msg);
+                }
+              }
             }
 
             try {
@@ -298,6 +345,7 @@ export const useAuthStore = create<AuthStore>()(
           }
           if (typeof window !== "undefined") {
             try {
+              localStorage.removeItem("gamezygo-admin-token");
               localStorage.removeItem("gamezygo-cart-storage");
               localStorage.removeItem("gamezygo_my_requests");
               localStorage.removeItem("gamezygo_user_reviews");

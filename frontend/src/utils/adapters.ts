@@ -90,12 +90,16 @@ export function mapAnnouncementToSlide(
   announcement: AnnouncementItem | AnnouncementLike
 ): BannerSlide {
   const a = announcement as AnnouncementLike;
-  const imageSrc =
+  const rawImageSrc =
     a.banner_file_url ||
     a.imageUrl ||
     a.image_url ||
     a.banner_url ||
     "/assets/png/Banner.png";
+
+  const imageSrc = rawImageSrc.startsWith("/assets/")
+    ? rawImageSrc
+    : resolveImageUrl(rawImageSrc, "/assets/png/Banner.png");
 
   const orderNum = a.order_number ?? a.orderNumber ?? 1;
   const slideId = a.id ? `banner-${a.id}` : `banner-order-${orderNum}`;

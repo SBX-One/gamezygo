@@ -5,6 +5,7 @@ use App\Http\Controllers\Api\V1\Admin\Catalog\AdminCatalogController;
 use App\Http\Controllers\Api\V1\Admin\CustomSection\AdminCustomSectionController;
 use App\Http\Controllers\Api\V1\Admin\Dashboard\AdminDashboardController;
 use App\Http\Controllers\Api\V1\Admin\GameRequest\AdminGameRequestController;
+use App\Http\Controllers\Api\V1\Admin\Instruction\AdminInstructionController;
 use App\Http\Controllers\Api\V1\Admin\Revenue\AdminRevenueController;
 use App\Http\Controllers\Api\V1\Admin\Subscription\AdminSubscriptionController;
 use App\Http\Controllers\Api\V1\Admin\Voucher\AdminVoucherController;
@@ -135,5 +136,17 @@ Route::prefix('admin')
         Route::delete('/{voucherId}/products', 'removeProducts')->name('products.destroy')->whereNumber('voucherId');
         Route::post('/{voucherId}/users', 'addUsers')->name('users.store')->whereNumber('voucherId');
         Route::delete('/{voucherId}/users', 'removeUsers')->name('users.destroy')->whereNumber('voucherId');
+      });
+
+    // Instruction Template Management
+    Route::controller(AdminInstructionController::class)
+      ->prefix('instructions')
+      ->name('instructions.')
+      ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{instructionId}', 'show')->name('show')->whereNumber('instructionId');
+        Route::match(['put', 'patch', 'post'], '/{instructionId}', 'update')->name('update')->whereNumber('instructionId');
+        Route::delete('/{instructionId}', 'destroy')->name('destroy')->whereNumber('instructionId');
       });
   });

@@ -41,4 +41,14 @@ Route::middleware(['auth:admin', 'admin.only'])
                 Route::post('/{voucherId}/users', 'addUsers')->whereNumber('voucherId');
                 Route::delete('/{voucherId}/users', 'removeUsers')->whereNumber('voucherId');
             });
+
+        Route::controller(\App\Http\Controllers\Api\V1\Admin\Instruction\AdminInstructionController::class)
+            ->prefix('instructions')
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::post('/', 'store');
+                Route::get('/{instructionId}', 'show')->whereNumber('instructionId');
+                Route::match(['put', 'patch', 'post'], '/{instructionId}', 'update')->whereNumber('instructionId');
+                Route::delete('/{instructionId}', 'destroy')->whereNumber('instructionId');
+            });
     });

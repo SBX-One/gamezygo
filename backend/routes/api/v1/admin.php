@@ -4,6 +4,7 @@ use App\Http\Controllers\Api\V1\Admin\Blog\AdminBlogController;
 use App\Http\Controllers\Api\V1\Admin\Catalog\AdminCatalogController;
 use App\Http\Controllers\Api\V1\Admin\CustomSection\AdminCustomSectionController;
 use App\Http\Controllers\Api\V1\Admin\Dashboard\AdminDashboardController;
+use App\Http\Controllers\Api\V1\Admin\GameRequest\AdminGameRequestController;
 use App\Http\Controllers\Api\V1\Admin\Revenue\AdminRevenueController;
 use App\Http\Controllers\Api\V1\Admin\Subscription\AdminSubscriptionController;
 use Illuminate\Support\Facades\Route;
@@ -99,5 +100,16 @@ Route::prefix('admin')
         Route::match(['put', 'patch', 'post'], '/{blogId}', 'update')->name('update')->whereNumber('blogId');
         Route::delete('/{blogId}', 'destroy')->name('destroy')->whereNumber('blogId');
         Route::match(['post', 'put', 'patch'], '/{blogId}/publish', 'publish')->name('publish')->whereNumber('blogId');
+      });
+
+    // Game Requests Management
+    Route::controller(AdminGameRequestController::class)
+      ->prefix('game-requests')
+      ->name('game-requests.')
+      ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::match(['post', 'put', 'patch'], '/status', 'updateStatus')->name('status');
+        Route::get('/{gameRequestId}', 'show')->name('show')->whereNumber('gameRequestId');
+        Route::match(['post', 'put', 'patch'], '/{gameRequestId}/pin', 'togglePin')->name('pin')->whereNumber('gameRequestId');
       });
   });

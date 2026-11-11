@@ -14,6 +14,8 @@ use App\Repositories\Contracts\Api\V1\Admin\Subscription\AdminSubscriptionReposi
 use App\Repositories\Api\V1\Admin\Subscription\AdminSubscriptionRepository;
 use App\Repositories\Contracts\Api\V1\Admin\Blog\AdminBlogRepositoryInterface;
 use App\Repositories\Api\V1\Admin\Blog\AdminBlogRepository;
+use App\Repositories\Contracts\Api\V1\Admin\GameRequest\AdminGameRequestRepositoryInterface;
+use App\Repositories\Api\V1\Admin\GameRequest\AdminGameRequestRepository;
 use App\Repositories\Contracts\Api\V1\Admin\Dashboard\AdminDashboardRepositoryInterface;
 use App\Repositories\Api\V1\Admin\Dashboard\AdminDashboardRepository;
 use App\Repositories\Contracts\Api\V1\User\Announcement\AnnouncementRepositoryInterface;
@@ -77,6 +79,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(AdminCustomSectionRepositoryInterface::class, AdminCustomSectionRepository::class);
         $this->app->bind(AdminSubscriptionRepositoryInterface::class, AdminSubscriptionRepository::class);
         $this->app->bind(AdminBlogRepositoryInterface::class, AdminBlogRepository::class);
+        $this->app->bind(AdminGameRequestRepositoryInterface::class, AdminGameRequestRepository::class);
     }
 
     /**

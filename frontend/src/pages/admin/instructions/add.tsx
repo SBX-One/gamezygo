@@ -17,7 +17,8 @@ import type {
   ArticleBlockType,
   ArticleEditorBlock,
 } from "@/features/admin/types/admin-article.types";
-import type { InstructionTemplate } from "@/features/admin/types/admin-instruction.types";
+import { serializeArticleBlocksToHtml } from "@/features/admin/utils/article-content.utils";
+import { useCreateAdminInstruction } from "@/hooks/use-admin-instructions";
 
 const ChevronRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -247,43 +248,7 @@ export default function AdminAddNewInstructionPage() {
   };
 
   // Helper to persist instruction in localStorage
-  const saveInstructionToStorage = (status: "Listed" | "Draft") => {
-    const finalTitle = title.trim() || "Untitled Instruction";
-    const steps = blocks
-      .filter((b) => b.content.trim() !== "")
-      .map((b, i) => ({
-        stepNumber: i + 1,
-        title: b.type.startsWith("h") ? b.content : `Langkah ${i + 1}`,
-        description: b.content,
-      }));
-
-    const newInstruction: InstructionTemplate = {
-      id: `tmpl-${Date.now()}`,
-      title: finalTitle,
-      badge: status === "Listed" ? "Listed" : "Draft",
-      createdAt: new Date().toLocaleDateString("id-ID", {
-        day: "2-digit",
-        month: "2-digit",
-        year: "numeric",
-      }),
-      lastEdit: "Baru saja",
-      steps:
-        steps.length > 0
-          ? steps
-          : [{ stepNumber: 1, title: finalTitle, description: "Instruksi dibuat." }],
-    };
-
-    try {
-      const existing = localStorage.getItem("gamezygo_admin_instruction_templates");
-      const list: InstructionTemplate[] = existing ? JSON.parse(existing) : [];
-      list.unshift(newInstruction);
-      localStorage.setItem("gamezygo_admin_instruction_templates", JSON.stringify(list));
-    } catch {
-      // LocalStorage fallback
-    }
-
-    return newInstruction;
-  };
+  const createMutation = useCreateAdminInstruction();
 
   const returnUrl = (router.query.returnUrl as string) || (router.query.from as string) || "/admin/instructions";
 
@@ -294,24 +259,34 @@ export default function AdminAddNewInstructionPage() {
     return `${returnUrl}${separator}newTemplateId=${encodeURIComponent(createdId)}`;
   };
 
+  const submitInstruction = async (successMessage: string, alwaysRedirect: boolean) => {
+    const finalTitle = title.trim() || "Untitled Instruction";
+    const serializedContent = serializeArticleBlocksToHtml(blocks).trim() || `<p>${finalTitle}</p>`;
+
+    try {
+      const created = await createMutation.mutateAsync({
+        title: finalTitle,
+        content: serializedContent,
+      });
+      showToast(successMessage);
+      if (alwaysRedirect || router.query.returnUrl) {
+        setTimeout(() => {
+          router.push(getReturnUrlWithTemplate(created.id));
+        }, 500);
+      }
+    } catch {
+      showToast("Gagal menyimpan instruksi ke server.");
+    }
+  };
+
   // Save Draft Handler
   const handleSaveDraft = () => {
-    const created = saveInstructionToStorage("Draft");
-    showToast("Draft instruksi berhasil disimpan!");
-    if (router.query.returnUrl) {
-      setTimeout(() => {
-        router.push(getReturnUrlWithTemplate(created.id));
-      }, 600);
-    }
+    void submitInstruction("Draft instruksi berhasil disimpan!", false);
   };
 
   // Publish Handler
   const handlePublish = () => {
-    const created = saveInstructionToStorage("Listed");
-    showToast("Instruksi berhasil dipublikasikan!");
-    setTimeout(() => {
-      router.push(getReturnUrlWithTemplate(created.id));
-    }, 600);
+    void submitInstruction("Instruksi berhasil dipublikasikan!", true);
   };
 
   // Header Title: Breadcrumb "Instruksi > Add New Instruction" (Matching Image 1)

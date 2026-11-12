@@ -47,64 +47,95 @@ export const adminSubscriptionService = {
   async getSubscriptions(
     params?: AdminSubscriptionQueryParams
   ): Promise<AdminSubscriptionResponse["data"]> {
-    const response = await apiClient.get<any>(
+    const response = await apiClient.get<{ data?: Record<string, unknown> } & Record<string, unknown>>(
       "/admin/subscriptions",
       { params }
     );
-    const raw = response.data?.data || response.data || {};
+    const raw = (response.data?.data ?? response.data ?? {}) as Record<string, unknown>;
 
     // If backend returned official new structure: { plans, subscription_games }
     if (raw.subscription_games || raw.plans) {
-      let subsList: any[] = [];
+      let subsList: SubscriberAccount[] = [];
       let subsMeta = { current_page: 1, last_page: 1, per_page: 10, total: 0 };
       try {
-        const subsRes = await apiClient.get<any>("/admin/subscriptions/active-subs", { params });
-        const subsData = subsRes.data?.data || {};
-        subsList = (subsData.subscribers || []).map((s: any) => ({
-          id: String(s.id || "").padStart(4, "0"),
-          db_id: s.id,
-          name: s.user_name || s.name || s.user?.name || "User",
-          email: s.user_email || s.email || s.user?.email || "user@mail.com",
-          plan_name: s.plan_name || s.subscription_plan?.name || "Standard",
-          accountCreated: s.account_created || s.started_at || "-",
-          subsEnd: s.subs_end || s.expired_at || "-",
-          status: s.status || "active",
-        }));
-        if (subsData.meta) subsMeta = subsData.meta;
+        const subsRes = await apiClient.get<{ data?: Record<string, unknown> }>(
+          "/admin/subscriptions/active-subs",
+          { params }
+        );
+        const subsData = (subsRes.data?.data ?? {}) as Record<string, unknown>;
+        const rawSubs = Array.isArray(subsData.users)
+          ? (subsData.users as Record<string, unknown>[])
+          : Array.isArray(subsData.subscribers)
+          ? (subsData.subscribers as Record<string, unknown>[])
+          : [];
+        subsList = rawSubs.map((s) => {
+          const userObj = (s.user ?? {}) as Record<string, unknown>;
+          const planObj = (s.subscription_plan ?? {}) as Record<string, unknown>;
+          return {
+            id: String(s.id || "").padStart(4, "0"),
+            db_id: Number(s.id) || undefined,
+            name: String(s.user_name || s.name || userObj.name || "User"),
+            email: String(s.user_email || s.email || userObj.email || "user@mail.com"),
+            plan_name: String(s.plan_name || planObj.name || "Standard"),
+            accountCreated: String(s.account_created || s.started_at || "-"),
+            subsEnd: String(s.subs_end || s.expired_at || "-"),
+            status: (s.status as SubscriberAccount["status"]) || "active",
+          };
+        });
+        if (subsData.pagination) {
+          subsMeta = subsData.pagination as typeof subsMeta;
+        } else if (subsData.meta) {
+          subsMeta = subsData.meta as typeof subsMeta;
+        }
       } catch {}
 
-      let gamesList = raw.subscription_games?.games || [];
+      const rawSubGames = (raw.subscription_games ?? {}) as Record<string, unknown>;
+      let gamesList = Array.isArray(rawSubGames.games)
+        ? (rawSubGames.games as Record<string, unknown>[])
+        : [];
       try {
-        const prodsRes = await apiClient.get<any>("/admin/subscriptions/products");
+        const prodsRes = await apiClient.get<{
+          data?: { games?: Record<string, unknown>[] } | Record<string, unknown>[];
+        }>("/admin/subscriptions/products");
         const prodsData = prodsRes.data?.data;
-        if (Array.isArray(prodsData) && prodsData.length > 0) {
+        if (!Array.isArray(prodsData) && Array.isArray(prodsData?.games)) {
+          gamesList = prodsData.games;
+        } else if (Array.isArray(prodsData) && prodsData.length > 0) {
           gamesList = prodsData;
         }
       } catch {}
 
-      const formattedGames: SectionProduct[] = gamesList.map((g: any) => ({
+      const formattedGames: SectionProduct[] = gamesList.map((g) => ({
         id: String(g.id),
-        title: g.name || g.title,
-        imageSrc: g.image_url || g.imageSrc || g.thumbnail || "",
+        title: String(g.name || g.title || ""),
+        imageSrc: String(g.image_url || g.imageSrc || g.thumbnail || ""),
         categories: Array.isArray(g.categories)
-          ? g.categories.map((c: any) => (typeof c === "string" ? c : c.name))
+          ? g.categories.map((c: unknown) =>
+              typeof c === "string" ? c : String((c as Record<string, unknown>).name ?? "")
+            )
           : [],
         price: Number(g.price) || 0,
       }));
 
-      const totalValueRaw = raw.subscription_games?.total_value || 0;
-      const totalGamesCount = raw.subscription_games?.total ?? formattedGames.length;
+      const totalValueRaw = Number(rawSubGames.total_value || 0);
+      const totalGamesCount = Number(rawSubGames.total ?? formattedGames.length);
 
-      const formattedPlans: SubscriptionPlan[] = (raw.plans || []).map((p: any) => {
-        const months = p.duration_months || 1;
+      const rawPlans = Array.isArray(raw.plans) ? (raw.plans as Record<string, unknown>[]) : [];
+      const formattedPlans: SubscriptionPlan[] = rawPlans.map((p) => {
+        const months = Number(p.duration_months || 1);
         const cleanPrice = Number(p.price) || 0;
+        const rawBenefits = Array.isArray(p.benefits) ? p.benefits : [];
         return {
           id: String(p.id),
-          title: p.name || p.title,
+          title: String(p.name || p.title || ""),
           duration: `${months} BULAN`,
           price: `IDR ${cleanPrice.toLocaleString("id-ID")}`,
           period: "/ Month",
-          benefits: (p.benefits || []).map((b: any) => (typeof b === "string" ? b : b.description || b.feature)),
+          benefits: rawBenefits.map((b: unknown) =>
+            typeof b === "string"
+              ? b
+              : String((b as Record<string, unknown>).description || (b as Record<string, unknown>).feature || "")
+          ),
         };
       });
 
@@ -120,7 +151,7 @@ export const adminSubscriptionService = {
       };
     }
 
-    return raw;
+    return raw as unknown as AdminSubscriptionResponse["data"];
   },
 
   /**
@@ -149,7 +180,7 @@ export const adminSubscriptionService = {
 
       if (data.benefits && data.benefits.length > 0) {
         await apiClient.put(`/admin/subscriptions/${numericId}/features`, {
-          benefits: data.benefits,
+          benefits: data.benefits.map((b) => ({ description: b })),
         });
       }
     } catch {
@@ -172,11 +203,33 @@ export const adminSubscriptionService = {
   async updateGames(
     gameIds: Array<string | number>
   ): Promise<{ games: SectionProduct[]; game_stats: SubscriptionGameStats }> {
-    const numericIds = gameIds.map((id) => (typeof id === "string" ? parseInt(id, 10) || id : id));
+    const numericIds = gameIds
+      .map((id) => (typeof id === "string" ? parseInt(id, 10) : Number(id)))
+      .filter((id) => Number.isFinite(id) && id > 0);
     try {
-      await apiClient.post("/admin/subscriptions/products", {
-        product_ids: numericIds,
-      });
+      const prodsRes = await apiClient.get<{ data?: { games?: Record<string, unknown>[] } }>(
+        "/admin/subscriptions/products"
+      );
+      const currentGames = prodsRes.data?.data?.games;
+      const currentIds: number[] = Array.isArray(currentGames)
+        ? currentGames
+            .map((g) => Number(g.id))
+            .filter((id) => Number.isFinite(id) && id > 0)
+        : [];
+
+      const toAdd = numericIds.filter((id) => !currentIds.includes(id));
+      const toRemove = currentIds.filter((id) => !numericIds.includes(id));
+
+      if (toAdd.length > 0) {
+        await apiClient.post("/admin/subscriptions/products", {
+          product_ids: toAdd,
+        });
+      }
+      if (toRemove.length > 0) {
+        await apiClient.delete("/admin/subscriptions/products", {
+          data: { product_ids: toRemove },
+        });
+      }
     } catch {
       await apiClient.put("/admin/subscriptions/games", {
         game_ids: gameIds,
@@ -193,17 +246,25 @@ export const adminSubscriptionService = {
    */
   async getAvailableGames(): Promise<AdminAvailableGameItem[]> {
     try {
-      const response = await apiClient.get<any>("/admin/custom-sections/all-products");
+      const response = await apiClient.get<{ data?: Record<string, unknown>[] }>(
+        "/admin/custom-sections/all-products"
+      );
       const list = response.data?.data || [];
-      return list.map((p: any) => ({
+      return list.map((p) => ({
         id: String(p.id),
-        title: p.name || p.title,
-        imageSrc: p.image_url || p.imageSrc || p.thumbnail || "",
-        categories: Array.isArray(p.categories) ? p.categories.map((c: any) => (typeof c === "string" ? c : c.name)) : [],
+        title: String(p.name || p.title || ""),
+        imageSrc: String(p.image_url || p.imageSrc || p.thumbnail || ""),
+        categories: Array.isArray(p.categories)
+          ? p.categories.map((c: unknown) =>
+              typeof c === "string" ? c : String((c as Record<string, unknown>).name ?? "")
+            )
+          : [],
         price: Number(p.price) || 0,
       }));
     } catch {
-      const response = await apiClient.get<any>("/admin/subscriptions/available-games");
+      const response = await apiClient.get<{ data?: AdminAvailableGameItem[] }>(
+        "/admin/subscriptions/available-games"
+      );
       return response.data?.data || [];
     }
   },

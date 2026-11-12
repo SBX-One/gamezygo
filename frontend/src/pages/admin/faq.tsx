@@ -9,31 +9,21 @@ import {
   AdminFaqDeleteModal,
 } from "@/features/admin/components/faq";
 import {
-  MOCK_ADMIN_FAQS,
   FAQ_CATEGORIES,
 } from "@/features/admin/data/admin-faq-mock-data";
 import type { AdminFaqItem } from "@/features/admin/types/admin-faq.types";
-
-const CheckCircleIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-    <polyline points="22 4 12 14.01 9 11.01" />
-  </svg>
-);
+import {
+  useAdminFaqs,
+  useAdminFaqPages,
+  useCreateAdminFaq,
+  useUpdateAdminFaq,
+  useDeleteAdminFaq,
+} from "@/hooks/use-admin-faqs";
+import { toast } from "@/stores/use-toast-store";
 
 export default function AdminFaqPage() {
-  const [faqs, setFaqs] = React.useState<AdminFaqItem[]>(MOCK_ADMIN_FAQS);
   const [activeCategory, setActiveCategory] = React.useState<string>("Landing Page");
+  const [collapsedIds, setCollapsedIds] = React.useState<Record<string, boolean>>({});
 
   // Modal states
   const [editModalState, setEditModalState] = React.useState<{
@@ -52,40 +42,24 @@ export default function AdminFaqPage() {
     item: null,
   });
 
-  // Toast notification state
-  const [toastMessage, setToastMessage] = React.useState<string | null>(null);
+  const { data: faqData, isLoading, isError, refetch } = useAdminFaqs({ per_page: 100 });
+  const { data: serverCategories } = useAdminFaqPages();
+  const createMutation = useCreateAdminFaq();
+  const updateMutation = useUpdateAdminFaq();
+  const deleteMutation = useDeleteAdminFaq();
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 2800);
-  };
+  const categories = React.useMemo(() => {
+    if (serverCategories && serverCategories.length > 0) return serverCategories;
+    return FAQ_CATEGORIES;
+  }, [serverCategories]);
 
-  // Load from localStorage on mount
-  React.useEffect(() => {
-    try {
-      const stored = localStorage.getItem("gamezygo_admin_faqs");
-      if (stored) {
-        const parsed: AdminFaqItem[] = JSON.parse(stored);
-        if (parsed.length > 0) {
-          setFaqs(parsed);
-        }
-      }
-    } catch {
-      // LocalStorage fallback
-    }
-  }, []);
-
-  // Save to localStorage helper
-  const saveFaqsToStorage = (updatedFaqs: AdminFaqItem[]) => {
-    setFaqs(updatedFaqs);
-    try {
-      localStorage.setItem("gamezygo_admin_faqs", JSON.stringify(updatedFaqs));
-    } catch {
-      // LocalStorage fallback
-    }
-  };
+  const faqs: AdminFaqItem[] = React.useMemo(() => {
+    const list = faqData?.faqs ?? [];
+    return list.map((item) => ({
+      ...item,
+      isExpanded: !collapsedIds[item.id],
+    }));
+  }, [faqData, collapsedIds]);
 
   // Filter items by category
   const filteredFaqs = React.useMemo(() => {
@@ -94,55 +68,52 @@ export default function AdminFaqPage() {
 
   // Toggle card expand/collapse
   const handleToggleExpand = (id: string) => {
-    setFaqs((prev) =>
-      prev.map((item) =>
-        item.id === id ? { ...item, isExpanded: !item.isExpanded } : item
-      )
-    );
+    setCollapsedIds((prev) => ({
+      ...prev,
+      [id]: !prev[id],
+    }));
   };
 
   // Save new or edited FAQ
-  const handleSaveModal = (data: { question: string; answer: string; category: string }) => {
-    if (editModalState.item) {
-      // Edit existing
-      const updated = faqs.map((f) =>
-        f.id === editModalState.item?.id
-          ? {
-              ...f,
-              question: data.question,
-              answer: data.answer,
-              category: data.category,
-              lastEdit: "Just now",
-            }
-          : f
-      );
-      saveFaqsToStorage(updated);
-      showToast("Pertanyaan FAQ berhasil diperbarui!");
-    } else {
-      // Create new
-      const newItem: AdminFaqItem = {
-        id: `faq-${Date.now()}`,
-        question: data.question,
-        answer: data.answer,
-        category: data.category,
-        isExpanded: true,
-        lastEdit: "Just now",
-      };
-      saveFaqsToStorage([...faqs, newItem]);
-      showToast("Pertanyaan baru berhasil ditambahkan!");
+  const handleSaveModal = async (data: { question: string; answer: string; category: string }) => {
+    try {
+      if (editModalState.item) {
+        await updateMutation.mutateAsync({
+          id: editModalState.item.id,
+          data: {
+            question: data.question,
+            answer: data.answer,
+            category: data.category,
+          },
+        });
+        toast.success("Pertanyaan FAQ berhasil diperbarui!", "FAQ Updated");
+      } else {
+        await createMutation.mutateAsync({
+          question: data.question,
+          answer: data.answer,
+          category: data.category,
+        });
+        toast.success("Pertanyaan baru berhasil ditambahkan!", "FAQ Created");
+      }
+      setEditModalState({ isOpen: false, item: null });
+    } catch {
+      toast.error("Gagal menyimpan pertanyaan FAQ ke server.", "Error");
     }
-    setEditModalState({ isOpen: false, item: null });
   };
 
   // Remove FAQ
-  const handleConfirmDelete = () => {
-    if (deleteModalState.item) {
-      const updated = faqs.filter((f) => f.id !== deleteModalState.item?.id);
-      saveFaqsToStorage(updated);
-      showToast("Pertanyaan FAQ berhasil dihapus dari list!");
+  const handleConfirmDelete = async () => {
+    if (!deleteModalState.item) return;
+    try {
+      await deleteMutation.mutateAsync(deleteModalState.item.id);
+      toast.success("Pertanyaan FAQ berhasil dihapus dari list!", "FAQ Deleted");
+      setDeleteModalState({ isOpen: false, item: null });
+    } catch {
+      toast.error("Gagal menghapus pertanyaan FAQ.", "Error");
     }
-    setDeleteModalState({ isOpen: false, item: null });
   };
+
+  const latestLastEdit = filteredFaqs[0]?.lastEdit ?? faqs[0]?.lastEdit ?? "-";
 
   return (
     <>
@@ -155,41 +126,54 @@ export default function AdminFaqPage() {
       </Head>
 
       <AdminLayout title="FAQ" activeNavId="faq">
-        {/* Toast Alert */}
-        {toastMessage && (
-          <div className="fixed top-20 right-8 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-deep-blue-900 border border-emerald-500/40 text-emerald-300 text-label-xs sm:text-sm font-medium animate-in fade-in slide-in-from-top-2 duration-150 shadow-xl">
-            <CheckCircleIcon className="w-4 h-4 text-emerald-400" />
-            <span>{toastMessage}</span>
-          </div>
-        )}
-
         <div className="w-full pb-16 select-none font-sans">
           {/* Main Card Container (Matching Gambar 2, 3, 4) */}
           <div className="w-full rounded-lg bg-deep-blue-950 border border-deep-blue-700/80 p-6 sm:p-8 flex flex-col gap-6 shadow-none">
             {/* 1. Header with title, last edit subtext, and category dropdown (Landing Page ▾) */}
             <AdminFaqHeader
               title="Frequently Asked Questions"
-              lastEdit="Last edit 7 days ago"
-              categories={FAQ_CATEGORIES}
+              lastEdit={`Last edit ${latestLastEdit}`}
+              categories={categories}
               activeCategory={activeCategory}
               onSelectCategory={setActiveCategory}
             />
 
             {/* 2. List of FAQ Cards (Matching Gambar 2 & 3) */}
             <div className="flex flex-col gap-4 w-full">
-              {filteredFaqs.map((faq) => (
-                <AdminFaqCard
-                  key={faq.id}
-                  item={faq}
-                  onEdit={(item) => setEditModalState({ isOpen: true, item })}
-                  onRemove={(item) => setDeleteModalState({ isOpen: true, item })}
-                  onToggleExpand={handleToggleExpand}
-                />
-              ))}
-
-              {filteredFaqs.length === 0 && (
+              {isLoading && (
                 <div className="rounded-lg bg-deep-blue-900/40 border border-deep-blue-700/60 p-8 text-center text-gray-400 text-label-xs sm:text-sm">
-                  Belum ada pertanyaan FAQ untuk kategori "{activeCategory}". Klik tombol di bawah untuk menambahkan.
+                  Memuat daftar FAQ...
+                </div>
+              )}
+
+              {!isLoading && isError && (
+                <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-6 text-center text-red-300 text-label-xs sm:text-sm space-y-3">
+                  <p>Gagal memuat daftar FAQ dari database.</p>
+                  <button
+                    type="button"
+                    onClick={() => refetch()}
+                    className="px-4 py-1.5 rounded-md bg-red-500/20 hover:bg-red-500/30 text-white text-xs font-medium cursor-pointer"
+                  >
+                    Coba Lagi
+                  </button>
+                </div>
+              )}
+
+              {!isLoading &&
+                !isError &&
+                filteredFaqs.map((faq) => (
+                  <AdminFaqCard
+                    key={faq.id}
+                    item={faq}
+                    onEdit={(item) => setEditModalState({ isOpen: true, item })}
+                    onRemove={(item) => setDeleteModalState({ isOpen: true, item })}
+                    onToggleExpand={handleToggleExpand}
+                  />
+                ))}
+
+              {!isLoading && !isError && filteredFaqs.length === 0 && (
+                <div className="rounded-lg bg-deep-blue-900/40 border border-deep-blue-700/60 p-8 text-center text-gray-400 text-label-xs sm:text-sm">
+                  Belum ada pertanyaan FAQ untuk kategori &quot;{activeCategory}&quot;. Klik tombol di bawah untuk menambahkan.
                 </div>
               )}
             </div>
@@ -206,7 +190,7 @@ export default function AdminFaqPage() {
           isOpen={editModalState.isOpen}
           item={editModalState.item}
           activeCategory={activeCategory}
-          categories={FAQ_CATEGORIES}
+          categories={categories}
           onClose={() => setEditModalState({ isOpen: false, item: null })}
           onSave={handleSaveModal}
         />

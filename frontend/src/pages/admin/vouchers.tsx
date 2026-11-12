@@ -125,13 +125,17 @@ export default function AdminVouchersPage() {
     id?: string
   ) => {
     try {
+      const resolvedDiscountValue =
+        data.discountType === "percentage"
+          ? data.percentageValue ?? data.discountAmount
+          : data.discountAmount;
       if (id) {
         await updateMutation.mutateAsync({
           id,
           data: {
             code: data.code,
             discount_type: data.discountType === "percentage" ? "percentage" : "fixed",
-            discount_amount: data.discountAmount,
+            discount_value: resolvedDiscountValue,
             slot: data.usageLimit || 0,
             is_active: data.isActive,
           },
@@ -142,7 +146,7 @@ export default function AdminVouchersPage() {
           name: data.code,
           code: data.code,
           discount_type: data.discountType === "percentage" ? "percentage" : "fixed",
-          discount_amount: data.discountAmount,
+          discount_value: resolvedDiscountValue,
           slot: data.usageLimit || 0,
           is_active: data.isActive,
         });

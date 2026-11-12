@@ -54,9 +54,8 @@ const CloseIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function AdminAddProductPage() {
   const router = useRouter();
-  const [formData, setFormData] = React.useState<AdminAddProductFormData>(
-    DEFAULT_ADD_PRODUCT_FORM
-  );
+  const [draftFormData, setDraftFormData] =
+    React.useState<AdminAddProductFormData | null>(null);
   const [isSaving, setIsSaving] = React.useState(false);
   const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
 
@@ -64,12 +63,29 @@ export default function AdminAddProductPage() {
   const { data: filterMeta } = useAdminCatalogFilters();
   const { data: serverSections } = useAdminSections();
 
+  const formData: AdminAddProductFormData = React.useMemo(() => {
+    if (draftFormData) return draftFormData;
+    const queryTitle =
+      router.isReady && typeof router.query.title === "string"
+        ? router.query.title
+        : "";
+    const querySteamUrl =
+      router.isReady && typeof router.query.steamUrl === "string"
+        ? router.query.steamUrl
+        : "";
+    return {
+      ...DEFAULT_ADD_PRODUCT_FORM,
+      name: queryTitle || DEFAULT_ADD_PRODUCT_FORM.name,
+      storeUrl: querySteamUrl || DEFAULT_ADD_PRODUCT_FORM.storeUrl,
+    };
+  }, [draftFormData, router.isReady, router.query.title, router.query.steamUrl]);
+
   const handleFormChange = (fields: Partial<AdminAddProductFormData>) => {
-    setFormData((prev) => ({ ...prev, ...fields }));
+    setDraftFormData((prev) => ({ ...(prev ?? formData), ...fields }));
     if (errorMessage) setErrorMessage(null);
   };
 
-  const buildPayload = (status: "listing" | "archive") => {
+  const buildPayload = (status: "listing" | "pre-order" | "archive") => {
     const cleanPrice = parseInt(formData.finalPrice.replace(/\D/g, ""), 10) || 0;
     const cleanInitialPrice = parseInt(formData.initialPrice.replace(/\D/g, ""), 10) || cleanPrice;
 
@@ -174,7 +190,9 @@ export default function AdminAddProductPage() {
     setIsSaving(true);
     setErrorMessage(null);
     try {
-      await createProductMutation.mutateAsync(buildPayload("listing"));
+      await createProductMutation.mutateAsync(
+        buildPayload(formData.isPreOrder ? "pre-order" : "listing")
+      );
       toast.success("Game baru berhasil ditambahkan dan tampil di toko!");
       router.push("/admin/catalog");
     } catch (err: unknown) {

@@ -13,7 +13,7 @@ import {
   AdminEditProductSkeleton,
 } from "@/features/admin/components/catalog/add";
 import {
-  MOCK_EDIT_PRODUCT_FORM,
+  DEFAULT_ADD_PRODUCT_FORM,
   type AdminAddProductFormData,
 } from "@/features/admin/types/admin-add-product.types";
 import {
@@ -54,7 +54,7 @@ export default function AdminEditProductPage() {
   const backLabel = isFromPreOrder ? "Pre-order" : "Katalog";
 
   const [formData, setFormData] = React.useState<AdminAddProductFormData>(
-    MOCK_EDIT_PRODUCT_FORM
+    DEFAULT_ADD_PRODUCT_FORM
   );
   const [isSaving, setIsSaving] = React.useState(false);
   const [isArchiveModalOpen, setIsArchiveModalOpen] = React.useState(false);
@@ -92,12 +92,14 @@ export default function AdminEditProductPage() {
         launcher:
           (serverProduct.launchers?.[0]?.name as "Steam") || prev.launcher,
         promotionSection:
-          serverProduct.promotion_section || prev.promotionSection || "Pilih section",
-        storeUrl: serverProduct.steam_url || prev.storeUrl,
-        accountUsername:
-          serverProduct.game_account?.username || prev.accountUsername,
-        accountPassword:
-          serverProduct.game_account?.password || prev.accountPassword,
+          serverProduct.promotion_section ||
+          serverSections?.find(
+            (s) => Number(s.id) === Number(serverProduct.promotion_section_id)
+          )?.title ||
+          "Pilih section",
+        storeUrl: serverProduct.steam_url || "",
+        accountUsername: serverProduct.game_account?.username || "",
+        accountPassword: serverProduct.game_account?.password || "",
         minimumSpecs:
           serverProduct.specifications?.minimum &&
           serverProduct.specifications.minimum.length > 0
@@ -136,7 +138,7 @@ export default function AdminEditProductPage() {
           : prev.selectedTemplate,
       }));
     }
-  }, [serverProduct]);
+  }, [serverProduct, serverSections]);
 
   // Restore draft from sessionStorage if admin previously clicked "Create New Template"
   React.useEffect(() => {

@@ -475,7 +475,7 @@ export function AdminVoucherTable({
                       {isMenuOpen && (
                         <div className="absolute right-0 top-8 z-50 w-44 rounded-lg bg-deep-blue-950 border border-deep-blue-700 py-1.5 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
                           <Link
-                            href={`/admin/vouchers/analytics?code=${item.code}`}
+                            href={`/admin/vouchers/${item.id}/analytics?code=${item.code}`}
                             onClick={() => setActiveMenuId(null)}
                             className="w-full flex items-center gap-2.5 px-3.5 py-2 text-label-xs font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-left"
                           >

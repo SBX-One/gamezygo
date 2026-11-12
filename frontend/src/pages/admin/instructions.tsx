@@ -11,46 +11,54 @@ import {
   AdminInstructionCreateModal,
   AdminInstructionChangeModal,
 } from "@/features/admin/components/instructions";
-import { MOCK_ADMIN_INSTRUCTION_TEMPLATES } from "@/features/admin/data/admin-instruction-mock-data";
 import type { InstructionTemplate } from "@/features/admin/types/admin-instruction.types";
+import {
+  useAdminInstructions,
+  useAdminInstructionDetail,
+  useCreateAdminInstruction,
+  useUpdateAdminInstruction,
+  useDeleteAdminInstruction,
+} from "@/hooks/use-admin-instructions";
+import { toast } from "@/stores/use-toast-store";
 
 export default function AdminInstructionsPage() {
   const router = useRouter();
   const { id } = router.query;
 
-  const [templates, setTemplates] = React.useState<InstructionTemplate[]>(
-    MOCK_ADMIN_INSTRUCTION_TEMPLATES
-  );
   const [searchQuery, setSearchQuery] = React.useState<string>("");
+  const [selectedId, setSelectedId] = React.useState<string | null>(null);
 
-  // Load custom templates from localStorage on client mount
-  React.useEffect(() => {
-    try {
-      const stored = localStorage.getItem("gamezygo_admin_instruction_templates");
-      if (stored) {
-        const parsed: InstructionTemplate[] = JSON.parse(stored);
-        if (parsed.length > 0) {
-          setTemplates([...parsed, ...MOCK_ADMIN_INSTRUCTION_TEMPLATES]);
-        }
-      }
-    } catch {
-      // LocalStorage fallback
+  const {
+    data: instructionsResult,
+    isLoading,
+    isError,
+    refetch,
+  } = useAdminInstructions({ per_page: 100 });
+
+  const templates: InstructionTemplate[] = React.useMemo(
+    () => instructionsResult?.instructions ?? [],
+    [instructionsResult]
+  );
+
+  const effectiveSelectedId = React.useMemo(() => {
+    if (selectedId && templates.some((t) => t.id === selectedId)) return selectedId;
+    if (typeof id === "string" && id.trim() && templates.some((t) => t.id === id)) {
+      return id;
     }
-  }, []);
+    return templates[0]?.id ?? null;
+  }, [selectedId, id, templates]);
 
-  // Default active template is the first template so detail view is visible matching Gambar 3
-  const [activeTemplate, setActiveTemplate] =
-    React.useState<InstructionTemplate | null>(() => MOCK_ADMIN_INSTRUCTION_TEMPLATES[0] || null);
+  const { data: activeTemplateDetail } = useAdminInstructionDetail(effectiveSelectedId);
+  const createMutation = useCreateAdminInstruction();
+  const updateMutation = useUpdateAdminInstruction();
+  const deleteMutation = useDeleteAdminInstruction();
 
-  // Sync template from URL query id if provided
-  React.useEffect(() => {
-    if (typeof id === "string" && id.trim()) {
-      const found = templates.find((t) => t.id === id);
-      if (found) {
-        setActiveTemplate(found);
-      }
+  const activeTemplate: InstructionTemplate | null = React.useMemo(() => {
+    if (activeTemplateDetail && activeTemplateDetail.id === effectiveSelectedId) {
+      return activeTemplateDetail;
     }
-  }, [id, templates]);
+    return templates.find((t) => t.id === effectiveSelectedId) ?? null;
+  }, [activeTemplateDetail, effectiveSelectedId, templates]);
 
   // Modal States
   const [deleteModalState, setDeleteModalState] = React.useState<{
@@ -73,7 +81,7 @@ export default function AdminInstructionsPage() {
 
   // Handlers
   const handleEdit = (template: InstructionTemplate) => {
-    setActiveTemplate(template);
+    setSelectedId(template.id);
   };
 
   const handleDeleteClick = (template: InstructionTemplate) => {
@@ -83,39 +91,57 @@ export default function AdminInstructionsPage() {
     });
   };
 
-  const handleConfirmDelete = () => {
-    if (deleteModalState.template) {
-      const deletedId = deleteModalState.template.id;
-      const updated = templates.filter((t) => t.id !== deletedId);
-      setTemplates(updated);
-      if (activeTemplate?.id === deletedId) {
-        setActiveTemplate(updated[0] || null);
+  const handleConfirmDelete = async () => {
+    if (!deleteModalState.template) return;
+    const deletedId = deleteModalState.template.id;
+    try {
+      await deleteMutation.mutateAsync(deletedId);
+      if (effectiveSelectedId === deletedId) {
+        setSelectedId(null);
       }
+      toast.success("Template instruksi berhasil dihapus.", "Instruction Deleted");
+      setDeleteModalState({ isOpen: false });
+    } catch {
+      toast.error("Gagal menghapus template instruksi.", "Error");
     }
-    setDeleteModalState({ isOpen: false });
   };
 
-  const handleConfirmClear = () => {
-    if (activeTemplate) {
-      const updatedTemplate: InstructionTemplate = {
-        ...activeTemplate,
-        steps: [],
-      };
-      setActiveTemplate(updatedTemplate);
-      setTemplates((prev) =>
-        prev.map((t) => (t.id === updatedTemplate.id ? updatedTemplate : t))
-      );
+  const handleConfirmClear = async () => {
+    if (!activeTemplate) return;
+    try {
+      await updateMutation.mutateAsync({
+        id: activeTemplate.id,
+        data: { content: "<p>-</p>" },
+      });
+      toast.success("Konten instruksi berhasil dikosongkan.", "Instruction Cleared");
+      setIsClearModalOpen(false);
+    } catch {
+      toast.error("Gagal mengosongkan konten instruksi.", "Error");
     }
-    setIsClearModalOpen(false);
   };
 
-  const handleSaveNewTemplate = (newTemplate: InstructionTemplate) => {
-    setTemplates((prev) => [newTemplate, ...prev]);
-    setActiveTemplate(newTemplate);
+  const handleSaveNewTemplate = async (newTemplate: InstructionTemplate) => {
+    const htmlContent =
+      newTemplate.steps.length > 0
+        ? newTemplate.steps
+            .map((s) => `<h3>${s.title}</h3><p>${s.description}</p>`)
+            .join("")
+        : `<p>${newTemplate.title}</p>`;
+
+    try {
+      const created = await createMutation.mutateAsync({
+        title: newTemplate.title,
+        content: htmlContent,
+      });
+      setSelectedId(created.id);
+      toast.success("Template instruksi berhasil dibuat.", "Instruction Created");
+    } catch {
+      toast.error("Gagal menyimpan template instruksi baru.", "Error");
+    }
   };
 
   const handleSelectChangedTemplate = (template: InstructionTemplate) => {
-    setActiveTemplate(template);
+    setSelectedId(template.id);
   };
 
   return (
@@ -142,17 +168,38 @@ export default function AdminInstructionsPage() {
 
           {/* Instructions Cards List (Matching Gambar 2 & Gambar 3) */}
           <div className="flex flex-col gap-3.5 w-full">
-            {filteredTemplates.map((template) => (
-              <AdminInstructionCard
-                key={template.id}
-                template={template}
-                isSelected={activeTemplate?.id === template.id}
-                onEdit={handleEdit}
-                onDelete={handleDeleteClick}
-              />
-            ))}
+            {isLoading && (
+              <div className="rounded-lg bg-deep-blue-900 border border-deep-blue-700 p-8 text-center text-gray-400 text-sm">
+                Memuat template instruksi...
+              </div>
+            )}
 
-            {filteredTemplates.length === 0 && (
+            {!isLoading && isError && (
+              <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-6 text-center text-red-300 text-sm space-y-3">
+                <p>Gagal memuat template instruksi dari database.</p>
+                <button
+                  type="button"
+                  onClick={() => refetch()}
+                  className="px-4 py-1.5 rounded-md bg-red-500/20 hover:bg-red-500/30 text-white text-xs font-medium cursor-pointer"
+                >
+                  Coba Lagi
+                </button>
+              </div>
+            )}
+
+            {!isLoading &&
+              !isError &&
+              filteredTemplates.map((template) => (
+                <AdminInstructionCard
+                  key={template.id}
+                  template={template}
+                  isSelected={activeTemplate?.id === template.id}
+                  onEdit={handleEdit}
+                  onDelete={handleDeleteClick}
+                />
+              ))}
+
+            {!isLoading && !isError && filteredTemplates.length === 0 && (
               <div className="rounded-lg bg-deep-blue-900 border border-deep-blue-700 p-8 text-center text-gray-400 text-sm">
                 Tidak ditemukan template instruksi yang cocok dengan pencarian Anda.
               </div>

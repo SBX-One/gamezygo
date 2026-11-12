@@ -67,7 +67,7 @@ export function useAdminCatalog(params?: AdminCatalogQueryParams) {
         createdAt: p.created_at || undefined,
       };
     });
-  }, [rawData?.products]);
+  }, [rawData]);
 
   const totalProducts =
     rawData?.meta?.total !== undefined
@@ -164,9 +164,10 @@ export function useAdminArchivedCatalog() {
         createdAt: p.created_at || undefined,
       };
     });
-  }, [rawData?.products]);
+  }, [rawData]);
 
-  const totalArchived = rawData?.total_archived ?? items.length;
+  const totalArchived =
+    rawData?.meta?.total ?? rawData?.total_archived ?? items.length;
 
   return {
     ...query,

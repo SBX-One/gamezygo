@@ -13,7 +13,7 @@ import {
   AdminEditProductSkeleton,
 } from "@/features/admin/components/catalog/add";
 import {
-  MOCK_EDIT_PRODUCT_FORM,
+  DEFAULT_ADD_PRODUCT_FORM,
   type AdminAddProductFormData,
 } from "@/features/admin/types/admin-add-product.types";
 import { AdminConfirmSaveModal } from "@/features/admin/components/catalog";
@@ -46,7 +46,7 @@ export default function AdminPreOrderEditProductPage() {
   const isContinueToList = action === "list";
 
   const [formData, setFormData] = React.useState<AdminAddProductFormData>(
-    MOCK_EDIT_PRODUCT_FORM
+    DEFAULT_ADD_PRODUCT_FORM
   );
   const [isSaving, setIsSaving] = React.useState(false);
   const [isConfirmSaveOpen, setIsConfirmSaveOpen] = React.useState(false);
@@ -82,11 +82,9 @@ export default function AdminPreOrderEditProductPage() {
           (serverProduct.launchers?.[0]?.name as "Steam") || prev.launcher,
         promotionSection:
           serverProduct.promotion_section || prev.promotionSection || "Pilih section",
-        storeUrl: serverProduct.steam_url || prev.storeUrl,
-        accountUsername:
-          serverProduct.game_account?.username || prev.accountUsername,
-        accountPassword:
-          serverProduct.game_account?.password || prev.accountPassword,
+        storeUrl: serverProduct.steam_url || "",
+        accountUsername: serverProduct.game_account?.username || "",
+        accountPassword: serverProduct.game_account?.password || "",
         minimumSpecs:
           serverProduct.specifications?.minimum &&
           serverProduct.specifications.minimum.length > 0

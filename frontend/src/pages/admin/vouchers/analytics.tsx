@@ -37,7 +37,8 @@ const ChevronRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function AdminVoucherAnalyticsPage() {
   const router = useRouter();
-  const { code, empty } = router.query;
+  const { id, code, empty } = router.query;
+  const voucherId = typeof id === "string" ? id : undefined;
   const voucherCode = typeof code === "string" ? code : undefined;
 
   const [isEmptyMode, setIsEmptyMode] = React.useState<boolean>(
@@ -45,18 +46,15 @@ export default function AdminVoucherAnalyticsPage() {
   );
   const [currentPage, setCurrentPage] = React.useState<number>(1);
 
-  const { data: serverAnalytics, isLoading } = useVoucherAnalytics({
+  const { data: serverAnalytics } = useVoucherAnalytics({
+    id: voucherId,
     code: voucherCode,
   });
 
-  React.useEffect(() => {
-    if (empty === "true" || empty === "1") {
-      setIsEmptyMode(true);
-    }
-  }, [empty]);
+  const effectiveIsEmptyMode = isEmptyMode || empty === "true" || empty === "1";
 
   const analyticsData: VoucherAnalyticsData = React.useMemo(() => {
-    if (isEmptyMode) {
+    if (effectiveIsEmptyMode) {
       return MOCK_VOUCHER_ANALYTICS_EMPTY_DATA;
     }
     if (serverAnalytics?.data) {
@@ -73,7 +71,7 @@ export default function AdminVoucherAnalyticsPage() {
       };
     }
     return base;
-  }, [isEmptyMode, serverAnalytics, voucherCode]);
+  }, [effectiveIsEmptyMode, serverAnalytics, voucherCode]);
 
   // Export CSV Handler
   const handleExportCSV = () => {

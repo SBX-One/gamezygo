@@ -104,7 +104,7 @@ export default function AdminAddVoucherPage() {
         name: formData.name.trim(),
         code: formData.code.trim().toUpperCase(),
         discount_type: formData.discountType,
-        discount_amount: discountAmount,
+        discount_value: discountAmount,
         min_purchase: minPurchase,
         slot: slot,
         usage_limit_per_user: usageLimitPerUser,
@@ -115,8 +115,12 @@ export default function AdminAddVoucherPage() {
         applies_to: formData.applicableToSubs ? "all" : "one_time",
         target_games: formData.targetGames,
         target_users: formData.targetUsers,
-        product_ids: formData.targetGames.map((g) => g.id),
-        user_ids: formData.targetUsers.map((u) => u.id),
+        product_ids: formData.targetGames
+          .map((g) => Number(g.id))
+          .filter((id) => Number.isFinite(id) && id > 0),
+        user_ids: formData.targetUsers
+          .map((u) => Number(u.id))
+          .filter((id) => Number.isFinite(id) && id > 0),
       });
 
       toast.success(

@@ -100,8 +100,17 @@ export interface AdminCatalogArchivedResponse {
   success: boolean;
   message: string;
   data: {
-    total_archived: number;
+    total_archived?: number;
+    total_products?: number;
     products: AdminCatalogProductResponseItem[];
+    meta?: {
+      current_page: number;
+      from: number | null;
+      last_page: number;
+      per_page: number;
+      to: number | null;
+      total: number;
+    };
   };
 }
 
@@ -199,19 +208,16 @@ export const adminCatalogService = {
    * Fetch archived products
    */
   async getArchived(): Promise<AdminCatalogArchivedResponse["data"]> {
-    const response = await apiClient.get<AdminCatalogArchivedResponse>("/admin/catalog/archive");
+    const response = await apiClient.get<AdminCatalogArchivedResponse>("/admin/catalog/archive", {
+      params: { per_page: 100 },
+    });
     return response.data.data;
   },
 
   /**
-   * Batch update archive / unarchive status for multiple products
+   * Batch update archive / unarchive status for multiple products using be/dev per-product endpoint
    */
   async batchArchiveStatus(ids: Array<number | string>, isActive: boolean): Promise<unknown> {
-    const numericIds = ids.map((id) => (typeof id === "string" ? parseInt(id.replace("prod-", ""), 10) || id : id));
-    const response = await apiClient.patch("/admin/catalog/archive/batch", {
-      product_ids: numericIds,
-      is_active: isActive,
-    });
-    return response.data;
+    return Promise.all(ids.map((id) => this.toggleArchiveStatus(id, isActive)));
   },
 };

@@ -82,7 +82,7 @@ export default function AdminSubscriptionManagementPage() {
   const effectiveTotalGames = games.length;
 
   const subscribers: SubscriberAccount[] = React.useMemo(() => {
-    if (serverSubscribers && serverSubscribers.length > 0) {
+    if (Array.isArray(serverSubscribers)) {
       return serverSubscribers;
     }
     return MOCK_SUBSCRIBERS;

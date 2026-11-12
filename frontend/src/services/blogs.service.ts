@@ -1,6 +1,7 @@
 import { apiGet } from "@/lib/api-client";
 import type {
   ApiResponse,
+  ApiPaginatedResponse,
   BlogListItem,
   BlogDetailItem,
 } from "@/types";
@@ -13,12 +14,11 @@ export interface FetchBlogsParams {
 
 /**
  * Fetch blogs list with optional search and categories filters
- * Primary Endpoint: GET /api/v1/blogs/
- * Fallback Endpoint: GET /api/v1/user/blogs/
+ * Endpoint (user.php): GET /api/v1/blogs
  */
 export async function fetchBlogs(
   params?: FetchBlogsParams
-): Promise<ApiResponse<BlogListItem[]>> {
+): Promise<ApiPaginatedResponse<BlogListItem>> {
   const queryParams = new URLSearchParams();
 
   if (params?.search) {
@@ -36,27 +36,17 @@ export async function fetchBlogs(
   }
 
   const queryString = queryParams.toString();
-  const primaryUrl = queryString ? `/user/blogs?${queryString}` : "/user/blogs";
-  const fallbackUrl = queryString ? `/blogs?${queryString}` : "/blogs";
+  const url = queryString ? `/blogs?${queryString}` : "/blogs";
 
-  try {
-    return await apiGet<ApiResponse<BlogListItem[]>>(primaryUrl);
-  } catch {
-    return apiGet<ApiResponse<BlogListItem[]>>(fallbackUrl);
-  }
+  return apiGet<ApiPaginatedResponse<BlogListItem>>(url);
 }
 
 /**
  * Fetch single blog details by slug
- * Primary Endpoint: GET /api/v1/user/blogs/:slug
- * Fallback Endpoint: GET /api/v1/blogs/:slug
+ * Endpoint (user.php): GET /api/v1/blogs/:slug
  */
 export async function fetchBlogDetail(
   slug: string
 ): Promise<ApiResponse<BlogDetailItem>> {
-  try {
-    return await apiGet<ApiResponse<BlogDetailItem>>(`/user/blogs/${slug}`);
-  } catch {
-    return apiGet<ApiResponse<BlogDetailItem>>(`/blogs/${slug}`);
-  }
+  return apiGet<ApiResponse<BlogDetailItem>>(`/blogs/${slug}`);
 }

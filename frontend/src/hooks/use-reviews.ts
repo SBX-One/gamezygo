@@ -1,4 +1,10 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
+import { useAuthStore } from "@/stores/use-auth-store";
 import {
   fetchReviews,
   fetchUserReviews,
@@ -10,6 +16,7 @@ import {
 export const REVIEW_KEYS = {
   all: ["reviews"] as const,
   list: () => [...REVIEW_KEYS.all, "list"] as const,
+  infinite: () => [...REVIEW_KEYS.all, "infinite"] as const,
   userList: () => [...REVIEW_KEYS.all, "user-list"] as const,
 };
 
@@ -24,13 +31,31 @@ export function useReviews() {
 }
 
 /**
+ * Hook to fetch approved customer reviews with infinite scroll
+ */
+export function useInfiniteReviews() {
+  return useInfiniteQuery({
+    queryKey: REVIEW_KEYS.infinite(),
+    queryFn: ({ pageParam = 1 }) => fetchReviews({ page: pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const current = lastPage?.meta?.current_page ?? 1;
+      const last = lastPage?.meta?.last_page ?? 1;
+      return current < last ? current + 1 : undefined;
+    },
+  });
+}
+
+/**
  * Hook to fetch authenticated user's reviews
  */
 export function useUserReviews(enabled: boolean = true) {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
   return useQuery({
     queryKey: REVIEW_KEYS.userList(),
     queryFn: () => fetchUserReviews(),
-    enabled,
+    enabled: isAuthenticated && enabled,
   });
 }
 

@@ -6,9 +6,10 @@ import {
   Button,
   EmptyState,
   FilterModal,
-  Pagination,
   Pill,
+  Skeleton,
 } from "@/components/ui";
+import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
 import { StoreLayout } from "@/components/layout";
 
 // Icon for 500 Server Error
@@ -142,7 +143,7 @@ import {
   GAME_OPTIONS,
   SORT_OPTIONS,
 } from "@/features/catalog/blogs.data";
-import { useBlogs } from "@/hooks/use-blogs";
+import { useInfiniteBlogs } from "@/hooks/use-blogs";
 import { formatDate } from "@/utils/formatters";
 
 export default function BlogsPage() {
@@ -153,13 +154,28 @@ export default function BlogsPage() {
   //
   const [searchQuery, setSearchQuery] = React.useState("");
   const [appliedCategories, setAppliedCategories] = React.useState<string[]>([]);
-  const [currentPage, setCurrentPage] = React.useState(1);
-  // API Blogs Hook
-  const { data: blogsApiRes } = useBlogs({
+
+  // API Blogs Infinite Scroll Hook
+  const {
+    data: blogsPages,
+    isLoading: isBlogsLoading,
+    fetchNextPage: fetchNextBlogsPage,
+    hasNextPage: hasNextBlogsPage,
+    isFetchingNextPage: isFetchingNextBlogsPage,
+  } = useInfiniteBlogs({
     search: searchQuery.trim() || undefined,
     categories: appliedCategories.length > 0 ? appliedCategories : undefined,
-    page: currentPage,
   });
+
+  const { sentinelRef: blogsSentinelRef } = useInfiniteScroll({
+    hasNextPage: hasNextBlogsPage,
+    isFetchingNextPage: isFetchingNextBlogsPage,
+    fetchNextPage: fetchNextBlogsPage,
+  });
+
+  const blogsApiItems = React.useMemo(() => {
+    return blogsPages?.pages?.flatMap((page) => page.data ?? []) ?? [];
+  }, [blogsPages]);
 
   // Preview state derived from query or local override
   const [previewStateOverride, setPreviewStateOverride] = React.useState<
@@ -197,23 +213,7 @@ export default function BlogsPage() {
   const [appliedGames, setAppliedGames] = React.useState<string[]>([]);
   const [appliedSort, setAppliedSort] = React.useState<string>("Terbaru");
 
-  //
-  // Remove duplicate blogsApiRes hook
-  const { data: _unusedBlogsApiRes } = useBlogs({
-    search: searchQuery.trim() || undefined,
-    categories: appliedCategories.length > 0 ? appliedCategories : undefined,
-    page: currentPage,
-  });
   const [activeNavId, setActiveNavId] = React.useState("artikel");
-  if (false) console.log(_unusedBlogsApiRes);
-  /*
-  const { data: blogsApiRes } = useBlogs({
-    search: searchQuery.trim() || undefined,
-    categories: appliedCategories.length > 0 ? appliedCategories : undefined,
-    page: currentPage,
-  });
-
-  */
   const isFilterActive =
     appliedCategories.length > 0 ||
     appliedStatus.length > 0 ||
@@ -247,8 +247,8 @@ export default function BlogsPage() {
   const filteredBlogs = React.useMemo(() => {
     if (previewState === "filter-empty") return [];
 
-    if (blogsApiRes?.data && blogsApiRes.data.length > 0) {
-      let apiList = blogsApiRes.data.map((b) => ({
+    if (blogsApiItems.length > 0) {
+      let apiList = blogsApiItems.map((b) => ({
         id: String(b.id),
         title: b.title,
         slug: b.slug,
@@ -326,7 +326,7 @@ export default function BlogsPage() {
     appliedGames,
     appliedSort,
     previewState,
-    blogsApiRes,
+    blogsApiItems,
   ]);
 
   const hasEmptyResults = filteredBlogs.length === 0;
@@ -648,7 +648,21 @@ export default function BlogsPage() {
               {/* ======================================================
                   CASE C: FILTER EMPTY
                  ====================================================== */}
-              {hasEmptyResults || previewState === "filter-empty" ? (
+              {isBlogsLoading && blogsApiItems.length === 0 ? (
+                <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-5 gap-y-12 w-full mb-12">
+                  {Array.from({ length: 6 }).map((_, idx) => (
+                    <div
+                      key={idx}
+                      className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-md p-4 flex flex-col gap-4"
+                    >
+                      <Skeleton className="w-full aspect-video rounded-lg" />
+                      <Skeleton className="h-5 w-24 rounded-full" />
+                      <Skeleton className="h-6 w-4/5" />
+                      <Skeleton className="h-4 w-full" />
+                    </div>
+                  ))}
+                </div>
+              ) : hasEmptyResults || previewState === "filter-empty" ? (
                 <div className="py-20 flex items-center justify-center">
                   <EmptyState
                     title="Ups!... Hasil tidak ditemukan"
@@ -669,7 +683,7 @@ export default function BlogsPage() {
                 </div>
               ) : (
                 /* ======================================================
-                    CASE D: BLOG GRID
+                    CASE D: BLOG GRID + INFINITE SCROLL
                    ====================================================== */
                 <>
                   <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-5 gap-y-12 w-full mb-12">
@@ -686,15 +700,22 @@ export default function BlogsPage() {
                       />
                     ))}
                   </div>
-
-                  {/* PAGINATION */}
-                  <div className="flex justify-center pb-6">
-                    <Pagination
-                      currentPage={currentPage}
-                      totalPages={25}
-                      onPageChange={setCurrentPage}
-                    />
-                  </div>
+                  {isFetchingNextBlogsPage && (
+                    <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-x-5 gap-y-12 w-full mb-8">
+                      {Array.from({ length: 3 }).map((_, idx) => (
+                        <div
+                          key={idx}
+                          className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-md p-4 flex flex-col gap-4"
+                        >
+                          <Skeleton className="w-full aspect-video rounded-lg" />
+                          <Skeleton className="h-5 w-24 rounded-full" />
+                          <Skeleton className="h-6 w-4/5" />
+                          <Skeleton className="h-4 w-full" />
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                  <div ref={blogsSentinelRef} className="h-4 w-full" aria-hidden="true" />
                 </>
               )}
             </div>

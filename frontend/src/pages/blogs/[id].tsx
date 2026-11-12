@@ -7,6 +7,7 @@ import {
   Button,
   Pill,
   SectionHeader,
+  Skeleton,
 } from "@/components/ui";
 import { StoreLayout } from "@/components/layout";
 import {
@@ -74,7 +75,7 @@ export default function BlogDetailPage() {
   const isLoggedIn = isMounted && Boolean(isAuthenticated && authUser);
 
   // API Blog Detail Hook
-  const { data: blogApiRes } = useBlogDetail(slug);
+  const { data: blogApiRes, isLoading: isBlogLoading } = useBlogDetail(slug);
   const { data: blogsListRes } = useBlogs();
   const apiBlog = blogApiRes?.data;
 
@@ -147,6 +148,27 @@ export default function BlogDetailPage() {
       >
           {/* Upper Section (Constrained to max-w-320 container) */}
           <div className="w-full max-w-320 mx-auto px-4 sm:px-8 xl:px-0 flex flex-col pt-20">
+            {isBlogLoading && !apiBlog ? (
+              <div className="flex flex-col gap-8">
+                <Skeleton className="h-5 w-48" />
+                <Skeleton className="w-full aspect-21/9 sm:aspect-3/1 max-h-110 rounded-lg" />
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+                  <div className="lg:col-span-6 flex flex-col gap-3">
+                    <Skeleton className="h-6 w-24 rounded-full" />
+                    <Skeleton className="h-9 w-full" />
+                    <Skeleton className="h-9 w-3/4" />
+                    <Skeleton className="h-4 w-32" />
+                  </div>
+                  <div className="lg:col-span-6 flex flex-col gap-3">
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-5/6" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-2/3" />
+                  </div>
+                </div>
+              </div>
+            ) : (
+            <>
             {/* A. BREADCRUMB */}
             <div className="mb-6">
               <Breadcrumbs
@@ -252,6 +274,8 @@ export default function BlogDetailPage() {
                 )}
               </div>
             </section>
+            </>
+            )}
           </div>
 
           {/* Per Image 2: Exact 200px gap before Promo Section */}

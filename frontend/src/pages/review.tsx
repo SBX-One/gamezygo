@@ -6,11 +6,12 @@ import {
   Button,
   Field,
   Header,
-  Pagination,
+  Skeleton,
   TestimonialCard,
   Toast,
 } from "@/components/ui";
-import { useReviews, useCreateReview } from "@/hooks/use-reviews";
+import { useInfiniteReviews, useCreateReview } from "@/hooks/use-reviews";
+import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useUserProfile } from "@/hooks/use-profile";
 import { MOCK_USER } from "@/lib/mock/data";
@@ -299,7 +300,23 @@ export interface ReviewPageProps {
 export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps) {
   const router = useRouter();
 
-  const { data: apiReviewsRes } = useReviews();
+  const {
+    data: reviewsPages,
+    isLoading: isReviewsLoading,
+    fetchNextPage: fetchNextReviewsPage,
+    hasNextPage: hasNextReviewsPage,
+    isFetchingNextPage: isFetchingNextReviewsPage,
+  } = useInfiniteReviews();
+
+  const { sentinelRef: reviewsSentinelRef } = useInfiniteScroll({
+    hasNextPage: hasNextReviewsPage,
+    isFetchingNextPage: isFetchingNextReviewsPage,
+    fetchNextPage: fetchNextReviewsPage,
+  });
+
+  const apiReviewsItems = React.useMemo(() => {
+    return reviewsPages?.pages?.flatMap((page) => page.data ?? []) ?? [];
+  }, [reviewsPages]);
   const createReviewMutation = useCreateReview();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const authUser = useAuthStore((s) => s.user);
@@ -330,7 +347,6 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
   const [localReviews, setLocalReviews] = React.useState<ReviewItem[]>([]);
   const [quickFeedback, setQuickFeedback] = React.useState("");
   const [guestOpinionInput, setGuestOpinionInput] = React.useState("");
-  const [currentPage, setCurrentPage] = React.useState(1);
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
 
   // Load persistent reviews from localStorage
@@ -385,8 +401,8 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
   // Merge API reviews with local user-submitted reviews at the top
   const displayReviews = React.useMemo(() => {
     const apiMapped: ReviewItem[] =
-      apiReviewsRes?.data && apiReviewsRes.data.length > 0
-        ? apiReviewsRes.data.map((r) => ({
+      apiReviewsItems.length > 0
+        ? apiReviewsItems.map((r) => ({
             id: String(r.id),
             userName: r.user?.name || "Pelanggan Gamezygo",
             avatarSrc:
@@ -407,7 +423,7 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
     );
 
     return [...userUnique, ...apiMapped];
-  }, [apiReviewsRes, localReviews, reviews]);
+  }, [apiReviewsItems, localReviews, reviews]);
 
   const [toast, setToast] = React.useState<{
     title: string;
@@ -819,35 +835,61 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
             </Header>
           </section>
 
-          {/* 2. TESTIMONIAL CARDS GRID (3 Columns Responsive, 6 Cards) */}
+          {/* 2. TESTIMONIAL CARDS GRID (3 Columns Responsive) + INFINITE SCROLL */}
           <section className="w-full grid gap-10xl">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-8xl gap-x-5 w-full">
-              {(displayReviews.length > 0 ? displayReviews : GUEST_REVIEWS).map((item) => (
-                <TestimonialCard
-                  key={item.id}
-                  userName={item.userName}
-                  avatarSrc={item.avatarSrc}
-                  rating={item.rating}
-                  review={item.review}
-                  gameName={item.gameName}
-                  images={item.images && item.images.length > 0 ? item.images : false}
-                  className="h-full justify-between"
-                />
-              ))}
-            </div>
-       
-
-          {/* 3. PAGINATION COMPONENT (1, 2, 3, 4, 5, ..., 25) */}
-          <section className="w-full flex justify-center pt-2 pb-6">
-            <Pagination
-              currentPage={currentPage}
-              totalPages={25}
-              onPageChange={(page) => {
-                setCurrentPage(page);
-                window.scrollTo({ top: 0, behavior: "smooth" });
-              }}
-            />
-          </section>
+            {isReviewsLoading && apiReviewsItems.length === 0 ? (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-8xl gap-x-5 w-full">
+                {Array.from({ length: 6 }).map((_, idx) => (
+                  <div
+                    key={idx}
+                    className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-md p-6 flex flex-col gap-4"
+                  >
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="w-10 h-10 rounded-full" />
+                      <div className="flex flex-col gap-2">
+                        <Skeleton className="h-4 w-28" />
+                        <Skeleton className="h-3 w-20" />
+                      </div>
+                    </div>
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-5/6" />
+                    <Skeleton className="h-4 w-2/3" />
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-8xl gap-x-5 w-full">
+                  {(displayReviews.length > 0 ? displayReviews : GUEST_REVIEWS).map((item) => (
+                    <TestimonialCard
+                      key={item.id}
+                      userName={item.userName}
+                      avatarSrc={item.avatarSrc}
+                      rating={item.rating}
+                      review={item.review}
+                      gameName={item.gameName}
+                      images={item.images && item.images.length > 0 ? item.images : false}
+                      className="h-full justify-between"
+                    />
+                  ))}
+                </div>
+                {isFetchingNextReviewsPage && (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-8xl gap-x-5 w-full">
+                    {Array.from({ length: 3 }).map((_, idx) => (
+                      <div
+                        key={idx}
+                        className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-md p-6 flex flex-col gap-4"
+                      >
+                        <Skeleton className="h-4 w-28" />
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-4/5" />
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div ref={reviewsSentinelRef} className="h-4 w-full" aria-hidden="true" />
+              </>
+            )}
           </section>
 
           {renderReviewModal()}
@@ -918,20 +960,58 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
 
               {/* 2. TESTIMONIAL CARDS GRID (3 Columns Responsive, No Shadow) */}
               <section className="w-full">
-                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-8xl gap-x-5 w-full">
-                  {displayReviews.map((item) => (
-                    <TestimonialCard
-                      key={item.id}
-                      userName={item.userName}
-                      avatarSrc={item.avatarSrc}
-                      rating={item.rating}
-                      review={item.review}
-                      gameName={item.gameName}
-                      images={item.images}
-                      className="h-full shadow-none"
-                    />
-                  ))}
-                </div>
+                {isReviewsLoading && apiReviewsItems.length === 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-8xl gap-x-5 w-full">
+                    {Array.from({ length: 6 }).map((_, idx) => (
+                      <div
+                        key={idx}
+                        className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-md p-6 flex flex-col gap-4"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Skeleton className="w-10 h-10 rounded-full" />
+                          <div className="flex flex-col gap-2">
+                            <Skeleton className="h-4 w-28" />
+                            <Skeleton className="h-3 w-20" />
+                          </div>
+                        </div>
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-5/6" />
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-8xl gap-x-5 w-full">
+                      {displayReviews.map((item) => (
+                        <TestimonialCard
+                          key={item.id}
+                          userName={item.userName}
+                          avatarSrc={item.avatarSrc}
+                          rating={item.rating}
+                          review={item.review}
+                          gameName={item.gameName}
+                          images={item.images}
+                          className="h-full shadow-none"
+                        />
+                      ))}
+                    </div>
+                    {isFetchingNextReviewsPage && (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-y-8xl gap-x-5 w-full mt-6">
+                        {Array.from({ length: 3 }).map((_, idx) => (
+                          <div
+                            key={idx}
+                            className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-md p-6 flex flex-col gap-4"
+                          >
+                            <Skeleton className="h-4 w-28" />
+                            <Skeleton className="h-4 w-full" />
+                            <Skeleton className="h-4 w-4/5" />
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                    <div ref={reviewsSentinelRef} className="h-4 w-full" aria-hidden="true" />
+                  </>
+                )}
               </section>
             </div>
 

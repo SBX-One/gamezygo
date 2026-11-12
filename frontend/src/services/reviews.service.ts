@@ -1,29 +1,23 @@
 import { apiGet, apiPost, apiPut, apiDelete } from "@/lib/api-client";
-import type { ApiResponse, ReviewItem } from "@/types";
+import type { ApiResponse, ApiPaginatedResponse, ReviewItem } from "@/types";
 
 /**
  * Fetch approved customer reviews (Guest & Public)
- * Primary Endpoint (Postman guest): GET /api/v1/reviews/
- * Fallback Endpoint: GET /api/v1/user/reviews
+ * Endpoint (user.php): GET /api/v1/reviews
  */
-export async function fetchReviews(): Promise<ApiResponse<ReviewItem[]>> {
-  try {
-    return await apiGet<ApiResponse<ReviewItem[]>>("/user/reviews");
-  } catch {
-    return apiGet<ApiResponse<ReviewItem[]>>("/reviews");
-  }
+export async function fetchReviews(
+  params?: { page?: number }
+): Promise<ApiPaginatedResponse<ReviewItem>> {
+  const qs = params?.page ? `?page=${params.page}` : "";
+  return apiGet<ApiPaginatedResponse<ReviewItem>>(`/reviews${qs}`);
 }
 
 /**
  * Fetch authenticated user's own reviews
- * Endpoint (Postman user): GET /api/v1/user/reviews
+ * Endpoint (user.php): GET /api/v1/user/reviews
  */
 export async function fetchUserReviews(): Promise<ApiResponse<ReviewItem[]>> {
-  try {
-    return await apiGet<ApiResponse<ReviewItem[]>>("/user/reviews");
-  } catch {
-    return apiGet<ApiResponse<ReviewItem[]>>("/reviews");
-  }
+  return apiGet<ApiResponse<ReviewItem[]>>("/user/reviews");
 }
 
 /**

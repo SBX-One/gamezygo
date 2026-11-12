@@ -90,4 +90,70 @@ Route::middleware(['auth:admin', 'admin.only'])
                 Route::match(['put', 'patch', 'post'], '/{communityId}/status', 'status')->whereNumber('communityId');
                 Route::delete('/{communityId}', 'destroy')->whereNumber('communityId');
             });
+
+        // Product Categories & Sub-Categories
+        Route::controller(\App\Http\Controllers\Api\V1\Admin\Category\AdminProductCategoryController::class)
+            ->prefix('product-categories')
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::post('/', 'store');
+                Route::get('/{id}', 'show')->whereNumber('id');
+                Route::match(['put', 'patch', 'post'], '/{id}', 'update')->whereNumber('id');
+                Route::delete('/{id}', 'destroy')->whereNumber('id');
+                Route::get('/{categoryId}/sub-categories', 'subCategories')->whereNumber('categoryId');
+                Route::post('/{categoryId}/sub-categories', 'storeSubCategory')->whereNumber('categoryId');
+            });
+
+        Route::controller(\App\Http\Controllers\Api\V1\Admin\Category\AdminProductSubCategoryController::class)
+            ->prefix('product-sub-categories')
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::post('/', 'store');
+                Route::get('/{id}', 'show')->whereNumber('id');
+                Route::match(['put', 'patch', 'post'], '/{id}', 'update')->whereNumber('id');
+                Route::delete('/{id}', 'destroy')->whereNumber('id');
+            });
+
+        Route::controller(\App\Http\Controllers\Api\V1\Admin\Category\AdminProductSubCategoryController::class)
+            ->prefix('product-tags')
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::post('/', 'store');
+                Route::get('/{id}', 'show')->whereNumber('id');
+                Route::match(['put', 'patch', 'post'], '/{id}', 'update')->whereNumber('id');
+                Route::delete('/{id}', 'destroy')->whereNumber('id');
+            });
+
+        // Blog Categories & Sub-Categories
+        Route::controller(\App\Http\Controllers\Api\V1\Admin\Category\AdminBlogCategoryController::class)
+            ->prefix('blog-categories')
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::post('/', 'store');
+                Route::get('/{id}', 'show')->whereNumber('id');
+                Route::match(['put', 'patch', 'post'], '/{id}', 'update')->whereNumber('id');
+                Route::delete('/{id}', 'destroy')->whereNumber('id');
+                Route::get('/{categoryId}/sub-categories', 'subCategories')->whereNumber('categoryId');
+                Route::post('/{categoryId}/sub-categories', 'storeSubCategory')->whereNumber('categoryId');
+            });
+
+        Route::controller(\App\Http\Controllers\Api\V1\Admin\Category\AdminBlogSubCategoryController::class)
+            ->prefix('blog-sub-categories')
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::post('/', 'store');
+                Route::get('/{id}', 'show')->whereNumber('id');
+                Route::match(['put', 'patch', 'post'], '/{id}', 'update')->whereNumber('id');
+                Route::delete('/{id}', 'destroy')->whereNumber('id');
+            });
+
+        Route::controller(\App\Http\Controllers\Api\V1\Admin\Category\AdminBlogSubCategoryController::class)
+            ->prefix('blog-tags')
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::post('/', 'store');
+                Route::get('/{id}', 'show')->whereNumber('id');
+                Route::match(['put', 'patch', 'post'], '/{id}', 'update')->whereNumber('id');
+                Route::delete('/{id}', 'destroy')->whereNumber('id');
+            });
     });

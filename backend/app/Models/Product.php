@@ -43,6 +43,18 @@ class Product extends Model
         return $this->belongsToMany(GenreCategory::class, 'product_genre_categories');
     }
 
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(GenreCategory::class, 'product_genre_categories')
+            ->whereNull('genre_categories.parent_id');
+    }
+
+    public function subCategories(): BelongsToMany
+    {
+        return $this->belongsToMany(GenreCategory::class, 'product_genre_categories')
+            ->whereNotNull('genre_categories.parent_id');
+    }
+
     public function productLauncherCategory(): BelongsTo
     {
         return $this->belongsTo(ProductLauncherCategory::class, 'product_launcher_category_id');

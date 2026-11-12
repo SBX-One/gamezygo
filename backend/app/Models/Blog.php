@@ -14,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
     'short_description',
     'content',
     'blog_category_id',
+    'blog_sub_category_id',
     'author_id',
     'status',
     'meta_title',
@@ -36,6 +37,11 @@ class Blog extends Model
     public function category(): BelongsTo
     {
         return $this->belongsTo(BlogCategory::class, 'blog_category_id');
+    }
+
+    public function subCategory(): BelongsTo
+    {
+        return $this->belongsTo(BlogCategory::class, 'blog_sub_category_id');
     }
 
     public function author(): BelongsTo

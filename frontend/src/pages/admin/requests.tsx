@@ -2,7 +2,7 @@ import * as React from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { AdminLayout } from "@/components/layout/AdminLayout";
-import { Tabs, Pagination, type TabItem } from "@/components/ui";
+import { Button, Tabs, Pagination, type TabItem } from "@/components/ui";
 import {
   AdminGameRequestTableCard,
   AdminGameRequestActionModal,
@@ -54,6 +54,8 @@ export default function AdminRequestsPage() {
     counts,
     totalPages,
     isLoading,
+    isError,
+    refetch,
   } = useAdminGameRequests({
     status: activeTab,
     page: currentPage,
@@ -330,7 +332,18 @@ export default function AdminRequestsPage() {
           />
 
           {/* Section 2: Tab Content */}
-          {activeTab === "requested" && (
+          {isError && (
+            <div className="w-full py-12 rounded-lg bg-[#13151F] border border-rose-500/30 flex flex-col items-center justify-center text-center gap-3 px-4">
+              <p className="text-sm text-rose-300 font-medium">
+                Gagal memuat data permintaan game dari database. Pastikan Anda sudah login sebagai Admin.
+              </p>
+              <Button variant="secondary" size="sm" onClick={() => refetch()}>
+                Muat Ulang
+              </Button>
+            </div>
+          )}
+
+          {!isError && activeTab === "requested" && (
             <div className="space-y-6">
               {/* Pinned Game Section */}
               {(isLoading || pinnedItems.length > 0) && (
@@ -385,7 +398,7 @@ export default function AdminRequestsPage() {
             </div>
           )}
 
-          {activeTab === "accepted" && (
+          {!isError && activeTab === "accepted" && (
             <div className="space-y-6">
               {/* Accepted Game Section */}
               <AdminGameRequestTableCard
@@ -416,7 +429,7 @@ export default function AdminRequestsPage() {
             </div>
           )}
 
-          {activeTab === "declined" && (
+          {!isError && activeTab === "declined" && (
             <div className="space-y-6">
               {/* Declined Game Section */}
               <AdminGameRequestTableCard

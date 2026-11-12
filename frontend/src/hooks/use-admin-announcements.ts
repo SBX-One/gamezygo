@@ -37,7 +37,11 @@ export function useAdminAnnouncements() {
     queryKey: ADMIN_ANNOUNCEMENTS_KEYS.list(),
     queryFn: () => adminAnnouncementService.getAnnouncements(),
     staleTime: 30 * 1000,
-    retry: 1,
+    retry: (failureCount, error) => {
+      const status = (error as { response?: { status?: number } })?.response
+        ?.status;
+      return status !== 404 && failureCount < 1;
+    },
   });
 
   const rawItems = query.data;

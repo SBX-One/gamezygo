@@ -59,7 +59,7 @@ export function AdminRevenueProductTableSection({
   isEmpty = false,
   products = MOCK_REVENUE_PRODUCTS,
   totalGamesCount = 90,
-  addProductHref = "/admin/products/new",
+  addProductHref = "/admin/catalog/add",
   onAddProduct,
   className,
   isLoading = false,
@@ -90,7 +90,7 @@ export function AdminRevenueProductTableSection({
           <tr>
             <AdminTableHead className="pl-6">Product Name</AdminTableHead>
             <AdminTableHead>Total Product Sell</AdminTableHead>
-            <AdminTableHead>Total Revenua</AdminTableHead>
+            <AdminTableHead>Total Revenue</AdminTableHead>
             <AdminTableHead>Date</AdminTableHead>
             <AdminTableHead>Status</AdminTableHead>
             {!isEmpty && (

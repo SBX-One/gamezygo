@@ -8,11 +8,15 @@ export interface AdminProductHeroBannerProps {
   className?: string;
 }
 
+const FALLBACK_COVER =
+  "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/475550/library_600x900_2x.jpg";
+
 export function AdminProductHeroBanner({
   data = MOCK_PRODUCT_HERO_DATA,
   className,
 }: AdminProductHeroBannerProps) {
-  const [imgSrc, setImgSrc] = React.useState(data.coverImage);
+  const [failedSrc, setFailedSrc] = React.useState<string | null>(null);
+  const imgSrc = failedSrc === data.coverImage ? FALLBACK_COVER : data.coverImage;
 
   return (
     <div
@@ -30,10 +34,7 @@ export function AdminProductHeroBanner({
           sizes="(max-width: 640px) 144px, (max-width: 1024px) 176px, 192px"
           className="object-cover transition-transform duration-300 hover:scale-105"
           onError={() => {
-            // Fallback to Steam app 475550 Beholder library cover
-            setImgSrc(
-              "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/475550/library_600x900_2x.jpg"
-            );
+            setFailedSrc(data.coverImage);
           }}
         />
       </div>

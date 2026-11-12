@@ -38,5 +38,6 @@ export function useCommunities() {
   return useQuery({
     queryKey: COMMON_KEYS.communities,
     queryFn: () => fetchCommunities(),
+    retry: false,
   });
 }

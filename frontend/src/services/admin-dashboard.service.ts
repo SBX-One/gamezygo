@@ -42,6 +42,30 @@ export interface AdminDashboardData {
   game_requests: AdminGameRequestRaw[];
 }
 
+export interface AdminRecentTransactionMetric {
+  total: number;
+  percentage: number;
+  description: string;
+}
+
+export interface AdminRecentTransactionDetailItem {
+  id: string;
+  customer_email: string;
+  product_id: string;
+  product_name: string;
+  total: number;
+  date: string;
+  status: string;
+}
+
+export interface AdminRecentTransactionsData {
+  today_transactions: AdminRecentTransactionMetric;
+  week_transactions: AdminRecentTransactionMetric;
+  month_transactions: AdminRecentTransactionMetric;
+  transactins?: AdminRecentTransactionDetailItem[];
+  transactions?: AdminRecentTransactionDetailItem[];
+}
+
 /**
  * Fetch Admin Main Dashboard Data
  * Contract: v1.postman_collection.json -> admin -> dashboard -> index
@@ -52,6 +76,18 @@ export async function fetchAdminDashboardData(
 ): Promise<ApiResponse<AdminDashboardData>> {
   return apiGet<ApiResponse<AdminDashboardData>>(
     `/admin/dashboard?period=${encodeURIComponent(period)}`
+  );
+}
+
+/**
+ * Fetch Admin Recent Transactions & Period Metrics
+ * GET /api/v1/admin/dashboard/recent-transactions?limit=50
+ */
+export async function fetchAdminRecentTransactions(
+  limit: number = 50
+): Promise<ApiResponse<AdminRecentTransactionsData>> {
+  return apiGet<ApiResponse<AdminRecentTransactionsData>>(
+    `/admin/dashboard/recent-transactions?limit=${limit}`
   );
 }
 

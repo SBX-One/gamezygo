@@ -3,14 +3,17 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import {
   adminGameRequestService,
   type AdminGameRequestQueryParams,
-  type AdminGameRequestsResponse,
 } from "@/services/admin-game-request.service";
-import type { AdminGameRequestItem } from "@/features/admin/types/admin-game-request.types";
+import type {
+  AdminGameRequestItem,
+  GameRequestStatus,
+} from "@/features/admin/types/admin-game-request.types";
 
 export const ADMIN_GAME_REQUESTS_KEYS = {
   all: ["admin-game-requests"] as const,
   list: (params?: AdminGameRequestQueryParams) =>
     [...ADMIN_GAME_REQUESTS_KEYS.all, "list", params] as const,
+  counts: () => [...ADMIN_GAME_REQUESTS_KEYS.all, "counts"] as const,
 };
 
 export function useAdminGameRequests(params?: AdminGameRequestQueryParams) {
@@ -21,45 +24,41 @@ export function useAdminGameRequests(params?: AdminGameRequestQueryParams) {
     retry: 1,
   });
 
-  const rawData: AdminGameRequestsResponse["data"] | undefined = query.data;
+  const countsQuery = useQuery({
+    queryKey: ADMIN_GAME_REQUESTS_KEYS.counts(),
+    queryFn: () => adminGameRequestService.getCounts(),
+    staleTime: 30 * 1000,
+    retry: 1,
+  });
 
-  const allItems: AdminGameRequestItem[] = React.useMemo(() => {
-    if (!rawData?.requests) return [];
+  const pinnedItems: AdminGameRequestItem[] = React.useMemo(
+    () => query.data?.pinnedItems ?? [],
+    [query.data?.pinnedItems]
+  );
 
-    return rawData.requests.map((item) => ({
-      id: String(item.id),
-      name: item.name,
-      requestCount: item.request_count,
-      firstRequest: item.first_request,
-      steamUrl: item.steam_url,
-      isPinned: Boolean(item.is_pinned),
-      status: item.status,
-      createdAt: item.created_at || undefined,
-      updatedAt: item.updated_at || undefined,
-    }));
-  }, [rawData?.requests]);
+  const unpinnedItems: AdminGameRequestItem[] = React.useMemo(
+    () => query.data?.unpinnedItems ?? [],
+    [query.data?.unpinnedItems]
+  );
 
-  const pinnedItems = React.useMemo(() => {
-    return allItems.filter((item) => item.isPinned);
-  }, [allItems]);
-
-  const unpinnedItems = React.useMemo(() => {
-    return allItems.filter((item) => !item.isPinned);
-  }, [allItems]);
+  const allItems: AdminGameRequestItem[] = React.useMemo(
+    () => [...pinnedItems, ...unpinnedItems],
+    [pinnedItems, unpinnedItems]
+  );
 
   return {
     ...query,
     items: allItems,
     pinnedItems,
     unpinnedItems,
-    counts: rawData?.counts ?? {
+    counts: countsQuery.data ?? {
       requested: 0,
       accepted: 0,
       declined: 0,
     },
-    meta: rawData?.meta,
-    totalPages: rawData?.meta?.last_page ?? 1,
-    totalCount: rawData?.meta?.total ?? allItems.length,
+    meta: query.data?.meta,
+    totalPages: Math.max(1, query.data?.meta?.last_page ?? 1),
+    totalCount: query.data?.totalRequests ?? allItems.length,
   };
 }
 
@@ -70,12 +69,11 @@ export function useUpdateGameRequestStatus() {
     mutationFn: ({
       id,
       status,
-      adminNote,
     }: {
       id: string | number;
-      status: "accepted" | "declined" | "requested";
+      status: GameRequestStatus;
       adminNote?: string;
-    }) => adminGameRequestService.updateStatus(id, status, adminNote),
+    }) => adminGameRequestService.updateStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ADMIN_GAME_REQUESTS_KEYS.all,
@@ -96,7 +94,7 @@ export function useBatchUpdateGameRequestStatus() {
       status,
     }: {
       ids: Array<string | number>;
-      status: "accepted" | "declined" | "requested";
+      status: GameRequestStatus;
     }) => adminGameRequestService.batchUpdateStatus(ids, status),
     onSuccess: () => {
       queryClient.invalidateQueries({
@@ -115,11 +113,10 @@ export function useToggleGameRequestPin() {
   return useMutation({
     mutationFn: ({
       id,
-      isPinned,
     }: {
       id: string | number;
       isPinned?: boolean;
-    }) => adminGameRequestService.togglePin(id, isPinned),
+    }) => adminGameRequestService.togglePin(id),
     onSuccess: () => {
       queryClient.invalidateQueries({
         queryKey: ADMIN_GAME_REQUESTS_KEYS.all,
@@ -127,21 +124,3 @@ export function useToggleGameRequestPin() {
     },
   });
 }
-
-export function useDeleteGameRequest() {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: (id: string | number) =>
-      adminGameRequestService.deleteRequest(id),
-    onSuccess: () => {
-      queryClient.invalidateQueries({
-        queryKey: ADMIN_GAME_REQUESTS_KEYS.all,
-      });
-      queryClient.invalidateQueries({
-        queryKey: ["admin-dashboard"],
-      });
-    },
-  });
-}
-

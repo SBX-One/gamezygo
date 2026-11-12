@@ -9,16 +9,43 @@ import type { TransactionMetricsData } from "../../types/admin-transactions.type
 
 export interface AdminTransactionMetricsSectionProps {
   isEmpty?: boolean;
+  isLoading?: boolean;
   data?: TransactionMetricsData;
   className?: string;
 }
 
+function getTrend(percentageStr?: string): "up" | "down" {
+  return String(percentageStr || "").trim().startsWith("-") ? "down" : "up";
+}
+
 export function AdminTransactionMetricsSection({
   isEmpty = false,
+  isLoading = false,
   data,
   className,
 }: AdminTransactionMetricsSectionProps) {
   const [weekTimeframe, setWeekTimeframe] = React.useState("today");
+
+  if (isLoading) {
+    return (
+      <div
+        className={`grid grid-cols-1 md:grid-cols-3 gap-6 items-stretch ${
+          className || ""
+        }`}
+      >
+        {Array.from({ length: 3 }).map((_, idx) => (
+          <div
+            key={`tx-metric-skel-${idx}`}
+            className="h-36 rounded-lg bg-deep-blue-900 border border-deep-blue-700 animate-pulse p-5 space-y-3"
+          >
+            <div className="w-36 h-3 rounded bg-white/10" />
+            <div className="w-24 h-8 rounded bg-white/10" />
+            <div className="w-40 h-3 rounded bg-white/10" />
+          </div>
+        ))}
+      </div>
+    );
+  }
 
   const metrics = isEmpty
     ? EMPTY_TRANSACTION_METRICS
@@ -39,7 +66,7 @@ export function AdminTransactionMetricsSection({
         badge={
           isEmpty
             ? undefined
-            : { text: metrics.todayPercentage, trend: "up" }
+            : { text: metrics.todayPercentage, trend: getTrend(metrics.todayPercentage) }
         }
         subtitle={
           isEmpty ? "KEUNTUNGAN IDR 0" : `KEUNTUNGAN ${metrics.todayProfit}`
@@ -57,7 +84,7 @@ export function AdminTransactionMetricsSection({
         badge={
           isEmpty
             ? undefined
-            : { text: metrics.thisWeekPercentage, trend: "up" }
+            : { text: metrics.thisWeekPercentage, trend: getTrend(metrics.thisWeekPercentage) }
         }
         subtitle={
           isEmpty ? "KEUNTUNGAN IDR 0" : `KEUNTUNGAN ${metrics.thisWeekProfit}`
@@ -74,7 +101,7 @@ export function AdminTransactionMetricsSection({
         badge={
           isEmpty
             ? undefined
-            : { text: metrics.thisMonthPercentage, trend: "up" }
+            : { text: metrics.thisMonthPercentage, trend: getTrend(metrics.thisMonthPercentage) }
         }
         subtitle={
           isEmpty ? "KEUNTUNGAN IDR 0" : `KEUNTUNGAN ${metrics.thisMonthProfit}`

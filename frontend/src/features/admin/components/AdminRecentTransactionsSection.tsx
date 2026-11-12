@@ -72,7 +72,7 @@ export function AdminRecentTransactionsSection({
           <tr>
             <AdminTableHead className="pl-6">Customer Email</AdminTableHead>
             <AdminTableHead>Product Name</AdminTableHead>
-            <AdminTableHead>Total Revenua</AdminTableHead>
+            <AdminTableHead>Total Revenue</AdminTableHead>
             <AdminTableHead>Date</AdminTableHead>
             <AdminTableHead className="pr-6">Status</AdminTableHead>
           </tr>

@@ -34,11 +34,20 @@ export function useAdminBlogs(params?: AdminBlogQueryParams) {
 
   const rawData: AdminBlogListResponse["data"] | undefined = query.data;
   const rawBlogs = rawData?.blogs;
+  const filterStatuses = params?.statuses;
+  const sortBy = params?.sort_by;
 
   const articles: AdminArticle[] = React.useMemo(() => {
     if (!rawBlogs) return [];
 
-    return rawBlogs.map((item) => ({
+    const filteredBlogs =
+      filterStatuses && filterStatuses.length > 1
+        ? rawBlogs.filter((item) =>
+            filterStatuses.includes(item.status as typeof filterStatuses[number])
+          )
+        : rawBlogs;
+
+    const mapped = filteredBlogs.map((item) => ({
       id: String(item.id),
       slug: item.slug,
       title: item.title,
@@ -53,7 +62,13 @@ export function useAdminBlogs(params?: AdminBlogQueryParams) {
       category: item.category?.name,
       categoryId: item.category?.id ?? null,
     }));
-  }, [rawBlogs]);
+
+    if (sortBy === "name_asc") {
+      return [...mapped].sort((a, b) => a.title.localeCompare(b.title));
+    }
+
+    return mapped;
+  }, [rawBlogs, filterStatuses, sortBy]);
 
   const totalBlog =
     rawData?.meta?.total !== undefined

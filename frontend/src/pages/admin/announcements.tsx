@@ -38,8 +38,11 @@ function getErrorMessage(error: unknown, fallback: string): string {
 }
 
 export default function AdminAnnouncementsPage() {
-  const { announcements, isLoading, isError, refetch } =
+  const { announcements, isLoading, isError, error, refetch } =
     useAdminAnnouncements();
+  const isEndpointMissing =
+    (error as { response?: { status?: number } } | null)?.response?.status ===
+    404;
   const createMutation = useCreateAdminAnnouncement();
   const updateMutation = useUpdateAdminAnnouncement();
   const sortMutation = useSortAdminAnnouncements();
@@ -297,7 +300,9 @@ export default function AdminAnnouncementsPage() {
           ) : isError ? (
             <div className="w-full py-14 rounded-lg bg-[#13151F] border border-rose-500/30 flex flex-col items-center justify-center text-center gap-3 px-4">
               <p className="text-sm text-rose-300 font-medium">
-                Gagal memuat daftar pengumuman dari database. Pastikan Anda sudah login sebagai Admin.
+                {isEndpointMissing
+                  ? "Endpoint Admin Announcements (/api/v1/admin/announcements) belum tersedia di backend be/dev (404 Not Found)."
+                  : "Gagal memuat daftar pengumuman dari database. Pastikan Anda sudah login sebagai Admin."}
               </p>
               <Button variant="secondary" size="sm" onClick={() => refetch()}>
                 Muat Ulang

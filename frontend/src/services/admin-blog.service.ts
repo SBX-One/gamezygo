@@ -138,21 +138,34 @@ function buildBlogFormData(
   return formData;
 }
 
+const DEFAULT_BLOG_CATEGORIES: AdminBlogCategoryItem[] = [
+  { id: 1, name: "Gaming News", slug: "gaming-news" },
+  { id: 2, name: "Tips & Tricks", slug: "tips-tricks" },
+  { id: 3, name: "Promotions", slug: "promotions" },
+  { id: 4, name: "Game Reviews", slug: "game-reviews" },
+  { id: 5, name: "Updates", slug: "updates" },
+];
+
 export const adminBlogService = {
   /**
-   * Fetch paginated admin blog list with search, status, category, and sorting filters.
+   * Fetch paginated admin blog list with search, single status, and single category_id matching be/dev contract.
    */
   async getBlogs(
     params?: AdminBlogQueryParams
   ): Promise<AdminBlogListResponse["data"]> {
+    const singleCategoryId =
+      params?.category_id ||
+      (params?.category_ids?.length === 1 ? params.category_ids[0] : undefined);
+
+    const singleStatus =
+      params?.status ||
+      (params?.statuses?.length === 1 ? params.statuses[0] : undefined);
+
     const response = await apiClient.get<AdminBlogListResponse>("/admin/blogs", {
       params: {
         search: params?.search?.trim() || undefined,
-        status: params?.status || undefined,
-        statuses: params?.statuses?.length ? params.statuses : undefined,
-        category_id: params?.category_id || undefined,
-        category_ids: params?.category_ids?.length ? params.category_ids : undefined,
-        sort_by: params?.sort_by || "latest",
+        status: singleStatus || undefined,
+        category_id: singleCategoryId || undefined,
         page: params?.page || 1,
         per_page: params?.per_page || 9,
       },
@@ -161,13 +174,41 @@ export const adminBlogService = {
   },
 
   /**
-   * Fetch available blog categories from the database.
+   * Derive available blog categories from public GET /blogs merged with default seeded categories.
+   * Avoids calling non-existent GET /admin/blogs/categories (404 on be/dev).
    */
   async getCategories(): Promise<AdminBlogCategoryItem[]> {
-    const response = await apiClient.get<AdminBlogCategoriesResponse>(
-      "/admin/blogs/categories"
-    );
-    return response.data.data ?? [];
+    const categoryMap = new Map<number, AdminBlogCategoryItem>();
+    for (const fallback of DEFAULT_BLOG_CATEGORIES) {
+      categoryMap.set(fallback.id, fallback);
+    }
+
+    try {
+      const response = await apiClient.get<{
+        data?: Array<{
+          category?: AdminBlogCategoryItem | null;
+        }>;
+      }>("/blogs", {
+        params: { per_page: 100 },
+      });
+
+      const publicBlogs = Array.isArray(response.data?.data)
+        ? response.data.data
+        : [];
+      for (const blog of publicBlogs) {
+        if (blog.category?.id && blog.category?.name) {
+          categoryMap.set(blog.category.id, {
+            id: blog.category.id,
+            name: blog.category.name,
+            slug: blog.category.slug,
+          });
+        }
+      }
+    } catch {
+      // Fallback safely to seeded categories when public /blogs fails
+    }
+
+    return Array.from(categoryMap.values()).sort((a, b) => a.id - b.id);
   },
 
   /**

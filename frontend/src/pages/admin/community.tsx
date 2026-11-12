@@ -52,7 +52,11 @@ const DEFAULT_TAGS = [
 ];
 
 export default function AdminCommunityPage() {
-  const { communities, isLoading, isError, refetch } = useAdminCommunities();
+  const { communities, isLoading, isError, error, refetch } =
+    useAdminCommunities();
+  const isEndpointMissing =
+    (error as { response?: { status?: number } } | null)?.response?.status ===
+    404;
   const { data: serverTags } = useAdminCommunityTags();
   const createMutation = useCreateAdminCommunity();
   const updateMutation = useUpdateAdminCommunity();
@@ -354,7 +358,9 @@ export default function AdminCommunityPage() {
             ) : isError ? (
               <div className="w-full rounded-lg border border-rose-500/30 bg-rose-500/10 p-6 text-center flex flex-col items-center gap-3">
                 <p className="text-sm font-medium text-rose-200">
-                  Gagal memuat daftar komunitas dari server.
+                  {isEndpointMissing
+                    ? "Endpoint Admin Communities (/api/v1/admin/communities) belum tersedia di backend be/dev (404 Not Found)."
+                    : "Gagal memuat daftar komunitas dari server."}
                 </p>
                 <Button variant="inactive" size="sm" onClick={() => refetch()}>
                   Coba Lagi

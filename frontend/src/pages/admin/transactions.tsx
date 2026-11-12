@@ -8,6 +8,7 @@ import {
   AdminTransactionMetricsSection,
   AdminTransactionsTableSection,
 } from "@/features/admin";
+import { useAdminRecentTransactions } from "@/hooks/use-admin-dashboard";
 
 const ChevronRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -35,6 +36,14 @@ export default function AdminTransactionsPage() {
     () => false
   );
   const [isEmptyManual, setIsEmptyManual] = React.useState<boolean | null>(null);
+
+  const {
+    metricsData,
+    transactions,
+    isLoading,
+    isError,
+    refetch,
+  } = useAdminRecentTransactions(50);
 
   const isEmptyState =
     isEmptyManual !== null
@@ -100,14 +109,33 @@ export default function AdminTransactionsPage() {
         headerRight={headerRight}
       >
         <div className="space-y-8 pb-10">
+          {isError && (
+            <div className="w-full py-10 rounded-lg bg-[#13151F] border border-rose-500/30 flex flex-col items-center justify-center text-center gap-3 px-4">
+              <p className="text-sm text-rose-300 font-medium">
+                Gagal memuat data transaksi dari database. Pastikan Anda sudah login sebagai Admin.
+              </p>
+              <Button variant="secondary" size="sm" onClick={() => refetch()}>
+                Muat Ulang
+              </Button>
+            </div>
+          )}
+
           {/* 1. Top 3 Transaction Metric Cards (Gambar 1, 2, 5) */}
           <div className="relative z-20">
-            <AdminTransactionMetricsSection isEmpty={isEmptyState} />
+            <AdminTransactionMetricsSection
+              isEmpty={isEmptyState}
+              isLoading={isLoading}
+              data={metricsData}
+            />
           </div>
 
           {/* 2. Full Transactions Table / Empty State (Gambar 1, 3) */}
           <div className="relative z-10">
-            <AdminTransactionsTableSection isEmpty={isEmptyState} />
+            <AdminTransactionsTableSection
+              isEmpty={isEmptyState}
+              isLoading={isLoading}
+              transactions={transactions}
+            />
           </div>
         </div>
       </AdminLayout>

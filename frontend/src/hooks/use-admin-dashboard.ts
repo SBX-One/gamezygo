@@ -2,7 +2,9 @@ import * as React from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   fetchAdminDashboardData,
+  fetchAdminRecentTransactions,
   type AdminDashboardData,
+  type AdminRecentTransactionsData,
 } from "@/services/admin-dashboard.service";
 import type {
   AdminMetricData,
@@ -10,6 +12,10 @@ import type {
   AdminTransaction,
   AdminGameRequest,
 } from "@/features/admin/types/admin.types";
+import type {
+  TransactionItem,
+  TransactionMetricsData,
+} from "@/features/admin/types/admin-transactions.types";
 import { formatRupiah } from "@/utils/formatters";
 
 export const ADMIN_DASHBOARD_KEYS = {
@@ -81,7 +87,7 @@ export function useAdminDashboard(period: string = "today") {
       fullName: item.name,
       revenue: Number(item.total || 0),
     }));
-  }, [rawData?.product_performance]);
+  }, [rawData]);
 
   // 4. Mapped Recent Transactions Table
   const recentTransactions: AdminTransaction[] | undefined = React.useMemo(() => {
@@ -108,7 +114,7 @@ export function useAdminDashboard(period: string = "today") {
         status: normalizedStatus,
       };
     });
-  }, [rawData?.recent_transactions]);
+  }, [rawData]);
 
   // 5. Mapped Game Requests List
   const gameRequests: AdminGameRequest[] | undefined = React.useMemo(() => {
@@ -122,7 +128,7 @@ export function useAdminDashboard(period: string = "today") {
       imageSrc: gr.product_image_url || "/assets/images/placeholder.png",
       steamUrl: gr.steam_url,
     }));
-  }, [rawData?.game_requests]);
+  }, [rawData]);
 
   return {
     ...query,
@@ -132,6 +138,75 @@ export function useAdminDashboard(period: string = "today") {
     recentTransactions,
     gameRequests,
     hasLiveData: Boolean(rawData),
+  };
+}
+
+function stripKeuntunganPrefix(description?: string, fallbackTotal?: number): string {
+  if (!description) {
+    return `IDR ${Number(fallbackTotal || 0).toLocaleString("en-US")}`;
+  }
+  return description.replace(/^KEUNTUNGAN\s+/i, "").trim();
+}
+
+export function useAdminRecentTransactions(limit: number = 50) {
+  const query = useQuery({
+    queryKey: [...ADMIN_DASHBOARD_KEYS.all, "recent-transactions", limit] as const,
+    queryFn: () => fetchAdminRecentTransactions(limit),
+    staleTime: 60 * 1000,
+    retry: 1,
+  });
+
+  const rawData: AdminRecentTransactionsData | undefined = query.data?.data;
+
+  const metricsData: TransactionMetricsData | undefined = React.useMemo(() => {
+    if (!rawData) return undefined;
+
+    return {
+      todayTransactions: Number(rawData.today_transactions?.total ?? 0),
+      todayProfit: stripKeuntunganPrefix(rawData.today_transactions?.description),
+      todayPercentage: `${rawData.today_transactions?.percentage ?? 0}%`,
+      thisWeekTransactions: Number(rawData.week_transactions?.total ?? 0),
+      thisWeekProfit: stripKeuntunganPrefix(rawData.week_transactions?.description),
+      thisWeekPercentage: `${rawData.week_transactions?.percentage ?? 0}%`,
+      thisMonthTransactions: Number(rawData.month_transactions?.total ?? 0),
+      thisMonthProfit: stripKeuntunganPrefix(rawData.month_transactions?.description),
+      thisMonthPercentage: `${rawData.month_transactions?.percentage ?? 0}%`,
+    };
+  }, [rawData]);
+
+  const transactions: TransactionItem[] | undefined = React.useMemo(() => {
+    const rawList = rawData?.transactins ?? rawData?.transactions;
+    if (!rawList || !Array.isArray(rawList)) return undefined;
+
+    return rawList.map((tx) => {
+      const lower = String(tx.status || "").toLowerCase();
+      let status: TransactionItem["status"] = "pending";
+      if (lower === "paid" || lower === "completed" || lower === "success") {
+        status = "completed";
+      } else if (
+        lower === "failed" ||
+        lower === "cancelled" ||
+        lower === "refunded"
+      ) {
+        status = "failed";
+      }
+
+      return {
+        id: tx.id,
+        customerEmail: tx.customer_email || "-",
+        productId: String(tx.product_id ?? "-"),
+        productName: tx.product_name || "-",
+        amount: formatRupiah(Number(tx.total || 0)),
+        date: tx.date || "-",
+        status,
+      };
+    });
+  }, [rawData]);
+
+  return {
+    ...query,
+    metricsData,
+    transactions,
   };
 }
 

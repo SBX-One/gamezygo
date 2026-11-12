@@ -37,7 +37,17 @@ export function AdminProductOrdersTableSection({
           </tr>
         </AdminTableHeader>
         <AdminTableBody>
-          {orders.map((item, idx) => (
+          {orders.length === 0 ? (
+            <tr>
+              <td
+                colSpan={5}
+                className="py-12 px-4 text-center text-sm text-gray-400"
+              >
+                Belum ada riwayat pesanan untuk produk ini.
+              </td>
+            </tr>
+          ) : (
+            orders.map((item, idx) => (
             <AdminTableRow key={`${item.orderId}-${idx}`}>
               <AdminTableCell className="pl-6 font-mono text-label-xs text-gray-300">
                 {item.orderId}
@@ -69,7 +79,8 @@ export function AdminProductOrdersTableSection({
                 {item.date}
               </AdminTableCell>
             </AdminTableRow>
-          ))}
+            ))
+          )}
         </AdminTableBody>
       </AdminTable>
     </div>

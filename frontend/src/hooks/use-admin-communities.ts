@@ -30,7 +30,11 @@ export function useAdminCommunities() {
     queryKey: ADMIN_COMMUNITIES_KEYS.list(),
     queryFn: () => adminCommunityService.getCommunities(),
     staleTime: 30 * 1000,
-    retry: 1,
+    retry: (failureCount, error) => {
+      const status = (error as { response?: { status?: number } })?.response
+        ?.status;
+      return status !== 404 && failureCount < 1;
+    },
   });
 
   const rawItems = query.data;
@@ -69,7 +73,11 @@ export function useAdminCommunityTags() {
     queryKey: ADMIN_COMMUNITIES_KEYS.tags(),
     queryFn: () => adminCommunityService.getTags(),
     staleTime: 5 * 60 * 1000,
-    retry: 1,
+    retry: (failureCount, error) => {
+      const status = (error as { response?: { status?: number } })?.response
+        ?.status;
+      return status !== 404 && failureCount < 1;
+    },
   });
 }
 

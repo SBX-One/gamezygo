@@ -1,4 +1,9 @@
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import {
+  useInfiniteQuery,
+  useQuery,
+  useMutation,
+  useQueryClient,
+} from "@tanstack/react-query";
 import {
   fetchGameRequests,
   createGameRequest,
@@ -13,6 +18,8 @@ export const REQUEST_KEYS = {
   all: ["game-requests"] as const,
   list: (params?: GameRequestQueryParams) =>
     [...REQUEST_KEYS.all, "list", params] as const,
+  infinite: (params?: Omit<GameRequestQueryParams, "page">) =>
+    [...REQUEST_KEYS.all, "infinite", params] as const,
 };
 
 /**
@@ -22,6 +29,25 @@ export function useGameRequests(params?: GameRequestQueryParams) {
   return useQuery({
     queryKey: REQUEST_KEYS.list(params),
     queryFn: () => fetchGameRequests(params),
+  });
+}
+
+/**
+ * Hook to fetch game requests with infinite scroll
+ */
+export function useInfiniteGameRequests(
+  params?: Omit<GameRequestQueryParams, "page">
+) {
+  return useInfiniteQuery({
+    queryKey: REQUEST_KEYS.infinite(params),
+    queryFn: ({ pageParam = 1 }) =>
+      fetchGameRequests({ ...params, page: pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const current = lastPage?.meta?.current_page ?? 1;
+      const last = lastPage?.meta?.last_page ?? 1;
+      return current < last ? current + 1 : undefined;
+    },
   });
 }
 

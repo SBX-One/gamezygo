@@ -5,19 +5,20 @@ import { StoreLayout } from "@/components/layout";
 import { cn } from "@/lib/utils";
 import {
   Button,
-  Pagination,
+  ListRowSkeleton,
   Toast,
   Tabs,
   RequestListItem,
   type RequestCardVariant,
 } from "@/components/ui";
 import {
-  useGameRequests,
+  useInfiniteGameRequests,
   useCreateGameRequest,
   useDeleteGameRequest,
   useVoteGameRequest,
   useUnvoteGameRequest,
 } from "@/hooks/use-requests";
+import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
 import { useAuthStore } from "@/stores/use-auth-store";
 import productsData from "@/json/products.json";
 
@@ -324,21 +325,32 @@ export default function RequestGamePage() {
   const [inputError, setInputError] = React.useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = React.useState<boolean>(false);
 
-  // Pagination State
-  const [currentPage, setCurrentPage] = React.useState<number>(1);
-  const ITEMS_PER_PAGE = 6;
-
-  // TanStack Query: Game Requests API
+  // TanStack Query: Game Requests API (Infinite Scroll)
   const scope =
     activeTab === "my-requests"
       ? "mine"
       : activeTab === "added"
       ? "added"
       : "all";
-  const { data: requestsApiRes, isLoading: isRequestsLoading } = useGameRequests({
+  const {
+    data: requestsPages,
+    isLoading: isRequestsLoading,
+    fetchNextPage: fetchNextRequestsPage,
+    hasNextPage: hasNextRequestsPage,
+    isFetchingNextPage: isFetchingNextRequestsPage,
+  } = useInfiniteGameRequests({
     scope,
-    page: currentPage,
   });
+
+  const { sentinelRef: requestsSentinelRef } = useInfiniteScroll({
+    hasNextPage: hasNextRequestsPage,
+    isFetchingNextPage: isFetchingNextRequestsPage,
+    fetchNextPage: fetchNextRequestsPage,
+  });
+
+  const requestsApiItems = React.useMemo(() => {
+    return requestsPages?.pages?.flatMap((page) => page.data ?? []) ?? [];
+  }, [requestsPages]);
   const createRequestMutation = useCreateGameRequest();
   const deleteRequestMutation = useDeleteGameRequest();
   const voteMutation = useVoteGameRequest();
@@ -419,7 +431,6 @@ export default function RequestGamePage() {
 
   const handleTabChange = (tabId: TabId) => {
     setActiveTab(tabId);
-    setCurrentPage(1);
     setForceEmptyState(false);
   };
 
@@ -589,7 +600,6 @@ export default function RequestGamePage() {
       setStoreUrl("");
       setInputError(null);
       setActiveTab("my-requests");
-      setCurrentPage(1);
       setForceEmptyState(false);
       handleToast(`Request "${gameTitle}" berhasil dikirim!`);
     } catch {
@@ -695,11 +705,10 @@ export default function RequestGamePage() {
 
     if (activeTab === "my-requests") {
       if (
-        requestsApiRes?.data &&
-        requestsApiRes.data.length > 0 &&
+        requestsApiItems.length > 0 &&
         scope === "mine"
       ) {
-        const apiItems: RequestGameData[] = requestsApiRes.data.map(
+        const apiItems: RequestGameData[] = requestsApiItems.map(
           (r, index) => {
             const fallback =
               productsData.tawaranKhusus[
@@ -738,8 +747,8 @@ export default function RequestGamePage() {
     }
 
     if (activeTab === "community") {
-      if (requestsApiRes?.data && requestsApiRes.data.length > 0 && scope === "all") {
-        const apiItems: RequestGameData[] = requestsApiRes.data.map((r, index) => {
+      if (requestsApiItems.length > 0 && scope === "all") {
+        const apiItems: RequestGameData[] = requestsApiItems.map((r, index) => {
           const fallback = productsData.tawaranKhusus[index % productsData.tawaranKhusus.length];
           const steamAppId = extractSteamAppId(r.steam_url);
           return {
@@ -760,8 +769,8 @@ export default function RequestGamePage() {
     }
 
     if (activeTab === "added") {
-      if (requestsApiRes?.data && requestsApiRes.data.length > 0 && scope === "added") {
-        const apiAdded: RequestGameData[] = requestsApiRes.data.map((r, index) => {
+      if (requestsApiItems.length > 0 && scope === "added") {
+        const apiAdded: RequestGameData[] = requestsApiItems.map((r, index) => {
           const fallback = productsData.tawaranKhusus[index % productsData.tawaranKhusus.length];
           const steamAppId = extractSteamAppId(r.steam_url);
           return {
@@ -786,26 +795,12 @@ export default function RequestGamePage() {
   }, [
     activeTab,
     forceEmptyState,
-    requestsApiRes,
+    requestsApiItems,
     scope,
     myRequests,
     communityRequests,
     addedRequests,
   ]);
-
-  // Paginated items
-  const totalPages = Math.max(1, Math.ceil(currentItems.length / ITEMS_PER_PAGE));
-  const paginatedItems = React.useMemo(() => {
-    const start = (currentPage - 1) * ITEMS_PER_PAGE;
-    return currentItems.slice(start, start + ITEMS_PER_PAGE);
-  }, [currentItems, currentPage]);
-
-  // Safeguard page bounds
-  React.useEffect(() => {
-    if (currentPage > totalPages) {
-      setCurrentPage(totalPages);
-    }
-  }, [currentPage, totalPages]);
 
   const currentVariant: RequestCardVariant = React.useMemo(() => {
     if (activeTab === "my-requests") return "my-request";
@@ -938,11 +933,17 @@ export default function RequestGamePage() {
           </div>
 
           {/* CONTENT: 2-COLUMN GRID OR EMPTY STATE */}
-          {currentItems.length > 0 ? (
-            <div className="flex flex-col gap-16">
+          {isRequestsLoading && requestsApiItems.length === 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {Array.from({ length: 6 }).map((_, idx) => (
+                <ListRowSkeleton key={idx} />
+              ))}
+            </div>
+          ) : currentItems.length > 0 ? (
+            <div className="flex flex-col gap-10">
               {/* 2-Column Grid matching Screenshot 1, 2, 3 */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {paginatedItems.map((game) => (
+                {currentItems.map((game) => (
                   <RequestListItem
                     key={game.id}
                     id={game.id}
@@ -956,15 +957,14 @@ export default function RequestGamePage() {
                   />
                 ))}
               </div>
-
-              {/* PAGINATION */}
-              <div className="flex justify-center pt-4 pb-8">
-                <Pagination
-                  currentPage={currentPage}
-                  totalPages={totalPages}
-                  onPageChange={setCurrentPage}
-                />
-              </div>
+              {isFetchingNextRequestsPage && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {Array.from({ length: 2 }).map((_, idx) => (
+                    <ListRowSkeleton key={idx} />
+                  ))}
+                </div>
+              )}
+              <div ref={requestsSentinelRef} className="h-4 w-full" aria-hidden="true" />
             </div>
           ) : (
             /* EMPTY STATE (Screenshot 4) */

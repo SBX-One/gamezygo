@@ -1,7 +1,7 @@
 import * as React from "react";
 import Head from "next/head";
 import { StoreLayout } from "@/components/layout";
-import { Header, Button, UserRank, Toast, Pill } from "@/components/ui";
+import { Header, Button, UserRank, Toast, Pill, Skeleton } from "@/components/ui";
 import { useLeaderboard, useUserLeaderboardRank } from "@/hooks/use-leaderboard";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { MOCK_USER } from "@/lib/mock/data";
@@ -51,9 +51,9 @@ export default function LeaderboardPage() {
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
 
   // TanStack Query: Leaderboard API
-  const { data: weeklyApiRes } = useLeaderboard("weekly");
-  const { data: monthlyApiRes } = useLeaderboard("monthly");
-  const { data: allTimeApiRes } = useLeaderboard("all-time");
+  const { data: weeklyApiRes, isLoading: isWeeklyLoading } = useLeaderboard("weekly");
+  const { data: monthlyApiRes, isLoading: isMonthlyLoading } = useLeaderboard("monthly");
+  const { data: allTimeApiRes, isLoading: isAllTimeLoading } = useLeaderboard("all-time");
   const { data: userRankApiRes } = useUserLeaderboardRank();
 
   const weeklyList = React.useMemo(() => {
@@ -321,15 +321,21 @@ export default function LeaderboardPage() {
                 WEEKLY
               </h3>
               <div className="flex flex-col gap-2">
-                {weeklyList.map((item, idx) => (
-                  <UserRank
-                    key={`weekly-${idx}-${item.name}`}
-                    rank={item.rank}
-                    name={item.name}
-                    points={item.points}
-                    className={getUserRankClass(idx)}
-                  />
-                ))}
+                {isWeeklyLoading && !weeklyApiRes ? (
+                  Array.from({ length: 5 }).map((_, idx) => (
+                    <Skeleton key={idx} className="h-12 w-full rounded-lg" />
+                  ))
+                ) : (
+                  weeklyList.map((item, idx) => (
+                    <UserRank
+                      key={`weekly-${idx}-${item.name}`}
+                      rank={item.rank}
+                      name={item.name}
+                      points={item.points}
+                      className={getUserRankClass(idx)}
+                    />
+                  ))
+                )}
               </div>
             </section>
 
@@ -339,15 +345,21 @@ export default function LeaderboardPage() {
                 MONTHLY
               </h3>
               <div className="flex flex-col gap-2">
-                {monthlyList.map((item, idx) => (
-                  <UserRank
-                    key={`monthly-${idx}-${item.name}`}
-                    rank={item.rank}
-                    name={item.name}
-                    points={item.points}
-                    className={getUserRankClass(idx)}
-                  />
-                ))}
+                {isMonthlyLoading && !monthlyApiRes ? (
+                  Array.from({ length: 5 }).map((_, idx) => (
+                    <Skeleton key={idx} className="h-12 w-full rounded-lg" />
+                  ))
+                ) : (
+                  monthlyList.map((item, idx) => (
+                    <UserRank
+                      key={`monthly-${idx}-${item.name}`}
+                      rank={item.rank}
+                      name={item.name}
+                      points={item.points}
+                      className={getUserRankClass(idx)}
+                    />
+                  ))
+                )}
               </div>
             </section>
           </div>
@@ -360,15 +372,21 @@ export default function LeaderboardPage() {
               LIFETIME
             </h3>
             <div className="flex flex-col gap-2">
-              {lifetimeList.map((item, idx) => (
-                <UserRank
-                  key={`lifetime-${idx}-${item.name}`}
-                  rank={item.rank}
-                  name={item.name}
-                  points={item.points}
-                  className={getUserRankClass(idx)}
-                />
-              ))}
+              {isAllTimeLoading && !allTimeApiRes ? (
+                Array.from({ length: 5 }).map((_, idx) => (
+                  <Skeleton key={idx} className="h-12 w-full rounded-lg" />
+                ))
+              ) : (
+                lifetimeList.map((item, idx) => (
+                  <UserRank
+                    key={`lifetime-${idx}-${item.name}`}
+                    rank={item.rank}
+                    name={item.name}
+                    points={item.points}
+                    className={getUserRankClass(idx)}
+                  />
+                ))
+              )}
             </div>
           </section>
         </div>

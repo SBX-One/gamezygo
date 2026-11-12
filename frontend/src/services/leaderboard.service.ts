@@ -10,7 +10,7 @@ export type LeaderboardPeriod = "all-time" | "monthly" | "weekly";
 
 /**
  * Fetch leaderboard rankings
- * Endpoint: GET /api/v1/user/leaderboards?period=all-time|monthly|weekly
+ * Endpoint (user.php): GET /api/v1/leaderboards?period=all-time|monthly|weekly
  */
 export async function fetchLeaderboard(
   period: LeaderboardPeriod = "all-time"
@@ -18,7 +18,7 @@ export async function fetchLeaderboard(
   const periodParam = period === "all-time" ? "monthly" : period;
   try {
     return await apiGet<ApiResponse<LeaderboardItem[]>>(
-      `/user/leaderboards?period=${periodParam}`
+      `/leaderboards?period=${periodParam}`
     );
   } catch {
     return {

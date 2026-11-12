@@ -6,8 +6,10 @@ import {
   Header,
   Button,
   ProductCardRow,
+  ProductCardSkeleton,
   type ProductCardRowItem,
   SectionHeader,
+  Skeleton,
   TestimonialCard,
   Toast,
 } from "@/components/ui";
@@ -16,6 +18,8 @@ import { useCartStore } from "@/stores/use-cart-store";
 import { PROMO_GAMES } from "@/features/catalog/blogs.data";
 import productsData from "@/json/products.json";
 import { useReviews } from "@/hooks/use-reviews";
+import { useCustomSections } from "@/hooks/use-products";
+import { mapSectionProducts } from "@/utils/adapters";
 
 // ==========================================
 // SVG Icons
@@ -248,8 +252,27 @@ export default function AboutPage() {
     return [...PROMO_GAMES, ...PROMO_GAMES, ...PROMO_GAMES, ...PROMO_GAMES];
   }, []);
 
+  // TanStack Query: Top Custom Section (matching Landing Page & Store)
+  const { data: sectionsRes, isLoading: isSectionsLoading } = useCustomSections();
+  const topSection = React.useMemo(() => {
+    if (sectionsRes?.data && sectionsRes.data.length > 0) {
+      return sectionsRes.data[0];
+    }
+    return null;
+  }, [sectionsRes]);
+
+  const topSectionProducts: ProductCardRowItem[] = React.useMemo(() => {
+    if (topSection) {
+      const mapped = mapSectionProducts(topSection);
+      if (mapped.length > 0) {
+        return mapped;
+      }
+    }
+    return TAWARAN_KHUSUS_PRODUCTS;
+  }, [topSection]);
+
   // TanStack Query or fallback for Testimonials (matching index.tsx:L710-L760)
-  const { data: reviewsRes } = useReviews();
+  const { data: reviewsRes, isLoading: isReviewsLoading } = useReviews();
   const testimonialItems = React.useMemo(() => {
     if (reviewsRes?.data && reviewsRes.data.length >= 3) {
       return reviewsRes.data.slice(0, 3).map((r) => ({
@@ -616,26 +639,42 @@ export default function AboutPage() {
         </section>
 
         {/* ========================================================
-            4. TAWARAN KHUSUS (Exact copy index.tsx:L1075-L1093)
+            4. TOP PRODUCT SECTION (Connected to Custom Sections API)
            ======================================================== */}
         <section className="w-full flex flex-col gap-6">
           <SectionHeader
             type="outer"
-            title="Tawaran Khusus!"
+            title={topSection?.title || "Tawaran Khusus!"}
             actionLabel="Lihat Semua"
-            onActionClick={() => router.push("/store")}
+            onActionClick={() =>
+              router.push(
+                topSection?.slug ? `/store?section=${topSection.slug}` : "/store"
+              )
+            }
           />
-          <ProductCardRow
-            products={TAWARAN_KHUSUS_PRODUCTS}
-            onAddToCart={(title) => {
-              const item = TAWARAN_KHUSUS_PRODUCTS.find((p) => p.title === title);
-              handleAddToCart({
-                id: item?.id || 1,
-                title: item?.title || title,
-                imageSrc: item?.imageSrc,
-              });
-            }}
-          />
+          {isSectionsLoading && !sectionsRes ? (
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
+              {Array.from({ length: 4 }).map((_, idx) => (
+                <ProductCardSkeleton key={idx} orientation="vertical" />
+              ))}
+            </div>
+          ) : (
+            <ProductCardRow
+              products={topSectionProducts}
+              onAddToCart={(title) => {
+                const item = topSectionProducts.find((p) => p.title === title);
+                const price =
+                  item?.numericPrice ||
+                  (item?.price ? parseInt(item.price.replace(/\D/g, "")) || 0 : 0);
+                handleAddToCart({
+                  id: item?.id || 1,
+                  title: item?.title || title,
+                  imageSrc: item?.imageSrc,
+                  price,
+                });
+              }}
+            />
+          )}
         </section>
 
         {/* ========================================================
@@ -698,6 +737,20 @@ export default function AboutPage() {
             <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-16 sm:w-28 bg-linear-to-l from-deep-blue-950 to-transparent z-10 hidden sm:block" />
 
             {/* Moving Track */}
+            {isReviewsLoading && !reviewsRes ? (
+              <div className="flex gap-6 py-2">
+                {Array.from({ length: 3 }).map((_, idx) => (
+                  <div
+                    key={idx}
+                    className="w-80 sm:w-96 shrink-0 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md p-6 flex flex-col gap-4"
+                  >
+                    <Skeleton className="h-5 w-32" />
+                    <Skeleton className="h-4 w-full" />
+                    <Skeleton className="h-4 w-4/5" />
+                  </div>
+                ))}
+              </div>
+            ) : (
             <div className="flex gap-6 w-max animate-infinite-carousel hover:[animation-play-state:paused] items-stretch py-2">
               {infiniteTestimonials.map((t, idx) => (
                 <div
@@ -716,6 +769,7 @@ export default function AboutPage() {
                 </div>
               ))}
             </div>
+            )}
           </div>
         </section>
       </StoreLayout>

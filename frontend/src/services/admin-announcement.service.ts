@@ -10,16 +10,45 @@ export interface AdminAnnouncementServerItem {
   updated_at?: string | null;
 }
 
+interface RawAnnouncementItem {
+  id: number;
+  banner_file_url?: string;
+  link?: string;
+  is_publish?: boolean;
+  is_published?: boolean;
+  sort?: number;
+  order_number?: number;
+  created_at?: string | null;
+  updated_at?: string | null;
+}
+
+function normalizeAnnouncement(raw: RawAnnouncementItem): AdminAnnouncementServerItem {
+  return {
+    id: Number(raw.id),
+    banner_file_url: String(raw.banner_file_url ?? ""),
+    link: String(raw.link ?? ""),
+    is_published: Boolean(raw.is_publish ?? raw.is_published ?? false),
+    order_number: Number(raw.sort ?? raw.order_number ?? 0),
+    created_at: raw.created_at ?? null,
+    updated_at: raw.updated_at ?? null,
+  };
+}
+
 export interface AdminAnnouncementsListResponse {
   success: boolean;
   message: string;
-  data: AdminAnnouncementServerItem[];
+  data:
+    | RawAnnouncementItem[]
+    | {
+        total_announcements?: number;
+        announcements?: RawAnnouncementItem[];
+      };
 }
 
 export interface AdminAnnouncementMutationResponse {
   success: boolean;
   message: string;
-  data: AdminAnnouncementServerItem;
+  data: RawAnnouncementItem;
 }
 
 export interface AdminAnnouncementSavePayload {
@@ -38,18 +67,22 @@ export interface AdminAnnouncementUpdatePayload {
 }
 
 function buildAnnouncementFormData(
-  payload: Partial<AdminAnnouncementSavePayload & AdminAnnouncementUpdatePayload>
+  payload: Partial<AdminAnnouncementSavePayload & AdminAnnouncementUpdatePayload>,
+  isUpdate = false
 ): FormData {
   const formData = new FormData();
 
+  if (isUpdate) {
+    formData.append("_method", "PUT");
+  }
   if (payload.link !== undefined) {
     formData.append("link", payload.link ?? "");
   }
   if (payload.is_published !== undefined) {
-    formData.append("is_published", payload.is_published ? "1" : "0");
+    formData.append("is_publish", payload.is_published ? "1" : "0");
   }
   if (payload.sort_order !== undefined) {
-    formData.append("sort_order", String(payload.sort_order));
+    formData.append("sort", String(payload.sort_order));
   }
   if (payload.banner_file instanceof File) {
     formData.append("banner_file", payload.banner_file);
@@ -65,13 +98,19 @@ function buildAnnouncementFormData(
 
 export const adminAnnouncementService = {
   /**
-   * Fetch all announcements ordered by sort_order.
+   * Fetch all announcements ordered by sort.
    */
   async getAnnouncements(): Promise<AdminAnnouncementServerItem[]> {
     const response = await apiClient.get<AdminAnnouncementsListResponse>(
       "/admin/announcements"
     );
-    return response.data.data ?? [];
+    const data = response.data?.data;
+    const rawList = Array.isArray(data)
+      ? data
+      : Array.isArray(data?.announcements)
+      ? data.announcements
+      : [];
+    return rawList.map(normalizeAnnouncement);
   },
 
   /**
@@ -87,54 +126,68 @@ export const adminAnnouncementService = {
         formData,
         { headers: { "Content-Type": undefined } }
       );
-      return response.data.data;
+      return normalizeAnnouncement(response.data.data);
     }
 
     const response = await apiClient.post<AdminAnnouncementMutationResponse>(
       "/admin/announcements",
       {
         link: payload.link ?? "",
-        is_published: payload.is_published ?? true,
-        banner_file_url: payload.banner_file_url ?? "",
+        is_publish: payload.is_published ?? true,
+        banner_file: payload.banner_file_url ?? "",
       }
     );
-    return response.data.data;
+    return normalizeAnnouncement(response.data.data);
   },
 
   /**
-   * Update an existing announcement banner (supports File upload via POST or JSON via PATCH).
+   * Update an existing announcement banner.
    */
   async updateAnnouncement(
     id: number | string,
     payload: AdminAnnouncementUpdatePayload
   ): Promise<AdminAnnouncementServerItem> {
+    if (
+      payload.is_published !== undefined &&
+      payload.link === undefined &&
+      payload.banner_file === undefined &&
+      payload.banner_file_url === undefined &&
+      payload.sort_order === undefined
+    ) {
+      const response = await apiClient.patch<AdminAnnouncementMutationResponse>(
+        `/admin/announcements/${id}/publish`,
+        { is_publish: payload.is_published }
+      );
+      return normalizeAnnouncement(response.data.data);
+    }
+
     if (payload.banner_file instanceof File) {
-      const formData = buildAnnouncementFormData(payload);
+      const formData = buildAnnouncementFormData(payload, true);
       const response = await apiClient.post<AdminAnnouncementMutationResponse>(
         `/admin/announcements/${id}`,
         formData,
         { headers: { "Content-Type": undefined } }
       );
-      return response.data.data;
+      return normalizeAnnouncement(response.data.data);
     }
 
     const body: Record<string, unknown> = {};
     if (payload.link !== undefined) body.link = payload.link ?? "";
     if (payload.is_published !== undefined) {
-      body.is_published = payload.is_published;
+      body.is_publish = payload.is_published;
     }
     if (payload.sort_order !== undefined) {
-      body.sort_order = payload.sort_order;
+      body.sort = payload.sort_order;
     }
     if (payload.banner_file_url !== undefined) {
-      body.banner_file_url = payload.banner_file_url;
+      body.banner_file = payload.banner_file_url;
     }
 
-    const response = await apiClient.patch<AdminAnnouncementMutationResponse>(
+    const response = await apiClient.put<AdminAnnouncementMutationResponse>(
       `/admin/announcements/${id}`,
       body
     );
-    return response.data.data;
+    return normalizeAnnouncement(response.data.data);
   },
 
   /**
@@ -146,11 +199,17 @@ export const adminAnnouncementService = {
     const numericIds = ids
       .map((id) => Number(id))
       .filter((n) => !Number.isNaN(n));
-    const response = await apiClient.post<AdminAnnouncementsListResponse>(
+    const response = await apiClient.put<AdminAnnouncementsListResponse>(
       "/admin/announcements/sort",
-      { ids: numericIds }
+      { announcement_ids: numericIds }
     );
-    return response.data.data ?? [];
+    const data = response.data?.data;
+    const rawList = Array.isArray(data)
+      ? data
+      : Array.isArray(data?.announcements)
+      ? data.announcements
+      : [];
+    return rawList.map(normalizeAnnouncement);
   },
 
   /**
@@ -160,4 +219,3 @@ export const adminAnnouncementService = {
     await apiClient.delete(`/admin/announcements/${id}`);
   },
 };
-

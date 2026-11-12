@@ -19,6 +19,7 @@ import {
   useAdminCommunityTags,
   useCreateAdminCommunity,
   useUpdateAdminCommunity,
+  useUpdateAdminCommunityStatus,
   useSortAdminCommunities,
   useDeleteAdminCommunity,
 } from "@/hooks/use-admin-communities";
@@ -60,6 +61,7 @@ export default function AdminCommunityPage() {
   const { data: serverTags } = useAdminCommunityTags();
   const createMutation = useCreateAdminCommunity();
   const updateMutation = useUpdateAdminCommunity();
+  const statusMutation = useUpdateAdminCommunityStatus();
   const sortMutation = useSortAdminCommunities();
   const deleteMutation = useDeleteAdminCommunity();
 
@@ -233,9 +235,9 @@ export default function AdminCommunityPage() {
   ) => {
     setBusyCardId(item.id);
     try {
-      await updateMutation.mutateAsync({
+      await statusMutation.mutateAsync({
         id: item.id,
-        payload: { is_active: nextActive },
+        isActive: nextActive,
       });
       toast.success(
         nextActive

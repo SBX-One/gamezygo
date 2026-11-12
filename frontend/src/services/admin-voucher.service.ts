@@ -188,19 +188,231 @@ export const adminVoucherService = {
   },
 
   /**
-   * Delete a single voucher
+   * Delete a single voucher (backend uses bulk DELETE /admin/vouchers with ids array)
    */
   async deleteVoucher(id: string | number): Promise<{ success: boolean; message: string }> {
-    const response = await apiClient.delete<{ success: boolean; message: string }>(`/admin/vouchers/${id}`);
-    return response.data;
+    return this.batchDelete([id] as string[] | number[]);
   },
 
   /**
    * Batch delete vouchers
    */
   async batchDelete(ids: string[] | number[]): Promise<{ success: boolean; message: string }> {
+    const numericIds = ids
+      .map((id) => Number(id))
+      .filter((n) => !Number.isNaN(n));
     const response = await apiClient.delete<{ success: boolean; message: string }>("/admin/vouchers", {
-      data: { ids },
+      data: { ids: numericIds.length > 0 ? numericIds : ids },
+    });
+    return response.data;
+  },
+
+  /**
+   * Export vouchers CSV from backend
+   */
+  async exportVouchersCsv(params?: AdminVoucherQueryParams): Promise<Blob> {
+    const response = await apiClient.get<Blob>("/admin/vouchers/export", {
+      params: {
+        search: params?.search,
+        status: params?.status && params?.status !== "all" ? params.status : undefined,
+        sort_by: params?.sort_by,
+      },
+      responseType: "blob",
+    });
+    return response.data;
+  },
+
+  /**
+   * Export voucher usages CSV from backend
+   */
+  async exportUsagesCsv(
+    id: string | number,
+    params?: { search?: string; status?: string }
+  ): Promise<Blob> {
+    const response = await apiClient.get<Blob>(`/admin/vouchers/${id}/usages/export`, {
+      params: {
+        search: params?.search,
+        status: params?.status,
+      },
+      responseType: "blob",
+    });
+    return response.data;
+  },
+
+  /**
+   * Search and paginate eligible products for voucher targeting
+   */
+  async getEligibleProducts(params?: {
+    search?: string;
+    page?: number;
+    per_page?: number;
+  }): Promise<{
+    products: Array<{
+      id: string;
+      name: string;
+      image_url: string;
+      price: number;
+      categories: string[];
+    }>;
+    meta: {
+      current_page: number;
+      last_page: number;
+      per_page: number;
+      total: number;
+    };
+  }> {
+    const response = await apiClient.get<{
+      data?: {
+        products?: Array<{
+          id: number | string;
+          name?: string;
+          image_url?: string;
+          price?: number;
+          categories?: string[];
+        }>;
+        meta?: {
+          current_page?: number;
+          last_page?: number;
+          per_page?: number;
+          total?: number;
+        };
+      };
+    }>("/admin/vouchers/eligible-products", {
+      params: {
+        search: params?.search || undefined,
+        page: params?.page ?? 1,
+        per_page: params?.per_page ?? 50,
+      },
+    });
+    const raw = response.data?.data;
+    const products = (Array.isArray(raw?.products) ? raw.products : []).map((p) => ({
+      id: String(p.id),
+      name: String(p.name ?? "Game"),
+      image_url: String(p.image_url ?? ""),
+      price: Number(p.price ?? 0),
+      categories: Array.isArray(p.categories) ? p.categories : [],
+    }));
+    return {
+      products,
+      meta: {
+        current_page: Number(raw?.meta?.current_page ?? 1),
+        last_page: Number(raw?.meta?.last_page ?? 1),
+        per_page: Number(raw?.meta?.per_page ?? params?.per_page ?? 50),
+        total: Number(raw?.meta?.total ?? products.length),
+      },
+    };
+  },
+
+  /**
+   * Search and paginate eligible users for voucher targeting
+   */
+  async getEligibleUsers(params?: {
+    search?: string;
+    page?: number;
+    per_page?: number;
+  }): Promise<{
+    users: Array<{
+      id: string;
+      email: string;
+      total_points: number;
+    }>;
+    meta: {
+      current_page: number;
+      last_page: number;
+      per_page: number;
+      total: number;
+    };
+  }> {
+    const response = await apiClient.get<{
+      data?: {
+        users?: Array<{
+          id: number | string;
+          email?: string;
+          total_points?: number;
+        }>;
+        meta?: {
+          current_page?: number;
+          last_page?: number;
+          per_page?: number;
+          total?: number;
+        };
+      };
+    }>("/admin/vouchers/eligible-users", {
+      params: {
+        search: params?.search || undefined,
+        page: params?.page ?? 1,
+        per_page: params?.per_page ?? 50,
+      },
+    });
+    const raw = response.data?.data;
+    const users = (Array.isArray(raw?.users) ? raw.users : []).map((u) => ({
+      id: String(u.id),
+      email: String(u.email ?? "-"),
+      total_points: Number(u.total_points ?? 0),
+    }));
+    return {
+      users,
+      meta: {
+        current_page: Number(raw?.meta?.current_page ?? 1),
+        last_page: Number(raw?.meta?.last_page ?? 1),
+        per_page: Number(raw?.meta?.per_page ?? params?.per_page ?? 50),
+        total: Number(raw?.meta?.total ?? users.length),
+      },
+    };
+  },
+
+  /**
+   * Add target products to an existing voucher
+   */
+  async addProducts(
+    id: string | number,
+    productIds: Array<string | number>
+  ): Promise<unknown> {
+    const numericIds = productIds.map((pid) => Number(pid)).filter((n) => !Number.isNaN(n));
+    const response = await apiClient.post(`/admin/vouchers/${id}/products`, {
+      product_ids: numericIds,
+    });
+    return response.data;
+  },
+
+  /**
+   * Remove target products from an existing voucher
+   */
+  async removeProducts(
+    id: string | number,
+    productIds: Array<string | number>
+  ): Promise<unknown> {
+    const numericIds = productIds.map((pid) => Number(pid)).filter((n) => !Number.isNaN(n));
+    const response = await apiClient.delete(`/admin/vouchers/${id}/products`, {
+      data: { product_ids: numericIds },
+    });
+    return response.data;
+  },
+
+  /**
+   * Add target users to an existing voucher
+   */
+  async addUsers(
+    id: string | number,
+    userIds: Array<string | number>
+  ): Promise<unknown> {
+    const numericIds = userIds.map((uid) => Number(uid)).filter((n) => !Number.isNaN(n));
+    const response = await apiClient.post(`/admin/vouchers/${id}/users`, {
+      user_ids: numericIds,
+    });
+    return response.data;
+  },
+
+  /**
+   * Remove target users from an existing voucher
+   */
+  async removeUsers(
+    id: string | number,
+    userIds: Array<string | number>
+  ): Promise<unknown> {
+    const numericIds = userIds.map((uid) => Number(uid)).filter((n) => !Number.isNaN(n));
+    const response = await apiClient.delete(`/admin/vouchers/${id}/users`, {
+      data: { user_ids: numericIds },
     });
     return response.data;
   },

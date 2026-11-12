@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
+import { useEligibleVoucherUsers } from "@/hooks/use-admin-vouchers";
 import type { VoucherTargetUser } from "../../../types/admin-voucher.types";
 
 export interface AdminAddVoucherUserModalProps {
@@ -77,20 +78,6 @@ const CheckIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-// Mock Users matching Image 2
-const MOCK_MODAL_USERS = [
-  { id: "usr-1", email: "user123@test.com", points: "99pts" },
-  { id: "usr-2", email: "user123@test.com", points: "99pts" },
-  { id: "usr-3", email: "user123@test.com", points: "99pts" },
-  { id: "usr-4", email: "user123@test.com", points: "99pts" },
-  { id: "usr-5", email: "user123@test.com", points: "99pts" },
-  { id: "usr-6", email: "user123@test.com", points: "99pts" },
-  { id: "usr-7", email: "user123@test.com", points: "99pts" },
-  { id: "usr-8", email: "user123@test.com", points: "99pts" },
-  { id: "usr-9", email: "user123@test.com", points: "99pts" },
-  { id: "usr-10", email: "user123@test.com", points: "99pts" },
-];
-
 export function AdminAddVoucherUserModal({
   isOpen,
   onClose,
@@ -99,20 +86,32 @@ export function AdminAddVoucherUserModal({
   className,
 }: AdminAddVoucherUserModalProps) {
   const [search, setSearch] = React.useState("");
-  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(
+    () => new Set(selectedUsers.map((u) => u.id))
+  );
+  const [prevIsOpen, setPrevIsOpen] = React.useState(isOpen);
 
-  // Initialize selected IDs whenever modal opens
-  React.useEffect(() => {
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
     if (isOpen) {
-      if (selectedUsers.length > 0) {
-        setSelectedIds(new Set(selectedUsers.map((u) => u.id)));
-      } else {
-        // By default, match Image 2 where all visible users are checked
-        setSelectedIds(new Set(MOCK_MODAL_USERS.map((u) => u.id)));
-      }
+      setSelectedIds(new Set(selectedUsers.map((u) => u.id)));
       setSearch("");
     }
-  }, [isOpen, selectedUsers]);
+  }
+
+  const { data: eligibleRes, isLoading } = useEligibleVoucherUsers(
+    { search: search.trim() || undefined, per_page: 50 },
+    isOpen
+  );
+
+  const availableUsers = React.useMemo(() => {
+    const rows = eligibleRes?.users ?? [];
+    return rows.map((u) => ({
+      id: u.id,
+      email: u.email,
+      points: `${u.total_points}pts`,
+    }));
+  }, [eligibleRes]);
 
   // Handle ESC key
   React.useEffect(() => {
@@ -125,7 +124,7 @@ export function AdminAddVoucherUserModal({
 
   if (!isOpen) return null;
 
-  const filteredUsers = MOCK_MODAL_USERS.filter((u) =>
+  const filteredUsers = availableUsers.filter((u) =>
     u.email.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -154,13 +153,11 @@ export function AdminAddVoucherUserModal({
   };
 
   const handleSave = () => {
-    const selectedList: VoucherTargetUser[] = MOCK_MODAL_USERS.filter((u) =>
-      selectedIds.has(u.id)
-    ).map((u) => ({
-      id: u.id,
-      email: u.email,
-      points: u.points,
-    }));
+    const selectedById = new Map(selectedUsers.map((u) => [u.id, u]));
+    const availableById = new Map(availableUsers.map((u) => [u.id, u]));
+    const selectedList: VoucherTargetUser[] = Array.from(selectedIds)
+      .map((id) => availableById.get(id) ?? selectedById.get(id) ?? null)
+      .filter((item): item is VoucherTargetUser => item !== null);
     onSaveUsers(selectedList);
     onClose();
   };
@@ -258,7 +255,11 @@ export function AdminAddVoucherUserModal({
 
           {/* Table Rows (Scrollable) */}
           <div className="max-h-[340px] overflow-y-auto divide-y divide-white/5">
-            {filteredUsers.length > 0 ? (
+            {isLoading ? (
+              <div className="py-12 text-center text-label-xs text-gray-400">
+                Memuat daftar user...
+              </div>
+            ) : filteredUsers.length > 0 ? (
               filteredUsers.map((user) => {
                 const isSelected = selectedIds.has(user.id);
                 return (

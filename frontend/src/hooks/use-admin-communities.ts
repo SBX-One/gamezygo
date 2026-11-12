@@ -112,6 +112,24 @@ export function useUpdateAdminCommunity() {
   });
 }
 
+export function useUpdateAdminCommunityStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({
+      id,
+      isActive,
+    }: {
+      id: number | string;
+      isActive: boolean;
+    }) => adminCommunityService.updateCommunityStatus(id, isActive),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ADMIN_COMMUNITIES_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: COMMON_KEYS.communities });
+    },
+  });
+}
+
 export function useSortAdminCommunities() {
   const queryClient = useQueryClient();
 

@@ -33,7 +33,11 @@ export interface AdminCommunitiesListResponse {
 export interface AdminCommunityTagsResponse {
   success: boolean;
   message: string;
-  data: AdminCommunityTagServerItem[];
+  data:
+    | AdminCommunityTagServerItem[]
+    | {
+        tags?: AdminCommunityTagServerItem[];
+      };
 }
 
 export interface AdminCommunityMutationResponse {
@@ -162,8 +166,12 @@ export const adminCommunityService = {
       const response = await apiClient.get<AdminCommunityTagsResponse>(
         "/admin/communities/tags"
       );
-      if (Array.isArray(response.data?.data)) {
-        return response.data.data;
+      const rawData = response.data?.data;
+      if (Array.isArray(rawData)) {
+        return rawData;
+      }
+      if (rawData && Array.isArray(rawData.tags)) {
+        return rawData.tags;
       }
     } catch {
       // Fallback: derive unique tags from community list if /tags endpoint is not exposed
@@ -254,6 +262,20 @@ export const adminCommunityService = {
   },
 
   /**
+   * Update active status of a community group.
+   */
+  async updateCommunityStatus(
+    id: number | string,
+    isActive: boolean
+  ): Promise<AdminCommunityServerItem> {
+    const response = await apiClient.patch<AdminCommunityMutationResponse>(
+      `/admin/communities/${id}/status`,
+      { is_active: isActive }
+    );
+    return response.data.data;
+  },
+
+  /**
    * Persist reordered community sequence by ID array.
    */
   async sortCommunities(
@@ -262,7 +284,7 @@ export const adminCommunityService = {
     const numericIds = ids
       .map((id) => Number(id))
       .filter((n) => !Number.isNaN(n));
-    const response = await apiClient.put<AdminCommunitiesListResponse>(
+    const response = await apiClient.post<AdminCommunitiesListResponse>(
       "/admin/communities/sort",
       { community_ids: numericIds }
     );

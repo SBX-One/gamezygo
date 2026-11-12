@@ -1,7 +1,8 @@
 import * as React from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { MOCK_ADMIN_CATALOG_ITEMS } from "@/features/admin/data/admin-catalog-mock-data";
+import { useEligibleVoucherProducts } from "@/hooks/use-admin-vouchers";
+import { resolveImageUrl } from "@/utils/image-url";
 import { Button } from "@/components/ui/Button";
 import type { VoucherTargetGame } from "../../../types/admin-voucher.types";
 
@@ -91,23 +92,34 @@ export function AdminAddVoucherGameModal({
   className,
 }: AdminAddVoucherGameModalProps) {
   const [search, setSearch] = React.useState("");
-  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(new Set());
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(
+    () => new Set(selectedGames.map((g) => g.id))
+  );
+  const [prevIsOpen, setPrevIsOpen] = React.useState(isOpen);
 
-  // Initialize selected IDs whenever modal opens
-  React.useEffect(() => {
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
     if (isOpen) {
-      if (selectedGames.length > 0) {
-        setSelectedIds(new Set(selectedGames.map((g) => g.id)));
-      } else {
-        // By default, match Image 1 where the first 5 games are checked
-        const initialSelected = new Set(
-          MOCK_ADMIN_CATALOG_ITEMS.slice(0, 5).map((g) => g.id)
-        );
-        setSelectedIds(initialSelected);
-      }
+      setSelectedIds(new Set(selectedGames.map((g) => g.id)));
       setSearch("");
     }
-  }, [isOpen, selectedGames]);
+  }
+
+  const { data: eligibleRes, isLoading } = useEligibleVoucherProducts(
+    { search: search.trim() || undefined, per_page: 50 },
+    isOpen
+  );
+
+  const availableGames = React.useMemo(() => {
+    const rows = eligibleRes?.products ?? [];
+    return rows.map((p) => ({
+      id: p.id,
+      name: p.name,
+      imageSrc: resolveImageUrl(p.image_url, "/assets/png/Banner.png"),
+      price: p.price,
+      categories: p.categories,
+    }));
+  }, [eligibleRes]);
 
   // Handle ESC key
   React.useEffect(() => {
@@ -120,7 +132,7 @@ export function AdminAddVoucherGameModal({
 
   if (!isOpen) return null;
 
-  const filteredGames = MOCK_ADMIN_CATALOG_ITEMS.filter((g) =>
+  const filteredGames = availableGames.filter((g) =>
     g.name.toLowerCase().includes(search.toLowerCase())
   );
 
@@ -149,16 +161,24 @@ export function AdminAddVoucherGameModal({
   };
 
   const handleSave = () => {
-    const selectedList: VoucherTargetGame[] = MOCK_ADMIN_CATALOG_ITEMS.filter((g) =>
-      selectedIds.has(g.id)
-    ).map((g) => ({
-      id: g.id,
-      title: g.name,
-      imageSrc: g.imageSrc,
-      discountPercentage: 30,
-      originalPrice: g.price,
-      discountedPrice: Math.round(g.price * 0.7),
-    }));
+    const selectedById = new Map(selectedGames.map((g) => [g.id, g]));
+    const availableById = new Map(availableGames.map((g) => [g.id, g]));
+    const selectedList: VoucherTargetGame[] = Array.from(selectedIds)
+      .map((id) => {
+        const g = availableById.get(id);
+        if (g) {
+          return {
+            id: g.id,
+            title: g.name,
+            imageSrc: g.imageSrc,
+            discountPercentage: 30,
+            originalPrice: g.price,
+            discountedPrice: Math.round(g.price * 0.7),
+          };
+        }
+        return selectedById.get(id) ?? null;
+      })
+      .filter((item): item is VoucherTargetGame => item !== null);
     onSaveGames(selectedList);
     onClose();
   };
@@ -260,7 +280,11 @@ export function AdminAddVoucherGameModal({
 
           {/* Table Rows (Scrollable) */}
           <div className="max-h-[340px] overflow-y-auto divide-y divide-white/5">
-            {filteredGames.length > 0 ? (
+            {isLoading ? (
+              <div className="py-12 text-center text-label-xs text-gray-400">
+                Memuat daftar game...
+              </div>
+            ) : filteredGames.length > 0 ? (
               filteredGames.map((game) => {
                 const isSelected = selectedIds.has(game.id);
                 return (

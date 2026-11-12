@@ -16,6 +16,7 @@ import {
   MOCK_VOUCHER_ANALYTICS_EMPTY_DATA,
 } from "@/features/admin/data/admin-voucher-analytics-mock-data";
 import { useVoucherAnalytics } from "@/hooks/use-admin-vouchers";
+import { adminVoucherService } from "@/services/admin-voucher.service";
 import { toast } from "@/stores/use-toast-store";
 import type { VoucherAnalyticsData } from "@/features/admin/types/admin-voucher-analytics.types";
 
@@ -74,7 +75,28 @@ export default function AdminVoucherAnalyticsPage() {
   }, [effectiveIsEmptyMode, serverAnalytics, voucherCode]);
 
   // Export CSV Handler
-  const handleExportCSV = () => {
+  const handleExportCSV = async () => {
+    if (voucherId && !effectiveIsEmptyMode) {
+      try {
+        const blob = await adminVoucherService.exportUsagesCsv(voucherId);
+        const url = URL.createObjectURL(blob);
+        const link = document.createElement("a");
+        link.setAttribute("href", url);
+        link.setAttribute(
+          "download",
+          `Voucher_Analytics_${analyticsData.summary.voucherCode}.csv`
+        );
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+        URL.revokeObjectURL(url);
+        toast.success("Data penggunaan voucher berhasil diekspor ke CSV!", "Export Berhasil");
+        return;
+      } catch {
+        // Fallback to client-side CSV if server export fails
+      }
+    }
+
     const headers = ["Order ID", "Customer Email", "Status", "Price", "Date"];
     const rows = analyticsData.orders.map((o) => [
       `"${o.orderId}"`,

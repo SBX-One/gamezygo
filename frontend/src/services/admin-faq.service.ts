@@ -57,6 +57,8 @@ function mapBackendFaqToItem(row: BackendFaqRow): AdminFaqItem {
     question: String(row.question ?? ""),
     answer: String(row.answer ?? ""),
     category: mapBackendPageToCategory(row.page),
+    isActive: row.is_active !== false,
+    orderNumber: Number(row.order_number ?? 0),
     isExpanded: true,
     lastEdit: formatFaqLastEdit(row.updated_at ?? row.created_at),
   };
@@ -163,8 +165,43 @@ export const adminFaqService = {
     return mapBackendFaqToItem(response.data?.data ?? { id, ...payload });
   },
 
+  async getFaqDetail(id: string | number): Promise<AdminFaqItem> {
+    const response = await apiClient.get<{ data?: BackendFaqRow }>(
+      `/admin/faqs/${id}`
+    );
+    return mapBackendFaqToItem(response.data?.data ?? { id });
+  },
+
+  async updateFaqStatus(
+    id: string | number,
+    isActive: boolean
+  ): Promise<AdminFaqItem> {
+    const response = await apiClient.patch<{ data?: BackendFaqRow }>(
+      `/admin/faqs/${id}/status`,
+      { is_active: isActive }
+    );
+    return mapBackendFaqToItem(
+      response.data?.data ?? { id, is_active: isActive }
+    );
+  },
+
+  async sortFaqs(
+    orders: Array<{ id: number; order_number: number }>
+  ): Promise<void> {
+    await apiClient.post("/admin/faqs/sort", { orders });
+  },
+
   async deleteFaq(id: string | number): Promise<void> {
     await apiClient.delete(`/admin/faqs/${id}`);
+  },
+
+  async batchDeleteFaqs(ids: Array<string | number>): Promise<void> {
+    const numericIds = ids
+      .map((id) => Number(id))
+      .filter((n) => !Number.isNaN(n));
+    await apiClient.delete("/admin/faqs", {
+      data: { ids: numericIds },
+    });
   },
 };
 

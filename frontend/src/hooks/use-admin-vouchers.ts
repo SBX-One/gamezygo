@@ -12,6 +12,10 @@ export const ADMIN_VOUCHER_KEYS = {
     ["admin", "vouchers", "detail", String(id)] as const,
   analytics: (codeOrId?: string | number) =>
     ["admin", "vouchers", "analytics", String(codeOrId || "")] as const,
+  eligibleProducts: (params?: { search?: string; page?: number; per_page?: number }) =>
+    ["admin", "vouchers", "eligible-products", params] as const,
+  eligibleUsers: (params?: { search?: string; page?: number; per_page?: number }) =>
+    ["admin", "vouchers", "eligible-users", params] as const,
 };
 
 export function useAdminVouchers(params?: AdminVoucherQueryParams) {
@@ -114,6 +118,78 @@ export function useVoucherAnalytics(params?: { code?: string; id?: string | numb
     queryKey: ADMIN_VOUCHER_KEYS.analytics(params?.id || params?.code),
     queryFn: () => adminVoucherService.getAnalytics(params),
     staleTime: 60 * 1000,
+  });
+}
+
+export function useEligibleVoucherProducts(
+  params?: { search?: string; page?: number; per_page?: number },
+  enabled = true
+) {
+  return useQuery({
+    queryKey: ADMIN_VOUCHER_KEYS.eligibleProducts(params),
+    queryFn: () => adminVoucherService.getEligibleProducts(params),
+    enabled,
+    staleTime: 30 * 1000,
+  });
+}
+
+export function useEligibleVoucherUsers(
+  params?: { search?: string; page?: number; per_page?: number },
+  enabled = true
+) {
+  return useQuery({
+    queryKey: ADMIN_VOUCHER_KEYS.eligibleUsers(params),
+    queryFn: () => adminVoucherService.getEligibleUsers(params),
+    enabled,
+    staleTime: 30 * 1000,
+  });
+}
+
+export function useAddVoucherProducts() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, productIds }: { id: string | number; productIds: Array<string | number> }) =>
+      adminVoucherService.addProducts(id, productIds),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ADMIN_VOUCHER_KEYS.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: ADMIN_VOUCHER_KEYS.analytics(variables.id) });
+    },
+  });
+}
+
+export function useRemoveVoucherProducts() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, productIds }: { id: string | number; productIds: Array<string | number> }) =>
+      adminVoucherService.removeProducts(id, productIds),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ADMIN_VOUCHER_KEYS.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: ADMIN_VOUCHER_KEYS.analytics(variables.id) });
+    },
+  });
+}
+
+export function useAddVoucherUsers() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, userIds }: { id: string | number; userIds: Array<string | number> }) =>
+      adminVoucherService.addUsers(id, userIds),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ADMIN_VOUCHER_KEYS.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: ADMIN_VOUCHER_KEYS.analytics(variables.id) });
+    },
+  });
+}
+
+export function useRemoveVoucherUsers() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ id, userIds }: { id: string | number; userIds: Array<string | number> }) =>
+      adminVoucherService.removeUsers(id, userIds),
+    onSuccess: (_, variables) => {
+      queryClient.invalidateQueries({ queryKey: ADMIN_VOUCHER_KEYS.detail(variables.id) });
+      queryClient.invalidateQueries({ queryKey: ADMIN_VOUCHER_KEYS.analytics(variables.id) });
+    },
   });
 }
 

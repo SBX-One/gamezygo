@@ -3,6 +3,8 @@ export interface AdminFaqItem {
   question: string;
   answer: string;
   category: string;
+  isActive?: boolean;
+  orderNumber?: number;
   isExpanded?: boolean;
   lastEdit?: string;
 }

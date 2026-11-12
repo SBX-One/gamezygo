@@ -199,7 +199,7 @@ export const adminAnnouncementService = {
     const numericIds = ids
       .map((id) => Number(id))
       .filter((n) => !Number.isNaN(n));
-    const response = await apiClient.put<AdminAnnouncementsListResponse>(
+    const response = await apiClient.post<AdminAnnouncementsListResponse>(
       "/admin/announcements/sort",
       { announcement_ids: numericIds }
     );

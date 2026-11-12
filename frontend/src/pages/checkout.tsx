@@ -4,7 +4,7 @@ import { useRouter } from "next/router";
 import axios from "axios";
 import { useQueryClient } from "@tanstack/react-query";
 import { StoreLayout } from "@/components/layout";
-import { Button, Toast } from "@/components/ui";
+import { Button, ListRowSkeleton, Skeleton, Toast } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { formatRupiah } from "@/utils/formatters";
 import { useCart } from "@/hooks/use-cart";
@@ -754,13 +754,25 @@ export default function CheckoutPage() {
   // Prevent flash of checkout content while verifying authentication
   if (!isAuthenticated) {
     return (
-      <StoreLayout activeNavId="toko">
+      <StoreLayout activeNavId="toko" hideNavbar={true} hideSidebar={true}>
         <Head>
           <title>Checkout - Gamezygo</title>
         </Head>
-        <div className="min-h-[70vh] flex flex-col items-center justify-center gap-4 text-center">
-          <div className="w-10 h-10 border-2 border-rose-500 border-t-transparent rounded-full animate-spin" />
-          <p className="text-gray-400 text-sm">Memeriksa status login...</p>
+        <div className="w-full mx-auto px-4 sm:px-8 lg:px-20 py-10 flex flex-col gap-8">
+          <Skeleton className="h-10 w-44" />
+          <div className="grid grid-cols-1 lg:grid-cols-14 gap-8 lg:gap-12 items-start">
+            <div className="lg:col-span-8 flex flex-col gap-4">
+              {Array.from({ length: 3 }).map((_, idx) => (
+                <ListRowSkeleton key={idx} />
+              ))}
+            </div>
+            <div className="lg:col-span-6 rounded-lg border border-white/10 bg-white/5 backdrop-blur-md p-6 flex flex-col gap-4">
+              <Skeleton className="h-6 w-40" />
+              <Skeleton className="h-11 w-full rounded-lg" />
+              <Skeleton className="h-24 w-full rounded-lg" />
+              <Skeleton className="h-11 w-full rounded-lg" />
+            </div>
+          </div>
         </div>
       </StoreLayout>
     );
@@ -824,7 +836,11 @@ export default function CheckoutPage() {
 
             {/* Items List */}
             <div className="flex flex-col gap-4 w-full">
-              {checkoutItems.length > 0 ? (
+              {isCartLoading && checkoutItems.length === 0 ? (
+                Array.from({ length: 3 }).map((_, idx) => (
+                  <ListRowSkeleton key={idx} />
+                ))
+              ) : checkoutItems.length > 0 ? (
                 checkoutItems.map((item, idx) => (
                   <div
                     key={`checkout-item-${item.id}-${idx}`}

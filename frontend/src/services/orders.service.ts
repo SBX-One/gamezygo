@@ -112,28 +112,19 @@ export async function createPayment(
 
 /**
  * Check payment status by gateway reference
- * Primary Endpoint (Postman user > orders > payments > status):
- *   GET /api/v1/user/orders/payments/:reference/status
- * Fallback Endpoint:
- *   GET /api/v1/user/orders/payments/:reference
+ * Endpoint (user.php): GET /api/v1/user/payments/:reference/status
  */
 export async function fetchPaymentStatus(
   reference: string
 ): Promise<ApiResponse<OrderDetailResponse>> {
-  try {
-    return await apiGet<ApiResponse<OrderDetailResponse>>(
-      `/user/orders/payments/${reference}/status`
-    );
-  } catch {
-    return apiGet<ApiResponse<OrderDetailResponse>>(
-      `/user/orders/payments/${reference}`
-    );
-  }
+  return apiGet<ApiResponse<OrderDetailResponse>>(
+    `/user/payments/${reference}/status`
+  );
 }
 
 /**
  * Subscribe to realtime payment status updates via Server-Sent Events (SSE)
- * Endpoint: GET /api/v1/user/orders/payments/:reference/stream
+ * Endpoint: GET /api/v1/user/payments/:reference/stream
  */
 export function subscribePaymentSSE(
   reference: string,
@@ -144,7 +135,7 @@ export function subscribePaymentSSE(
     return () => {};
   }
 
-  const url = `${API_BASE_URL}/user/orders/payments/${reference}/stream`;
+  const url = `${API_BASE_URL}/user/payments/${reference}/stream`;
 
   try {
     const eventSource = new EventSource(url);

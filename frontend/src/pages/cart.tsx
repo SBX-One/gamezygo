@@ -2,7 +2,7 @@ import * as React from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { StoreLayout } from "@/components/layout";
-import { Button, EmptyState, Toast, Item } from "@/components/ui";
+import { Button, EmptyState, ListRowSkeleton, Toast, Item } from "@/components/ui";
 import { useCart, useRemoveFromCart, useClearCart } from "@/hooks/use-cart";
 import { formatRupiah, formatDiscount } from "@/utils/formatters";
 import { useAuthStore } from "@/stores/use-auth-store";
@@ -318,9 +318,10 @@ export default function CartPage() {
 
             {/* CASE A: LOADING OR EMPTY CART */}
             {isCartApiLoading && isAuthenticated ? (
-              <div className="w-full py-16 sm:py-24 flex flex-col items-center justify-center gap-4 text-center">
-                <div className="w-10 h-10 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
-                <p className="text-body-sm text-gray-400">Memuat keranjang Anda...</p>
+              <div className="flex flex-col gap-4 w-full">
+                {Array.from({ length: 3 }).map((_, idx) => (
+                  <ListRowSkeleton key={idx} />
+                ))}
               </div>
             ) : isEmpty ? (
               <div className="w-full py-16 sm:py-24 flex flex-col items-center justify-center">

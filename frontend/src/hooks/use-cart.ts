@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "@/stores/use-auth-store";
 import {
   fetchCart,
   addToCart,
@@ -14,10 +15,13 @@ export const CART_KEYS = {
 /**
  * Hook to fetch current user's cart
  */
-export function useCart() {
+export function useCart(options?: { enabled?: boolean }) {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
   return useQuery({
     queryKey: CART_KEYS.detail(),
     queryFn: () => fetchCart(),
+    enabled: isAuthenticated && (options?.enabled ?? true),
   });
 }
 

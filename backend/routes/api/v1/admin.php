@@ -3,6 +3,10 @@
 use App\Http\Controllers\Api\V1\Admin\Announcement\AdminAnnouncementController;
 use App\Http\Controllers\Api\V1\Admin\Blog\AdminBlogController;
 use App\Http\Controllers\Api\V1\Admin\Catalog\AdminCatalogController;
+use App\Http\Controllers\Api\V1\Admin\Category\AdminBlogCategoryController;
+use App\Http\Controllers\Api\V1\Admin\Category\AdminBlogSubCategoryController;
+use App\Http\Controllers\Api\V1\Admin\Category\AdminProductCategoryController;
+use App\Http\Controllers\Api\V1\Admin\Category\AdminProductSubCategoryController;
 use App\Http\Controllers\Api\V1\Admin\Community\AdminCommunityController;
 use App\Http\Controllers\Api\V1\Admin\CustomSection\AdminCustomSectionController;
 use App\Http\Controllers\Api\V1\Admin\Dashboard\AdminDashboardController;
@@ -10,6 +14,7 @@ use App\Http\Controllers\Api\V1\Admin\Faq\AdminFaqController;
 use App\Http\Controllers\Api\V1\Admin\GameRequest\AdminGameRequestController;
 use App\Http\Controllers\Api\V1\Admin\Instruction\AdminInstructionController;
 use App\Http\Controllers\Api\V1\Admin\Revenue\AdminRevenueController;
+use App\Http\Controllers\Api\V1\Admin\Review\AdminReviewController;
 use App\Http\Controllers\Api\V1\Admin\Subscription\AdminSubscriptionController;
 use App\Http\Controllers\Api\V1\Admin\Voucher\AdminVoucherController;
 use Illuminate\Support\Facades\Route;
@@ -196,5 +201,92 @@ Route::prefix('admin')
         Route::match(['put', 'patch', 'post'], '/{communityId}', 'update')->name('update')->whereNumber('communityId');
         Route::match(['put', 'patch', 'post'], '/{communityId}/status', 'status')->name('status')->whereNumber('communityId');
         Route::delete('/{communityId}', 'destroy')->name('destroy')->whereNumber('communityId');
+      });
+
+    // Product Category & Sub-Category Management
+    Route::controller(AdminProductCategoryController::class)
+      ->prefix('product-categories')
+      ->name('product-categories.')
+      ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{id}', 'show')->name('show')->whereNumber('id');
+        Route::match(['put', 'patch', 'post'], '/{id}', 'update')->name('update')->whereNumber('id');
+        Route::delete('/{id}', 'destroy')->name('destroy')->whereNumber('id');
+        Route::get('/{categoryId}/sub-categories', 'subCategories')->name('sub-categories.index')->whereNumber('categoryId');
+        Route::post('/{categoryId}/sub-categories', 'storeSubCategory')->name('sub-categories.store')->whereNumber('categoryId');
+      });
+
+    Route::controller(AdminProductSubCategoryController::class)
+      ->prefix('product-sub-categories')
+      ->name('product-sub-categories.')
+      ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{id}', 'show')->name('show')->whereNumber('id');
+        Route::match(['put', 'patch', 'post'], '/{id}', 'update')->name('update')->whereNumber('id');
+        Route::delete('/{id}', 'destroy')->name('destroy')->whereNumber('id');
+      });
+
+    // Product Tags Alias
+    Route::controller(AdminProductSubCategoryController::class)
+      ->prefix('product-tags')
+      ->name('product-tags.')
+      ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{id}', 'show')->name('show')->whereNumber('id');
+        Route::match(['put', 'patch', 'post'], '/{id}', 'update')->name('update')->whereNumber('id');
+        Route::delete('/{id}', 'destroy')->name('destroy')->whereNumber('id');
+      });
+
+    // Blog Category & Sub-Category Management
+    Route::controller(AdminBlogCategoryController::class)
+      ->prefix('blog-categories')
+      ->name('blog-categories.')
+      ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{id}', 'show')->name('show')->whereNumber('id');
+        Route::match(['put', 'patch', 'post'], '/{id}', 'update')->name('update')->whereNumber('id');
+        Route::delete('/{id}', 'destroy')->name('destroy')->whereNumber('id');
+        Route::get('/{categoryId}/sub-categories', 'subCategories')->name('sub-categories.index')->whereNumber('categoryId');
+        Route::post('/{categoryId}/sub-categories', 'storeSubCategory')->name('sub-categories.store')->whereNumber('categoryId');
+      });
+
+    Route::controller(AdminBlogSubCategoryController::class)
+      ->prefix('blog-sub-categories')
+      ->name('blog-sub-categories.')
+      ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{id}', 'show')->name('show')->whereNumber('id');
+        Route::match(['put', 'patch', 'post'], '/{id}', 'update')->name('update')->whereNumber('id');
+        Route::delete('/{id}', 'destroy')->name('destroy')->whereNumber('id');
+      });
+
+    // Blog Tags Alias
+    Route::controller(AdminBlogSubCategoryController::class)
+      ->prefix('blog-tags')
+      ->name('blog-tags.')
+      ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{id}', 'show')->name('show')->whereNumber('id');
+        Route::match(['put', 'patch', 'post'], '/{id}', 'update')->name('update')->whereNumber('id');
+        Route::delete('/{id}', 'destroy')->name('destroy')->whereNumber('id');
+      });
+
+    // Review Management
+    Route::controller(AdminReviewController::class)
+      ->prefix('reviews')
+      ->name('reviews.')
+      ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::delete('/', 'bulkDestroy')->name('destroy.bulk');
+        Route::get('/{id}', 'show')->name('show')->whereNumber('id');
+        Route::match(['put', 'patch', 'post'], '/{id}/status', 'updateStatus')->name('status')->whereNumber('id');
+        Route::post('/{id}/reply', 'reply')->name('reply')->whereNumber('id');
+        Route::delete('/{id}', 'destroy')->name('destroy')->whereNumber('id');
       });
   });

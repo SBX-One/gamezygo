@@ -1,7 +1,9 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Admin\Announcement\AdminAnnouncementController;
 use App\Http\Controllers\Api\V1\Admin\Blog\AdminBlogController;
 use App\Http\Controllers\Api\V1\Admin\Catalog\AdminCatalogController;
+use App\Http\Controllers\Api\V1\Admin\Community\AdminCommunityController;
 use App\Http\Controllers\Api\V1\Admin\CustomSection\AdminCustomSectionController;
 use App\Http\Controllers\Api\V1\Admin\Dashboard\AdminDashboardController;
 use App\Http\Controllers\Api\V1\Admin\Faq\AdminFaqController;
@@ -165,5 +167,34 @@ Route::prefix('admin')
         Route::match(['put', 'patch', 'post'], '/{faqId}', 'update')->name('update')->whereNumber('faqId');
         Route::match(['put', 'patch', 'post'], '/{faqId}/status', 'status')->name('status')->whereNumber('faqId');
         Route::delete('/{faqId}', 'destroy')->name('destroy')->whereNumber('faqId');
+      });
+
+    // Announcement Management
+    Route::controller(AdminAnnouncementController::class)
+      ->prefix('announcements')
+      ->name('announcements.')
+      ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::post('/sort', 'sort')->name('sort');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{announcementId}', 'show')->name('show')->whereNumber('announcementId');
+        Route::match(['put', 'patch', 'post'], '/{announcementId}', 'update')->name('update')->whereNumber('announcementId');
+        Route::match(['put', 'patch', 'post'], '/{announcementId}/publish', 'publish')->name('publish')->whereNumber('announcementId');
+        Route::delete('/{announcementId}', 'destroy')->name('destroy')->whereNumber('announcementId');
+      });
+
+    // Community Management
+    Route::controller(AdminCommunityController::class)
+      ->prefix('communities')
+      ->name('communities.')
+      ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/tags', 'tags')->name('tags');
+        Route::post('/sort', 'sort')->name('sort');
+        Route::post('/', 'store')->name('store');
+        Route::get('/{communityId}', 'show')->name('show')->whereNumber('communityId');
+        Route::match(['put', 'patch', 'post'], '/{communityId}', 'update')->name('update')->whereNumber('communityId');
+        Route::match(['put', 'patch', 'post'], '/{communityId}/status', 'status')->name('status')->whereNumber('communityId');
+        Route::delete('/{communityId}', 'destroy')->name('destroy')->whereNumber('communityId');
       });
   });

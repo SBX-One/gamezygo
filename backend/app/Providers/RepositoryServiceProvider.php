@@ -22,6 +22,8 @@ use App\Repositories\Contracts\Api\V1\Admin\Instruction\AdminInstructionReposito
 use App\Repositories\Api\V1\Admin\Instruction\AdminInstructionRepository;
 use App\Repositories\Contracts\Api\V1\Admin\Faq\AdminFaqRepositoryInterface;
 use App\Repositories\Api\V1\Admin\Faq\AdminFaqRepository;
+use App\Repositories\Contracts\Api\V1\Admin\Announcement\AdminAnnouncementRepositoryInterface;
+use App\Repositories\Api\V1\Admin\Announcement\AdminAnnouncementRepository;
 use App\Repositories\Contracts\Api\V1\Admin\Dashboard\AdminDashboardRepositoryInterface;
 use App\Repositories\Api\V1\Admin\Dashboard\AdminDashboardRepository;
 use App\Repositories\Contracts\Api\V1\User\Announcement\AnnouncementRepositoryInterface;
@@ -89,6 +91,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(AdminVoucherRepositoryInterface::class, AdminVoucherRepository::class);
         $this->app->bind(AdminInstructionRepositoryInterface::class, AdminInstructionRepository::class);
         $this->app->bind(AdminFaqRepositoryInterface::class, AdminFaqRepository::class);
+        $this->app->bind(AdminAnnouncementRepositoryInterface::class, AdminAnnouncementRepository::class);
     }
 
     /**

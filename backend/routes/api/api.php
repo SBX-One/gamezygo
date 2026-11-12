@@ -65,4 +65,16 @@ Route::middleware(['auth:admin', 'admin.only'])
                 Route::match(['put', 'patch', 'post'], '/{faqId}/status', 'status')->whereNumber('faqId');
                 Route::delete('/{faqId}', 'destroy')->whereNumber('faqId');
             });
+
+        Route::controller(\App\Http\Controllers\Api\V1\Admin\Announcement\AdminAnnouncementController::class)
+            ->prefix('announcements')
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::post('/sort', 'sort');
+                Route::post('/', 'store');
+                Route::get('/{announcementId}', 'show')->whereNumber('announcementId');
+                Route::match(['put', 'patch', 'post'], '/{announcementId}', 'update')->whereNumber('announcementId');
+                Route::match(['put', 'patch', 'post'], '/{announcementId}/publish', 'publish')->whereNumber('announcementId');
+                Route::delete('/{announcementId}', 'destroy')->whereNumber('announcementId');
+            });
     });

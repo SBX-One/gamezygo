@@ -5,6 +5,7 @@ import { StoreLayout } from "@/components/layout";
 import {
   Button,
   Pill,
+  ProductCardSkeleton,
   StatCard,
   InputField,
   Toast,
@@ -281,7 +282,7 @@ export default function ProfilePage() {
   const updateProfileMutation = useUpdateProfile();
   const changePasswordMutation = useChangePassword();
   const { data: userRankRes } = useUserLeaderboardRank();
-  const { data: userOrdersRes } = useUserOrders();
+  const { data: userOrdersRes, isLoading: isOrdersLoading } = useUserOrders();
   const { ownedGames } = useOwnedGames();
 
   // Dynamic recent transactions mapped from user orders or owned library games
@@ -1018,7 +1019,13 @@ export default function ProfilePage() {
             {/* Expandable Swipeable Game Track */}
             {isRecentTransOpen && (
               <div className="w-full pt-6">
-                {recentTransactions.length > 0 ? (
+                {isOrdersLoading && recentTransactions.length === 0 ? (
+                  <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {Array.from({ length: 4 }).map((_, idx) => (
+                      <ProductCardSkeleton key={idx} orientation="vertical" />
+                    ))}
+                  </div>
+                ) : recentTransactions.length > 0 ? (
                   <SwipeableTrack itemCount={recentTransactions.length}>
                     {recentTransactions.map((game) => (
                       <TransactionCard

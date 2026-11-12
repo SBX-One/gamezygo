@@ -5,6 +5,7 @@ import { StoreLayout } from "@/components/layout";
 import {
   Button,
   ProductCard,
+  ProductCardSkeleton,
   FilterModal,
   EmptyState,
   Toast,
@@ -211,7 +212,7 @@ export default function WishlistPage() {
   // Wishlist API integration
   const [searchQuery, setSearchQuery] = React.useState("");
   const [appliedGenres, setAppliedGenres] = React.useState<string[]>([]);
-  const { data: wishlistApiRes } = useWishlist({
+  const { data: wishlistApiRes, isLoading: isWishlistLoading } = useWishlist({
     search: searchQuery.trim() || undefined,
     genre_categories: appliedGenres.length > 0 ? appliedGenres : undefined,
   });
@@ -638,7 +639,13 @@ export default function WishlistPage() {
           {/* ========================================================
               WISHLIST GAMES GRID ATAU EMPTY STATE
              ======================================================== */}
-          {isTotalWishlistEmpty ? (
+          {isAuthenticated && isWishlistLoading && wishlistGames.length === 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
+              {Array.from({ length: 8 }).map((_, idx) => (
+                <ProductCardSkeleton key={idx} orientation="vertical" />
+              ))}
+            </div>
+          ) : isTotalWishlistEmpty ? (
             /* CASE A: WISHLIST UTAMA KOSONG (Screenshot 2: Empty) */
             <div className="py-24 flex items-center justify-center w-full">
               <EmptyState

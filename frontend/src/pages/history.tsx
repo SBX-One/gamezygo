@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { StoreLayout } from "@/components/layout";
 import {
   Button,
+  ListRowSkeleton,
   StatCard,
   EmptyState,
   Pill,
@@ -163,9 +164,9 @@ export default function HistoryPage() {
   const [appliedFilter, setAppliedFilter] = React.useState<HistoryFilterState>(INITIAL_FILTER);
 
   // TanStack Query: Fetch user orders from API
-  const { data: userOrdersRes } = useUserOrders();
+  const { data: userOrdersRes, isLoading: isOrdersLoading } = useUserOrders();
   // TanStack Query: Fetch user's purchased games in library as reliable fallback
-  const { data: libraryRes } = useUserLibrary();
+  const { data: libraryRes, isLoading: isLibraryLoading } = useUserLibrary();
 
   // Map API data accurately
   const apiOrders: OrderHistoryItem[] = React.useMemo(() => {
@@ -395,7 +396,13 @@ export default function HistoryPage() {
           {/* =========================================================================
               3. CONTENT AREA / VIEWS
               ========================================================================= */}
-          {viewState === "error" ? (
+          {(isOrdersLoading || isLibraryLoading) && effectiveOrders.length === 0 ? (
+            <div className="flex flex-col gap-3 w-full">
+              {Array.from({ length: 5 }).map((_, idx) => (
+                <ListRowSkeleton key={idx} />
+              ))}
+            </div>
+          ) : viewState === "error" ? (
             /* =========================================================================
                 ERROR 500 STATE
                 ========================================================================= */

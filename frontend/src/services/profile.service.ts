@@ -1,4 +1,4 @@
-import { apiGet, apiPatch, apiPut, apiPost } from "@/lib/api-client";
+import { apiGet, apiPut, apiPost, apiPatch } from "@/lib/api-client";
 import type {
   ApiResponse,
   UserProfileResponse,
@@ -36,17 +36,10 @@ export async function updateUserProfile(
 
   const jsonPayload = payload as Partial<UserProfileResponse>;
 
-  try {
-    return await apiPatch<
-      ApiResponse<UserProfileResponse>,
-      Partial<UserProfileResponse>
-    >("/user/profile", jsonPayload);
-  } catch {
-    return apiPut<
-      ApiResponse<UserProfileResponse>,
-      Partial<UserProfileResponse>
-    >("/user/profile", jsonPayload);
-  }
+  return apiPut<
+    ApiResponse<UserProfileResponse>,
+    Partial<UserProfileResponse>
+  >("/user/profile", jsonPayload);
 }
 
 /**

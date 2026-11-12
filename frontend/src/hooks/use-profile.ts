@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "@/stores/use-auth-store";
 import {
   fetchUserProfile,
   updateUserProfile,
@@ -13,10 +14,13 @@ export const PROFILE_KEYS = {
 /**
  * Hook to fetch current user's profile
  */
-export function useUserProfile() {
+export function useUserProfile(options?: { enabled?: boolean }) {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
   return useQuery({
     queryKey: PROFILE_KEYS.all,
     queryFn: () => fetchUserProfile(),
+    enabled: isAuthenticated && (options?.enabled ?? true),
   });
 }
 

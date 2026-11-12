@@ -7,6 +7,7 @@ import {
   Breadcrumbs,
   Button,
   Pill,
+  Skeleton,
   TestimonialCard,
   Toast,
 } from "@/components/ui";
@@ -326,7 +327,7 @@ export default function GameCredentialPage() {
   }, [id, libraryRes]);
 
   // 2. Fetch product catalog detail by slug
-  const { data: productApiRes } = useProductDetail(productSlug);
+  const { data: productApiRes, isLoading: isProductLoading } = useProductDetail(productSlug);
   const apiProduct = productApiRes?.data;
 
   // Local state
@@ -607,7 +608,7 @@ export default function GameCredentialPage() {
   };
 
   // Fetch real credentials from API (GET /api/v1/user/products/:slug/credentials)
-  const { data: credentialsRes } = useGameCredentials(productSlug);
+  const { data: credentialsRes, isLoading: isCredsLoading } = useGameCredentials(productSlug);
 
   // Account Credentials: Real database credentials or graceful fallback
   const cleanTitleCode = (gameTitle || productSlug || "game")
@@ -636,6 +637,30 @@ export default function GameCredentialPage() {
       <StoreLayout 
         navbarVariant="private">
         <div className="w-full flex flex-col gap-10 lg:gap-11xl pb-16">
+          {(isProductLoading || isCredsLoading) && !apiProduct && !credentialsRes ? (
+            <section className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
+              <div className="flex flex-col gap-6">
+                <Skeleton className="h-5 w-48" />
+                <Skeleton className="w-full aspect-square rounded-xl" />
+                <div className="flex gap-3">
+                  {Array.from({ length: 4 }).map((_, idx) => (
+                    <Skeleton key={idx} className="w-24 aspect-video rounded-lg" />
+                  ))}
+                </div>
+              </div>
+              <div className="flex flex-col gap-6 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md p-6">
+                <Skeleton className="h-7 w-2/3" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-6 w-20 rounded-full" />
+                  <Skeleton className="h-6 w-24 rounded-full" />
+                </div>
+                <Skeleton className="h-24 w-full rounded-lg" />
+                <Skeleton className="h-24 w-full rounded-lg" />
+                <Skeleton className="h-11 w-full rounded-lg" />
+              </div>
+            </section>
+          ) : (
+          <>
           {/* =========================================================================
               B. HERO SECTION (GAME MEDIA & CREDENTIAL CARD)
               ========================================================================= */}
@@ -1194,6 +1219,8 @@ export default function GameCredentialPage() {
               </div>
             </div>
           </section>
+          </>
+          )}
         </div>
 
         {/* Global Floating Toast */}

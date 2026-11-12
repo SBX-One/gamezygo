@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useAuthStore } from "@/stores/use-auth-store";
 import {
   fetchWishlist,
   addToWishlist,
@@ -14,10 +15,16 @@ export const WISHLIST_KEYS = {
 /**
  * Hook to fetch user's wishlist
  */
-export function useWishlist(params?: WishlistQueryParams) {
+export function useWishlist(
+  params?: WishlistQueryParams,
+  options?: { enabled?: boolean }
+) {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
   return useQuery({
     queryKey: WISHLIST_KEYS.list(params),
     queryFn: () => fetchWishlist(params),
+    enabled: isAuthenticated && (options?.enabled ?? true),
   });
 }
 

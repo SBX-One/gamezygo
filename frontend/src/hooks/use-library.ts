@@ -1,5 +1,5 @@
 import * as React from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 import {
   fetchUserGameLibrary,
   fetchGameCredentials,
@@ -10,6 +10,8 @@ import { useAuthStore } from "@/stores/use-auth-store";
 export const LIBRARY_KEYS = {
   all: ["library"] as const,
   list: (params?: LibraryQueryParams) => [...LIBRARY_KEYS.all, "list", params] as const,
+  infinite: (params?: Omit<LibraryQueryParams, "page">) =>
+    [...LIBRARY_KEYS.all, "infinite", params] as const,
   credentials: (slug: string) => [...LIBRARY_KEYS.all, "credentials", slug] as const,
 };
 
@@ -20,10 +22,35 @@ export function useUserLibrary(
   params?: LibraryQueryParams,
   options?: { enabled?: boolean }
 ) {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
   return useQuery({
     queryKey: LIBRARY_KEYS.list(params),
     queryFn: () => fetchUserGameLibrary(params),
-    enabled: options?.enabled ?? true,
+    enabled: isAuthenticated && (options?.enabled ?? true),
+  });
+}
+
+/**
+ * Hook to fetch user's purchased game library with infinite scroll
+ */
+export function useInfiniteUserLibrary(
+  params?: Omit<LibraryQueryParams, "page">,
+  options?: { enabled?: boolean }
+) {
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+
+  return useInfiniteQuery({
+    queryKey: LIBRARY_KEYS.infinite(params),
+    queryFn: ({ pageParam = 1 }) =>
+      fetchUserGameLibrary({ ...params, page: pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const current = lastPage?.meta?.current_page ?? 1;
+      const last = lastPage?.meta?.last_page ?? 1;
+      return current < last ? current + 1 : undefined;
+    },
+    enabled: isAuthenticated && (options?.enabled ?? true),
   });
 }
 

@@ -5,12 +5,13 @@ import { StoreLayout } from "@/components/layout";
 import {
   Button,
   ProductCard,
+  ProductCardSkeleton,
   FilterModal,
   EmptyState,
-  Pagination,
   FilterBadgeSwiper,
 } from "@/components/ui";
-import { useUserLibrary } from "@/hooks/use-library";
+import { useInfiniteUserLibrary } from "@/hooks/use-library";
+import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { formatRupiah } from "@/utils/formatters";
 import { cn } from "@/lib/utils";
@@ -324,17 +325,27 @@ export default function GameLibraryPage() {
   const [appliedLaunchers, setAppliedLaunchers] = React.useState<string[]>([]);
   const [appliedSort, setAppliedSort] = React.useState<string>("Terbaru");
 
-  // Pagination State
-  const [currentPage, setCurrentPage] = React.useState<number>(1);
-
-  // TanStack Query: Fetch user game library from backend API
-  const { data: libraryApiRes, isLoading: isLibraryLoading } = useUserLibrary({
+  // TanStack Query: Fetch user game library with Infinite Scroll
+  const {
+    data: libraryPages,
+    isLoading: isLibraryLoading,
+    fetchNextPage: fetchNextLibraryPage,
+    hasNextPage: hasNextLibraryPage,
+    isFetchingNextPage: isFetchingNextLibraryPage,
+  } = useInfiniteUserLibrary({
     search: searchQuery || undefined,
     genre_categories: appliedGenres.length > 0 ? appliedGenres : undefined,
-    page: currentPage,
   });
 
-  const totalPages = libraryApiRes?.meta?.last_page || 25;
+  const { sentinelRef: librarySentinelRef } = useInfiniteScroll({
+    hasNextPage: hasNextLibraryPage,
+    isFetchingNextPage: isFetchingNextLibraryPage,
+    fetchNextPage: fetchNextLibraryPage,
+  });
+
+  const libraryApiItems = React.useMemo(() => {
+    return libraryPages?.pages?.flatMap((page) => page.data ?? []) ?? [];
+  }, [libraryPages]);
 
   // Handlers for active filter badges
   const handleRemoveGenre = (genreToRemove: string) => {
@@ -358,7 +369,6 @@ export default function GameLibraryPage() {
     setModalLaunchers([]);
     setModalSort("Terbaru");
     setModalPriceRange([0, 200000]);
-    setCurrentPage(1);
   };
 
   // Filter and Search Evaluation
@@ -380,8 +390,8 @@ export default function GameLibraryPage() {
   // Base Library Games (from API when authenticated, NEVER show dummy games for logged-in user)
   const baseGames = React.useMemo(() => {
     if (isAuthenticated) {
-      if (libraryApiRes?.data && libraryApiRes.data.length > 0) {
-        return libraryApiRes.data.map((item) => ({
+      if (libraryApiItems.length > 0) {
+        return libraryApiItems.map((item) => ({
           id: item.slug,
           steamAppId: item.id,
           title: item.name,
@@ -397,7 +407,7 @@ export default function GameLibraryPage() {
       return [];
     }
     return OWNED_LIBRARY_GAMES;
-  }, [isAuthenticated, libraryApiRes]);
+  }, [isAuthenticated, libraryApiItems]);
 
   const filteredGames = React.useMemo(() => {
     let list = [...baseGames];
@@ -541,7 +551,6 @@ export default function GameLibraryPage() {
                   value={searchQuery}
                   onChange={(e) => {
                     setSearchQuery(e.target.value);
-                    setCurrentPage(1);
                   }}
                   placeholder="Cari"
                   className="w-full bg-transparent text-label-sm text-gray-50 placeholder:text-gray-400 outline-none tracking-normal"
@@ -614,7 +623,6 @@ export default function GameLibraryPage() {
                   setAppliedGenres(modalGenres);
                   setAppliedLaunchers(modalLaunchers);
                   setAppliedSort(modalSort);
-                  setCurrentPage(1);
                   setIsFilterModalOpen(false);
                 }}
               />
@@ -624,10 +632,11 @@ export default function GameLibraryPage() {
           {/* ========================================================
               GAME CARDS GRID ATAU EMPTY STATE
              ======================================================== */}
-          {isAuthenticated && isLibraryLoading ? (
-            <div className="py-24 flex flex-col items-center justify-center w-full gap-4 text-center">
-              <div className="w-10 h-10 border-2 border-primary-500 border-t-transparent rounded-full animate-spin" />
-              <p className="text-body-sm text-gray-400">Memuat perpustakaan game Anda...</p>
+          {isAuthenticated && isLibraryLoading && libraryApiItems.length === 0 ? (
+            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
+              {Array.from({ length: 8 }).map((_, idx) => (
+                <ProductCardSkeleton key={idx} orientation="vertical" />
+              ))}
             </div>
           ) : baseGames.length === 0 ? (
             /* CASE A: USER BELUM MEMILIKI GAME DI PERPUSTAKAAN */
@@ -646,23 +655,33 @@ export default function GameLibraryPage() {
               />
             </div>
           ) : filteredGames.length > 0 ? (
-            /* 4-COLUMN RESPONSIVE GAME GRID (Screenshot 1, 3, 4 Kiri) */
-            <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
-              {filteredGames.map((game) => (
-                <ProductCard
-                  key={game.id}
-                  orientation="vertical"
-                  title={game.title}
-                  imageSrc={game.imageSrc}
-                  genres={game.genres}
-                  platform={game.platform}
-                  showPrice={false}
-                  showActionButton={false}
-                  href={`/credentials/${game.id}`}
-                  className="hover:-translate-y-0.5 transition-transform duration-200 pb-8xl cursor-pointer"
-                />
-              ))}
-            </div>
+            /* 4-COLUMN RESPONSIVE GAME GRID + INFINITE SCROLL */
+            <>
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
+                {filteredGames.map((game) => (
+                  <ProductCard
+                    key={game.id}
+                    orientation="vertical"
+                    title={game.title}
+                    imageSrc={game.imageSrc}
+                    genres={game.genres}
+                    platform={game.platform}
+                    showPrice={false}
+                    showActionButton={false}
+                    href={`/credentials/${game.id}`}
+                    className="hover:-translate-y-0.5 transition-transform duration-200 pb-8xl cursor-pointer"
+                  />
+                ))}
+              </div>
+              {isFetchingNextLibraryPage && (
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5 mt-4">
+                  {Array.from({ length: 4 }).map((_, idx) => (
+                    <ProductCardSkeleton key={idx} orientation="vertical" />
+                  ))}
+                </div>
+              )}
+              <div ref={librarySentinelRef} className="h-4 w-full" aria-hidden="true" />
+            </>
           ) : (
             /* SEARCHED - EMPTY STATE (Screenshot 4 Kanan) */
             <div className="py-20 flex items-center justify-center w-full">
@@ -679,19 +698,6 @@ export default function GameLibraryPage() {
                   setSearchQuery("");
                   handleClearAllFilters();
                 }}
-              />
-            </div>
-          )}
-
-          {/* ========================================================
-              PAGINATION (< 1 2 3 4 5 ... 25 >)
-             ======================================================== */}
-          {filteredGames.length > 0 && (
-            <div className="flex justify-center pt-8 sm:pt-12">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={totalPages}
-                onPageChange={setCurrentPage}
               />
             </div>
           )}

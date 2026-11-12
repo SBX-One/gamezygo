@@ -7,6 +7,7 @@ import {
   Breadcrumbs,
   Button,
   Pill,
+  Skeleton,
   TestimonialCard,
   Toast,
 } from "@/components/ui";
@@ -402,7 +403,7 @@ export default function GameStoreDetailPage() {
   const slug = typeof id === "string" ? id : "";
 
   // API Data Hook
-  const { data: productApiRes } = useProductDetail(slug);
+  const { data: productApiRes, isLoading: isProductLoading } = useProductDetail(slug);
   const apiProduct = productApiRes?.data;
 
   // Cart store integration
@@ -1060,6 +1061,44 @@ export default function GameStoreDetailPage() {
         contentClassName="p-0"
       >
         <div className="w-full max-w-full min-w-0 px-4 sm:px-6 md:px-8 lg:px-20 flex flex-col gap-8 sm:gap-12 lg:gap-11xl py-6 sm:py-10 lg:py-16">
+          {isProductLoading && !apiProduct ? (
+            <section className="w-full max-w-full min-w-0 grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-start">
+              <div className="w-full min-w-0 flex flex-col gap-6 col-span-1 lg:col-span-7">
+                <Skeleton className="h-5 w-48" />
+                <Skeleton className="w-full aspect-square sm:aspect-video rounded-xl" />
+                <div className="flex items-center gap-3">
+                  <Skeleton className="w-12 sm:w-16 h-13 sm:h-16 rounded-lg shrink-0" />
+                  <div className="flex-1 flex gap-3 overflow-hidden">
+                    {Array.from({ length: 4 }).map((_, idx) => (
+                      <Skeleton key={idx} className="w-20 sm:w-28 aspect-video rounded-lg shrink-0" />
+                    ))}
+                  </div>
+                  <Skeleton className="w-12 sm:w-16 h-13 sm:h-16 rounded-lg shrink-0" />
+                </div>
+                <div className="flex flex-col gap-3 pt-4">
+                  <Skeleton className="h-6 w-40" />
+                  <Skeleton className="h-4 w-full" />
+                  <Skeleton className="h-4 w-5/6" />
+                  <Skeleton className="h-4 w-2/3" />
+                </div>
+              </div>
+              <div className="w-full min-w-0 col-span-1 lg:col-span-5 flex flex-col gap-6 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md p-6">
+                <Skeleton className="h-4 w-24" />
+                <Skeleton className="h-8 w-3/4" />
+                <div className="flex gap-2">
+                  <Skeleton className="h-6 w-20 rounded-full" />
+                  <Skeleton className="h-6 w-20 rounded-full" />
+                </div>
+                <Skeleton className="h-9 w-44" />
+                <div className="flex flex-col gap-3 pt-2">
+                  <Skeleton className="h-11 w-full rounded-lg" />
+                  <Skeleton className="h-10 w-full rounded-lg" />
+                  <Skeleton className="h-10 w-full rounded-lg" />
+                </div>
+              </div>
+            </section>
+          ) : (
+          <>
           {/* =========================================================================
               MAIN GRID: 1 Column on Mobile/Tablet (< lg), 7 Columns on Desktop (>= lg)
               ========================================================================= */}
@@ -1415,6 +1454,8 @@ export default function GameStoreDetailPage() {
               {productInfoAndActions}
             </div>
           </section>
+          </>
+          )}
         </div>
 
         {/* Global Floating Toast */}

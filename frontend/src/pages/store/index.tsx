@@ -12,6 +12,8 @@ import {
   Toast,
   BannerCarousel,
   FilterBadgeSwiper,
+  ProductCardSkeleton,
+  Skeleton,
   type BannerSlide,
   type ProductCardRowItem,
 } from "@/components/ui";
@@ -100,7 +102,12 @@ const SearchIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 import productsData from "@/json/products.json";
 import { useAnnouncements } from "@/hooks/use-common";
-import { useCustomSections, useProducts, useProductFilters } from "@/hooks/use-products";
+import {
+  useCustomSections,
+  useInfiniteProducts,
+  useProductFilters,
+} from "@/hooks/use-products";
+import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
 import {
   mapProductToCardItem,
   mapAnnouncementToSlide,
@@ -214,10 +221,27 @@ export default function StorePage() {
   ]);
 
   // React Query API Data Hooks
-  const { data: announcementsData } = useAnnouncements();
-  const { data: sectionsData } = useCustomSections();
-  const { data: productsApiData, isLoading: isProductsLoading } = useProducts(apiQueryParams);
+  const { data: announcementsData, isLoading: isAnnouncementsLoading } = useAnnouncements();
+  const { data: sectionsData, isLoading: isSectionsLoading } = useCustomSections();
+  const {
+    data: productsInfiniteData,
+    isLoading: isProductsLoading,
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  } = useInfiniteProducts(apiQueryParams);
   const { data: filtersApiData } = useProductFilters();
+
+  const allApiProducts = React.useMemo(
+    () => productsInfiniteData?.pages.flatMap((page) => page.data ?? []) ?? [],
+    [productsInfiniteData]
+  );
+
+  const { sentinelRef } = useInfiniteScroll({
+    hasNextPage,
+    isFetchingNextPage,
+    fetchNextPage,
+  });
 
   // Interaction State Simulator for Screenshots 2 & 3
   const [previewState, setPreviewState] = React.useState<
@@ -347,7 +371,7 @@ export default function StorePage() {
   );
 
   const handleAddToCart = (gameTitle: string) => {
-    const matchedApi = productsApiData?.data?.find((p) => p.name === gameTitle);
+    const matchedApi = allApiProducts.find((p) => p.name === gameTitle);
     const matchedLocal = ALL_STORE_PRODUCTS.find((p) => p.title === gameTitle);
     const prodId = matchedApi ? String(matchedApi.id) : (matchedLocal?.id || gameTitle);
 
@@ -607,8 +631,10 @@ export default function StorePage() {
 
     let list: Array<ProductItem | ProductCardRowItem> = ALL_STORE_PRODUCTS;
 
-    if (productsApiData?.data !== undefined) {
-      list = productsApiData.data.map(mapProductToCardItem);
+    if (allApiProducts.length > 0 || !isProductsLoading) {
+      if (productsInfiniteData !== undefined) {
+        list = allApiProducts.map(mapProductToCardItem);
+      }
     }
 
     const query = searchQuery.trim().toLowerCase();
@@ -667,16 +693,18 @@ export default function StorePage() {
     appliedPriceRange,
     appliedSort,
     previewState,
-    productsApiData,
+    allApiProducts,
+    isProductsLoading,
+    productsInfiniteData,
   ]);
 
 
   const storeCatalogProducts = React.useMemo(() => {
-    if (productsApiData?.data !== undefined) {
-      return productsApiData.data.map(mapProductToCardItem);
+    if (productsInfiniteData !== undefined) {
+      return allApiProducts.map(mapProductToCardItem);
     }
     return ALL_STORE_PRODUCTS;
-  }, [productsApiData]);
+  }, [allApiProducts, productsInfiniteData]);
 
   // Is Search Active?
   const isSearchActive =
@@ -894,32 +922,45 @@ export default function StorePage() {
             </div>
 
             {/* Filtered Grid or Empty State */}
-            {searchResults.length > 0 &&
+            {isProductsLoading ? (
+              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                {Array.from({ length: 8 }).map((_, idx) => (
+                  <ProductCardSkeleton key={`search-skel-${idx}`} />
+                ))}
+              </div>
+            ) : searchResults.length > 0 &&
             previewState !== "searched-empty" &&
             previewState !== "filter-empty" ? (
-              <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-                {searchResults.map((product) => {
-                  const owned = isGameOwned(product.id, product.title);
-                  const inCart = isInCartStore(product.id, product.title);
-                  return (
-                    <ProductCard
-                      key={product.id}
-                      title={product.title}
-                      imageSrc={product.imageSrc}
-                      genres={product.genres}
-                      originalPrice={product.originalPrice}
-                      price={product.price}
-                      discount={product.discount}
-                      platform={product.platform}
-                      buttonText={owned ? "Sudah Dimiliki" : inCart ? "Di Keranjang" : "Tambah Keranjang"}
-                      isActionDisabled={owned || inCart}
-                      href={`/store/${product.id}`}
-                      onActionClick={() => handleAddToCart(product.title)}
-                      className="pb-8xl"
-                    />
-                  );
-                })}
-              </div>
+              <>
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                  {searchResults.map((product) => {
+                    const owned = isGameOwned(product.id, product.title);
+                    const inCart = isInCartStore(product.id, product.title);
+                    return (
+                      <ProductCard
+                        key={product.id}
+                        title={product.title}
+                        imageSrc={product.imageSrc}
+                        genres={product.genres}
+                        originalPrice={product.originalPrice}
+                        price={product.price}
+                        discount={product.discount}
+                        platform={product.platform}
+                        buttonText={owned ? "Sudah Dimiliki" : inCart ? "Di Keranjang" : "Tambah Keranjang"}
+                        isActionDisabled={owned || inCart}
+                        href={`/store/${product.id}`}
+                        onActionClick={() => handleAddToCart(product.title)}
+                        className="pb-8xl"
+                      />
+                    );
+                  })}
+                  {isFetchingNextPage &&
+                    Array.from({ length: 4 }).map((_, idx) => (
+                      <ProductCardSkeleton key={`search-next-skel-${idx}`} />
+                    ))}
+                </div>
+                {hasNextPage && <div ref={sentinelRef} className="h-10 w-full" />}
+              </>
             ) : (
               <div className="py-10xl">
                 <EmptyState
@@ -963,10 +1004,14 @@ export default function StorePage() {
             {/* 2. PROMO BANNER & MINI FEATURED CARDS SECTION */}
             <section className="flex flex-col xl:grid xl:grid-cols-5 gap-6 items-stretch">
               {/* Promo Banner Carousel: Di atas pada layar kecil/zoom (order-1), di kanan pada layar lebar (xl:order-2) */}
-              <BannerCarousel
-                slides={heroBanners}
-                className="order-1 xl:order-2 flex-1 min-w-0 xl:col-span-3 w-full h-65 sm:h-85 md:h-100 xl:h-136 min-h-65 sm:min-h-85 md:min-h-100 xl:min-h-136"
-              />
+              {isAnnouncementsLoading ? (
+                <Skeleton className="order-1 xl:order-2 flex-1 min-w-0 xl:col-span-3 w-full h-65 sm:h-85 md:h-100 xl:h-136 rounded-xl" />
+              ) : (
+                <BannerCarousel
+                  slides={heroBanners}
+                  className="order-1 xl:order-2 flex-1 min-w-0 xl:col-span-3 w-full h-65 sm:h-85 md:h-100 xl:h-136 min-h-65 sm:min-h-85 md:min-h-100 xl:min-h-136"
+                />
+              )}
 
               {/* 2 Horizontal Product Cards: Di bawah pada layar kecil/zoom (order-2), di kiri pada layar lebar (xl:order-1) */}
               <div className="order-2 xl:order-1 xl:col-span-2 flex flex-col gap-6 shrink-0 w-full justify-between">
@@ -997,7 +1042,16 @@ export default function StorePage() {
             </section>
 
             {/* 3. SECTIONS: DYNAMIC CUSTOM SECTIONS OR FALLBACK */}
-            {customSections && customSections.length > 0 ? (
+            {isSectionsLoading ? (
+              <section className="flex flex-col gap-6">
+                <Skeleton className="h-8 w-52" />
+                <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                  {Array.from({ length: 4 }).map((_, idx) => (
+                    <ProductCardSkeleton key={`sec-skel-${idx}`} />
+                  ))}
+                </div>
+              </section>
+            ) : customSections && customSections.length > 0 ? (
               customSections.map((sec) => {
                 const secProducts = enrichRowItems(mapSectionProducts(sec));
                 if (secProducts.length === 0) return null;
@@ -1064,24 +1118,37 @@ export default function StorePage() {
                 showAction={false}
               />
 
-              {storeCatalogProducts.length > 0 ? (
-                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
-                  {storeCatalogProducts.map((product) => (
-                    <ProductCard
-                      key={product.id}
-                      title={product.title}
-                      imageSrc={product.imageSrc}
-                      genres={product.genres}
-                      originalPrice={product.originalPrice}
-                      price={product.price}
-                      discount={product.discount}
-                      platform={product.platform}
-                      href={`/store/${product.id}`}
-                      onActionClick={() => handleAddToCart(product.title)}
-                      className="pb-8xl"
-                    />
+              {isProductsLoading ? (
+                <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                  {Array.from({ length: 8 }).map((_, idx) => (
+                    <ProductCardSkeleton key={`catalog-skel-${idx}`} />
                   ))}
                 </div>
+              ) : storeCatalogProducts.length > 0 ? (
+                <>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
+                    {storeCatalogProducts.map((product) => (
+                      <ProductCard
+                        key={product.id}
+                        title={product.title}
+                        imageSrc={product.imageSrc}
+                        genres={product.genres}
+                        originalPrice={product.originalPrice}
+                        price={product.price}
+                        discount={product.discount}
+                        platform={product.platform}
+                        href={`/store/${product.id}`}
+                        onActionClick={() => handleAddToCart(product.title)}
+                        className="pb-8xl"
+                      />
+                    ))}
+                    {isFetchingNextPage &&
+                      Array.from({ length: 4 }).map((_, idx) => (
+                        <ProductCardSkeleton key={`catalog-next-skel-${idx}`} />
+                      ))}
+                  </div>
+                  {hasNextPage && <div ref={sentinelRef} className="h-10 w-full" />}
+                </>
               ) : (
                 <div className="py-12 text-center text-gray-400">
                   <p className="text-body-md">Belum ada game yang ditampilkan di katalog toko.</p>

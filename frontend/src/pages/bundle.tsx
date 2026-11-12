@@ -6,11 +6,13 @@ import {
   Header,
   Button,
   ProductCard,
+  ProductCardSkeleton,
   FilterModal,
   EmptyState,
   Accordion,
   PricingCard,
   GameListItem,
+  Skeleton,
   Toast,
 } from "@/components/ui";
 import { useAuthStore } from "@/stores/use-auth-store";
@@ -18,8 +20,9 @@ import { useCartStore } from "@/stores/use-cart-store";
 import {
   useSubscriptionPlans,
   useUserSubscription,
-  useSubscriptionProducts,
+  useInfiniteSubscriptionProducts,
 } from "@/hooks/use-subscriptions";
+import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
 import { formatRupiah } from "@/utils/formatters";
 import { useFaqs } from "@/hooks/use-common";
 import { useCreateOrder } from "@/hooks/use-orders";
@@ -591,10 +594,21 @@ export default function BundlePage() {
   const isLoggedIn = isMounted && Boolean(isAuthenticated && authUser);
 
   // TanStack Query: Subscriptions API
-  const { data: subscriptionPlansRes } = useSubscriptionPlans();
+  const { data: subscriptionPlansRes, isLoading: isPlansLoading } = useSubscriptionPlans();
   const { data: userSubRes } = useUserSubscription();
-  const { data: subsProductsRes } = useSubscriptionProducts();
-  const { data: faqsApiRes } = useFaqs();
+  const {
+    data: subsProductsPages,
+    isLoading: isSubsProductsLoading,
+    fetchNextPage: fetchNextSubsProducts,
+    hasNextPage: hasNextSubsProducts,
+    isFetchingNextPage: isFetchingNextSubsProducts,
+  } = useInfiniteSubscriptionProducts();
+  const { sentinelRef: subsSentinelRef } = useInfiniteScroll({
+    hasNextPage: hasNextSubsProducts,
+    isFetchingNextPage: isFetchingNextSubsProducts,
+    fetchNextPage: fetchNextSubsProducts,
+  });
+  const { data: faqsApiRes, isLoading: isFaqsLoading } = useFaqs();
   const createOrderMutation = useCreateOrder();
   const resolvedFaqs = React.useMemo(() => {
     if (faqsApiRes?.data && faqsApiRes.data.length > 0) {
@@ -953,9 +967,15 @@ export default function BundlePage() {
     appliedLaunchers.length > 0 ||
     appliedSort !== "Terbaru";
 
+  const subsProductsList = React.useMemo(() => {
+    return subsProductsPages?.pages?.flatMap((page) => page.data ?? []) ?? [];
+  }, [subsProductsPages]);
+
+  const totalSubsProducts = subsProductsPages?.pages?.[0]?.meta?.total;
+
   const bundleGames: BundleGame[] = React.useMemo(() => {
-    if (subsProductsRes?.data && subsProductsRes.data.length > 0) {
-      return subsProductsRes.data.map((item) => ({
+    if (subsProductsList.length > 0) {
+      return subsProductsList.map((item) => ({
         id: String(item.id),
         slug: item.slug || String(item.id),
         steamAppId: (item as unknown as { steam_app_id?: number }).steam_app_id,
@@ -966,7 +986,7 @@ export default function BundlePage() {
       }));
     }
     return BUNDLE_GAMES;
-  }, [subsProductsRes]);
+  }, [subsProductsList]);
 
   const filteredGames: BundleGame[] = React.useMemo(() => {
     let list = [...bundleGames];
@@ -999,7 +1019,7 @@ export default function BundlePage() {
     }
 
     return list;
-  }, [isSearchActive, searchQuery, appliedGenres, appliedLaunchers, appliedSort]);
+  }, [bundleGames, isSearchActive, searchQuery, appliedGenres, appliedLaunchers, appliedSort]);
 
   // GUEST LANDING VIEW (matching previous subscription view)
   if (!isLoggedIn) {
@@ -1045,20 +1065,41 @@ export default function BundlePage() {
                 2. PRICING PLANS SECTION (Paket 1, Paket 2, Paket 3)
                ======================================================== */}
             <section className="w-full mx-auto">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch lg:px-10xl">
-                {pricingPlans.map((plan) => (
-                  <PricingCard
-                    key={plan.id}
-                    type={plan.type}
-                    title={plan.title}
-                    price={plan.price}
-                    period={plan.period}
-                    features={plan.features}
-                    actionText="Subscribe"
-                    onActionClick={() => handleSubscribeAction(plan.title)}
-                  />
-                ))}
-              </div>
+              {isPlansLoading && !subscriptionPlansRes ? (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch lg:px-10xl">
+                  {Array.from({ length: 3 }).map((_, idx) => (
+                    <div
+                      key={idx}
+                      className="rounded-xl border border-white/10 bg-white/5 backdrop-blur-md p-6 flex flex-col gap-5"
+                    >
+                      <Skeleton className="h-6 w-28" />
+                      <Skeleton className="h-9 w-40" />
+                      <div className="flex flex-col gap-2.5 pt-2">
+                        <Skeleton className="h-4 w-full" />
+                        <Skeleton className="h-4 w-5/6" />
+                        <Skeleton className="h-4 w-4/5" />
+                        <Skeleton className="h-4 w-3/4" />
+                      </div>
+                      <Skeleton className="h-11 w-full rounded-lg mt-auto" />
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-5 items-stretch lg:px-10xl">
+                  {pricingPlans.map((plan) => (
+                    <PricingCard
+                      key={plan.id}
+                      type={plan.type}
+                      title={plan.title}
+                      price={plan.price}
+                      period={plan.period}
+                      features={plan.features}
+                      actionText="Subscribe"
+                      onActionClick={() => handleSubscribeAction(plan.title)}
+                    />
+                  ))}
+                </div>
+              )}
             </section>
           </div>
 
@@ -1087,7 +1128,7 @@ export default function BundlePage() {
                 size="sm"
                 className="shrink-0"
               >
-                Total : {subsProductsRes?.meta?.total || "50.000"} Games
+                Total : {totalSubsProducts || "50.000"} Games
               </Button>
             </div>
 
@@ -1144,12 +1185,20 @@ export default function BundlePage() {
             </div>
 
             <div className="flex-1 min-w-0 w-full lg:col-span-4">
-              <Accordion
-                items={resolvedFaqs}
-                defaultOpenId="faq-1"
-                allowMultiple={false}
-                isLanding={true}
-              />
+              {isFaqsLoading && !faqsApiRes ? (
+                <div className="flex flex-col gap-3">
+                  {Array.from({ length: 4 }).map((_, idx) => (
+                    <Skeleton key={idx} className="h-16 w-full rounded-xl" />
+                  ))}
+                </div>
+              ) : (
+                <Accordion
+                  items={resolvedFaqs}
+                  defaultOpenId="faq-1"
+                  allowMultiple={false}
+                  isLanding={true}
+                />
+              )}
             </div>
           </section>
 
@@ -1530,29 +1579,45 @@ export default function BundlePage() {
               </div>
 
               {/* GRID GAME ATAU EMPTY STATE (Screenshot 4: Paid-Searched / Paid-Empty) */}
-              {filteredGames.length > 0 ? (
+              {isSubsProductsLoading && subsProductsList.length === 0 ? (
                 <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
-                  {filteredGames.map((game) => {
-                    const targetSlug =
-                      game.slug ||
-                      (game.steamAppId ? String(game.steamAppId) : undefined) ||
-                      game.id;
-                    return (
-                      <ProductCard
-                        key={game.id}
-                        orientation="vertical"
-                        title={game.title}
-                        imageSrc={game.imageSrc}
-                        genres={game.genres}
-                        platform={game.launcher}
-                        showPrice={false}
-                        showActionButton={false}
-                        href={`/credentials/${targetSlug}`}
-                        className="hover:-translate-y-0.5 transition-transform duration-200 pb-8xl cursor-pointer"
-                      />
-                    );
-                  })}
+                  {Array.from({ length: 8 }).map((_, idx) => (
+                    <ProductCardSkeleton key={idx} orientation="vertical" />
+                  ))}
                 </div>
+              ) : filteredGames.length > 0 ? (
+                <>
+                  <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5">
+                    {filteredGames.map((game) => {
+                      const targetSlug =
+                        game.slug ||
+                        (game.steamAppId ? String(game.steamAppId) : undefined) ||
+                        game.id;
+                      return (
+                        <ProductCard
+                          key={game.id}
+                          orientation="vertical"
+                          title={game.title}
+                          imageSrc={game.imageSrc}
+                          genres={game.genres}
+                          platform={game.launcher}
+                          showPrice={false}
+                          showActionButton={false}
+                          href={`/credentials/${targetSlug}`}
+                          className="hover:-translate-y-0.5 transition-transform duration-200 pb-8xl cursor-pointer"
+                        />
+                      );
+                    })}
+                  </div>
+                  {isFetchingNextSubsProducts && (
+                    <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3 sm:gap-5 mt-4">
+                      {Array.from({ length: 4 }).map((_, idx) => (
+                        <ProductCardSkeleton key={idx} orientation="vertical" />
+                      ))}
+                    </div>
+                  )}
+                  <div ref={subsSentinelRef} className="h-4 w-full" aria-hidden="true" />
+                </>
               ) : (
                 <div className="py-20 flex items-center justify-center w-full">
                   <EmptyState
@@ -1605,7 +1670,15 @@ export default function BundlePage() {
             </div>
 
             <div className="flex-1 min-w-0">
-              <Accordion items={FAQ_ITEMS} defaultOpenId="faq-1" />
+              {isFaqsLoading && !faqsApiRes ? (
+                <div className="flex flex-col gap-3">
+                  {Array.from({ length: 4 }).map((_, idx) => (
+                    <Skeleton key={idx} className="h-16 w-full rounded-xl" />
+                  ))}
+                </div>
+              ) : (
+                <Accordion items={resolvedFaqs} defaultOpenId="faq-1" />
+              )}
             </div>
           </section>
         </div>

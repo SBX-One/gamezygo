@@ -9,6 +9,7 @@ import {
   BannerCarousel,
   ProductCard,
   ProductCardRow,
+  ProductCardSkeleton,
   GameListItem,
   Tabs,
   SectionHeader,
@@ -17,6 +18,7 @@ import {
   TestimonialCard,
   Accordion,
   BlogCard,
+  Skeleton,
   Toast,
   CinematicLoader,
 } from "@/components/ui";
@@ -385,7 +387,7 @@ export default function LandingPage() {
   };
 
   // 1. Hero Announcements / Banners
-  const { data: announcementsRes } = useAnnouncements();
+  const { data: announcementsRes, isLoading: isAnnouncementsLoading } = useAnnouncements();
   const bannerSlides: BannerSlide[] = React.useMemo(() => {
     if (announcementsRes?.data && announcementsRes.data.length > 0) {
       return announcementsRes.data.map(mapAnnouncementToSlide);
@@ -429,7 +431,7 @@ export default function LandingPage() {
   }, [communityGroups, showAllCommunities]);
 
   // 2. Custom Sections & Products
-  const { data: sectionsRes } = useCustomSections();
+  const { data: sectionsRes, isLoading: isSectionsLoading } = useCustomSections();
   const { data: productsRes } = useProducts();
 
   const customSections = React.useMemo(() => {
@@ -1070,7 +1072,7 @@ export default function LandingPage() {
   }, [testimonialItems]);
 
   // 9. FAQs
-  const { data: faqsRes } = useFaqs();
+  const { data: faqsRes, isLoading: isFaqsLoading } = useFaqs();
   const faqItems = React.useMemo(() => {
     if (faqsRes?.data && faqsRes.data.length > 0) {
       return faqsRes.data.map((f) => ({
@@ -1240,11 +1242,15 @@ export default function LandingPage() {
            ======================================================== */}
         <section data-animate-section="hero" className="w-full flex flex-col gap-12">
           <div data-animate="hero-banner">
-            <BannerCarousel
-              slides={bannerSlides}
-              autoPlayInterval={6000}
-              className="w-full h-55 sm:h-75 lg:h-105 min-h-55 sm:min-h-75 lg:min-h-105 rounded-lg overflow-hidden shadow-2xl"
-            />
+            {isAnnouncementsLoading && !announcementsRes ? (
+              <Skeleton className="w-full h-55 sm:h-75 lg:h-105 min-h-55 sm:min-h-75 lg:min-h-105 rounded-lg" />
+            ) : (
+              <BannerCarousel
+                slides={bannerSlides}
+                autoPlayInterval={6000}
+                className="w-full h-55 sm:h-75 lg:h-105 min-h-55 sm:min-h-75 lg:min-h-105 rounded-lg overflow-hidden shadow-2xl"
+              />
+            )}
           </div>
 
         {/* ========================================================
@@ -1373,7 +1379,16 @@ export default function LandingPage() {
         {/* ========================================================
             4 & 5. DYNAMIC CUSTOM SECTIONS OR FALLBACK (TAWARAN KHUSUS & RILISAN TERBARU)
            ======================================================== */}
-        {customSections && customSections.length > 0 ? (
+        {isSectionsLoading && !sectionsRes ? (
+          <section className="w-full flex flex-col gap-6">
+            <Skeleton className="h-8 w-64" />
+            <div className="grid grid-cols-2 md:grid-cols-4 gap-4 sm:gap-5">
+              {Array.from({ length: 4 }).map((_, idx) => (
+                <ProductCardSkeleton key={idx} orientation="vertical" />
+              ))}
+            </div>
+          </section>
+        ) : customSections && customSections.length > 0 ? (
           customSections.map((sec, idx) => {
             const secProducts = enrichRowItems(mapSectionProducts(sec));
             if (secProducts.length === 0) return null;
@@ -1800,7 +1815,15 @@ export default function LandingPage() {
           </div>
 
           <div data-animate="right-column" className="flex-1 min-w-0 w-full lg:col-span-4">
-            <Accordion items={faqItems} defaultOpenId="faq-1" allowMultiple={false} isLanding={true} />
+            {isFaqsLoading && !faqsRes ? (
+              <div className="flex flex-col gap-3">
+                {Array.from({ length: 4 }).map((_, idx) => (
+                  <Skeleton key={idx} className="h-16 w-full rounded-xl" />
+                ))}
+              </div>
+            ) : (
+              <Accordion items={faqItems} defaultOpenId="faq-1" allowMultiple={false} isLanding={true} />
+            )}
           </div>
         </section>
 

@@ -15,42 +15,29 @@ export interface SubscriptionProductsParams {
 
 /**
  * Fetch available subscription plans
- * Primary Endpoint: GET /api/v1/subscriptions/
- * Fallback Endpoint: GET /api/v1/user/subscriptions/
+ * Endpoint: GET /api/v1/subscriptions
  */
 export async function fetchSubscriptionPlans(): Promise<
   ApiResponse<SubscriptionPlan[]>
 > {
-  try {
-    return await apiGet<ApiResponse<SubscriptionPlan[]>>("/user/subscriptions");
-  } catch {
-    return apiGet<ApiResponse<SubscriptionPlan[]>>("/subscriptions");
-  }
+  return apiGet<ApiResponse<SubscriptionPlan[]>>("/subscriptions");
 }
 
 /**
  * Fetch user's currently active subscription
- * Primary Endpoint (Postman user): GET /api/v1/user/profile/subscriptions
- * Fallback Endpoints: GET /api/v1/user/subscriptions or GET /api/v1/user/subscription
+ * Endpoint: GET /api/v1/user/subscriptions
  */
 export async function fetchUserSubscription(): Promise<
   ApiResponse<UserActiveSubscription | null>
 > {
-  try {
-    return await apiGet<ApiResponse<UserActiveSubscription | null>>(
-      "/user/profile/subscriptions"
-    );
-  } catch {
-    return apiGet<ApiResponse<UserActiveSubscription | null>>(
-      "/user/subscription"
-    );
-  }
+  return apiGet<ApiResponse<UserActiveSubscription | null>>(
+    "/user/subscriptions"
+  );
 }
 
 /**
  * Fetch products included in subscription bundle
- * Primary Endpoint (Postman user): GET /api/v1/user/profile/subscription/product
- * Fallback Endpoint: GET /api/v1/user/subscription/product
+ * Endpoint: GET /api/v1/user/subscriptions/products
  */
 export async function fetchSubscriptionProducts(
   paramsOrPage?: number | SubscriptionProductsParams
@@ -75,13 +62,7 @@ export async function fetchSubscriptionProducts(
 
   const query = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
 
-  try {
-    return await apiGet<ApiPaginatedResponse<SubscriptionProductItem>>(
-      `/user/profile/subscriptions/products${query}`
-    );
-  } catch {
-    return apiGet<ApiPaginatedResponse<SubscriptionProductItem>>(
-      `/user/subscriptions/products${query}`
-    );
-  }
+  return apiGet<ApiPaginatedResponse<SubscriptionProductItem>>(
+    `/user/subscriptions/products${query}`
+  );
 }

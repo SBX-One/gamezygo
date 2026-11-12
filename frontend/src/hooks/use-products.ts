@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useInfiniteQuery } from "@tanstack/react-query";
 import {
   fetchProducts,
   fetchProductDetail,
@@ -11,6 +11,8 @@ export const PRODUCT_KEYS = {
   all: ["products"] as const,
   lists: () => [...PRODUCT_KEYS.all, "list"] as const,
   list: (params?: FetchProductsParams) => [...PRODUCT_KEYS.lists(), params] as const,
+  infinite: (params?: Omit<FetchProductsParams, "page">) =>
+    [...PRODUCT_KEYS.lists(), "infinite", params] as const,
   details: () => [...PRODUCT_KEYS.all, "detail"] as const,
   detail: (slug: string) => [...PRODUCT_KEYS.details(), slug] as const,
   filters: () => [...PRODUCT_KEYS.all, "filters"] as const,
@@ -24,6 +26,27 @@ export function useProducts(params?: FetchProductsParams) {
   return useQuery({
     queryKey: PRODUCT_KEYS.list(params),
     queryFn: () => fetchProducts(params),
+  });
+}
+
+/**
+ * Hook to fetch products incrementally for infinite scroll
+ */
+export function useInfiniteProducts(
+  params?: Omit<FetchProductsParams, "page">
+) {
+  return useInfiniteQuery({
+    queryKey: PRODUCT_KEYS.infinite(params),
+    queryFn: ({ pageParam = 1 }) =>
+      fetchProducts({ ...params, page: Number(pageParam) }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      const meta = lastPage?.meta;
+      if (meta && meta.current_page < meta.last_page) {
+        return meta.current_page + 1;
+      }
+      return undefined;
+    },
   });
 }
 

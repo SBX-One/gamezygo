@@ -77,4 +77,17 @@ Route::middleware(['auth:admin', 'admin.only'])
                 Route::match(['put', 'patch', 'post'], '/{announcementId}/publish', 'publish')->whereNumber('announcementId');
                 Route::delete('/{announcementId}', 'destroy')->whereNumber('announcementId');
             });
+
+        Route::controller(\App\Http\Controllers\Api\V1\Admin\Community\AdminCommunityController::class)
+            ->prefix('communities')
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::get('/tags', 'tags');
+                Route::post('/sort', 'sort');
+                Route::post('/', 'store');
+                Route::get('/{communityId}', 'show')->whereNumber('communityId');
+                Route::match(['put', 'patch', 'post'], '/{communityId}', 'update')->whereNumber('communityId');
+                Route::match(['put', 'patch', 'post'], '/{communityId}/status', 'status')->whereNumber('communityId');
+                Route::delete('/{communityId}', 'destroy')->whereNumber('communityId');
+            });
     });

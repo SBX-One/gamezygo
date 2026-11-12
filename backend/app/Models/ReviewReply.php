@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 #[Fillable([
     'review_id',
     'user_id',
+    'admin_id',
     'message',
 ])]
 class ReviewReply extends Model
@@ -25,5 +26,10 @@ class ReviewReply extends Model
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
+    }
+
+    public function admin(): BelongsTo
+    {
+        return $this->belongsTo(Admin::class);
     }
 }

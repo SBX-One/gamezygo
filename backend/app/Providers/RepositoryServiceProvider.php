@@ -97,6 +97,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(AdminCommunityRepositoryInterface::class, AdminCommunityRepository::class);
         $this->app->bind(\App\Repositories\Contracts\Api\V1\Admin\Category\AdminProductCategoryRepositoryInterface::class, \App\Repositories\Api\V1\Admin\Category\AdminProductCategoryRepository::class);
         $this->app->bind(\App\Repositories\Contracts\Api\V1\Admin\Category\AdminBlogCategoryRepositoryInterface::class, \App\Repositories\Api\V1\Admin\Category\AdminBlogCategoryRepository::class);
+        $this->app->bind(\App\Repositories\Contracts\Api\V1\Admin\Review\AdminReviewRepositoryInterface::class, \App\Repositories\Api\V1\Admin\Review\AdminReviewRepository::class);
     }
 
     /**

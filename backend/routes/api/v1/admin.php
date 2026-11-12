@@ -14,6 +14,7 @@ use App\Http\Controllers\Api\V1\Admin\Faq\AdminFaqController;
 use App\Http\Controllers\Api\V1\Admin\GameRequest\AdminGameRequestController;
 use App\Http\Controllers\Api\V1\Admin\Instruction\AdminInstructionController;
 use App\Http\Controllers\Api\V1\Admin\Revenue\AdminRevenueController;
+use App\Http\Controllers\Api\V1\Admin\Review\AdminReviewController;
 use App\Http\Controllers\Api\V1\Admin\Subscription\AdminSubscriptionController;
 use App\Http\Controllers\Api\V1\Admin\Voucher\AdminVoucherController;
 use Illuminate\Support\Facades\Route;
@@ -273,6 +274,19 @@ Route::prefix('admin')
         Route::post('/', 'store')->name('store');
         Route::get('/{id}', 'show')->name('show')->whereNumber('id');
         Route::match(['put', 'patch', 'post'], '/{id}', 'update')->name('update')->whereNumber('id');
+        Route::delete('/{id}', 'destroy')->name('destroy')->whereNumber('id');
+      });
+
+    // Review Management
+    Route::controller(AdminReviewController::class)
+      ->prefix('reviews')
+      ->name('reviews.')
+      ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::delete('/', 'bulkDestroy')->name('destroy.bulk');
+        Route::get('/{id}', 'show')->name('show')->whereNumber('id');
+        Route::match(['put', 'patch', 'post'], '/{id}/status', 'updateStatus')->name('status')->whereNumber('id');
+        Route::post('/{id}/reply', 'reply')->name('reply')->whereNumber('id');
         Route::delete('/{id}', 'destroy')->name('destroy')->whereNumber('id');
       });
   });

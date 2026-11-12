@@ -156,4 +156,15 @@ Route::middleware(['auth:admin', 'admin.only'])
                 Route::match(['put', 'patch', 'post'], '/{id}', 'update')->whereNumber('id');
                 Route::delete('/{id}', 'destroy')->whereNumber('id');
             });
+
+        Route::controller(\App\Http\Controllers\Api\V1\Admin\Review\AdminReviewController::class)
+            ->prefix('reviews')
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::delete('/', 'bulkDestroy');
+                Route::get('/{id}', 'show')->whereNumber('id');
+                Route::match(['put', 'patch', 'post'], '/{id}/status', 'updateStatus')->whereNumber('id');
+                Route::post('/{id}/reply', 'reply')->whereNumber('id');
+                Route::delete('/{id}', 'destroy')->whereNumber('id');
+            });
     });

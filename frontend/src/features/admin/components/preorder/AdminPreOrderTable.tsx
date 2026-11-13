@@ -219,7 +219,8 @@ export function AdminPreOrderTable({
                         "transition-colors",
                         isSelected
                           ? "bg-deep-blue-900/40 hover:bg-deep-blue-900/50"
-                          : "hover:bg-deep-blue-900/25"
+                          : "hover:bg-deep-blue-900/25",
+                        activeMenuId === item.id && "relative z-30"
                       )}
                     >
                       {/* Column 1: Checkbox + Game Thumbnail + Title */}
@@ -305,7 +306,7 @@ export function AdminPreOrderTable({
                             ref={menuRef}
                             className={cn(
                               "absolute right-0 z-40 w-52 rounded-lg bg-deep-blue-950 border border-deep-blue-700 shadow-2xl p-2 text-left animate-in fade-in zoom-in-95 duration-100 space-y-1.5 select-none",
-                              idx === 0 ? "top-full mt-1.5" : "bottom-full mb-1.5"
+                              isNearBottom ? "bottom-full mb-1.5" : "top-full mt-1.5"
                             )}
                           >
                             {/* 1. Continue to List (Image 1 & 2) */}

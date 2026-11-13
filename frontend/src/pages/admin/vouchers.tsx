@@ -116,8 +116,7 @@ export default function AdminVouchersPage() {
   };
 
   const handleEditItem = (item: AdminVoucherItem) => {
-    setEditingItem(item);
-    setIsAddEditModalOpen(true);
+    router.push(`/admin/vouchers/add?id=${item.id}`);
   };
 
   const handleSaveVoucher = async (

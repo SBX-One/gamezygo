@@ -10,6 +10,7 @@ import type {
   VoucherTargetUser,
 } from "../../../types/admin-voucher.types";
 import { Pill } from "@/components/ui";
+import { calculateDiscountedGamePrice } from "../../../utils/voucher-price-calculator";
 
 export interface AdminAddVoucherTargetSectionProps {
   formData: AdminAddVoucherFormData;
@@ -169,56 +170,70 @@ export function AdminAddVoucherTargetSection({
               onScroll={handleGamesScroll}
               className="max-h-[560px] overflow-y-auto space-y-2.5 pr-1.5 overscroll-contain"
             >
-              {displayedGames.map((game) => (
-                <div
-                  key={game.id}
-                  className="rounded-lg bg-deep-blue-900 border border-deep-blue-700 p-3 flex items-center justify-between gap-3 shadow-xs"
-                >
-                  {/* Left: Thumbnail + Title + Badge */}
-                  <div className="flex items-center gap-3 min-w-0">
-                    <div className="relative w-11 h-14 rounded-md overflow-hidden bg-black/40 border border-white/10 shrink-0">
-                      <Image
-                        src={game.imageSrc}
-                        alt={game.title}
-                        fill
-                        sizes="44px"
-                        unoptimized
-                        className="object-cover"
-                      />
+              {displayedGames.map((game) => {
+                const calc =
+                  game.discountPercentage > 0 && game.discountedPrice > 0
+                    ? {
+                        discountPercentage: game.discountPercentage,
+                        discountedPrice: game.discountedPrice,
+                      }
+                    : calculateDiscountedGamePrice(
+                        game.originalPrice,
+                        formData.discountType,
+                        formData.discountValue
+                      );
+
+                return (
+                  <div
+                    key={game.id}
+                    className="rounded-lg bg-deep-blue-900 border border-deep-blue-700 p-3 flex items-center justify-between gap-3 shadow-xs"
+                  >
+                    {/* Left: Thumbnail + Title + Badge */}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div className="relative w-11 h-14 rounded-md overflow-hidden bg-black/40 border border-white/10 shrink-0">
+                        <Image
+                          src={game.imageSrc}
+                          alt={game.title}
+                          fill
+                          sizes="44px"
+                          unoptimized
+                          className="object-cover"
+                        />
+                      </div>
+                      <div className="min-w-0">
+                        <h4 className="text-sm font-semibold text-white truncate">
+                          {game.title}
+                        </h4>
+                        <Pill size={"xs"} className="px-3 py-0.5">
+                          -{calc.discountPercentage}%
+                        </Pill>
+                      </div>
                     </div>
-                    <div className="min-w-0">
-                      <h4 className="text-sm font-semibold text-white truncate">
-                        {game.title}
-                      </h4>
-                      <Pill size={"xs"} className="px-3 py-0.5">
-                        -{game.discountPercentage}%
-                      </Pill>
+
+                    <div className="flex gap-3 items-end">
+                      {/* Middle: Prices */}
+                      <div className="text-right shrink-0 px-2">
+                        <div className="text-label-xs text-gray-500 line-through">
+                          {formatCurrency(game.originalPrice)},00
+                        </div>
+                        <div className="text-sm font-bold text-white">
+                          {formatCurrency(calc.discountedPrice)}
+                        </div>
+                      </div>
+
+                      {/* Right: Remove Button */}
+                      <Button
+                        type="button"
+                        variant="inactive"
+                        size="sm"
+                        onClick={() => handleRemoveGame(game.id)}
+                      >
+                        Remove
+                      </Button>
                     </div>
                   </div>
-
-                  <div className="flex gap-3 items-end">
-                    {/* Middle: Prices */}
-                    <div className="text-right shrink-0 px-2">
-                      <div className="text-label-xs text-gray-500 line-through">
-                        {formatCurrency(game.originalPrice)},00
-                      </div>
-                      <div className="text-sm font-bold text-white">
-                        {formatCurrency(game.discountedPrice)}
-                      </div>
-                    </div>
-
-                    {/* Right: Remove Button */}
-                    <Button
-                      type="button"
-                      variant="inactive"
-                      size="sm"
-                      onClick={() => handleRemoveGame(game.id)}
-                    >
-                      Remove
-                    </Button>
-                  </div>
-                </div>
-              ))}
+                );
+              })}
 
               {visibleGamesCount < formData.targetGames.length && (
                 <div className="py-2.5 text-center text-label-xs text-gray-400 bg-white/[0.02] border border-white/5 rounded-lg">
@@ -327,6 +342,8 @@ export function AdminAddVoucherTargetSection({
         onClose={() => setIsGameModalOpen(false)}
         selectedGames={formData.targetGames}
         onSaveGames={handleSaveGames}
+        discountType={formData.discountType}
+        discountValue={formData.discountValue}
       />
 
       {/* Modal Add User (Matching Image 2) */}

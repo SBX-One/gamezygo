@@ -298,15 +298,17 @@ export function AdminCatalogTable({
               </AdminTableRow>
             ))
           ) : items.length > 0 ? (
-            items.map((item) => {
+            items.map((item, idx) => {
               const isSelected = selectedIds.includes(item.id);
               const isMenuOpen = activeMenuId === item.id;
+              const isNearBottom = items.length > 2 ? idx >= items.length - 2 : idx > 0;
 
               return (
                 <AdminTableRow
                   key={item.id}
                   className={cn(
-                    isSelected && "bg-white/2"
+                    isSelected && "bg-white/2",
+                    isMenuOpen && "relative z-30"
                   )}
                 >
                   {/* Column 1: Switch Active/Inactive */}
@@ -382,7 +384,10 @@ export function AdminCatalogTable({
                       {isMenuOpen && (
                         <div
                           ref={menuRef}
-                          className="absolute right-0 top-8 z-30 min-w-37.5 rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-3 shadow-2xl animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-2 text-left"
+                          className={cn(
+                            "absolute right-0 z-50 min-w-37.5 rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-3 shadow-2xl animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-2 text-left",
+                            isNearBottom ? "bottom-full mb-1.5" : "top-full mt-1.5"
+                          )}
                         >
                           <button
                             type="button"

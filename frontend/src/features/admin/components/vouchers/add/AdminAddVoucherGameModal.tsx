@@ -5,12 +5,15 @@ import { useEligibleVoucherProducts } from "@/hooks/use-admin-vouchers";
 import { resolveImageUrl } from "@/utils/image-url";
 import { Button } from "@/components/ui/Button";
 import type { VoucherTargetGame } from "../../../types/admin-voucher.types";
+import { calculateDiscountedGamePrice } from "../../../utils/voucher-price-calculator";
 
 export interface AdminAddVoucherGameModalProps {
   isOpen: boolean;
   onClose: () => void;
   selectedGames: VoucherTargetGame[];
   onSaveGames: (games: VoucherTargetGame[]) => void;
+  discountType?: "percentage" | "fixed";
+  discountValue?: number | string;
   className?: string;
 }
 
@@ -89,6 +92,8 @@ export function AdminAddVoucherGameModal({
   onClose,
   selectedGames,
   onSaveGames,
+  discountType = "percentage",
+  discountValue = "10%",
   className,
 }: AdminAddVoucherGameModalProps) {
   const [search, setSearch] = React.useState("");
@@ -167,13 +172,18 @@ export function AdminAddVoucherGameModal({
       .map((id) => {
         const g = availableById.get(id);
         if (g) {
+          const calc = calculateDiscountedGamePrice(
+            g.price,
+            discountType,
+            discountValue
+          );
           return {
             id: g.id,
             title: g.name,
             imageSrc: g.imageSrc,
-            discountPercentage: 30,
+            discountPercentage: calc.discountPercentage,
             originalPrice: g.price,
-            discountedPrice: Math.round(g.price * 0.7),
+            discountedPrice: calc.discountedPrice,
           };
         }
         return selectedById.get(id) ?? null;

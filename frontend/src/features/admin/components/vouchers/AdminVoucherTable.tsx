@@ -139,6 +139,23 @@ const TrashIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+const ArrowRightThinIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <polyline points="12 5 19 12 12 19" />
+  </svg>
+);
+
 // Gamepad Icon for Empty State (Matching Image 2)
 const GamepadIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -227,7 +244,7 @@ export function AdminVoucherTable({
   return (
     <div
       className={cn(
-        "w-full rounded-lg bg-deep-blue-950 border border-deep-blue-700 overflow-hidden shadow-sm select-none font-sans",
+        "w-full rounded-lg bg-deep-blue-950 border border-deep-blue-700 shadow-sm select-none font-sans min-h-[300px]",
         className
       )}
     >
@@ -382,14 +399,15 @@ export function AdminVoucherTable({
               </AdminTableRow>
             ))
           ) : items.length > 0 ? (
-            items.map((item) => {
+            items.map((item, idx) => {
               const isSelected = selectedIds.includes(item.id);
               const isMenuOpen = activeMenuId === item.id;
+              const isNearBottom = items.length > 3 ? idx >= items.length - 3 : idx > 0;
 
               return (
                 <AdminTableRow
                   key={item.id}
-                  className={cn(isSelected && "bg-white/3")}
+                  className={cn(isSelected && "bg-white/3", isMenuOpen && "relative z-30")}
                 >
                   {/* Column 0: Switch Active/Inactive */}
                   <AdminTableCell className="pl-6 w-14">
@@ -471,52 +489,48 @@ export function AdminVoucherTable({
                         <MoreVerticalIcon />
                       </button>
 
-                      {/* Dropdown Menu Popover */}
+                      {/* Dropdown Menu Popover (Matching Pre-Order design in Image 1: 3 items - Analytics, Edit, Delete) */}
                       {isMenuOpen && (
-                        <div className="absolute right-0 top-8 z-50 w-44 rounded-lg bg-deep-blue-950 border border-deep-blue-700 py-1.5 shadow-2xl animate-in fade-in zoom-in-95 duration-150">
+                        <div
+                          className={cn(
+                            "absolute right-0 z-50 w-52 rounded-lg bg-deep-blue-950 border border-deep-blue-700 shadow-2xl p-2 text-left animate-in fade-in zoom-in-95 duration-100 space-y-1.5 select-none",
+                            isNearBottom ? "bottom-full mb-1.5" : "top-full mt-1.5"
+                          )}
+                        >
+                          {/* 1. Lihat Analytics (Top prominent button box with arrow) */}
                           <Link
                             href={`/admin/vouchers/${item.id}/analytics?code=${item.code}`}
                             onClick={() => setActiveMenuId(null)}
-                            className="w-full flex items-center gap-2.5 px-3.5 py-2 text-label-xs font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-left"
+                            className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg bg-white/6 hover:bg-white/10 border border-white/10 text-white font-semibold text-label-xs sm:text-sm transition-colors cursor-pointer group"
                           >
-                            <AnalyticsIcon className="w-3.5 h-3.5 text-indigo-400" />
                             <span>Lihat Analytics</span>
+                            <ArrowRightThinIcon className="w-4 h-4 text-white/90 group-hover:translate-x-0.5 transition-transform" />
                           </Link>
-                          <button
-                            type="button"
+
+                          {/* 2. Edit */}
+                          <Link
+                            href={`/admin/vouchers/add?id=${item.id}`}
                             onClick={() => {
                               setActiveMenuId(null);
                               onEditItem?.(item);
                             }}
-                            className="w-full flex items-center gap-2.5 px-3.5 py-2 text-label-xs font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-left"
+                            className="w-full flex items-center gap-3 px-3.5 py-2 rounded-lg hover:bg-white/5 text-gray-200 hover:text-white text-label-xs sm:text-sm font-medium transition-colors cursor-pointer"
                           >
-                            <EditIcon className="w-3.5 h-3.5" />
-                            <span>Edit Voucher</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              setActiveMenuId(null);
-                              onToggleStatus(item.id, !item.isActive);
-                            }}
-                            className="w-full flex items-center gap-2.5 px-3.5 py-2 text-label-xs font-medium text-gray-300 hover:text-white hover:bg-white/5 transition-colors cursor-pointer text-left"
-                          >
-                            <span className="w-3.5 h-3.5 rounded-full border border-gray-400 inline-block" />
-                            <span>
-                              {item.isActive ? "Nonaktifkan" : "Aktifkan"}
-                            </span>
-                          </button>
-                          <div className="my-1 border-t border-deep-blue-700" />
+                            <EditIcon className="w-4 h-4 text-gray-300" />
+                            <span>Edit</span>
+                          </Link>
+
+                          {/* 3. Delete */}
                           <button
                             type="button"
                             onClick={() => {
                               setActiveMenuId(null);
                               onDeleteItem?.(item.id);
                             }}
-                            className="w-full flex items-center gap-2.5 px-3.5 py-2 text-label-xs font-medium text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 transition-colors cursor-pointer text-left"
+                            className="w-full flex items-center gap-3 px-3.5 py-2 rounded-lg hover:bg-white/5 text-gray-200 hover:text-white text-label-xs sm:text-sm font-medium transition-colors cursor-pointer"
                           >
-                            <TrashIcon className="w-3.5 h-3.5" />
-                            <span>Hapus Voucher</span>
+                            <TrashIcon className="w-4 h-4 text-gray-300" />
+                            <span>Delete</span>
                           </button>
                         </div>
                       )}

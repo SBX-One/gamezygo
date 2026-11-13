@@ -167,4 +167,20 @@ Route::middleware(['auth:admin', 'admin.only'])
                 Route::post('/{id}/reply', 'reply')->whereNumber('id');
                 Route::delete('/{id}', 'destroy')->whereNumber('id');
             });
+
+        Route::controller(\App\Http\Controllers\Api\V1\Admin\User\AdminUserController::class)
+            ->prefix('users')
+            ->group(function () {
+                Route::get('/', 'index');
+                Route::get('/{userId}', 'show')->whereNumber('userId');
+                Route::match(['put', 'patch', 'post'], '/{userId}', 'update')->whereNumber('userId');
+                Route::match(['put', 'patch', 'post'], '/{userId}/status', 'status')->whereNumber('userId');
+                Route::post('/{userId}/suspend', 'suspend')->whereNumber('userId');
+                Route::post('/{userId}/unsuspend', 'unsuspend')->whereNumber('userId');
+                Route::delete('/{userId}', 'destroy')->whereNumber('userId');
+                Route::get('/{userId}/devices', 'devices')->whereNumber('userId');
+                Route::get('/{userId}/products', 'products')->whereNumber('userId');
+                Route::get('/{userId}/transactions', 'transactions')->whereNumber('userId');
+                Route::get('/{userId}/points/history', 'pointsHistory')->whereNumber('userId');
+            });
     });

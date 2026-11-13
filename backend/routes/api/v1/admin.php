@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\V1\Admin\Instruction\AdminInstructionController;
 use App\Http\Controllers\Api\V1\Admin\Revenue\AdminRevenueController;
 use App\Http\Controllers\Api\V1\Admin\Review\AdminReviewController;
 use App\Http\Controllers\Api\V1\Admin\Subscription\AdminSubscriptionController;
+use App\Http\Controllers\Api\V1\Admin\User\AdminUserController;
 use App\Http\Controllers\Api\V1\Admin\Voucher\AdminVoucherController;
 use Illuminate\Support\Facades\Route;
 
@@ -288,5 +289,23 @@ Route::prefix('admin')
         Route::match(['put', 'patch', 'post'], '/{id}/status', 'updateStatus')->name('status')->whereNumber('id');
         Route::post('/{id}/reply', 'reply')->name('reply')->whereNumber('id');
         Route::delete('/{id}', 'destroy')->name('destroy')->whereNumber('id');
+      });
+
+    // User Management
+    Route::controller(AdminUserController::class)
+      ->prefix('users')
+      ->name('users.')
+      ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/{userId}', 'show')->name('show')->whereNumber('userId');
+        Route::match(['put', 'patch', 'post'], '/{userId}', 'update')->name('update')->whereNumber('userId');
+        Route::match(['put', 'patch', 'post'], '/{userId}/status', 'status')->name('status')->whereNumber('userId');
+        Route::post('/{userId}/suspend', 'suspend')->name('suspend')->whereNumber('userId');
+        Route::post('/{userId}/unsuspend', 'unsuspend')->name('unsuspend')->whereNumber('userId');
+        Route::delete('/{userId}', 'destroy')->name('destroy')->whereNumber('userId');
+        Route::get('/{userId}/devices', 'devices')->name('devices')->whereNumber('userId');
+        Route::get('/{userId}/products', 'products')->name('products')->whereNumber('userId');
+        Route::get('/{userId}/transactions', 'transactions')->name('transactions')->whereNumber('userId');
+        Route::get('/{userId}/points/history', 'pointsHistory')->name('points.history')->whereNumber('userId');
       });
   });

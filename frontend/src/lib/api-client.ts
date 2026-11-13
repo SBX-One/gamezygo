@@ -78,101 +78,168 @@ apiClient.interceptors.response.use(
   async (error) => {
     const originalRequest = error.config;
 
-    // If an admin endpoint returns 401 Unauthorized, redirect to /login
-    if (
-      error.response?.status === 401 &&
-      originalRequest?.url?.includes("/admin/") &&
-      !originalRequest?.url?.includes("/admin/login")
-    ) {
-      const { logout } = useAuthStore.getState();
-      logout();
-      if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
-        const redirectPath = encodeURIComponent(window.location.pathname + window.location.search);
-        window.location.href = `/login?redirect=${redirectPath}`;
-      }
-      return Promise.reject(error);
-    }
+    if (error.response?.status === 401) {
+      const { token, refreshToken, setToken, logout, role } = useAuthStore.getState();
 
-    if (error.response?.status === 401 && !originalRequest?._retry) {
-      const { token, refreshToken, setToken, logout } = useAuthStore.getState();
-
-      // If user is operating with a mock/offline token, DO NOT wipe session on backend 401!
-      // In development or demo mode, backend may not recognize mock tokens.
+      // If user/admin is operating with a mock/offline token, DO NOT wipe session on backend 401
       if (!token || token === MOCK_TOKEN || token.startsWith("mock-")) {
         return Promise.reject(error);
       }
 
-      // If already on the refresh endpoint, refresh failed - logout
-      if (originalRequest?.url?.includes("/auth/refresh")) {
-        logout();
-        return Promise.reject(error);
-      }
+      const isAdminRequest =
+        Boolean(originalRequest?.url?.includes("/admin/")) &&
+        !originalRequest?.url?.includes("/admin/login");
 
-      // If no refresh token is available (e.g. Laravel Sanctum bearer tokens without refresh endpoint)
-      if (!refreshToken) {
-        // Only logout if this was an explicit core profile/me check failure,
-        // never wipe state on random background queries or optional endpoints!
-        const isCoreAuthCheck =
-          originalRequest?.url?.includes("/user/profile") ||
-          originalRequest?.url?.includes("/auth/me");
-
-        if (isCoreAuthCheck) {
+      // -----------------------------------------------------------------
+      // Admin Token Refresh Flow
+      // -----------------------------------------------------------------
+      if (isAdminRequest || (role === "admin" && originalRequest?.url?.includes("/admin/"))) {
+        // If refresh endpoint itself failed or retry already attempted, invalidate session
+        if (originalRequest?._retry || originalRequest?.url?.includes("/admin/refresh")) {
           logout();
+          if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+            const redirectPath = encodeURIComponent(window.location.pathname + window.location.search);
+            window.location.href = `/login?redirect=${redirectPath}`;
+          }
+          return Promise.reject(error);
         }
-        return Promise.reject(error);
-      }
 
-      if (isRefreshing) {
-        return new Promise((resolve, reject) => {
-          failedQueue.push({ resolve, reject });
-        })
-          .then((newToken) => {
+        if (isRefreshing) {
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          })
+            .then((newToken) => {
+              if (originalRequest.headers) {
+                originalRequest.headers.Authorization = `Bearer ${newToken}`;
+              }
+              return apiClient(originalRequest);
+            })
+            .catch((err) => Promise.reject(err));
+        }
+
+        originalRequest._retry = true;
+        isRefreshing = true;
+
+        try {
+          const refreshResponse = await axios.post(
+            `${API_BASE_URL}/admin/refresh`,
+            {},
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${token}`,
+              },
+            }
+          );
+
+          const newToken =
+            refreshResponse.data?.data?.token ||
+            refreshResponse.data?.token ||
+            refreshResponse.data?.data?.access_token;
+
+          if (newToken) {
+            setToken(newToken);
+            processQueue(null, newToken);
             if (originalRequest.headers) {
               originalRequest.headers.Authorization = `Bearer ${newToken}`;
             }
             return apiClient(originalRequest);
-          })
-          .catch((err) => Promise.reject(err));
+          } else {
+            processQueue(new Error("No new admin token returned"), null);
+            logout();
+            if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+              const redirectPath = encodeURIComponent(window.location.pathname + window.location.search);
+              window.location.href = `/login?redirect=${redirectPath}`;
+            }
+            return Promise.reject(error);
+          }
+        } catch (adminRefreshErr) {
+          processQueue(adminRefreshErr, null);
+          logout();
+          if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+            const redirectPath = encodeURIComponent(window.location.pathname + window.location.search);
+            window.location.href = `/login?redirect=${redirectPath}`;
+          }
+          return Promise.reject(adminRefreshErr);
+        } finally {
+          isRefreshing = false;
+        }
       }
 
-      originalRequest._retry = true;
-      isRefreshing = true;
-
-      try {
-        const refreshResponse = await axios.post(
-          `${API_BASE_URL}/auth/refresh`,
-          { refresh_token: refreshToken },
-          {
-            headers: {
-              "Content-Type": "application/json",
-              Authorization: `Bearer ${refreshToken}`,
-            },
-          }
-        );
-
-        const newToken =
-          refreshResponse.data?.data?.token ||
-          refreshResponse.data?.token ||
-          refreshResponse.data?.data?.access_token;
-
-        if (newToken) {
-          setToken(newToken);
-          processQueue(null, newToken);
-          if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${newToken}`;
-          }
-          return apiClient(originalRequest);
-        } else {
-          processQueue(new Error("No new token returned"), null);
+      // -----------------------------------------------------------------
+      // User / Customer Token Refresh Flow
+      // -----------------------------------------------------------------
+      if (!originalRequest?._retry) {
+        // If already on the refresh endpoint, refresh failed - logout
+        if (originalRequest?.url?.includes("/auth/refresh")) {
           logout();
           return Promise.reject(error);
         }
-      } catch (refreshErr) {
-        processQueue(refreshErr, null);
-        logout();
-        return Promise.reject(refreshErr);
-      } finally {
-        isRefreshing = false;
+
+        // If no refresh token is available (e.g. Laravel Sanctum bearer tokens without refresh endpoint)
+        if (!refreshToken) {
+          const isCoreAuthCheck =
+            originalRequest?.url?.includes("/user/profile") ||
+            originalRequest?.url?.includes("/auth/me");
+
+          if (isCoreAuthCheck) {
+            logout();
+          }
+          return Promise.reject(error);
+        }
+
+        if (isRefreshing) {
+          return new Promise((resolve, reject) => {
+            failedQueue.push({ resolve, reject });
+          })
+            .then((newToken) => {
+              if (originalRequest.headers) {
+                originalRequest.headers.Authorization = `Bearer ${newToken}`;
+              }
+              return apiClient(originalRequest);
+            })
+            .catch((err) => Promise.reject(err));
+        }
+
+        originalRequest._retry = true;
+        isRefreshing = true;
+
+        try {
+          const refreshResponse = await axios.post(
+            `${API_BASE_URL}/auth/refresh`,
+            { refresh_token: refreshToken },
+            {
+              headers: {
+                "Content-Type": "application/json",
+                Authorization: `Bearer ${refreshToken}`,
+              },
+            }
+          );
+
+          const newToken =
+            refreshResponse.data?.data?.token ||
+            refreshResponse.data?.token ||
+            refreshResponse.data?.data?.access_token;
+
+          if (newToken) {
+            setToken(newToken);
+            processQueue(null, newToken);
+            if (originalRequest.headers) {
+              originalRequest.headers.Authorization = `Bearer ${newToken}`;
+            }
+            return apiClient(originalRequest);
+          } else {
+            processQueue(new Error("No new token returned"), null);
+            logout();
+            return Promise.reject(error);
+          }
+        } catch (refreshErr) {
+          processQueue(refreshErr, null);
+          logout();
+          return Promise.reject(refreshErr);
+        } finally {
+          isRefreshing = false;
+        }
       }
     }
 

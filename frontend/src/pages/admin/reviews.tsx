@@ -10,29 +10,17 @@ import {
   AdminReviewsTopSection,
   AdminReviewsHeaderSearch,
 } from "@/features/admin/components/reviews";
-import { MOCK_ADMIN_REVIEWS } from "@/features/admin/data/admin-review-mock-data";
 import type {
   AdminReviewItem,
   AdminReviewFilterState,
-  ReviewStatus,
 } from "@/features/admin/types/admin-review.types";
-
-const CheckCircleIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.5"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
-    <polyline points="22 4 12 14.01 9 11.01" />
-  </svg>
-);
+import {
+  useAdminReviews,
+  useUpdateAdminReviewStatus,
+  useReplyAdminReview,
+} from "@/hooks/use-admin-reviews";
+import { toast } from "@/stores/use-toast-store";
+import type { AdminReviewQueryParams } from "@/services/admin-review.service";
 
 const CloseIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -76,7 +64,6 @@ const DEFAULT_FILTERS: AdminReviewFilterState = {
 };
 
 export default function AdminReviewsPage() {
-  const [reviews, setReviews] = React.useState<AdminReviewItem[]>(MOCK_ADMIN_REVIEWS);
   const [filters, setFilters] = React.useState<AdminReviewFilterState>(DEFAULT_FILTERS);
   const [isPostedViewOnly, setIsPostedViewOnly] = React.useState(false);
 
@@ -110,40 +97,32 @@ export default function AdminReviewsPage() {
   // Lightbox preview for thumbnails
   const [previewImage, setPreviewImage] = React.useState<string | null>(null);
 
-  // Toast feedback
-  const [toastMessage, setToastMessage] = React.useState<string | null>(null);
+  // Query parameters for backend
+  const queryParams: AdminReviewQueryParams = React.useMemo(() => {
+    return {
+      search: filters.search.trim() || undefined,
+      star: filters.star !== null ? filters.star : undefined,
+      status: isPostedViewOnly
+        ? "approved"
+        : filters.statuses.length === 1
+        ? filters.statuses[0] === "Posted"
+          ? "approved"
+          : filters.statuses[0] === "Archive"
+          ? "archived"
+          : "pending"
+        : undefined,
+      sort_by: filters.sortBy === "name_asc" ? "name_asc" : "latest",
+      per_page: 50,
+    };
+  }, [filters.search, filters.star, filters.statuses, filters.sortBy, isPostedViewOnly]);
 
-  const showToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 2800);
-  };
+  const { data: serverResult, isLoading, isError, refetch } = useAdminReviews(queryParams);
+  const updateStatusMutation = useUpdateAdminReviewStatus();
+  const replyMutation = useReplyAdminReview();
 
-  // Load from localStorage on mount (hydration safe)
-  React.useEffect(() => {
-    try {
-      const stored = localStorage.getItem("gamezygo_admin_reviews");
-      if (stored) {
-        const parsed: AdminReviewItem[] = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setReviews(parsed);
-        }
-      }
-    } catch {
-      // LocalStorage fallback
-    }
-  }, []);
-
-  // Save to localStorage
-  const saveToStorage = (updated: AdminReviewItem[]) => {
-    setReviews(updated);
-    try {
-      localStorage.setItem("gamezygo_admin_reviews", JSON.stringify(updated));
-    } catch {
-      // LocalStorage fallback
-    }
-  };
+  const reviews = React.useMemo(() => {
+    return serverResult?.reviews ?? [];
+  }, [serverResult]);
 
   // Action: Open Post Review Modal (Matching user reference image)
   const handlePromptPost = (review: AdminReviewItem) => {
@@ -154,53 +133,62 @@ export default function AdminReviewsPage() {
   };
 
   // Action: Execute Post from Post Modal
-  const handleExecutePost = (review: AdminReviewItem, replyText?: string) => {
-    const updated = reviews.map((r) =>
-      r.id === review.id
-        ? {
-            ...r,
-            status: "Posted" as ReviewStatus,
-            ...(replyText
-              ? {
-                  reply: replyText,
-                  repliedAt: new Date().toLocaleDateString("id-ID"),
-                }
-              : {}),
-          }
-        : r
-    );
-    saveToStorage(updated);
-    showToast(`Ulasan dari "${review.userEmail}" berhasil di-Post!`);
-    setPostModalState({ isOpen: false, review: null });
+  const handleExecutePost = async (review: AdminReviewItem, replyText?: string) => {
+    try {
+      await updateStatusMutation.mutateAsync({
+        id: review.id,
+        status: "approved",
+      });
+      if (replyText?.trim()) {
+        await replyMutation.mutateAsync({
+          id: review.id,
+          message: replyText.trim(),
+        });
+      }
+      toast.success(`Ulasan dari "${review.userEmail}" berhasil di-Post!`);
+    } catch {
+      toast.error("Gagal mem-posting ulasan ke server.");
+    } finally {
+      setPostModalState({ isOpen: false, review: null });
+    }
   };
 
   // Action: Confirm Post (from small confirmation modal)
-  const handleConfirmPost = (review: AdminReviewItem) => {
-    const nextStatus: ReviewStatus = review.status === "Posted" ? "Draft" : "Posted";
-    const updated = reviews.map((r) =>
-      r.id === review.id ? { ...r, status: nextStatus } : r
-    );
-    saveToStorage(updated);
-    showToast(
-      nextStatus === "Posted"
-        ? `Ulasan dari "${review.userEmail}" berhasil di-Post!`
-        : `Ulasan dari "${review.userEmail}" dikembalikan ke Draft.`
-    );
-    setPostConfirmModalState({ isOpen: false, review: null });
+  const handleConfirmPost = async (review: AdminReviewItem) => {
+    const nextStatus = review.status === "Posted" ? "pending" : "approved";
+    try {
+      await updateStatusMutation.mutateAsync({
+        id: review.id,
+        status: nextStatus,
+      });
+      toast.success(
+        nextStatus === "approved"
+          ? `Ulasan dari "${review.userEmail}" berhasil di-Post!`
+          : `Ulasan dari "${review.userEmail}" dikembalikan ke Draft.`
+      );
+    } catch {
+      toast.error("Gagal memperbarui status ulasan.");
+    } finally {
+      setPostConfirmModalState({ isOpen: false, review: null });
+    }
   };
 
   // Action: Archive review
-  const handleArchive = (review: AdminReviewItem) => {
-    const nextStatus: ReviewStatus = review.status === "Archive" ? "Draft" : "Archive";
-    const updated = reviews.map((r) =>
-      r.id === review.id ? { ...r, status: nextStatus } : r
-    );
-    saveToStorage(updated);
-    showToast(
-      nextStatus === "Archive"
-        ? `Ulasan dari "${review.userEmail}" telah diarsipkan.`
-        : `Ulasan dari "${review.userEmail}" dipulihkan dari arsip.`
-    );
+  const handleArchive = async (review: AdminReviewItem) => {
+    const nextStatus = review.status === "Archive" ? "pending" : "archived";
+    try {
+      await updateStatusMutation.mutateAsync({
+        id: review.id,
+        status: nextStatus,
+      });
+      toast.success(
+        nextStatus === "archived"
+          ? `Ulasan dari "${review.userEmail}" telah diarsipkan.`
+          : `Ulasan dari "${review.userEmail}" dipulihkan dari arsip.`
+      );
+    } catch {
+      toast.error("Gagal mengubah status arsip ulasan.");
+    }
   };
 
   // Action: Reply modal open
@@ -212,18 +200,18 @@ export default function AdminReviewsPage() {
   };
 
   // Action: Send reply
-  const handleSendReply = (reviewId: string, replyText: string) => {
-    const updated = reviews.map((r) =>
-      r.id === reviewId
-        ? {
-            ...r,
-            reply: replyText,
-            repliedAt: new Date().toLocaleDateString("id-ID"),
-          }
-        : r
-    );
-    saveToStorage(updated);
-    showToast("Balasan ulasan berhasil dikirim!");
+  const handleSendReply = async (reviewId: string, replyText: string) => {
+    try {
+      await replyMutation.mutateAsync({
+        id: reviewId,
+        message: replyText.trim(),
+      });
+      toast.success("Balasan ulasan berhasil dikirim!");
+    } catch {
+      toast.error("Gagal mengirim balasan ulasan.");
+    } finally {
+      setReplyModalState({ isOpen: false, review: null });
+    }
   };
 
   // Action: Toggle Posted Review View
@@ -232,12 +220,16 @@ export default function AdminReviewsPage() {
   };
 
   // Action: Hide review from posted view (sets to Draft)
-  const handleHide = (review: AdminReviewItem) => {
-    const updated = reviews.map((r) =>
-      r.id === review.id ? { ...r, status: "Draft" as ReviewStatus } : r
-    );
-    saveToStorage(updated);
-    showToast(`Ulasan dari "${review.userEmail}" berhasil disembunyikan.`);
+  const handleHide = async (review: AdminReviewItem) => {
+    try {
+      await updateStatusMutation.mutateAsync({
+        id: review.id,
+        status: "pending",
+      });
+      toast.success(`Ulasan dari "${review.userEmail}" berhasil disembunyikan.`);
+    } catch {
+      toast.error("Gagal menyembunyikan ulasan.");
+    }
   };
 
   // Filter & Sort Logic
@@ -286,14 +278,6 @@ export default function AdminReviewsPage() {
     return result;
   }, [reviews, filters, isPostedViewOnly]);
 
-  const isFilterActive =
-    Boolean(filters.search.trim()) ||
-    filters.star !== null ||
-    filters.statuses.length < 3 ||
-    filters.priceRange[0] > 0 ||
-    filters.priceRange[1] < 200000 ||
-    filters.sortBy !== "terbaru";
-
   return (
     <>
       <Head>
@@ -339,11 +323,22 @@ export default function AdminReviewsPage() {
         }
         className="!p-0 !pt-0 !pb-0 !space-y-0 w-full bg-deep-blue-950 min-h-screen"
       >
-        {/* Floating Toast Feedback */}
-        {toastMessage && (
-          <div className="fixed top-20 right-8 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-deep-blue-900 border border-emerald-500/40 text-emerald-300 text-label-xs sm:text-sm font-medium animate-in fade-in slide-in-from-top-2 duration-150">
-            <CheckCircleIcon className="w-4 h-4 text-emerald-400" />
-            <span>{toastMessage}</span>
+        {/* Loading / Error Banner */}
+        {isLoading && (
+          <div className="w-full p-4 text-center text-xs text-gray-400 bg-deep-blue-900 border-b border-white/5">
+            Memuat daftar ulasan dari database...
+          </div>
+        )}
+        {!isLoading && isError && (
+          <div className="w-full p-4 flex items-center justify-center gap-3 text-xs text-rose-300 bg-rose-500/10 border-b border-rose-500/20">
+            <span>Gagal memuat ulasan dari server.</span>
+            <button
+              type="button"
+              onClick={() => refetch()}
+              className="px-3 py-1 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 cursor-pointer font-medium"
+            >
+              Coba Lagi
+            </button>
           </div>
         )}
 

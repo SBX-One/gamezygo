@@ -4,6 +4,7 @@ import type {
   AuthLoginPayload,
   AuthRegisterPayload,
   AuthResponseData,
+  AdminAuthResponseData,
 } from "@/types/api";
 
 /**
@@ -25,11 +26,39 @@ export async function loginApi(
  */
 export async function adminLoginApi(
   payload: AuthLoginPayload
-): Promise<any> {
-  return apiPost<any, AuthLoginPayload>(
+): Promise<ApiResponse<AdminAuthResponseData>> {
+  return apiPost<ApiResponse<AdminAuthResponseData>, AuthLoginPayload>(
     "/admin/login",
     payload
   );
+}
+
+/**
+ * POST /api/v1/admin/logout
+ * Invalidate current admin session token on the backend
+ */
+export async function adminLogoutApi(): Promise<ApiResponse<null>> {
+  return apiPost<ApiResponse<null>>("/admin/logout");
+}
+
+/**
+ * POST /api/v1/admin/refresh
+ * Refresh current admin JWT token
+ */
+export async function adminRefreshTokenApi(): Promise<
+  ApiResponse<{
+    token: string;
+    token_type?: string;
+    expires_in?: number;
+  }>
+> {
+  return apiPost<
+    ApiResponse<{
+      token: string;
+      token_type?: string;
+      expires_in?: number;
+    }>
+  >("/admin/refresh");
 }
 
 /**

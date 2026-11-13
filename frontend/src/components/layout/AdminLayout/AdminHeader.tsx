@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { useAuthStore } from "@/stores/use-auth-store";
+import { adminLogoutApi } from "@/services/auth.service";
 import type { AdminHeaderProps } from "./AdminLayout.types";
 
 /**
@@ -52,10 +53,16 @@ export function AdminHeader({
   headerRight,
   className,
 }: AdminHeaderProps) {
-  const handleLogout = () => {
-    useAuthStore.getState().logout();
-    if (typeof window !== "undefined") {
-      window.location.href = "/login";
+  const handleLogout = async () => {
+    try {
+      await adminLogoutApi();
+    } catch {
+      // Ignore network/server errors during logout
+    } finally {
+      useAuthStore.getState().logout();
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
     }
   };
 

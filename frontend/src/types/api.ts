@@ -470,6 +470,22 @@ export interface AuthResponseData {
   refresh_token?: string;
   token_type?: string;
   user?: UserProfileResponse;
+  admin?: {
+    id?: number | string;
+    name?: string;
+    email?: string;
+  };
+}
+
+export interface AdminAuthResponseData {
+  token: string;
+  token_type?: string;
+  expires_in?: number;
+  admin?: {
+    id?: number | string;
+    name?: string;
+    email?: string;
+  };
 }
 
 // ============================================================================

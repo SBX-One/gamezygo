@@ -49,41 +49,52 @@ export const useAuthStore = create<AuthStore>()(
               throw new Error("Email is required");
             }
 
-            // If logging in as administrator, authenticate via admin guard
-            if (credentials.email.toLowerCase().includes("admin")) {
-              try {
-                const adminRes = await adminLoginApi({
-                  email: credentials.email,
-                  password: credentials.password || "password",
-                });
-                const apiData = adminRes?.data;
-                const token = apiData?.token;
-                if (token) {
-                  if (typeof window !== "undefined") {
-                    localStorage.setItem("gamezygo-admin-token", token);
-                  }
-                  const adminObj = apiData?.admin;
-                  const mappedUser: User = {
-                    id: String(adminObj?.id || 1),
-                    name: adminObj?.name || "Administrator",
-                    email: adminObj?.email || credentials.email,
-                    role: "admin",
-                    avatarUrl: MOCK_USER.avatarUrl,
-                    phone: null,
-                  };
-
-                  set({
-                    user: mappedUser,
-                    token,
-                    refreshToken: null,
-                    role: "admin",
-                    isAuthenticated: true,
-                    isLoading: false,
-                  });
-                  return;
+            const executeAdminAuth = async () => {
+              const adminRes = await adminLoginApi({
+                email: credentials.email,
+                password: credentials.password || "password",
+              });
+              const apiData = adminRes?.data;
+              const token = apiData?.token;
+              if (token) {
+                if (typeof window !== "undefined") {
+                  localStorage.setItem("gamezygo-admin-token", token);
                 }
+                const adminObj = apiData?.admin;
+                const mappedUser: User = {
+                  id: String(adminObj?.id || 1),
+                  name: adminObj?.name || "Administrator",
+                  email: adminObj?.email || credentials.email,
+                  role: "admin",
+                  avatarUrl: MOCK_USER.avatarUrl,
+                  phone: null,
+                };
+
+                set({
+                  user: mappedUser,
+                  token,
+                  refreshToken: null,
+                  role: "admin",
+                  isAuthenticated: true,
+                  isLoading: false,
+                });
+                return true;
+              }
+              return false;
+            };
+
+            // Priority 1: If explicitly logging into admin or email contains "admin"
+            const shouldTryAdminFirst =
+              credentials.isAdmin || credentials.email.toLowerCase().includes("admin");
+
+            if (shouldTryAdminFirst) {
+              try {
+                const ok = await executeAdminAuth();
+                if (ok) return;
               } catch (adminErr) {
+                // If explicit admin login failed with 401/422, surface error
                 if (
+                  credentials.isAdmin &&
                   axios.isAxiosError(adminErr) &&
                   adminErr.response &&
                   (adminErr.response.status === 401 || adminErr.response.status === 422)
@@ -96,6 +107,7 @@ export const useAuthStore = create<AuthStore>()(
               }
             }
 
+            // Priority 2: Standard user login
             try {
               const res = await loginApi({
                 email: credentials.email,
@@ -128,6 +140,10 @@ export const useAuthStore = create<AuthStore>()(
               const mappedRole: "guest" | "user" | "admin" =
                 mappedUser.role === "admin" ? "admin" : "user";
 
+              if (mappedRole === "admin" && typeof window !== "undefined" && token) {
+                localStorage.setItem("gamezygo-admin-token", token);
+              }
+
               if (typeof window !== "undefined") {
                 try {
                   localStorage.removeItem("gamezygo-cart-storage");
@@ -147,35 +163,25 @@ export const useAuthStore = create<AuthStore>()(
                 isAuthenticated: true,
                 isLoading: false,
               });
-              return;
-            } catch (apiErr) {
-              // If backend returned explicit 401/422 validation error, surface it
-              if (
-                axios.isAxiosError(apiErr) &&
-                apiErr.response &&
-                (apiErr.response.status === 401 || apiErr.response.status === 422)
-              ) {
+            } catch (userErr) {
+              // Priority 3: Fallback check admin guard for admins with regular emails
+              if (!shouldTryAdminFirst) {
+                try {
+                  const ok = await executeAdminAuth();
+                  if (ok) return;
+                } catch {
+                  // ignore fallback error and throw original userErr below
+                }
+              }
+
+              if (axios.isAxiosError(userErr) && userErr.response) {
                 const msg =
-                  (apiErr.response.data as { message?: string })?.message ||
-                  "Email atau password tidak valid.";
+                  (userErr.response.data as { message?: string })?.message ||
+                  "Email atau kata sandi tidak sesuai.";
                 throw new Error(msg);
               }
-              // Otherwise fallback gracefully to mock user when backend is offline
+              throw userErr;
             }
-
-            const mappedRole: "guest" | "user" | "admin" =
-              MOCK_USER.role === "admin" ? "admin" : "user";
-
-            set({
-              user: {
-                ...MOCK_USER,
-                email: credentials.email,
-              },
-              token: MOCK_TOKEN,
-              role: mappedRole,
-              isAuthenticated: true,
-              isLoading: false,
-            });
           } catch (err) {
             const message =
               err instanceof Error ? err.message : "Failed to login";

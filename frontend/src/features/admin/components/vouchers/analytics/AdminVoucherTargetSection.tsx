@@ -57,6 +57,39 @@ export function AdminVoucherTargetSection({
   const isGamesEmpty = games.length === 0;
   const isUsersEmpty = users.length === 0;
 
+  const [visibleGamesCount, setVisibleGamesCount] = React.useState(10);
+  const [visibleUsersCount, setVisibleUsersCount] = React.useState(10);
+
+  // Reset pagination when data changes
+  React.useEffect(() => {
+    setVisibleGamesCount(10);
+  }, [games.length]);
+
+  React.useEffect(() => {
+    setVisibleUsersCount(10);
+  }, [users.length]);
+
+  const handleGamesScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (scrollHeight - scrollTop - clientHeight < 60) {
+      if (visibleGamesCount < games.length) {
+        setVisibleGamesCount((prev) => Math.min(prev + 10, games.length));
+      }
+    }
+  };
+
+  const handleUsersScroll = (e: React.UIEvent<HTMLDivElement>) => {
+    const { scrollTop, scrollHeight, clientHeight } = e.currentTarget;
+    if (scrollHeight - scrollTop - clientHeight < 60) {
+      if (visibleUsersCount < users.length) {
+        setVisibleUsersCount((prev) => Math.min(prev + 10, users.length));
+      }
+    }
+  };
+
+  const displayedGames = games.slice(0, visibleGamesCount);
+  const displayedUsers = users.slice(0, visibleUsersCount);
+
   return (
     <div
       className={cn(
@@ -66,9 +99,16 @@ export function AdminVoucherTargetSection({
     >
       {/* 1. Left Column: TARGET GAME */}
       <div className="flex flex-col w-full">
-        <h3 className="text-[11px] sm:text-label-xs font-semibold tracking-wider text-gray-400 uppercase">
-          TARGET GAME
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-[11px] sm:text-label-xs font-semibold tracking-wider text-gray-400 uppercase">
+            TARGET GAME
+          </h3>
+          {games.length > 0 && (
+            <span className="text-[11px] text-gray-500 font-medium">
+              {displayedGames.length} dari {games.length} game
+            </span>
+          )}
+        </div>
         <div className="w-full h-px bg-deep-blue-700/60 my-3" />
 
         {isGamesEmpty ? (
@@ -85,14 +125,17 @@ export function AdminVoucherTargetSection({
             </p>
           </div>
         ) : (
-          <div className="flex flex-col gap-3 w-full">
-            {games.map((game) => (
+          <div
+            onScroll={handleGamesScroll}
+            className="flex flex-col gap-3 w-full max-h-[560px] overflow-y-auto pr-1.5 overscroll-contain"
+          >
+            {displayedGames.map((game) => (
               <div
                 key={game.id}
                 className="rounded-lg bg-deep-blue-950 border border-deep-blue-700/80 p-3 sm:p-3.5 flex items-center justify-between gap-4 transition-all duration-150 hover:border-deep-blue-600 shadow-xs"
               >
                 {/* Left: Thumbnail & Title + Discount Badge */}
-                <div className="flex items-center gap-3.5 min-w-0">
+                <div className="flex items-center gap-3.5 min-w-0 flex-1">
                   <div className="w-12 h-15 sm:w-13 sm:h-16 rounded-lg overflow-hidden shrink-0 bg-deep-blue-900 border border-white/5">
                     <img
                       src={game.coverImage}
@@ -105,13 +148,18 @@ export function AdminVoucherTargetSection({
                     />
                   </div>
 
-                  <div className="flex flex-col items-start gap-1.5 min-w-0">
-                    <h4 className="text-sm sm:text-base font-semibold text-white">
+                  <div className="flex flex-col items-start gap-1.5 min-w-0 flex-1">
+                    <h4
+                      className="text-sm sm:text-base font-semibold text-white truncate w-full"
+                      title={game.title}
+                    >
                       {game.title}
                     </h4>
-                    <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#38161A] text-[#DF3848] border border-[#BA343C]/40">
-                      {game.discountBadge}
-                    </span>
+                    {game.discountBadge && (
+                      <span className="inline-flex items-center px-2 py-0.5 rounded-full text-[11px] font-bold bg-[#38161A] text-[#DF3848] border border-[#BA343C]/40 shrink-0">
+                        {game.discountBadge}
+                      </span>
+                    )}
                   </div>
                 </div>
 
@@ -126,15 +174,28 @@ export function AdminVoucherTargetSection({
                 </div>
               </div>
             ))}
+
+            {visibleGamesCount < games.length && (
+              <div className="py-2 text-center text-label-xs text-gray-500 animate-pulse">
+                Scroll ke bawah untuk memuat game lainnya... ({displayedGames.length}/{games.length})
+              </div>
+            )}
           </div>
         )}
       </div>
 
       {/* 2. Right Column: TARGET USER */}
       <div className="flex flex-col w-full">
-        <h3 className="text-[11px] sm:text-label-xs font-semibold tracking-wider text-gray-400 uppercase">
-          TARGET USER
-        </h3>
+        <div className="flex items-center justify-between">
+          <h3 className="text-[11px] sm:text-label-xs font-semibold tracking-wider text-gray-400 uppercase">
+            TARGET USER
+          </h3>
+          {users.length > 0 && (
+            <span className="text-[11px] text-gray-500 font-medium">
+              {displayedUsers.length} dari {users.length} user
+            </span>
+          )}
+        </div>
         <div className="w-full h-px bg-deep-blue-700/60 my-3" />
 
         {isUsersEmpty ? (
@@ -151,8 +212,11 @@ export function AdminVoucherTargetSection({
             </p>
           </div>
         ) : (
-          <div className="flex flex-col gap-3 w-full">
-            {users.map((user) => (
+          <div
+            onScroll={handleUsersScroll}
+            className="flex flex-col gap-3 w-full max-h-[560px] overflow-y-auto pr-1.5 overscroll-contain"
+          >
+            {displayedUsers.map((user) => (
               <div
                 key={user.id}
                 className="rounded-lg bg-deep-blue-950 border border-deep-blue-700/80 px-4 py-3 sm:py-3.5 flex items-center gap-3.5 transition-all duration-150 hover:border-deep-blue-600 shadow-xs h-18 sm:h-20.5"
@@ -165,6 +229,12 @@ export function AdminVoucherTargetSection({
                 </span>
               </div>
             ))}
+
+            {visibleUsersCount < users.length && (
+              <div className="py-2 text-center text-label-xs text-gray-500 animate-pulse">
+                Scroll ke bawah untuk memuat user lainnya... ({displayedUsers.length}/{users.length})
+              </div>
+            )}
           </div>
         )}
       </div>

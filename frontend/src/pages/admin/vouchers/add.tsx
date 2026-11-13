@@ -12,6 +12,7 @@ import {
 import { Button } from "@/components/ui/Button";
 import {
   DEFAULT_ADD_VOUCHER_FORM,
+  getInitialVoucherDates,
   type AdminAddVoucherFormData,
 } from "@/features/admin/types/admin-voucher.types";
 import { useCreateVoucher } from "@/hooks/use-admin-vouchers";
@@ -52,9 +53,14 @@ const CloseIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export default function AdminAddVoucherPage() {
   const router = useRouter();
-  const [formData, setFormData] = React.useState<AdminAddVoucherFormData>(
-    DEFAULT_ADD_VOUCHER_FORM
-  );
+  const [formData, setFormData] = React.useState<AdminAddVoucherFormData>(() => {
+    const dates = getInitialVoucherDates();
+    return {
+      ...DEFAULT_ADD_VOUCHER_FORM,
+      startDate: dates.startDate,
+      endDate: dates.endDate,
+    };
+  });
   const [isSaving, setIsSaving] = React.useState(false);
   const createMutation = useCreateVoucher();
 
@@ -93,12 +99,49 @@ export default function AdminAddVoucherPage() {
       return;
     }
 
+    const discountAmount = parseAmount(formData.discountValue);
+    if (discountAmount <= 0) {
+      toast.warning("Nilai diskon harus lebih besar dari 0.", "Validasi");
+      return;
+    }
+
+    if (formData.discountType === "percentage" && discountAmount > 100) {
+      toast.warning("Diskon persentase tidak boleh lebih dari 100%.", "Validasi");
+      return;
+    }
+
+    const startIso = parseDateStr(formData.startDate);
+    const endIso = parseDateStr(formData.endDate);
+    if (startIso && endIso && new Date(endIso) < new Date(startIso)) {
+      toast.warning(
+        "Tanggal berakhir tidak boleh lebih awal dari tanggal mulai voucher.",
+        "Validasi"
+      );
+      return;
+    }
+
     setIsSaving(true);
     try {
-      const discountAmount = parseAmount(formData.discountValue);
       const minPurchase = parseAmount(formData.minPurchaseAmount);
       const slot = parseNumberOrZero(formData.maxUsage);
       const usageLimitPerUser = parseNumberOrZero(formData.limitPerUser);
+
+      const hasTargetGames = formData.targetGames.length > 0;
+      const hasTargetUsers = formData.targetUsers.length > 0;
+      const productScope = hasTargetGames ? "specific_products" : "all_products";
+      const targetType = hasTargetUsers ? "specific_users" : "all_users";
+
+      const productIds = hasTargetGames
+        ? formData.targetGames
+            .map((g) => Number(g.id))
+            .filter((id) => Number.isFinite(id) && id > 0)
+        : [];
+
+      const userIds = hasTargetUsers
+        ? formData.targetUsers
+            .map((u) => Number(u.id))
+            .filter((id) => Number.isFinite(id) && id > 0)
+        : [];
 
       await createMutation.mutateAsync({
         name: formData.name.trim(),
@@ -107,20 +150,18 @@ export default function AdminAddVoucherPage() {
         discount_value: discountAmount,
         min_purchase: minPurchase,
         slot: slot,
-        usage_limit_per_user: usageLimitPerUser,
-        started_at: parseDateStr(formData.startDate),
-        expired_at: parseDateStr(formData.endDate),
+        usage_limit_per_user: usageLimitPerUser > 0 ? usageLimitPerUser : 1,
+        started_at: startIso,
+        expired_at: endIso,
         is_active: !isDraft,
         status: isDraft ? "draft" : "active",
         applies_to: formData.applicableToSubs ? "all" : "one_time",
+        product_scope: productScope,
+        target_type: targetType,
         target_games: formData.targetGames,
         target_users: formData.targetUsers,
-        product_ids: formData.targetGames
-          .map((g) => Number(g.id))
-          .filter((id) => Number.isFinite(id) && id > 0),
-        user_ids: formData.targetUsers
-          .map((u) => Number(u.id))
-          .filter((id) => Number.isFinite(id) && id > 0),
+        product_ids: productIds,
+        user_ids: userIds,
       });
 
       toast.success(

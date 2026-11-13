@@ -114,13 +114,13 @@ export function AdminAddVoucherDateRange({
   onChange,
   className,
 }: AdminAddVoucherDateRangeProps) {
-  // Calendar active view month/year (defaults to parsed startDate or Sept 2026)
+  // Calendar active view month/year (defaults to parsed startDate or current month)
   const [viewDate, setViewDate] = React.useState<Date>(() => {
     const parsed = parseDateString(formData.startDate);
     if (parsed) {
       return new Date(parsed.getFullYear(), parsed.getMonth(), 1);
     }
-    return new Date(2026, 8, 1); // Sept 2026 default
+    return new Date();
   });
 
   const viewYear = viewDate.getFullYear();
@@ -136,7 +136,7 @@ export function AdminAddVoucherDateRange({
   };
 
   const handleSelectPreset = (preset: (typeof DURATION_PRESETS)[0]) => {
-    const baseDate = parseDateString(formData.startDate) || new Date(2026, 8, 8);
+    const baseDate = parseDateString(formData.startDate) || new Date();
     const end = new Date(baseDate.getTime() + preset.days * 24 * 60 * 60 * 1000);
 
     onChange({
@@ -255,7 +255,7 @@ export function AdminAddVoucherDateRange({
     <div className={cn("space-y-4 font-sans select-none", className)}>
       {/* Header: Valid Date Range + Switches */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between pb-1 gap-3">
-        <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+        <h2 className="text-[20px] leading-[1.2] font-semibold text-white tracking-tight">
           Valid Date Range
         </h2>
 
@@ -442,25 +442,25 @@ export function AdminAddVoucherDateRange({
           </div>
         </div>
 
-        {/* Right: Start Date & End Date Fields */}
+        {/* Right: Start Date & End Date Fields (Size Small: 40px) */}
         <div className="flex-1 w-full max-w-105 space-y-4">
           {/* Start Date */}
-          <div>
-            <label className="block text-label-xs font-semibold text-gray-400 tracking-wider uppercase mb-2">
+          <div className="flex flex-col gap-2">
+            <label className="text-[12px] leading-[1.4] font-normal text-gray-400 uppercase tracking-wider">
               START DATE
             </label>
-            <div className="h-11 px-4 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm font-medium text-white flex items-center justify-between cursor-pointer hover:border-gray-500 transition-colors">
+            <div className="min-h-10 h-10 px-3 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-body-xs font-medium text-white flex items-center justify-between cursor-pointer hover:border-gray-500 transition-colors">
               <span>{formData.startDate || "Pilih tanggal mulai"}</span>
               <ChevronDownIcon className="text-gray-400" />
             </div>
           </div>
 
           {/* End Date */}
-          <div>
-            <label className="block text-label-xs font-semibold text-gray-400 tracking-wider uppercase mb-2">
+          <div className="flex flex-col gap-2">
+            <label className="text-[12px] leading-[1.4] font-normal text-gray-400 uppercase tracking-wider">
               END DATE
             </label>
-            <div className="h-11 px-4 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm font-medium text-white flex items-center justify-between cursor-pointer hover:border-gray-500 transition-colors">
+            <div className="min-h-10 h-10 px-3 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-body-xs font-medium text-white flex items-center justify-between cursor-pointer hover:border-gray-500 transition-colors">
               <span>{formData.endDate || "Pilih tanggal berakhir"}</span>
               <ChevronDownIcon className="text-gray-400" />
             </div>

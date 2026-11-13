@@ -8,12 +8,26 @@ import type { BannerSlide } from "@/components/ui/BannerCarousel/BannerCarousel.
 import type { ProductCardRowItem } from "@/components/ui/ProductCardRow/ProductCardRow.types";
 import { resolveImageUrl } from "./image-url";
 
-function getCoverImage(product: ProductListItem | ProductDetailItem): string {
-  if (product.thumbnail && product.thumbnail.trim() !== "") {
-    return resolveImageUrl(product.thumbnail);
+function getCoverImage(product: ProductListItem | ProductDetailItem | Record<string, unknown>): string {
+  const p = product as Record<string, unknown>;
+  const rawThumbnail = typeof p.thumbnail === "string" ? p.thumbnail.trim() : "";
+  if (rawThumbnail) {
+    return resolveImageUrl(rawThumbnail);
   }
-  if ("steam_url" in product && product.steam_url) {
-    const match = product.steam_url.match(/\/app\/(\d+)/);
+  const rawImageSrc = typeof p.imageSrc === "string" ? p.imageSrc.trim() : "";
+  if (rawImageSrc) {
+    return resolveImageUrl(rawImageSrc);
+  }
+  const rawImageUrl = typeof p.image_url === "string" ? p.image_url.trim() : "";
+  if (rawImageUrl) {
+    return resolveImageUrl(rawImageUrl);
+  }
+  const rawBanner = typeof p.banner_file_url === "string" ? p.banner_file_url.trim() : "";
+  if (rawBanner) {
+    return resolveImageUrl(rawBanner);
+  }
+  if ("steam_url" in p && typeof p.steam_url === "string" && p.steam_url) {
+    const match = p.steam_url.match(/\/app\/(\d+)/);
     if (match && match[1]) {
       return `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${match[1]}/hero_capsule.jpg`;
     }
@@ -27,42 +41,45 @@ import { formatRupiah, formatDiscount } from "./formatters";
  * Convert backend ProductListItem into ProductCardRowItem format
  */
 export function mapProductToCardItem(
-  product: ProductListItem | ProductDetailItem
+  product: ProductListItem | ProductDetailItem | Record<string, unknown>
 ): ProductCardRowItem {
+  const p = product as Record<string, unknown>;
   const finalPrice =
-    "discount_price" in product
-      ? (product as ProductListItem).discount_price
-      : "price_discount" in product
-      ? (product as ProductDetailItem).price_discount
-      : (product as { price: number }).price;
+    "discount_price" in p && p.discount_price !== undefined && p.discount_price !== null
+      ? Number(p.discount_price)
+      : "price_discount" in p && p.price_discount !== undefined && p.price_discount !== null
+      ? Number(p.price_discount)
+      : Number(p.price ?? 0);
 
   const rawCategories =
-    "categories" in product && product.categories
-      ? product.categories
-      : "product_genre_categories" in product && product.product_genre_categories
-      ? product.product_genre_categories
+    "categories" in p && p.categories
+      ? p.categories
+      : "product_genre_categories" in p && p.product_genre_categories
+      ? p.product_genre_categories
       : [];
   const categories = Array.isArray(rawCategories) ? rawCategories : [];
 
   const platform =
-    "launcher_category" in product && (product as { launcher_category?: { name: string } }).launcher_category
-      ? (product as { launcher_category?: { name: string } }).launcher_category?.name
-      : "product_launcher_category" in product && product.product_launcher_category
-      ? product.product_launcher_category?.name
+    "launcher_category" in p && (p as { launcher_category?: { name: string } }).launcher_category
+      ? (p as { launcher_category?: { name: string } }).launcher_category?.name
+      : "product_launcher_category" in p && (p as { product_launcher_category?: { name: string } }).product_launcher_category
+      ? (p as { product_launcher_category?: { name: string } }).product_launcher_category?.name
       : "Steam";
 
-  const hasDiscount = product.discount > 0 && finalPrice < product.price;
+  const numPrice = Number(p.price ?? 0);
+  const numDiscount = Number(p.discount ?? 0);
+  const hasDiscount = numDiscount > 0 && finalPrice < numPrice;
 
   return {
-    id: String(product.id),
-    slug: ("slug" in product && product.slug) ? product.slug : String(product.id),
-    title: product.name,
-    imageSrc: getCoverImage(product),
-    genres: categories.map((c) => c.name),
-    originalPrice: hasDiscount ? formatRupiah(product.price) : "",
+    id: String(p.id ?? "1"),
+    slug: typeof p.slug === "string" && p.slug ? p.slug : String(p.id ?? "1"),
+    title: String(p.name ?? p.title ?? "Untitled Game"),
+    imageSrc: getCoverImage(p),
+    genres: categories.map((c: unknown) => (typeof c === "string" ? c : (c as { name?: string })?.name || "")).filter(Boolean),
+    originalPrice: hasDiscount ? formatRupiah(numPrice) : "",
     price: formatRupiah(finalPrice),
     numericPrice: finalPrice,
-    discount: hasDiscount ? formatDiscount(product.discount) : "",
+    discount: hasDiscount ? formatDiscount(numDiscount) : "",
     platform: platform || "Steam",
   };
 }
@@ -122,7 +139,19 @@ export function mapAnnouncementToSlide(
  * Convert backend CustomSectionItem products to ProductCardRowItem array
  */
 export function mapSectionProducts(
-  section: CustomSectionItem
+  section: CustomSectionItem | Record<string, unknown>
 ): ProductCardRowItem[] {
-  return (section.custom_section_products || []).map(mapProductToCardItem);
+  const s = section as Record<string, unknown>;
+  const rawProducts = s.custom_section_products ?? s.products ?? [];
+  const list = Array.isArray(rawProducts)
+    ? rawProducts
+    : Array.isArray((rawProducts as { data?: unknown[] })?.data)
+    ? (rawProducts as { data: unknown[] }).data
+    : [];
+  const activeList = list.filter((item: unknown) => {
+    if (!item || typeof item !== "object") return false;
+    const prod = item as { status?: string; archived_at?: string | null; is_archived?: boolean };
+    return prod.status !== "archive" && !prod.archived_at && !prod.is_archived;
+  });
+  return activeList.map((item) => mapProductToCardItem(item as Record<string, unknown>));
 }

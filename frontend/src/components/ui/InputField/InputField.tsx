@@ -23,6 +23,7 @@ export function InputField({
   containerClassName,
   disabled,
   forceState,
+  size = "sm",
   ...fieldProps
 }: InputFieldProps) {
   const generatedId = React.useId();
@@ -44,6 +45,7 @@ export function InputField({
       {/* 2. Main Field Component */} 
       <Field
         id={inputId}
+        size={size}
         disabled={disabled}
         forceState={forceState}
         containerClassName={cn(

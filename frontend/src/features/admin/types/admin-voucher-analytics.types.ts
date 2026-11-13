@@ -39,4 +39,9 @@ export interface VoucherAnalyticsData {
   targetUsers: VoucherTargetUserItem[];
   revenueChart: VoucherRevenueChartPoint[];
   orders: VoucherOrderItem[];
+  meta?: {
+    currentPage: number;
+    totalPages: number;
+    total: number;
+  };
 }

@@ -39,6 +39,7 @@ import { formatRupiah } from "@/utils/formatters";
 import { mapAnnouncementToSlide, mapSectionProducts } from "@/utils/adapters";
 import type { BannerSlide } from "@/components/ui/BannerCarousel/BannerCarousel.types";
 import type { ProductCardRowItem } from "@/components/ui/ProductCardRow/ProductCardRow.types";
+import type { CustomSectionItem, FaqItem } from "@/types";
 import productsData from "@/json/products.json";
 
 // Feature Icons (SVG)
@@ -435,8 +436,14 @@ export default function LandingPage() {
   const { data: productsRes } = useProducts();
 
   const customSections = React.useMemo(() => {
-    if (sectionsRes?.data && sectionsRes.data.length > 0) {
-      return sectionsRes.data;
+    const rawData = sectionsRes?.data ?? sectionsRes;
+    const list = Array.isArray(rawData)
+      ? (rawData as CustomSectionItem[])
+      : Array.isArray((rawData as { data?: unknown[] })?.data)
+      ? ((rawData as { data: CustomSectionItem[] }).data)
+      : [];
+    if (list.length > 0) {
+      return list;
     }
     return null;
   }, [sectionsRes]);
@@ -1074,8 +1081,31 @@ export default function LandingPage() {
   // 9. FAQs
   const { data: faqsRes, isLoading: isFaqsLoading } = useFaqs();
   const faqItems = React.useMemo(() => {
-    if (faqsRes?.data && faqsRes.data.length > 0) {
-      return faqsRes.data.map((f) => ({
+    const rawData = faqsRes?.data ?? faqsRes;
+    const rawList: FaqItem[] = Array.isArray(rawData)
+      ? (rawData as FaqItem[])
+      : Array.isArray((rawData as { data?: unknown[] })?.data)
+      ? ((rawData as { data: FaqItem[] }).data)
+      : [];
+
+    if (rawList.length > 0) {
+      // Questions seeded as default dummies in backend database
+      const SEEDER_DUMMY_QUESTIONS = [
+        "apa itu game store?",
+        "bagaimana cara membeli game?",
+        "bagaimana cara mendapatkan game setelah pembayaran?",
+      ];
+
+      // Filter out dummy/seeder questions if admin has uploaded their own questions
+      const customFaqs = rawList.filter(
+        (f) => !SEEDER_DUMMY_QUESTIONS.includes(String(f.question || "").trim().toLowerCase())
+      );
+
+      // If admin has uploaded custom questions, display ONLY those custom questions.
+      // If admin has not uploaded any custom questions, show the existing list.
+      const targetList = customFaqs.length > 0 ? customFaqs : rawList;
+
+      return targetList.map((f) => ({
         id: String(f.id),
         title: f.question,
         content: f.answer,

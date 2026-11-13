@@ -20,6 +20,10 @@ export interface NavItem {
 export interface NavbarUser {
   /** Nama pengguna */
   name?: string;
+  /** Email pengguna */
+  email?: string;
+  /** Role pengguna ('admin' | 'customer' | string) */
+  role?: string;
   /** URL foto profil avatar */
   avatarUrl?: string;
   /** Fallback node untuk avatar jika gambar tidak ada */

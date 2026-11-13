@@ -455,6 +455,7 @@ export interface ChangePasswordPayload {
 export interface AuthLoginPayload {
   email: string;
   password?: string;
+  isAdmin?: boolean;
 }
 
 export interface AuthRegisterPayload {

@@ -2,6 +2,8 @@ import * as React from "react";
 import Link from "next/link";
 import { useRouter } from "next/router";
 import { cn } from "@/lib/utils";
+import { useAuthStore } from "@/stores/use-auth-store";
+import { adminLogoutApi } from "@/services/auth.service";
 import type { AdminSidebarProps, AdminNavSection } from "./AdminLayout.types";
 
 /**
@@ -136,6 +138,14 @@ const UsersIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+const LogOutIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+    <polyline points="16 17 21 12 16 7" />
+    <line x1="21" y1="12" x2="9" y2="12" />
+  </svg>
+);
+
 export const DEFAULT_ADMIN_SECTIONS: AdminNavSection[] = [
   {
     id: "management-core",
@@ -173,6 +183,19 @@ export function AdminSidebar({
   className,
 }: AdminSidebarProps) {
   const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await adminLogoutApi();
+    } catch {
+      // Ignore network errors on logout call
+    } finally {
+      useAuthStore.getState().logout();
+      if (typeof window !== "undefined") {
+        window.location.href = "/login";
+      }
+    }
+  };
 
   return (
     <aside
@@ -266,6 +289,28 @@ export function AdminSidebar({
             </div>
           </div>
         ))}
+      </div>
+
+      {/* 3. Bottom Logout Action */}
+      <div className="pt-3 pb-6 border-t border-deep-blue-700/60 mt-auto shrink-0">
+        <button
+          type="button"
+          onClick={handleLogout}
+          title={isCollapsed ? "Keluar" : undefined}
+          className={cn(
+            "w-full flex items-center gap-4 px-3 py-2 min-h-[40px] rounded-lg text-[14px] leading-[1.4] transition-all duration-150 group outline-none select-none text-rose-400 hover:text-rose-200 hover:bg-rose-500/10 cursor-pointer",
+            isCollapsed && "justify-center px-2"
+          )}
+        >
+          <span className="w-5 h-5 shrink-0 flex items-center justify-center text-rose-400 group-hover:text-rose-300 transition-colors">
+            <LogOutIcon />
+          </span>
+          {!isCollapsed && (
+            <span className="truncate whitespace-nowrap font-medium">
+              Keluar
+            </span>
+          )}
+        </button>
       </div>
     </aside>
   );

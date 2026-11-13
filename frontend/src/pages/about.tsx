@@ -20,6 +20,7 @@ import productsData from "@/json/products.json";
 import { useReviews } from "@/hooks/use-reviews";
 import { useCustomSections } from "@/hooks/use-products";
 import { mapSectionProducts } from "@/utils/adapters";
+import type { CustomSectionItem } from "@/types";
 
 // ==========================================
 // SVG Icons
@@ -254,9 +255,15 @@ export default function AboutPage() {
 
   // TanStack Query: Top Custom Section (matching Landing Page & Store)
   const { data: sectionsRes, isLoading: isSectionsLoading } = useCustomSections();
-  const topSection = React.useMemo(() => {
-    if (sectionsRes?.data && sectionsRes.data.length > 0) {
-      return sectionsRes.data[0];
+  const topSection = React.useMemo<CustomSectionItem | null>(() => {
+    const rawData = sectionsRes?.data ?? sectionsRes;
+    const list = Array.isArray(rawData)
+      ? (rawData as CustomSectionItem[])
+      : Array.isArray((rawData as { data?: unknown[] })?.data)
+      ? ((rawData as { data: CustomSectionItem[] }).data)
+      : [];
+    if (list.length > 0) {
+      return list[0];
     }
     return null;
   }, [sectionsRes]);

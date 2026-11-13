@@ -11,9 +11,28 @@ import { addToCart } from "@/services/cart.service";
 import { useCartStore } from "@/stores/use-cart-store";
 import { cn } from "@/lib/utils";
 
+interface GoogleTokenResponse {
+  access_token?: string;
+  error?: string;
+  expires_in?: number;
+  token_type?: string;
+}
+
 declare global {
   interface Window {
-    google?: any;
+    google?: {
+      accounts?: {
+        oauth2?: {
+          initTokenClient: (config: {
+            client_id: string;
+            scope: string;
+            callback: (response: GoogleTokenResponse) => void | Promise<void>;
+          }) => {
+            requestAccessToken: () => void;
+          };
+        };
+      };
+    };
   }
 }
 
@@ -335,9 +354,15 @@ export default function LoginPage() {
       ? trimmedInput
       : `${trimmedInput}@gamezygo.com`;
 
+    const isTargetingAdmin = typeof redirect === "string" && redirect.startsWith("/admin");
+
     setIsSubmitting(true);
     try {
-      await login({ email: finalEmail, password: loginPassword });
+      await login({
+        email: finalEmail,
+        password: loginPassword,
+        isAdmin: isTargetingAdmin,
+      });
 
       // Sync guest cart items to backend if any
       const guestCartItems = useCartStore.getState().cartItems;
@@ -433,7 +458,7 @@ export default function LoginPage() {
         const client = window.google.accounts.oauth2.initTokenClient({
           client_id: googleClientId,
           scope: "email profile openid",
-          callback: async (tokenResponse: any) => {
+          callback: async (tokenResponse: GoogleTokenResponse) => {
             if (tokenResponse.error) {
               setIsSubmitting(false);
               showToast("Autentikasi Google dibatalkan.", "default");

@@ -152,6 +152,8 @@ export function StoreLayout({
   const handleDashboard = () => {
     if (onDashboardClick) {
       onDashboardClick();
+    } else if (user?.role === "admin") {
+      router.push("/admin/dashboard");
     } else {
       router.push("/library");
     }

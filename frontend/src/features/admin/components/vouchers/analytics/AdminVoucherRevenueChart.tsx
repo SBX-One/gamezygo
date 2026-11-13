@@ -6,6 +6,13 @@ import { FluentBookIcon } from "@/components/admin";
 
 export interface AdminVoucherRevenueChartProps {
   data?: VoucherRevenueChartPoint[];
+  onDateRangeChange?: (range: {
+    preset?: string;
+    startDay?: number;
+    endDay?: number;
+    startDate?: string;
+    endDate?: string;
+  }) => void;
   className?: string;
 }
 
@@ -28,17 +35,55 @@ const CalendarIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+function formatYTick(val: number): string {
+  if (val >= 1_000_000) {
+    const formatted = (val / 1_000_000).toFixed(val % 1_000_000 === 0 ? 0 : 1);
+    return `${formatted}M`;
+  }
+  if (val >= 1_000) {
+    const formatted = (val / 1_000).toFixed(val % 1_000 === 0 ? 0 : 1);
+    return `${formatted}k`;
+  }
+  return String(val);
+}
+
+function formatChartCurrency(val: number): string {
+  return `IDR ${Number(val || 0).toLocaleString("id-ID")}`;
+}
+
 export function AdminVoucherRevenueChart({
   data = [],
+  onDateRangeChange,
   className,
 }: AdminVoucherRevenueChartProps) {
   const [hoveredIdx, setHoveredIdx] = React.useState<number | null>(null);
   const [selectedRangeLabel, setSelectedRangeLabel] = React.useState<string>("Tanggal");
   const [isDatePickerOpen, setIsDatePickerOpen] = React.useState(false);
 
-  // Exact Y-Ticks matching Image 4
-  const yTicks = [1100, 1000, 900, 800, 500, 200, 100, 0];
-  const maxScale = 1100;
+  // Dynamic scale calculation based on actual revenue data
+  const maxVal = Math.max(...data.map((d) => d.revenue), 0);
+  const maxScale = React.useMemo(() => {
+    if (maxVal <= 0) return 1000;
+    // Round up to clean multiple
+    const magnitude = Math.pow(10, Math.floor(Math.log10(maxVal)));
+    const ceiling = Math.ceil((maxVal * 1.15) / magnitude) * magnitude;
+    return Math.max(ceiling, 1000);
+  }, [maxVal]);
+
+  const yTicks = React.useMemo(() => {
+    if (maxVal <= 0) {
+      return [1000, 800, 500, 200, 100, 0];
+    }
+    const step = maxScale / 5;
+    return [
+      Math.round(maxScale),
+      Math.round(step * 4),
+      Math.round(step * 3),
+      Math.round(step * 2),
+      Math.round(step * 1),
+      0,
+    ];
+  }, [maxVal, maxScale]);
 
   // SVG coordinate calculations for smooth spline
   const svgWidth = 840;
@@ -86,8 +131,7 @@ export function AdminVoucherRevenueChart({
         } ${svgHeight - paddingY} Z`
       : "";
 
-  const isEmpty =
-    data.length === 0 || data.every((d) => d.revenue === 0);
+  const isEmpty = data.length === 0;
 
   return (
     <div
@@ -118,15 +162,20 @@ export function AdminVoucherRevenueChart({
           <AdminVoucherDateRangePicker
             isOpen={isDatePickerOpen}
             onClose={() => setIsDatePickerOpen(false)}
-            onSelectRange={(label) => {
-              setSelectedRangeLabel(label);
+            onSelectRange={(preset, startDay, endDay) => {
+              setSelectedRangeLabel(preset || "Tanggal");
               setIsDatePickerOpen(false);
+              onDateRangeChange?.({
+                preset,
+                startDay,
+                endDay,
+              });
             }}
           />
         </div>
       </div>
 
-      {/* 2. Chart Area Canvas OR Empty State (Matching Image 4) */}
+      {/* 2. Chart Body or Empty State */}
       {isEmpty ? (
         <div className="py-16 sm:py-20 px-6 flex flex-col items-center justify-center text-center">
           <div className="w-14 h-14 rounded-lg bg-white/5 border border-white/5 flex items-center justify-center text-slate-300 mb-4 shadow-inner">
@@ -143,10 +192,10 @@ export function AdminVoucherRevenueChart({
         <div className="p-6 pt-7 pb-6 relative overflow-hidden rounded-b-2xl">
           <div className="relative flex">
             {/* Y-Axis Scale Ticks */}
-            <div className="flex flex-col justify-between items-end pr-5 text-[11px] sm:text-label-xs font-medium text-gray-500 h-65 select-none shrink-0 w-12">
+            <div className="flex flex-col justify-between items-end pr-5 text-[11px] sm:text-label-xs font-medium text-gray-500 h-65 select-none shrink-0 w-14">
               {yTicks.map((val) => (
-                <span key={val} className="leading-none">
-                  {val}
+                <span key={val} className="leading-none font-mono">
+                  {formatYTick(val)}
                 </span>
               ))}
             </div>
@@ -207,11 +256,11 @@ export function AdminVoucherRevenueChart({
 
                 {/* Interactive Data Points on Line */}
                 {points.map((pt, idx) => (
-                  <g key={pt.item.day}>
+                  <g key={`${pt.item.day}-${idx}`}>
                     <circle
                       cx={pt.x}
                       cy={pt.y}
-                      r={hoveredIdx === idx ? 5 : 3.5}
+                      r={hoveredIdx === idx ? 5.5 : 3.5}
                       fill={hoveredIdx === idx ? "#FFFFFF" : "#DF3848"}
                       stroke={hoveredIdx === idx ? "#DF3848" : "#141622"}
                       strokeWidth={hoveredIdx === idx ? 2.5 : 1.5}
@@ -226,30 +275,30 @@ export function AdminVoucherRevenueChart({
               {/* Hover Tooltip Box */}
               {hoveredIdx !== null && points[hoveredIdx] && (
                 <div
-                  className="absolute z-30 pointer-events-none transform -translate-x-1/2 -translate-y-full -top-2 bg-[#0F111A] border border-deep-blue-700/80 rounded-lg px-2.5 py-1.5 shadow-xl text-center"
+                  className="absolute z-30 pointer-events-none transform -translate-x-1/2 -translate-y-full -top-2 bg-[#0F111A] border border-deep-blue-700/80 rounded-lg px-3 py-2 shadow-xl text-center"
                   style={{
                     left: `${(points[hoveredIdx].x / svgWidth) * 100}%`,
                     top: `${(points[hoveredIdx].y / svgHeight) * 100}%`,
                   }}
                 >
-                  <div className="text-[10px] text-gray-400 font-medium">
+                  <div className="text-[10px] text-gray-400 font-medium mb-0.5">
                     {points[hoveredIdx].item.day}
                   </div>
-                  <div className="text-label-xs font-bold text-white">
-                    Rp {points[hoveredIdx].item.revenue.toLocaleString("id-ID")}.000
+                  <div className="text-label-xs font-bold text-white whitespace-nowrap">
+                    {formatChartCurrency(points[hoveredIdx].item.revenue)}
                   </div>
                 </div>
               )}
             </div>
           </div>
 
-          {/* X-Axis Labels (Senin to Minggu) */}
-          <div className="flex justify-between items-center pl-12 pr-4 mt-3 text-label-xs font-medium text-gray-400 select-none">
+          {/* X-Axis Labels */}
+          <div className="flex justify-between items-center pl-14 pr-4 mt-3 text-label-xs font-medium text-gray-400 select-none">
             {data.map((item, idx) => (
               <span
-                key={item.day}
+                key={`${item.day}-${idx}`}
                 className={cn(
-                  "transition-colors text-center w-14",
+                  "transition-colors text-center w-14 truncate",
                   hoveredIdx === idx ? "text-white font-bold" : "text-gray-400"
                 )}
               >

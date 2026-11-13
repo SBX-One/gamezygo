@@ -19,6 +19,9 @@ interface BackendSectionProduct {
   discount_price?: number;
   discount?: number | string;
   categories?: Array<BackendSectionCategory | string>;
+  status?: string;
+  archived_at?: string | null;
+  is_archived?: boolean;
 }
 
 interface BackendCustomSection {
@@ -59,23 +62,46 @@ function mapSectionProduct(p: BackendSectionProduct): SectionProduct {
   };
 }
 
-function mapCustomSection(section: BackendCustomSection): ProductSection {
+function mapCustomSection(
+  section: BackendCustomSection,
+  archivedIdSet?: Set<string>
+): ProductSection {
   const rawProducts = section.custom_section_products ?? section.products ?? [];
+  const activeProducts = rawProducts.filter((p) => {
+    if (p.status === "archive" || p.archived_at || p.is_archived) return false;
+    if (archivedIdSet && archivedIdSet.has(String(p.id))) return false;
+    return true;
+  });
   return {
     id: String(section.id),
     title: section.title,
     slug: section.slug,
-    products: rawProducts.map(mapSectionProduct),
+    products: activeProducts.map(mapSectionProduct),
   };
 }
 
 export const adminSectionService = {
   /**
-   * Fetch all product sections for admin
+   * Fetch all product sections for admin, automatically omitting archived products
    */
   async getSections(): Promise<ProductSection[]> {
-    const response = await apiClient.get<AdminCustomSectionResponse>("/admin/custom-sections");
-    return (response.data.data ?? []).map(mapCustomSection);
+    const [sectionsRes, archivedRes] = await Promise.all([
+      apiClient.get<AdminCustomSectionResponse>("/admin/custom-sections"),
+      apiClient
+        .get<{ data?: { products?: Array<{ id: number | string }> } }>(
+          "/admin/catalog/archive",
+          { params: { per_page: 100 } }
+        )
+        .catch(() => null),
+    ]);
+
+    const archivedIdSet = new Set(
+      (archivedRes?.data?.data?.products ?? []).map((p) => String(p.id))
+    );
+
+    return (sectionsRes.data.data ?? []).map((sec) =>
+      mapCustomSection(sec, archivedIdSet)
+    );
   },
 
   /**

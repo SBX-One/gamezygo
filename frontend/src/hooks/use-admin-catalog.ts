@@ -111,6 +111,7 @@ export function useToggleProductStatus() {
       queryClient.invalidateQueries({ queryKey: ADMIN_CATALOG_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["custom-sections"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-sections"] });
     },
   });
 }
@@ -125,6 +126,7 @@ export function useBatchArchiveStatus() {
       queryClient.invalidateQueries({ queryKey: ADMIN_CATALOG_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["custom-sections"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-sections"] });
     },
   });
 }
@@ -185,6 +187,7 @@ export function useDeleteProducts() {
       queryClient.invalidateQueries({ queryKey: ADMIN_CATALOG_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["custom-sections"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-sections"] });
     },
   });
 }
@@ -199,6 +202,7 @@ export function useCreateProduct() {
       queryClient.invalidateQueries({ queryKey: ADMIN_CATALOG_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["products"] });
       queryClient.invalidateQueries({ queryKey: ["custom-sections"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-sections"] });
     },
   });
 }
@@ -217,6 +221,8 @@ export function useUpdateProduct() {
     onSuccess: (_, variables) => {
       queryClient.invalidateQueries({ queryKey: ADMIN_CATALOG_KEYS.all });
       queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["custom-sections"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-sections"] });
       queryClient.invalidateQueries({
         queryKey: ADMIN_CATALOG_KEYS.detail(variables.id),
       });

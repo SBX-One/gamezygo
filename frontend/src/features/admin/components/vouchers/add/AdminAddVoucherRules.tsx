@@ -1,5 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { InputField } from "@/components/ui/InputField";
 import type { AdminAddVoucherFormData } from "../../../types/admin-voucher.types";
 
 export interface AdminAddVoucherRulesProps {
@@ -15,52 +16,43 @@ export function AdminAddVoucherRules({
 }: AdminAddVoucherRulesProps) {
   return (
     <div className={cn("space-y-4 font-sans select-none", className)}>
-      {/* Section Title (Matching Image 4: Voucher Rules) */}
-      <h2 className="text-lg sm:text-xl font-bold text-white tracking-tight">
+      {/* Section Title: Ag Heading/H5/Emph... · 20/120 (Figma Image 5: 1016 Fill x 24 Hug) */}
+      <h2 className="text-[20px] leading-[1.2] font-semibold text-white tracking-tight">
         Voucher Rules
       </h2>
 
-      {/* Field 1: Minimum Purchase Amount */}
-      <div>
-        <label className="block text-label-xs font-semibold text-gray-400 tracking-wider uppercase mb-2">
-          MINIMUM PURCHASE AMOUNT
-        </label>
-        <input
-          type="text"
-          value={formData.minPurchaseAmount}
-          onChange={(e) => onChange({ minPurchaseAmount: e.target.value })}
-          placeholder="IDR 200,000"
-          className="w-full h-11 px-4 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
-        />
-      </div>
+      {/* Field 1: Minimum Purchase Amount: Size Small (40px) */}
+      <InputField
+        size="sm"
+        label="MINIMUM PURCHASE AMOUNT"
+        type="text"
+        value={formData.minPurchaseAmount}
+        onChange={(e) => onChange({ minPurchaseAmount: e.target.value })}
+        placeholder="IDR 200,000"
+        className="bg-deep-blue-900 border border-deep-blue-700 hover:border-gray-500 text-white min-h-10 h-10"
+      />
 
-      {/* Field 2: Max Usage */}
-      <div>
-        <label className="block text-label-xs font-semibold text-gray-400 tracking-wider uppercase mb-2">
-          MAX USAGE
-        </label>
-        <input
-          type="text"
-          value={formData.maxUsage}
-          onChange={(e) => onChange({ maxUsage: e.target.value })}
-          placeholder="Unlimited"
-          className="w-full h-11 px-4 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
-        />
-      </div>
+      {/* Field 2: Max Usage: Size Small (40px) */}
+      <InputField
+        size="sm"
+        label="MAX USAGE"
+        type="text"
+        value={formData.maxUsage}
+        onChange={(e) => onChange({ maxUsage: e.target.value })}
+        placeholder="Unlimited"
+        className="bg-deep-blue-900 border border-deep-blue-700 hover:border-gray-500 text-white min-h-10 h-10"
+      />
 
-      {/* Field 3: Limit Per User */}
-      <div>
-        <label className="block text-label-xs font-semibold text-gray-400 tracking-wider uppercase mb-2">
-          LIMIT PER USER
-        </label>
-        <input
-          type="text"
-          value={formData.limitPerUser}
-          onChange={(e) => onChange({ limitPerUser: e.target.value })}
-          placeholder="Unlimited"
-          className="w-full h-11 px-4 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-sm font-medium text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
-        />
-      </div>
+      {/* Field 3: Limit Per User: Size Small (40px) */}
+      <InputField
+        size="sm"
+        label="LIMIT PER USER"
+        type="text"
+        value={formData.limitPerUser}
+        onChange={(e) => onChange({ limitPerUser: e.target.value })}
+        placeholder="Unlimited"
+        className="bg-deep-blue-900 border border-deep-blue-700 hover:border-gray-500 text-white min-h-10 h-10"
+      />
     </div>
   );
 }

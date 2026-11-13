@@ -8,6 +8,7 @@ import {
   AdminVoucherTargetSection,
   AdminVoucherRevenueChart,
   AdminVoucherOrdersTable,
+  AdminVoucherAnalyticsSkeleton,
 } from "@/features/admin/components/vouchers/analytics";
 import { Pagination } from "@/components/ui/Pagination";
 import { Button } from "@/components/ui/Button";
@@ -46,11 +47,31 @@ export default function AdminVoucherAnalyticsPage() {
     empty === "true" || empty === "1"
   );
   const [currentPage, setCurrentPage] = React.useState<number>(1);
+  const [dateFilter, setDateFilter] = React.useState<{
+    period?: string;
+    start_date?: string;
+    end_date?: string;
+  }>({});
 
-  const { data: serverAnalytics } = useVoucherAnalytics({
-    id: voucherId,
-    code: voucherCode,
-  });
+  const isReady = router.isReady;
+
+  const {
+    data: serverAnalytics,
+    isLoading: isQueryLoading,
+    isFetching,
+  } = useVoucherAnalytics(
+    {
+      id: voucherId,
+      code: voucherCode,
+      page: currentPage,
+      period: dateFilter.period,
+      start_date: dateFilter.start_date,
+      end_date: dateFilter.end_date,
+    },
+    {
+      enabled: isReady,
+    }
+  );
 
   const effectiveIsEmptyMode = isEmptyMode || empty === "true" || empty === "1";
 
@@ -74,6 +95,9 @@ export default function AdminVoucherAnalyticsPage() {
     return base;
   }, [effectiveIsEmptyMode, serverAnalytics, voucherCode]);
 
+  // Loading state: when router isn't ready or initial query is loading and no data yet
+  const showSkeleton = !isReady || (isQueryLoading && !serverAnalytics);
+
   // Export CSV Handler
   const handleExportCSV = async () => {
     if (voucherId && !effectiveIsEmptyMode) {
@@ -90,7 +114,10 @@ export default function AdminVoucherAnalyticsPage() {
         link.click();
         document.body.removeChild(link);
         URL.revokeObjectURL(url);
-        toast.success("Data penggunaan voucher berhasil diekspor ke CSV!", "Export Berhasil");
+        toast.success(
+          "Data penggunaan voucher berhasil diekspor ke CSV!",
+          "Export Berhasil"
+        );
         return;
       } catch {
         // Fallback to client-side CSV if server export fails
@@ -121,9 +148,10 @@ export default function AdminVoucherAnalyticsPage() {
     link.click();
     document.body.removeChild(link);
     URL.revokeObjectURL(url);
+    toast.success("File CSV berhasil diunduh!", "Export Selesai");
   };
 
-  // Breadcrumbs Header matching Image 1: Voucher > Analytics
+  // Breadcrumbs Header: Voucher > Analytics
   const breadcrumbs = (
     <nav
       aria-label="Breadcrumb"
@@ -181,39 +209,54 @@ export default function AdminVoucherAnalyticsPage() {
         activeNavId="voucher"
         headerRight={headerRight}
       >
-        <div className="flex flex-col gap-8 w-full pb-12 select-none font-sans">
-          {/* Section 1: Voucher Name & Metric Cards (Matching Images 2 & 3) */}
-          <section className="w-full">
-            <AdminVoucherAnalyticsOverview summary={analyticsData.summary} />
-          </section>
+        {showSkeleton ? (
+          <AdminVoucherAnalyticsSkeleton />
+        ) : (
+          <div className="flex flex-col gap-8 w-full pb-12 select-none font-sans">
+            {/* Section 1: Voucher Name & Metric Cards (Matching Images 2 & 3) */}
+            <section className="w-full">
+              <AdminVoucherAnalyticsOverview summary={analyticsData.summary} />
+            </section>
 
-          {/* Section 2: Target Game & Target User Lists / Empty States (Matching Images 3 & 4) */}
-          <section className="w-full">
-            <AdminVoucherTargetSection
-              games={analyticsData.targetGames}
-              users={analyticsData.targetUsers}
-            />
-          </section>
-
-          {/* Section 3: Revenue Area Chart / Empty State (Matching Images 2 & 4) */}
-          <section className="w-full">
-            <AdminVoucherRevenueChart data={analyticsData.revenueChart} />
-          </section>
-
-          {/* Section 4: Orders & Transactions Table / Empty State (Matching Image 4) */}
-          <section className="w-full space-y-6">
-            <AdminVoucherOrdersTable orders={analyticsData.orders} />
-
-            {/* Pagination Component (Menggunakan component Pagination yang sudah ada) */}
-            <div className="pt-2">
-              <Pagination
-                currentPage={currentPage}
-                totalPages={25}
-                onPageChange={setCurrentPage}
+            {/* Section 2: Target Game & Target User Lists / Empty States (Matching Images 3 & 4) */}
+            <section className="w-full">
+              <AdminVoucherTargetSection
+                games={analyticsData.targetGames}
+                users={analyticsData.targetUsers}
               />
-            </div>
-          </section>
-        </div>
+            </section>
+
+            {/* Section 3: Revenue Area Chart / Empty State (Matching Images 2 & 4) */}
+            <section className="w-full">
+              <AdminVoucherRevenueChart
+                data={analyticsData.revenueChart}
+                onDateRangeChange={(range) => {
+                  if (range.preset === "hari_ini") {
+                    setDateFilter({ period: "daily" });
+                  } else if (range.preset === "bulan_ini") {
+                    setDateFilter({ period: "monthly" });
+                  } else {
+                    setDateFilter({ period: "weekly" });
+                  }
+                }}
+              />
+            </section>
+
+            {/* Section 4: Orders & Transactions Table / Empty State (Matching Image 4) */}
+            <section className="w-full space-y-6">
+              <AdminVoucherOrdersTable orders={analyticsData.orders} />
+
+              {/* Pagination Component */}
+              <div className="pt-2">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={analyticsData.meta?.totalPages ?? 1}
+                  onPageChange={setCurrentPage}
+                />
+              </div>
+            </section>
+          </div>
+        )}
       </AdminLayout>
     </>
   );

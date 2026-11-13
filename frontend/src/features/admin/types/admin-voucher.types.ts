@@ -64,20 +64,35 @@ export interface AdminAddVoucherFormData {
   durationPreset: string;
 }
 
+export function getInitialVoucherDates() {
+  const today = new Date();
+  const nextWeek = new Date(today.getTime() + 7 * 24 * 60 * 60 * 1000);
+  const formatDate = (d: Date) => {
+    const day = String(d.getDate()).padStart(2, "0");
+    const month = String(d.getMonth() + 1).padStart(2, "0");
+    const year = d.getFullYear();
+    return `${day}/${month}/${year}`;
+  };
+  return {
+    startDate: formatDate(today),
+    endDate: formatDate(nextWeek),
+  };
+}
+
 export const DEFAULT_ADD_VOUCHER_FORM: AdminAddVoucherFormData = {
   name: "",
   code: "",
   discountType: "percentage",
-  discountValue: "IDR 150,000",
+  discountValue: "",
   targetGames: [],
   targetUsers: [],
-  minPurchaseAmount: "IDR 200,000",
-  maxUsage: "Unlimited",
-  limitPerUser: "Unlimited",
+  minPurchaseAmount: "",
+  maxUsage: "",
+  limitPerUser: "",
   onlyForBundle: false,
   applicableToBundle: true,
   applicableToSubs: true,
-  startDate: "08/09/2026",
-  endDate: "15/09/2026",
+  startDate: "",
+  endDate: "",
   durationPreset: "1 Minggu",
 };

@@ -86,10 +86,10 @@ export function AdminVoucherOrdersTable({
                     </h4>
 
                     <p className="text-label-xs sm:text-sm text-slate-400 font-normal mb-5">
-                      Tidak ditemukan riwayat untuk kategori Product List.
+                      Tidak ditemukan riwayat transaksi untuk voucher ini.
                     </p>
 
-                    {/* Action Button: + Tambah Produk (Matching Image 4) */}
+                    {/* Action Button: + Tambah Produk */}
                     <Link
                       href="/admin/catalog"
                       onClick={onAddProduct}
@@ -117,15 +117,21 @@ export function AdminVoucherOrdersTable({
                     {item.customerEmail}
                   </AdminTableCell>
 
-                  {/* Status Badge (Matching Image 5: Amber Pending badge) */}
+                  {/* Status Badge */}
                   <AdminTableCell className="py-4.5">
-                    <span className="inline-flex items-center px-3 py-1 rounded-full text-label-xs font-medium bg-[#312010] text-amber-500 border border-amber-500/35">
-                      {item.status === "pending"
-                        ? "Pending"
-                        : item.status === "completed"
-                        ? "Completed"
-                        : "Failed"}
-                    </span>
+                    {item.status === "completed" ? (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-label-xs font-medium bg-[#132B20] text-[#22C55E] border border-[#22C55E]/30">
+                        Completed
+                      </span>
+                    ) : item.status === "failed" ? (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-label-xs font-medium bg-rose-950/40 text-rose-400 border border-rose-800/30">
+                        Failed
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-3 py-1 rounded-full text-label-xs font-medium bg-[#312010] text-amber-500 border border-amber-500/35">
+                        Pending
+                      </span>
+                    )}
                   </AdminTableCell>
 
                   {/* Price */}

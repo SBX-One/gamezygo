@@ -668,6 +668,34 @@ export function Navbar({
                         </div>
                       </div>
 
+                      {/* Menu Item: Admin Dashboard (Only visible for admin users) */}
+                      {user?.role === "admin" && (
+                        <button
+                          type="button"
+                          role="menuitem"
+                          onClick={() => {
+                            setIsProfileOpen(false);
+                            router.push("/admin/dashboard");
+                          }}
+                          className="w-full flex items-center gap-2.5 px-3 py-2 rounded-md text-label-sm font-semibold text-indigo-400 hover:text-indigo-300 hover:bg-indigo-500/10 transition-colors cursor-pointer text-left outline-none"
+                        >
+                          <svg
+                            width="16"
+                            height="16"
+                            viewBox="0 0 24 24"
+                            fill="none"
+                            stroke="currentColor"
+                            strokeWidth="2"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            className="w-4 h-4 text-indigo-400 shrink-0"
+                          >
+                            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                          </svg>
+                          <span>Admin Panel</span>
+                        </button>
+                      )}
+
                       {/* Menu Item: Dashboard */}
                       <button
                         type="button"
@@ -676,6 +704,8 @@ export function Navbar({
                           setIsProfileOpen(false);
                           if (onDashboardClick) {
                             onDashboardClick();
+                          } else if (user?.role === "admin") {
+                            router.push("/admin/dashboard");
                           } else {
                             router.push("/library");
                           }

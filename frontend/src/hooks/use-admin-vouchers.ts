@@ -113,11 +113,25 @@ export function useBatchDeleteVouchers() {
   });
 }
 
-export function useVoucherAnalytics(params?: { code?: string; id?: string | number }) {
+export function useVoucherAnalytics(
+  params?: {
+    code?: string;
+    id?: string | number;
+    page?: number;
+    per_page?: number;
+    period?: string;
+    start_date?: string;
+    end_date?: string;
+  },
+  options?: { enabled?: boolean }
+) {
   return useQuery({
-    queryKey: ADMIN_VOUCHER_KEYS.analytics(params?.id || params?.code),
+    queryKey: ADMIN_VOUCHER_KEYS.analytics(
+      `${params?.id ?? ""}-${params?.code ?? ""}-${params?.page ?? 1}-${params?.period ?? ""}-${params?.start_date ?? ""}-${params?.end_date ?? ""}`
+    ),
     queryFn: () => adminVoucherService.getAnalytics(params),
     staleTime: 60 * 1000,
+    ...options,
   });
 }
 

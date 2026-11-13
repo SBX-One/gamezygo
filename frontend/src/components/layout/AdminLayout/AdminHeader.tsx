@@ -1,29 +1,6 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { useAuthStore } from "@/stores/use-auth-store";
-import { adminLogoutApi } from "@/services/auth.service";
 import type { AdminHeaderProps } from "./AdminLayout.types";
-
-/**
- * LogOut Icon
- */
-const LogOutIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
-    <polyline points="16 17 21 12 16 7" />
-    <line x1="21" y1="12" x2="9" y2="12" />
-  </svg>
-);
 
 /**
  * Sidebar Panel Toggle Icon (matching Image 2)
@@ -53,19 +30,6 @@ export function AdminHeader({
   headerRight,
   className,
 }: AdminHeaderProps) {
-  const handleLogout = async () => {
-    try {
-      await adminLogoutApi();
-    } catch {
-      // Ignore network/server errors during logout
-    } finally {
-      useAuthStore.getState().logout();
-      if (typeof window !== "undefined") {
-        window.location.href = "/login";
-      }
-    }
-  };
-
   return (
     <header
       className={cn(
@@ -93,19 +57,12 @@ export function AdminHeader({
         </h1>
       </div>
 
-      {/* Right: Optional actions / Admin Profile & Logout */}
-      <div className="flex items-center gap-3">
-        {headerRight}
-        <button
-          type="button"
-          onClick={handleLogout}
-          title="Keluar dari Admin Gamezygo"
-          className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-label-xs font-medium text-rose-400 hover:text-rose-200 bg-rose-500/10 hover:bg-rose-500/20 border border-rose-500/20 transition-colors cursor-pointer select-none"
-        >
-          <LogOutIcon className="w-3.5 h-3.5" />
-          <span>Keluar</span>
-        </button>
-      </div>
+      {/* Right: Optional actions */}
+      {headerRight && (
+        <div className="flex items-center gap-3">
+          {headerRight}
+        </div>
+      )}
     </header>
   );
 }

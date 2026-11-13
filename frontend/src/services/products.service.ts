@@ -96,5 +96,25 @@ export async function fetchProductFilters(): Promise<
 export async function fetchCustomSections(): Promise<
   ApiResponse<CustomSectionItem[]>
 > {
-  return apiGet<ApiResponse<CustomSectionItem[]>>("/custom-sections");
+  const res = await apiGet<unknown>("/custom-sections");
+  const r = res as {
+    status?: string;
+    success?: boolean;
+    message?: string;
+    data?: unknown;
+  };
+  const rawData = r?.data;
+  const list = Array.isArray(rawData)
+    ? (rawData as CustomSectionItem[])
+    : Array.isArray((rawData as { data?: unknown[] })?.data)
+    ? ((rawData as { data: CustomSectionItem[] }).data)
+    : Array.isArray(r)
+    ? (r as unknown as CustomSectionItem[])
+    : [];
+
+  return {
+    success: r?.success ?? true,
+    message: r?.message ?? "",
+    data: list,
+  };
 }

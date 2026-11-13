@@ -113,6 +113,26 @@ interface RawVouchersApiResponse {
   };
 }
 
+function mapVoucherSortBy(
+  sortBy?: string
+): "latest" | "oldest" | "most_used" | "highest_discount" | undefined {
+  if (!sortBy) return undefined;
+  switch (sortBy) {
+    case "terbaru":
+    case "latest":
+      return "latest";
+    case "oldest":
+      return "oldest";
+    case "value_desc":
+    case "highest_discount":
+      return "highest_discount";
+    case "most_used":
+      return "most_used";
+    default:
+      return "latest";
+  }
+}
+
 export const adminVoucherService = {
   /**
    * Fetch paginated vouchers with search, status filters, and sorting
@@ -122,7 +142,7 @@ export const adminVoucherService = {
       params: {
         search: params?.search,
         status: params?.status && params?.status !== "all" ? params.status : undefined,
-        sort_by: params?.sort_by,
+        sort_by: mapVoucherSortBy(params?.sort_by),
         page: params?.page,
         per_page: params?.per_page ?? 10,
       },
@@ -420,7 +440,15 @@ export const adminVoucherService = {
   /**
    * Get voucher analytics
    */
-  async getAnalytics(params?: { code?: string; id?: string | number }): Promise<AdminVoucherAnalyticsResponse> {
+  async getAnalytics(params?: {
+    code?: string;
+    id?: string | number;
+    page?: number;
+    per_page?: number;
+    period?: string;
+    start_date?: string;
+    end_date?: string;
+  }): Promise<AdminVoucherAnalyticsResponse> {
     let targetId = params?.id;
 
     if (!targetId) {
@@ -457,12 +485,35 @@ export const adminVoucherService = {
 
     const [analyticsRes, usagesRes] = await Promise.all([
       apiClient.get<{ success?: boolean; message?: string; data?: Record<string, unknown> }>(
-        `/admin/vouchers/${targetId}/analytics`
+        `/admin/vouchers/${targetId}/analytics`,
+        {
+          params: {
+            period: params?.period,
+            start_date: params?.start_date,
+            end_date: params?.end_date,
+          },
+        }
       ),
       apiClient
-        .get<{ data?: { usages?: Record<string, unknown>[]; orders?: Record<string, unknown>[] } }>(
-          `/admin/vouchers/${targetId}/usages`
-        )
+        .get<{
+          success?: boolean;
+          message?: string;
+          data?: {
+            usages?: Record<string, unknown>[];
+            orders?: Record<string, unknown>[];
+            meta?: {
+              current_page?: number;
+              last_page?: number;
+              total?: number;
+              per_page?: number;
+            };
+          };
+        }>(`/admin/vouchers/${targetId}/usages`, {
+          params: {
+            page: params?.page ?? 1,
+            per_page: params?.per_page ?? 10,
+          },
+        })
         .catch(() => null),
     ]);
 
@@ -473,11 +524,20 @@ export const adminVoucherService = {
     const rawUsers = Array.isArray(raw.target_users) ? (raw.target_users as Record<string, unknown>[]) : [];
     const rawChartObj = (raw.revenue_chart ?? {}) as Record<string, unknown>;
     const rawChart = Array.isArray(rawChartObj.data) ? (rawChartObj.data as Record<string, unknown>[]) : [];
-    const rawUsages = Array.isArray(usagesRes?.data?.data?.usages)
-      ? usagesRes.data.data.usages
-      : Array.isArray(usagesRes?.data?.data?.orders)
-      ? usagesRes.data.data.orders
+    const usagesData = usagesRes?.data?.data;
+    const rawUsages = Array.isArray(usagesData?.usages)
+      ? usagesData.usages
+      : Array.isArray(usagesData?.orders)
+      ? usagesData.orders
       : [];
+
+    const formatChartDay = (dateStr?: string): string => {
+      if (!dateStr) return "";
+      const d = new Date(dateStr);
+      if (Number.isNaN(d.getTime())) return dateStr;
+      const dayNames = ["Minggu", "Senin", "Selasa", "Rabu", "Kamis", "Jumat", "Sabtu"];
+      return dayNames[d.getDay()] || dateStr;
+    };
 
     const mappedData: VoucherAnalyticsData = {
       summary: {
@@ -502,31 +562,66 @@ export const adminVoucherService = {
         email: String(u.email ?? "-"),
       })),
       revenueChart: rawChart.map((point) => ({
-        day: String(point.date ?? point.day ?? ""),
+        day: formatChartDay(String(point.date ?? point.day ?? "")),
         revenue: Number(point.revenue ?? 0),
       })),
       orders: rawUsages.map((u, idx) => {
         const userObj = (u.user ?? {}) as Record<string, unknown>;
+        const rawStatus = String(u.status ?? "").toLowerCase();
+        const isSuccess =
+          rawStatus === "completed" ||
+          rawStatus === "paid" ||
+          rawStatus === "settled" ||
+          rawStatus === "success";
+        const isFailed =
+          rawStatus === "failed" ||
+          rawStatus === "cancelled" ||
+          rawStatus === "expired" ||
+          rawStatus === "refunded";
+
         return {
           id: String(u.id ?? idx + 1),
-          orderId: String(u.order_number ?? u.order_id ?? u.id ?? "-"),
-          customerEmail: String(u.user_email ?? u.customer_email ?? userObj.email ?? "-"),
-          status:
-            u.status === "completed" || u.status === "paid" || u.status === "success"
-              ? "completed"
-              : u.status === "failed"
-              ? "failed"
-              : "pending",
-          price: formatIdr(Number(u.discount_amount ?? u.amount ?? u.price ?? 0)),
+          orderId: String(
+            u.order_code ??
+            u.order_number ??
+            u.order_id ??
+            (u.id ? `ORD-${u.id}` : "-")
+          ),
+          customerEmail: String(
+            u.customer_email ??
+            u.user_email ??
+            userObj.email ??
+            "-"
+          ),
+          status: isSuccess ? "completed" : isFailed ? "failed" : "pending",
+          price: formatIdr(
+            Number(
+              u.total ??
+              u.total_price ??
+              u.subtotal ??
+              u.subtotal_price ??
+              u.discount_amount ??
+              u.amount ??
+              u.price ??
+              0
+            )
+          ),
           date: formatVoucherDate(
             typeof u.used_at === "string"
               ? u.used_at
+              : typeof u.paid_at === "string"
+              ? u.paid_at
               : typeof u.created_at === "string"
               ? u.created_at
               : null
           ),
         };
       }),
+      meta: {
+        currentPage: Number(usagesData?.meta?.current_page ?? 1),
+        totalPages: Math.max(1, Number(usagesData?.meta?.last_page ?? 1)),
+        total: Number(usagesData?.meta?.total ?? rawUsages.length),
+      },
     };
 
     return {

@@ -26,6 +26,8 @@ use App\Repositories\Contracts\Api\V1\Admin\Announcement\AdminAnnouncementReposi
 use App\Repositories\Api\V1\Admin\Announcement\AdminAnnouncementRepository;
 use App\Repositories\Contracts\Api\V1\Admin\Community\AdminCommunityRepositoryInterface;
 use App\Repositories\Api\V1\Admin\Community\AdminCommunityRepository;
+use App\Repositories\Contracts\Api\V1\Admin\User\AdminUserRepositoryInterface;
+use App\Repositories\Api\V1\Admin\User\AdminUserRepository;
 use App\Repositories\Contracts\Api\V1\Admin\Dashboard\AdminDashboardRepositoryInterface;
 use App\Repositories\Api\V1\Admin\Dashboard\AdminDashboardRepository;
 use App\Repositories\Contracts\Api\V1\User\Announcement\AnnouncementRepositoryInterface;
@@ -98,6 +100,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(\App\Repositories\Contracts\Api\V1\Admin\Category\AdminProductCategoryRepositoryInterface::class, \App\Repositories\Api\V1\Admin\Category\AdminProductCategoryRepository::class);
         $this->app->bind(\App\Repositories\Contracts\Api\V1\Admin\Category\AdminBlogCategoryRepositoryInterface::class, \App\Repositories\Api\V1\Admin\Category\AdminBlogCategoryRepository::class);
         $this->app->bind(\App\Repositories\Contracts\Api\V1\Admin\Review\AdminReviewRepositoryInterface::class, \App\Repositories\Api\V1\Admin\Review\AdminReviewRepository::class);
+        $this->app->bind(AdminUserRepositoryInterface::class, AdminUserRepository::class);
     }
 
     /**

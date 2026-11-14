@@ -18,14 +18,20 @@ use PHPOpenSourceSaver\JWTAuth\Contracts\JWTSubject;
 
 #[Fillable([
     'name',
+    'username',
+    'customer_id',
     'email',
     'google_id',
     'avatar_url',
     'password',
     'phone',
     'status',
+    'points',
     'total_points',
     'total_transaction',
+    'suspend_reason',
+    'suspended_at',
+    'suspended_until',
     'email_verified_at',
 ])]
 #[Hidden(['password', 'remember_token'])]
@@ -43,8 +49,44 @@ class User extends Authenticatable implements JWTSubject
     {
         return [
             'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'suspended_at'      => 'datetime',
+            'suspended_until'   => 'datetime',
+            'password'          => 'hashed',
         ];
+    }
+
+    public function getCustomerIdAttribute(): string
+    {
+        if (!empty($this->attributes['customer_id'])) {
+            return $this->attributes['customer_id'];
+        }
+
+        return sprintf('GZO-%08d', $this->id);
+    }
+
+    public function getUsernameAttribute(): string
+    {
+        return $this->attributes['username'] ?? $this->attributes['name'] ?? '';
+    }
+
+    public function getLoginTypeAttribute(): string
+    {
+        return !empty($this->google_id) ? 'google' : 'email';
+    }
+
+    public function getPointsAttribute(): int
+    {
+        return (int) ($this->attributes['points'] ?? $this->attributes['total_points'] ?? 0);
+    }
+
+    public function devices(): HasMany
+    {
+        return $this->hasMany(UserDevice::class);
+    }
+
+    public function pointHistories(): HasMany
+    {
+        return $this->hasMany(UserPointHistory::class)->orderBy('id', 'desc');
     }
 
     public function ownedGames(): BelongsToMany

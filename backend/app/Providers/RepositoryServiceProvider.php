@@ -34,6 +34,8 @@ use App\Repositories\Contracts\Api\V1\User\Announcement\AnnouncementRepositoryIn
 use App\Repositories\Api\V1\User\Announcement\AnnouncementRepository;
 use App\Repositories\Contracts\Api\V1\User\Auth\AuthRepositoryInterface;
 use App\Repositories\Api\V1\User\Auth\AuthRepository;
+use App\Repositories\Contracts\Api\V1\User\Community\CommunityRepositoryInterface;
+use App\Repositories\Api\V1\User\Community\CommunityRepository;
 use App\Repositories\Contracts\Api\V1\User\Blog\BlogRepositoryInterface;
 use App\Repositories\Api\V1\User\Blog\BlogRepository;
 use App\Repositories\Contracts\Api\V1\User\CustomSection\CustomSectionRepositoryInterface;
@@ -84,6 +86,7 @@ class RepositoryServiceProvider extends ServiceProvider
         $this->app->bind(CartRepositoryInterface::class, CartRepository::class);
         $this->app->bind(UserSubscriptionRepositoryInterface::class, UserSubscriptionRepository::class);
         $this->app->bind(GameRequestRepositoryInterface::class, GameRequestRepository::class);
+        $this->app->bind(CommunityRepositoryInterface::class, CommunityRepository::class);
         $this->app->bind(AdminAuthRepositoryInterface::class, AdminAuthRepository::class);
         $this->app->bind(AdminDashboardRepositoryInterface::class, AdminDashboardRepository::class);
         $this->app->bind(AdminCatalogRepositoryInterface::class, AdminCatalogRepository::class);

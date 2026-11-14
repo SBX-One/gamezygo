@@ -184,3 +184,20 @@ Route::middleware(['auth:admin', 'admin.only'])
                 Route::get('/{userId}/points/history', 'pointsHistory')->whereNumber('userId');
             });
     });
+
+// Direct public alias without v1 prefix for /api/communities & /api/user/communities
+Route::controller(\App\Http\Controllers\Api\V1\User\Community\CommunityController::class)
+    ->prefix('communities')
+    ->group(function () {
+        Route::get('/', 'index');
+        Route::get('/tags', 'tags');
+        Route::get('/{id}', 'show')->whereNumber('id');
+    });
+
+Route::controller(\App\Http\Controllers\Api\V1\User\Community\CommunityController::class)
+    ->prefix('user/communities')
+    ->group(function () {
+        Route::get('/', 'index');
+        Route::get('/tags', 'tags');
+        Route::get('/{id}', 'show')->whereNumber('id');
+    });

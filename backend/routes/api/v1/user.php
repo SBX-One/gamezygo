@@ -3,6 +3,7 @@
 use App\Http\Controllers\Api\V1\User\Announcement\AnnouncementController;
 use App\Http\Controllers\Api\V1\User\Blog\BlogController;
 use App\Http\Controllers\Api\V1\User\Cart\CartController;
+use App\Http\Controllers\Api\V1\User\Community\CommunityController;
 use App\Http\Controllers\Api\V1\User\CustomSection\CustomSectionController;
 use App\Http\Controllers\Api\V1\User\Faq\FaqController;
 use App\Http\Controllers\Api\V1\User\GameRequest\GameRequestController;
@@ -63,6 +64,16 @@ Route::group([], function () {
 
   // Game requests (Public listing, ?scope=mine, ?scope=added)
   Route::get('game-requests', [GameRequestController::class, 'index'])->name('game-requests.index');
+
+  // Communities
+  Route::controller(CommunityController::class)
+    ->prefix('communities')
+    ->name('communities.')
+    ->group(function () {
+      Route::get('/', 'index')->name('index');
+      Route::get('/tags', 'tags')->name('tags');
+      Route::get('/{id}', 'show')->name('show')->whereNumber('id');
+    });
 });
 
 /*
@@ -155,6 +166,16 @@ Route::prefix('user')
         Route::get('/', 'index')->name('index');
         Route::post('', 'store')->name('store');
         Route::match(['put', 'patch', 'post'], '/{id}', 'update')->name('update');
-        Route::delete('/{id}', 'destroy')->name('destroy');
+        Route::delete('/{id}', 'destroy')->name('destroy')->whereNumber('id');
+      });
+
+    // Communities
+    Route::controller(CommunityController::class)
+      ->prefix('communities')
+      ->name('communities.')
+      ->group(function () {
+        Route::get('/', 'index')->name('index');
+        Route::get('/tags', 'tags')->name('tags');
+        Route::get('/{id}', 'show')->name('show')->whereNumber('id');
       });
   });

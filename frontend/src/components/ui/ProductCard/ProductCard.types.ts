@@ -45,6 +45,8 @@ export interface ProductCardProps
   showPrice?: boolean;
   /** Apakah menampilkan tombol aksi (default: true) */
   showActionButton?: boolean;
+  /** Kustom class untuk container gambar cover (berguna untuk fine-tuning responsive width) */
+  coverClassName?: string;
   /** React 19 native ref */
   ref?: React.Ref<HTMLDivElement>;
 }

@@ -3,6 +3,7 @@ import {
   fetchAnnouncements,
   fetchCommunities,
   fetchFaqs,
+  type FetchCommunitiesParams,
 } from "@/services/common.service";
 
 export const COMMON_KEYS = {
@@ -34,10 +35,10 @@ export function useFaqs() {
 /**
  * Hook to fetch active public communities
  */
-export function useCommunities() {
+export function useCommunities(params?: FetchCommunitiesParams) {
   return useQuery({
-    queryKey: COMMON_KEYS.communities,
-    queryFn: () => fetchCommunities(),
+    queryKey: params ? [...COMMON_KEYS.communities, params] : COMMON_KEYS.communities,
+    queryFn: () => fetchCommunities(params),
     retry: false,
   });
 }

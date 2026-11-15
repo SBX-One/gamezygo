@@ -13,6 +13,7 @@ import {
   OrderHistoryTable,
   TransactionDetailModal,
   OrderHistoryFilter,
+  formatPaymentMethodLabel,
   DEFAULT_HISTORY_STATS,
   EMPTY_HISTORY_STATS,
   MOCK_HISTORY_ORDERS,
@@ -168,6 +169,16 @@ export default function HistoryPage() {
   // TanStack Query: Fetch user's purchased games in library as reliable fallback
   const { data: libraryRes, isLoading: isLibraryLoading } = useUserLibrary();
 
+  // Retrieve user selected payment methods saved during checkout
+  const savedPaymentMethods = React.useMemo(() => {
+    if (typeof window === "undefined") return {} as Record<string, string>;
+    try {
+      return JSON.parse(localStorage.getItem("gamezygo_order_payment_methods") || "{}");
+    } catch {
+      return {} as Record<string, string>;
+    }
+  }, []);
+
   // Map API data accurately
   const apiOrders: OrderHistoryItem[] = React.useMemo(() => {
     if (!userOrdersRes?.data) return [];
@@ -209,10 +220,19 @@ export default function HistoryPage() {
         status = "Gagal";
       }
 
-      const paymentMethod =
-        o.payment?.payment_method?.toUpperCase() ||
-        o.payment_method?.toUpperCase() ||
-        "MIDTRANS";
+      const orderKey = String(o.order_number || o.id || o.payment?.gateway_reference || "");
+      const savedMethod =
+        savedPaymentMethods[orderKey] ||
+        savedPaymentMethods[String(o.id)] ||
+        savedPaymentMethods[String(o.order_number)] ||
+        savedPaymentMethods[String(o.payment?.gateway_reference)];
+
+      const rawPaymentMethod =
+        savedMethod ||
+        o.payment?.payment_method ||
+        o.payment_method;
+
+      const paymentMethod = formatPaymentMethodLabel(rawPaymentMethod);
 
       const purchaseDate = o.created_at
         ? new Date(o.created_at).toLocaleDateString("id-ID", {
@@ -233,7 +253,7 @@ export default function HistoryPage() {
         status,
       };
     });
-  }, [userOrdersRes]);
+  }, [userOrdersRes, savedPaymentMethods]);
 
   // Combine real backend orders with library items fallback (guarantee user's purchased games appear)
   const effectiveOrders: OrderHistoryItem[] = React.useMemo(() => {
@@ -253,7 +273,7 @@ export default function HistoryPage() {
           }),
           price: priceVal,
           formattedPrice: formatRupiah(priceVal),
-          paymentMethod: "MIDTRANS",
+          paymentMethod: "Visa / Mastercard",
           status: "Berhasil" as OrderStatus,
         };
       });

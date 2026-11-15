@@ -29,7 +29,7 @@ export function OrderHistoryFilter({
   statusOptions = ["Berhasil", "Pending", "Gagal"],
   selectedStatus = [],
   onToggleStatus,
-  paymentOptions = ["BCA Virtual", "BRI Virtual", "QRIS", "BNI Virtual"],
+  paymentOptions = ["Visa / Mastercard", "QRIS", "BCA Virtual", "BRI Virtual", "BNI Virtual"],
   selectedPayments = [],
   onTogglePayment,
   minPrice = 0,

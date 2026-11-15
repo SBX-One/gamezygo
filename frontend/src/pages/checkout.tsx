@@ -7,7 +7,8 @@ import { StoreLayout } from "@/components/layout";
 import { Button, ListRowSkeleton, Skeleton, Toast } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { formatRupiah } from "@/utils/formatters";
-import { useCart } from "@/hooks/use-cart";
+import { useCart, CART_KEYS } from "@/hooks/use-cart";
+import { clearCartApi } from "@/services/cart.service";
 import {
   useCreateOrder,
   useApplyVoucher,
@@ -248,10 +249,15 @@ export default function CheckoutPage() {
 
   // Watch payment status updates via Realtime SSE & Polling Fallback
   React.useEffect(() => {
-    const handleSuccess = () => {
+    const handleSuccess = async () => {
       setQrisModalData(null);
       setActiveReference(null);
       clearCart();
+      await clearCartApi().catch(() => null);
+      queryClient.invalidateQueries({ queryKey: CART_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["cart"] });
+      queryClient.invalidateQueries({ queryKey: ["library"] });
+      queryClient.invalidateQueries({ queryKey: ["user-library"] });
       try {
         if (typeof window !== "undefined") {
           sessionStorage.removeItem("gamezygo_checkout_items");
@@ -548,9 +554,50 @@ export default function CheckoutPage() {
           openSnap(snapToken, {
             onSuccess: async (result) => {
               clearCart();
+              await clearCartApi().catch(() => null);
               try {
                 if (typeof window !== "undefined") {
                   sessionStorage.removeItem("gamezygo_checkout_items");
+                }
+              } catch {
+                // ignore
+              }
+
+              // Save specific payment method from Midtrans result (e.g. Visa / Mastercard, QRIS, etc.)
+              const pType = (result.payment_type || "").toLowerCase();
+              let detectedMethod = "Visa / Mastercard";
+              if (pType === "credit_card") {
+                detectedMethod = "Visa / Mastercard";
+              } else if (pType === "qris") {
+                detectedMethod = "QRIS";
+              } else if (pType === "gopay") {
+                detectedMethod = "GoPay";
+              } else if (pType === "shopeepay") {
+                detectedMethod = "ShopeePay";
+              } else if (pType === "bank_transfer") {
+                const bankName = ((result as any).bank || ((result as any).va_numbers?.[0]?.bank) || "BCA").toUpperCase();
+                detectedMethod = `${bankName} Virtual Account`;
+              } else if (result.payment_type) {
+                detectedMethod = result.payment_type;
+              }
+
+              try {
+                if (typeof window !== "undefined") {
+                  const existing = JSON.parse(
+                    localStorage.getItem("gamezygo_order_payment_methods") || "{}"
+                  );
+                  if (targetOrderNumber) existing[targetOrderNumber] = detectedMethod;
+                  if (targetOrderId) existing[targetOrderId] = detectedMethod;
+                  if (result.order_id) existing[result.order_id] = detectedMethod;
+                  createdOrdersList.forEach((o) => {
+                    if (o.orderId) existing[o.orderId] = detectedMethod;
+                    if (o.orderNumber) existing[o.orderNumber] = detectedMethod;
+                    if (o.gatewayRef) existing[o.gatewayRef] = detectedMethod;
+                  });
+                  localStorage.setItem(
+                    "gamezygo_order_payment_methods",
+                    JSON.stringify(existing)
+                  );
                 }
               } catch {
                 // ignore
@@ -608,6 +655,7 @@ export default function CheckoutPage() {
               queryClient.invalidateQueries({ queryKey: ["library"] });
               queryClient.invalidateQueries({ queryKey: ["user-library"] });
               queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+              queryClient.invalidateQueries({ queryKey: CART_KEYS.all });
               queryClient.invalidateQueries({ queryKey: ["cart"] });
 
               showToast(
@@ -730,10 +778,15 @@ export default function CheckoutPage() {
   };
 
   // Simulate instant payment success
-  const handleSimulateSuccess = () => {
+  const handleSimulateSuccess = async () => {
     setQrisModalData(null);
     setActiveReference(null);
     clearCart();
+    await clearCartApi().catch(() => null);
+    queryClient.invalidateQueries({ queryKey: CART_KEYS.all });
+    queryClient.invalidateQueries({ queryKey: ["cart"] });
+    queryClient.invalidateQueries({ queryKey: ["library"] });
+    queryClient.invalidateQueries({ queryKey: ["user-library"] });
     try {
       if (typeof window !== "undefined") {
         sessionStorage.removeItem("gamezygo_checkout_items");

@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
 import type { OrderHistoryItem, OrderStatus } from "../types";
 import { fetchOrderDetail } from "@/services/orders.service";
+import { formatPaymentMethodLabel } from "../utils/payment-method";
 
 export interface TransactionDetailModalProps {
   isOpen: boolean;
@@ -267,11 +268,11 @@ export function TransactionDetailModal({
 
         {/* Section 3: METODE PEMBAYARAN */}
         <div className="flex flex-col gap-2">
-          <span className="text-body-sm  text-gray-400">
+          <span className="text-body-sm text-gray-400">
             METODE PEMBAYARAN
           </span>
           <span className="text-body-sm font-semibold text-gray-50">
-            {order.paymentMethod || "QRIS"}
+            {formatPaymentMethodLabel(order.paymentMethod)}
           </span>
         </div>
 

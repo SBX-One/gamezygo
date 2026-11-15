@@ -4,6 +4,7 @@ import { useRouter } from "next/router";
 import { StoreLayout } from "@/components/layout";
 import { Button, EmptyState, ListRowSkeleton, Toast, Item } from "@/components/ui";
 import { useCart, useRemoveFromCart, useClearCart } from "@/hooks/use-cart";
+import { useUserLibrary } from "@/hooks/use-library";
 import { formatRupiah, formatDiscount } from "@/utils/formatters";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useCartStore } from "@/stores/use-cart-store";
@@ -83,19 +84,42 @@ export default function CartPage() {
   const removeCartMutation = useRemoveFromCart();
   const clearCartMutation = useClearCart();
 
+  // Fetch user's library games to identify and filter out games the user already owns
+  const { data: libraryRes } = useUserLibrary(undefined, { enabled: isAuthenticated });
+
+  const ownedGameIds = React.useMemo(() => {
+    const set = new Set<string>();
+    const items = libraryRes?.data;
+    if (Array.isArray(items)) {
+      items.forEach((p) => {
+        if (p.id) set.add(String(p.id));
+        if (p.slug) set.add(String(p.slug).toLowerCase().trim());
+        if (p.name) set.add(String(p.name).toLowerCase().trim());
+      });
+    }
+    return set;
+  }, [libraryRes]);
+
   // Computed Cart Items (prioritizes API when authenticated, else local Zustand store)
   const cartItems: CartItemData[] = React.useMemo(() => {
     if (isAuthenticated) {
       if (cartApiRes?.data?.items) {
-        return cartApiRes.data.items.map((item) => ({
-          id: String(item.id),
-          title: item.name,
-          imageSrc: item.thumbnail || "",
-          discount: formatDiscount(item.discount),
-          originalPrice: item.price,
-          originalPriceFormatted: formatRupiah(item.price),
-          price: item.discount_price > 0 ? item.discount_price : item.price,
-        }));
+        return cartApiRes.data.items
+          .filter((item) => {
+            // Never show games that the user already owns!
+            const idMatch = ownedGameIds.has(String(item.id));
+            const nameMatch = ownedGameIds.has(item.name.toLowerCase().trim());
+            return !idMatch && !nameMatch;
+          })
+          .map((item) => ({
+            id: String(item.id),
+            title: item.name,
+            imageSrc: item.thumbnail || "",
+            discount: formatDiscount(item.discount),
+            originalPrice: item.price,
+            originalPriceFormatted: formatRupiah(item.price),
+            price: item.discount_price > 0 ? item.discount_price : item.price,
+          }));
       }
       // While API is loading for authenticated user, do NOT flash stale local storage items
       if (isCartApiLoading) {
@@ -103,16 +127,53 @@ export default function CartPage() {
       }
       return [];
     }
-    return storeCartItems.map((item) => ({
-      id: String(item.productId),
-      title: item.product?.title || "Game",
-      imageSrc: item.product?.imageSrc || item.product?.cover_image_url || "",
-      discount: item.product?.discount || "",
-      originalPrice: item.product?.originalPrice || item.product?.price || 0,
-      originalPriceFormatted: formatRupiah(item.product?.originalPrice || item.product?.price || 0),
-      price: item.product?.price || 0,
-    }));
-  }, [isAuthenticated, cartApiRes, isCartApiLoading, storeCartItems]);
+    return storeCartItems
+      .filter((item) => {
+        const idMatch = ownedGameIds.has(String(item.productId));
+        const nameMatch = ownedGameIds.has((item.product?.title || "").toLowerCase().trim());
+        return !idMatch && !nameMatch;
+      })
+      .map((item) => ({
+        id: String(item.productId),
+        title: item.product?.title || "Game",
+        imageSrc: item.product?.imageSrc || item.product?.cover_image_url || "",
+        discount: item.product?.discount || "",
+        originalPrice: item.product?.originalPrice || item.product?.price || 0,
+        originalPriceFormatted: formatRupiah(item.product?.originalPrice || item.product?.price || 0),
+        price: item.product?.price || 0,
+      }));
+  }, [isAuthenticated, cartApiRes, isCartApiLoading, storeCartItems, ownedGameIds]);
+
+  // Auto-cleanup: If backend cart database returns items that the user already owns in Library,
+  // silently delete them from the database so cart in DB stays clean!
+  React.useEffect(() => {
+    if (!isAuthenticated || !cartApiRes?.data?.items || ownedGameIds.size === 0) return;
+
+    const ownedInCart = cartApiRes.data.items.filter((item) => {
+      const idMatch = ownedGameIds.has(String(item.id));
+      const nameMatch = ownedGameIds.has(item.name.toLowerCase().trim());
+      return idMatch || nameMatch;
+    });
+
+    if (ownedInCart.length > 0) {
+      ownedInCart.forEach((item) => {
+        removeCartMutation.mutate(item.id);
+      });
+    }
+  }, [isAuthenticated, cartApiRes?.data?.items, ownedGameIds, removeCartMutation]);
+
+  // Also clean up local store if any owned items are in it
+  React.useEffect(() => {
+    if (storeCartItems.length > 0 && ownedGameIds.size > 0) {
+      storeCartItems.forEach((item) => {
+        const idMatch = ownedGameIds.has(String(item.productId));
+        const nameMatch = ownedGameIds.has((item.product?.title || "").toLowerCase().trim());
+        if (idMatch || nameMatch) {
+          removeItemFromStore(item.productId);
+        }
+      });
+    }
+  }, [storeCartItems, ownedGameIds, removeItemFromStore]);
 
   // Voucher input & applied states
   const [voucherInput, setVoucherInput] = React.useState("");

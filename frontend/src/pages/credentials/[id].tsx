@@ -2,7 +2,6 @@ import * as React from "react";
 import Head from "next/head";
 import { useRouter } from "next/router";
 import { StoreLayout } from "@/components/layout";
-import { cn } from "@/lib/utils";
 import {
   Breadcrumbs,
   Button,
@@ -11,6 +10,7 @@ import {
   TestimonialCard,
   Toast,
 } from "@/components/ui";
+import { CredentialRevealer } from "@/features/library";
 import {
   fetchSteamGame,
   parseSteamRequirements,
@@ -40,70 +40,6 @@ const SteamIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <path
       d="M12 2C13.3132 2 14.6136 2.25866 15.8268 2.7612C17.0401 3.26375 18.1425 4.00035 19.0711 4.92893C19.9997 5.85752 20.7362 6.95991 21.2388 8.17317C21.7413 9.38642 22 10.6868 22 12C22 14.6522 20.9464 17.1957 19.0711 19.0711C17.1957 20.9464 14.6522 22 12 22C7.4 22 3.55 18.92 2.36 14.73L6.19 16.31C6.32124 16.9506 6.66949 17.5262 7.17597 17.9398C7.68245 18.3534 8.31612 18.5795 8.97 18.58C10.53 18.58 11.8 17.31 11.8 15.75V15.62L15.2 13.19H15.28C17.36 13.19 19.05 11.5 19.05 9.42C19.05 7.34 17.36 5.65 15.28 5.65C13.2 5.65 11.5 7.34 11.5 9.42V9.47L9.13 12.93L8.97 12.92C8.38 12.92 7.83 13.1 7.38 13.41L2 11.2C2.43 6.05 6.73 2 12 2ZM8.28 17.17C9.08 17.5 10 17.13 10.33 16.33C10.66 15.53 10.28 14.62 9.5 14.29L8.22 13.76C8.71 13.58 9.26 13.57 9.78 13.79C10.31 14 10.72 14.41 10.93 14.94C11.15 15.46 11.15 16.04 10.93 16.56C10.5 17.64 9.23 18.16 8.15 17.71C7.65 17.5 7.27 17.12 7.06 16.67L8.28 17.17ZM17.8 9.42C17.8 10.81 16.67 11.94 15.28 11.94C14.6134 11.9374 13.975 11.6707 13.5046 11.1984C13.0341 10.7261 12.77 10.0866 12.77 9.42C12.7687 9.09001 12.8327 8.76303 12.9584 8.4579C13.084 8.15278 13.2689 7.87555 13.5022 7.64221C13.7356 7.40887 14.0128 7.22404 14.3179 7.09837C14.623 6.9727 14.95 6.90868 15.28 6.91C15.9466 6.90999 16.5861 7.17412 17.0584 7.64455C17.5307 8.11498 17.7974 8.75339 17.8 9.42ZM13.4 9.42C13.4 10.46 14.24 11.31 15.29 11.31C16.33 11.31 17.17 10.46 17.17 9.42C17.17 8.38 16.33 7.53 15.29 7.53C14.24 7.53 13.4 8.38 13.4 9.42Z"
       fill="currentColor"
-    />
-  </svg>
-);
-
-const DefaultPeopleSearchIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className="w-5 h-5"
-    {...props}
-  >
-    <path
-      d="M11.91 14H19.753C20.3498 14 20.9221 14.2371 21.344 14.659C21.766 15.081 22.003 15.6533 22.003 16.25V17.155C22.003 17.6954 21.8862 18.2294 21.6607 18.7204C21.4351 19.2115 21.106 19.648 20.696 20C19.13 21.345 16.89 22.002 14 22.002H13.821C13.9719 21.6984 14.0314 21.3575 13.9921 21.0207C13.9529 20.6839 13.8167 20.3658 13.6 20.105L13.489 19.984L11.259 17.76C11.9192 16.625 12.1508 15.2907 11.91 14ZM6.50004 10.5C7.3549 10.5 8.19207 10.7436 8.91355 11.2021C9.63504 11.6606 10.211 12.3152 10.574 13.0891C10.937 13.8631 11.072 14.7244 10.9633 15.5724C10.8546 16.4203 10.5066 17.2197 9.96004 17.877L12.783 20.691C12.9163 20.8248 12.9942 21.004 13.0011 21.1928C13.008 21.3816 12.9435 21.566 12.8203 21.7092C12.6972 21.8524 12.5245 21.9439 12.3369 21.9654C12.1492 21.9869 11.9604 21.9367 11.808 21.825L11.723 21.753L8.82004 18.857C8.22564 19.2143 7.5567 19.4293 6.86547 19.4853C6.17424 19.5413 5.47941 19.4368 4.83523 19.18C4.19105 18.9231 3.61496 18.5208 3.15192 18.0045C2.68889 17.4883 2.35144 16.872 2.16594 16.2037C1.98043 15.5355 1.95188 14.8334 2.08251 14.1524C2.21314 13.4713 2.49942 12.8296 2.919 12.2774C3.33858 11.7252 3.88011 11.2775 4.5013 10.9692C5.1225 10.6609 5.80654 10.5003 6.50004 10.5ZM6.50004 12C5.7044 12 4.94133 12.3161 4.37872 12.8787C3.81612 13.4413 3.50004 14.2044 3.50004 15C3.50004 15.7957 3.81612 16.5587 4.37872 17.1213C4.94133 17.6839 5.7044 18 6.50004 18C7.29569 18 8.05876 17.6839 8.62137 17.1213C9.18397 16.5587 9.50004 15.7957 9.50004 15C9.50004 14.2044 9.18397 13.4413 8.62137 12.8787C8.05876 12.3161 7.29569 12 6.50004 12ZM14 2.005C14.6567 2.005 15.3068 2.13433 15.9135 2.38561C16.5201 2.63688 17.0713 3.00518 17.5356 3.46947C17.9999 3.93376 18.3682 4.48496 18.6194 5.09159C18.8707 5.69822 19 6.3484 19 7.005C19 7.66161 18.8707 8.31179 18.6194 8.91842C18.3682 9.52505 17.9999 10.0762 17.5356 10.5405C17.0713 11.0048 16.5201 11.3731 15.9135 11.6244C15.3068 11.8757 14.6567 12.005 14 12.005C12.674 12.005 11.4022 11.4782 10.4645 10.5405C9.52683 9.60286 9.00004 8.33109 9.00004 7.005C9.00004 5.67892 9.52683 4.40715 10.4645 3.46947C11.4022 2.53179 12.674 2.005 14 2.005Z"
-      fill="currentColor"
-    />
-  </svg>
-);
-
-const EyeIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <path
-      d="M1 12S5 4 12 4s11 8 11 8-4 8-11 8-11-8-11-8z"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <circle
-      cx="12"
-      cy="12"
-      r="3"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const EyeOffIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <path
-      d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
     />
   </svg>
 );
@@ -142,38 +78,6 @@ const StarRegularIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-const CopyIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <rect
-      x="9"
-      y="9"
-      width="13"
-      height="13"
-      rx="2"
-      ry="2"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     width="16"
@@ -189,59 +93,6 @@ const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
       strokeWidth="2"
       strokeLinecap="round"
       strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const PhoneIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <path
-      d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const UserBadgeIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <path
-      d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <circle
-      cx="9"
-      cy="7"
-      r="4"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <circle
-      cx="19"
-      cy="11"
-      r="2"
-      fill="currentColor"
     />
   </svg>
 );
@@ -334,8 +185,6 @@ export default function GameCredentialPage() {
   const [steamData, setSteamData] = React.useState<SteamGameDetails | null>(null);
   const [activeMediaIndex, setActiveMediaIndex] = React.useState(0);
   const [hasImgError, setHasImgError] = React.useState(false);
-  const [showUsername, setShowUsername] = React.useState(false);
-  const [showPassword, setShowPassword] = React.useState(false);
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
   const [opinionInput, setOpinionInput] = React.useState("");
 
@@ -600,13 +449,6 @@ export default function GameCredentialPage() {
     return defaultEmptySpecs;
   }, [apiProduct, libraryGame, steamData?.pc_requirements?.recommended]);
 
-  // Copy helper
-  const handleCopy = (text: string, label: string) => {
-    navigator.clipboard.writeText(text);
-    setToastMessage(`${label} berhasil disalin ke clipboard!`);
-    setTimeout(() => setToastMessage(null), 3000);
-  };
-
   // Fetch real credentials from API (GET /api/v1/user/products/:slug/credentials)
   const { data: credentialsRes, isLoading: isCredsLoading } = useGameCredentials(productSlug);
 
@@ -844,146 +686,21 @@ export default function GameCredentialPage() {
               </Button>
 
               {/* ===================================================================
-                  INFORMASI AKUN GAME CARD (Figma Image 1 Reference)
+                  INFORMASI AKUN GAME CARD (Modular CredentialRevealer Component)
                   =================================================================== */}
-              <div className="w-full rounded-lg bg-deep-blue-900 p-5 mt-5 flex flex-col gap-4 shadow-xl">
-                {/* Header */}
-                <div className="flex items-center gap-3">
-                  <div className="rounded-lg bg-deep-blue-800 border border-deep-blue-700 p-3 flex items-center justify-center text-deep-blue-100 shrink-0">
-                    <DefaultPeopleSearchIcon />
-                  </div>
-                  <span className="font-semibold text-gray-50 text-body-lg">
-                    Informasi Akun Game
-                  </span>
-                </div>
-
-                {/* Pre-order Notice Pill (shown when game is still pre-order) */}
-                {isPreorder && (
-                  <div className="flex justify-center w-full py-0.5">
-                    <Pill
-                      variant="warning"
-                      size="sm"
-                      className="bg-[#2B1B10] text-amber-600 border border-amber-900/40 font-medium px-4 py-1.5 rounded-full text-label-xs tracking-normal"
-                    >
-                      Game ini Pre-order Silahkan Tunggu Rilis
-                    </Pill>
-                  </div>
-                )}
-
-                {/* Unified Credentials Box */}
-                <div className="w-full rounded-lg border-gradient-secondary">
-                  {/* Username Row */}
-                  <div className="mx-4 py-3 flex items-center justify-between border-b-gradient-secondary">
-                    <div className="flex items-center">
-                      <span className="text-gray-400 text-body-xs">Username :</span>
-                      <span className="font-mono text-sm text-white ml-2">
-                        {isPreorder ? "-" : (showUsername ? accountUsername : "*********")}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="xs"
-                        disabled={isPreorder}
-                        onClick={() => !isPreorder && setShowUsername(!showUsername)}
-                        className={cn(
-                          "p-1 text-gray-400 transition-colors border-gradient-secondary",
-                          isPreorder
-                            ? "opacity-40 cursor-not-allowed text-gray-500"
-                            : "hover:text-white cursor-pointer"
-                        )}
-                        title={isPreorder ? "Belum tersedia" : (showUsername ? "Sembunyikan" : "Tampilkan")}
-                      >
-                        {showUsername && !isPreorder ? (
-                          <EyeOffIcon className="w-4 h-4" />
-                        ) : (
-                          <EyeIcon className="w-4 h-4" />
-                        )}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="xs"
-                        disabled={isPreorder}
-                        onClick={() => !isPreorder && handleCopy(accountUsername, "Username")}
-                        className={cn(
-                          "p-1 text-gray-400 transition-colors",
-                          isPreorder
-                            ? "opacity-40 cursor-not-allowed text-gray-500"
-                            : "hover:text-white cursor-pointer"
-                        )}
-                        title={isPreorder ? "Belum tersedia" : "Salin Username"}
-                      >
-                        <CopyIcon className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-
-                  {/* Password Row */}
-                  <div className="px-4 py-3 flex items-center justify-between">
-                    <div className="flex items-center">
-                      <span className="text-gray-400 text-body-xs">Password :</span>
-                      <span className="font-mono text-sm text-white ml-2">
-                        {isPreorder ? "-" : (showPassword ? accountPassword : "**********")}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <Button
-                        variant="outline"
-                        size="xs"
-                        disabled={isPreorder}
-                        onClick={() => !isPreorder && setShowPassword(!showPassword)}
-                        className={cn(
-                          "p-1 text-gray-400 transition-colors border-gradient-secondary",
-                          isPreorder
-                            ? "opacity-40 cursor-not-allowed text-gray-500"
-                            : "hover:text-white cursor-pointer"
-                        )}
-                        title={isPreorder ? "Belum tersedia" : (showPassword ? "Sembunyikan" : "Tampilkan")}
-                      >
-                        {showPassword && !isPreorder ? (
-                          <EyeOffIcon className="w-4 h-4" />
-                        ) : (
-                          <EyeIcon className="w-4 h-4" />
-                        )}
-                      </Button>
-                      <Button
-                        variant="outline"
-                        size="xs"
-                        disabled={isPreorder}
-                        onClick={() => !isPreorder && handleCopy(accountPassword, "Password")}
-                        className={cn(
-                          "p-1 text-gray-400 transition-colors",
-                          isPreorder
-                            ? "opacity-40 cursor-not-allowed text-gray-500"
-                            : "hover:text-white cursor-pointer"
-                        )}
-                        title={isPreorder ? "Belum tersedia" : "Salin Password"}
-                      >
-                        <CopyIcon className="w-4 h-4" />
-                      </Button>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Right-aligned Hubungi Admin Button */}
-                <div className="flex justify-end pt-1">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      window.open(
-                        `https://wa.me/6281234567890?text=Halo%20Admin%20Gamezygo,%20saya%20butuh%20bantuan%20akun%20untuk%20game%20${encodeURIComponent(
-                          gameTitle
-                        )}`,
-                        "_blank"
-                      );
-                    }}
-                  >
-                    <PhoneIcon className="w-3.5 h-3.5 text-gray-300" />
-                    <span>Hubungi Admin</span>
-                  </Button>
-                </div>
-              </div>
+              <CredentialRevealer
+                gameTitle={gameTitle}
+                username={accountUsername}
+                password={accountPassword}
+                accessToken={credentialsRes?.data?.access_token}
+                isPreorder={isPreorder}
+                isLoading={isCredsLoading && !credentialsRes}
+                onCopySuccess={(field) => {
+                  setToastMessage(`${field} berhasil disalin ke clipboard!`);
+                  setTimeout(() => setToastMessage(null), 3000);
+                }}
+                className="mt-5"
+              />
               </div>
           </section>
 

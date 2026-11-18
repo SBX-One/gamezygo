@@ -6,7 +6,6 @@ import { useRouter } from "next/router";
 import { StoreLayout } from "@/components/layout";
 import { Toast } from "@/components/ui/Toast";
 import { useAuthStore } from "@/stores/use-auth-store";
-import { fetchGoogleAuthRedirect } from "@/services/auth.service";
 import { addToCart } from "@/services/cart.service";
 import { useCartStore } from "@/stores/use-cart-store";
 import { cn } from "@/lib/utils";
@@ -110,37 +109,7 @@ const GoogleIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 /**
- * Mail Icon (18px)
- */
-const MailIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="20"
-    height="20"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className="w-4.5 h-4.5 text-gray-400 shrink-0"
-    {...props}
-  >
-    <path
-      d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M22 6L12 13L2 6"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-/**
- * Lock Icon (18px)
+ * Lock Icon
  */
 const LockIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -172,9 +141,39 @@ const LockIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 /**
- * User Icon (18px)
+ * Shield Check Icon (Security Indicator)
  */
-const UserIcon = (props: React.SVGProps<SVGSVGElement>) => (
+const ShieldCheckIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-4 h-4 text-emerald-400 shrink-0"
+    {...props}
+  >
+    <path
+      d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M9 12l2 2 4-4"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+/**
+ * User Badge Icon
+ */
+const UserBadgeIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     width="20"
     height="20"
@@ -185,12 +184,69 @@ const UserIcon = (props: React.SVGProps<SVGSVGElement>) => (
     {...props}
   >
     <path
-      d="M20 21V19C20 16.7909 18.2091 15 16 15H8C5.79086 15 4 16.7909 4 19V21"
+      d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"
       stroke="currentColor"
       strokeWidth="1.75"
       strokeLinecap="round"
+      strokeLinejoin="round"
     />
-    <circle cx="12" cy="7" r="4" stroke="currentColor" strokeWidth="1.75" />
+    <circle cx="9" cy="7" r="4" stroke="currentColor" strokeWidth="1.75" />
+    <path
+      d="M17 11l2 2 4-4"
+      stroke="currentColor"
+      strokeWidth="1.75"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+/**
+ * Key Icon (Admin Key)
+ */
+const KeyIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-3.5 h-3.5 text-rose-400 shrink-0"
+    {...props}
+  >
+    <circle cx="8" cy="8" r="6" stroke="currentColor" strokeWidth="2" />
+    <path
+      d="M12.5 12.5L21 21M17 17l2 2M15 19l2 2"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
+/**
+ * Alert Triangle Icon (Lockout Notice)
+ */
+const AlertTriangleIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-4 h-4 text-amber-400 shrink-0"
+    {...props}
+  >
+    <path
+      d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <line x1="12" y1="9" x2="12" y2="13" stroke="currentColor" strokeWidth="2" strokeLinecap="round" />
+    <circle cx="12" cy="17" r="1" fill="currentColor" />
   </svg>
 );
 
@@ -249,7 +305,7 @@ const EyeOffIcon = (props: React.SVGProps<SVGSVGElement>) => (
 );
 
 /**
- * Animated SVG Spinner (no rounded-full)
+ * Animated SVG Spinner
  */
 const SpinnerIcon = ({ className, ...props }: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -284,8 +340,6 @@ export default function LoginPage() {
   // Global Auth Store
   const login = useAuthStore((s) => s.login);
   const loginWithGoogle = useAuthStore((s) => s.loginWithGoogle);
-  const register = useAuthStore((s) => s.register);
-  const updateUser = useAuthStore((s) => s.updateUser);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const isLoading = useAuthStore((s) => s.isLoading);
 
@@ -319,124 +373,133 @@ export default function LoginPage() {
     }, 4000);
   };
 
-  // Form Fields - Login
-  const [loginEmail, setLoginEmail] = React.useState("");
-  const [loginPassword, setLoginPassword] = React.useState("");
+  // Admin Form Fields
+  const [adminUsername, setAdminUsername] = React.useState("");
+  const [adminPassword, setAdminPassword] = React.useState("");
   const [rememberMe, setRememberMe] = React.useState(true);
-  const [showLoginPassword, setShowLoginPassword] = React.useState(false);
+  const [showAdminPassword, setShowAdminPassword] = React.useState(false);
 
-  // Form Fields - Register
-  const [registerName, setRegisterName] = React.useState("");
-  const [registerEmail, setRegisterEmail] = React.useState("");
-  const [registerPassword, setRegisterPassword] = React.useState("");
-  const [registerConfirmPassword, setRegisterConfirmPassword] = React.useState("");
-  const [showRegisterPassword, setShowRegisterPassword] = React.useState(false);
-  const [agreeTerms, setAgreeTerms] = React.useState(false);
-
-  // Submitting States
+  // Submitting State
   const [isSubmitting, setIsSubmitting] = React.useState(false);
 
-  // Handle Login Submit
-  const handleLoginSubmit = async (e: React.FormEvent) => {
+  // Security: Brute-Force & DDoS Mitigation (Failed Attempts + Lockout Timer)
+  const [failedAttempts, setFailedAttempts] = React.useState(0);
+  const [lockoutSeconds, setLockoutSeconds] = React.useState<number>(() => {
+    if (typeof window !== "undefined") {
+      try {
+        const storedLockout = sessionStorage.getItem("gamezygo_auth_lockout_until");
+        if (storedLockout) {
+          const remaining = Math.ceil((Number(storedLockout) - Date.now()) / 1000);
+          if (remaining > 0) return remaining;
+          sessionStorage.removeItem("gamezygo_auth_lockout_until");
+        }
+      } catch {
+        // ignore storage error
+      }
+    }
+    return 0;
+  });
+
+  // Countdown timer for lockout
+  React.useEffect(() => {
+    if (lockoutSeconds <= 0) return;
+    const interval = setInterval(() => {
+      setLockoutSeconds((prev) => {
+        if (prev <= 1) {
+          if (typeof window !== "undefined") {
+            sessionStorage.removeItem("gamezygo_auth_lockout_until");
+          }
+          setFailedAttempts(0);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+    return () => clearInterval(interval);
+  }, [lockoutSeconds]);
+
+  const recordFailedAttempt = () => {
+    const nextAttempts = failedAttempts + 1;
+    setFailedAttempts(nextAttempts);
+
+    if (nextAttempts >= 5) {
+      const lockDuration = 60; // 60 seconds lockout
+      setLockoutSeconds(lockDuration);
+      if (typeof window !== "undefined") {
+        sessionStorage.setItem(
+          "gamezygo_auth_lockout_until",
+          String(Date.now() + lockDuration * 1000)
+        );
+      }
+      showToast(
+        "Terlalu banyak percobaan gagal. Akses dibatasi selama 60 detik demi keamanan sistem.",
+        "error"
+      );
+    }
+  };
+
+  // Handle Admin Login Submit (Strictly for Administrator Authentication)
+  const handleAdminLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!loginEmail.trim()) {
-      showToast("Harap masukkan email atau username Anda.", "error");
-      return;
-    }
-    if (!loginPassword) {
-      showToast("Harap masukkan password akun Anda.", "error");
+
+    if (lockoutSeconds > 0) {
+      showToast(
+        `Akses login terkunci. Silakan tunggu ${lockoutSeconds} detik sebelum mencoba lagi.`,
+        "error"
+      );
       return;
     }
 
-    const trimmedInput = loginEmail.trim();
-    // Auto-normalize if user inputs username without domain (e.g. 'user' -> 'user@gamezygo.com')
-    const finalEmail = trimmedInput.includes("@")
-      ? trimmedInput
-      : `${trimmedInput}@gamezygo.com`;
+    if (isSubmitting) return;
 
-    const isTargetingAdmin = typeof redirect === "string" && redirect.startsWith("/admin");
+    // Sanitize input
+    const cleanUsername = adminUsername.trim().replace(/[<>]/g, "").slice(0, 100);
+    const cleanPassword = adminPassword.slice(0, 100);
+
+    if (!cleanUsername) {
+      showToast("Harap masukkan username atau email admin.", "error");
+      return;
+    }
+    if (!cleanPassword || cleanPassword.length < 4) {
+      showToast("Password admin minimal 4 karakter.", "error");
+      return;
+    }
+
+    // Auto-normalize admin email format if user only enters username (e.g. 'admin' -> 'admin@gamezygo.com')
+    const finalEmail = cleanUsername.includes("@")
+      ? cleanUsername
+      : `${cleanUsername}@gamezygo.com`;
 
     setIsSubmitting(true);
     try {
       await login({
         email: finalEmail,
-        password: loginPassword,
-        isAdmin: isTargetingAdmin,
+        password: cleanPassword,
+        isAdmin: true,
       });
 
-      // Sync guest cart items to backend if any
-      const guestCartItems = useCartStore.getState().cartItems;
-      if (guestCartItems && guestCartItems.length > 0) {
-        for (const item of guestCartItems) {
-          const numId = Number(item.productId);
-          if (!isNaN(numId) && numId > 0) {
-            try {
-              await addToCart(numId);
-            } catch {
-              // ignore duplicate or background error
-            }
-          }
-        }
+      // Reset lockout state on success
+      setFailedAttempts(0);
+      setLockoutSeconds(0);
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("gamezygo_auth_lockout_until");
       }
 
-      showToast("Login berhasil! Mengalihkan ke Gamezygo...", "success");
+      showToast("Login Admin berhasil! Mengalihkan ke Dashboard...", "success");
       setTimeout(() => {
-        const userRole = useAuthStore.getState().role;
-        const defaultDest = userRole === "admin" ? "/admin/dashboard" : "/";
-        const destination = typeof redirect === "string" ? redirect : defaultDest;
+        const destination =
+          typeof redirect === "string" && redirect.startsWith("/admin")
+            ? redirect
+            : "/admin/dashboard";
         router.push(destination);
       }, 700);
     } catch (err) {
+      recordFailedAttempt();
       const errorMsg =
         err instanceof Error
           ? err.message
-          : "Gagal masuk. Periksa kembali email dan password Anda.";
+          : "Gagal masuk sebagai admin. Periksa kembali username dan password Anda.";
       showToast(errorMsg, "error");
-    } finally {
-      setIsSubmitting(false);
-    }
-  };
-
-  // Handle Register Submit
-  const handleRegisterSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!registerName.trim()) {
-      showToast("Harap masukkan nama lengkap Anda.", "error");
-      return;
-    }
-    if (!registerEmail.trim() || !registerEmail.includes("@")) {
-      showToast("Harap masukkan alamat email yang valid.", "error");
-      return;
-    }
-    if (registerPassword.length < 6) {
-      showToast("Password minimal 6 karakter.", "error");
-      return;
-    }
-    if (registerPassword !== registerConfirmPassword) {
-      showToast("Konfirmasi password tidak cocok.", "error");
-      return;
-    }
-    if (!agreeTerms) {
-      showToast("Anda harus menyetujui Syarat & Ketentuan Gamezygo.", "error");
-      return;
-    }
-
-    setIsSubmitting(true);
-    try {
-      await register({
-        name: registerName.trim(),
-        email: registerEmail.trim(),
-        password: registerPassword,
-        password_confirmation: registerConfirmPassword,
-      });
-      updateUser({ name: registerName.trim(), email: registerEmail.trim() });
-      showToast("Akun berhasil dibuat! Selamat datang di Gamezygo.", "success");
-      setTimeout(() => {
-        const destination = typeof redirect === "string" ? redirect : "/";
-        router.push(destination);
-      }, 700);
-    } catch {
-      showToast("Terjadi kesalahan saat mendaftar. Silakan coba lagi.", "error");
     } finally {
       setIsSubmitting(false);
     }
@@ -444,6 +507,16 @@ export default function LoginPage() {
 
   // Handle Google OAuth Action (Client-side GSI Popup -> POST /api/v1/auth/google-login)
   const handleGoogleLogin = async () => {
+    if (lockoutSeconds > 0) {
+      showToast(
+        `Akses dibatasi sementara. Silakan tunggu ${lockoutSeconds} detik.`,
+        "error"
+      );
+      return;
+    }
+
+    if (isSubmitting) return;
+
     setIsSubmitting(true);
     const googleClientId =
       process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID ||
@@ -458,17 +531,16 @@ export default function LoginPage() {
         const client = window.google.accounts.oauth2.initTokenClient({
           client_id: googleClientId,
           scope: "email profile openid",
-          callback: async (tokenResponse: GoogleTokenResponse) => {
-            if (tokenResponse.error) {
+          callback: async (response: GoogleTokenResponse) => {
+            if (response.error) {
               setIsSubmitting(false);
-              showToast("Autentikasi Google dibatalkan.", "default");
+              showToast("Autentikasi Google dibatalkan atau gagal.", "error");
               return;
             }
 
-            if (tokenResponse.access_token) {
+            if (response.access_token) {
               try {
-                showToast("Memverifikasi akun Google dengan Gamezygo...", "default");
-                await loginWithGoogle(tokenResponse.access_token);
+                await loginWithGoogle(response.access_token);
 
                 // Sync guest cart items to backend if any
                 const guestCartItems = useCartStore.getState().cartItems;
@@ -479,22 +551,28 @@ export default function LoginPage() {
                       try {
                         await addToCart(numId);
                       } catch {
-                        // ignore
+                        // ignore duplicate
                       }
                     }
                   }
                 }
 
-                showToast("Login Google berhasil! Mengalihkan...", "success");
+                showToast(
+                  activeTab === "signup"
+                    ? "Pendaftaran berhasil! Selamat datang di Gamezygo."
+                    : "Login berhasil! Mengalihkan ke Gamezygo...",
+                  "success"
+                );
+
                 setTimeout(() => {
                   const destination = typeof redirect === "string" ? redirect : "/";
                   router.push(destination);
-                }, 600);
-              } catch (apiErr) {
+                }, 700);
+              } catch (err) {
                 const msg =
-                  apiErr instanceof Error
-                    ? apiErr.message
-                    : "Gagal menghubungkan akun Google.";
+                  err instanceof Error
+                    ? err.message
+                    : "Gagal memproses autentikasi Google.";
                 showToast(msg, "error");
               } finally {
                 setIsSubmitting(false);
@@ -549,11 +627,11 @@ export default function LoginPage() {
         navbarVariant="guest"
         activeNavId=""
         hideSidebar={true}
-        contentClassName="w-full  mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-14 flex flex-col items-center justify-center min-h-[calc(100vh-180px)]"
+        contentClassName="w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 sm:py-12 md:py-16 flex flex-col items-center justify-center min-h-[calc(100vh-160px)]"
       >
         {/* Toast Alert Notification */}
         {toast && (
-          <div className="fixed top-4 left-4 right-4 md:top-auto md:left-auto md:bottom-6 md:right-6 z-50 md:w-auto md:min-w-80 md:max-w-105 animate-fade-in">
+          <div className="fixed top-4 left-4 right-4 md:top-auto md:left-auto md:bottom-6 md:right-6 z-50 md:w-auto md:min-w-[320px] md:max-w-[420px] animate-fade-in">
             <Toast
               variant={toast.variant}
               title={
@@ -570,11 +648,14 @@ export default function LoginPage() {
           </div>
         )}
 
-        {/* Main Authentication Card */}
-        <div className="w-full sm:max-w-2/7  mx-auto flex flex-col">
-          {/* Outer Glass Card Panel (NO SHADOW, MAX ROUNDED-LG) */}
-          <div className="w-full bg-deep-blue-900 border border-white/10 rounded-lg p-6 sm:p-8 flex flex-col gap-6 shadow-none">
-            {/* Header: Logo & Branding */}
+        {/* ===================================================================
+            MAIN AUTHENTICATION CARD
+            Fixed generous widths for Mobile & Tablet (NO max-w-sm / max-w-7xl)
+            =================================================================== */}
+        <div className="w-[460px] max-w-[92vw] sm:w-[480px] md:w-[500px] mx-auto flex flex-col">
+          <div className="w-full bg-deep-blue-900 border border-white/10 rounded-xl p-6 sm:p-8 md:p-9 flex flex-col gap-6 shadow-2xl backdrop-blur-md">
+            
+            {/* 1. Header: Logo & Branding */}
             <div className="flex flex-col items-center text-center gap-3">
               <Link
                 href="/"
@@ -592,12 +673,12 @@ export default function LoginPage() {
                 <p className="text-body-xs sm:text-body-sm text-gray-400">
                   {activeTab === "login"
                     ? "Akses vault dan koleksi game original Anda."
-                    : "Daftar sekarang untuk ribuan game impian harga hemat."}
+                    : "Pendaftaran instan eksklusif dengan Google Auth."}
                 </p>
               </div>
             </div>
 
-            {/* Segmented Tab Switcher (Masuk / Daftar) */}
+            {/* 2. Segmented Tab Switcher (Masuk / Daftar) */}
             <div className="grid grid-cols-2 p-1 bg-deep-blue-950 border border-white/10 rounded-lg shadow-none">
               <button
                 type="button"
@@ -625,292 +706,269 @@ export default function LoginPage() {
               </button>
             </div>
 
-            {/* Google Social Login Button */}
-            <button
-              type="button"
-              onClick={handleGoogleLogin}
-              disabled={isSubmitting || isLoading}
-              className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-body-sm font-semibold text-gray-200 transition-colors duration-150 cursor-pointer disabled:opacity-50 disabled:pointer-events-none shadow-none"
-            >
-              <GoogleIcon />
-              <span>Lanjutkan dengan Google</span>
-            </button>
-
-            {/* Divider */}
-            <div className="flex items-center gap-3 w-full">
-              <div className="flex-1 h-px bg-white/10" />
-              <span className="text-[11px] uppercase tracking-wider text-gray-500 font-semibold select-none">
-                atau dengan email
-              </span>
-              <div className="flex-1 h-px bg-white/10" />
-            </div>
-
-            {/* Form Content: TAB LOGIN */}
-            {activeTab === "login" && (
-              <form onSubmit={handleLoginSubmit} className="flex flex-col gap-4">
-                {/* Email / Username Field */}
-                <div className="flex flex-col gap-1.5">
-                  <label
-                    htmlFor="login-email"
-                    className="text-body-xs font-medium text-gray-300 select-none"
-                  >
-                    Email atau Username
-                  </label>
-                  <div className="relative flex items-center">
-                    <div className="absolute left-3.5 pointer-events-none text-gray-400">
-                      <MailIcon />
-                    </div>
-                    <input
-                      id="login-email"
-                      type="text"
-                      value={loginEmail}
-                      onChange={(e) => setLoginEmail(e.target.value)}
-                      placeholder="nama@email.com"
-                      autoComplete="username"
-                      required
-                      className="w-full min-h-11 bg-deep-blue-950 border border-white/10 rounded-lg pl-10.5 pr-4 text-body-sm text-gray-100 placeholder:text-gray-500 focus:outline-none focus:border-rose-500/80 transition-colors shadow-none"
-                    />
-                  </div>
+            {/* Lockout Banner (if rate limited / locked out) */}
+            {lockoutSeconds > 0 && (
+              <div className="flex items-center gap-3 p-3.5 rounded-lg bg-amber-500/10 border border-amber-500/30 text-amber-300">
+                <AlertTriangleIcon className="shrink-0" />
+                <div className="text-body-xs">
+                  <p className="font-semibold">Keamanan: Akses Dibatasi Sementara</p>
+                  <p className="text-amber-300/80">
+                    Terlalu banyak percobaan gagal. Silakan tunggu{" "}
+                    <span className="font-mono font-bold text-white">{lockoutSeconds}</span> detik.
+                  </p>
                 </div>
-
-                {/* Password Field */}
-                <div className="flex flex-col gap-1.5">
-                  <div className="flex items-center justify-between">
-                    <label
-                      htmlFor="login-password"
-                      className="text-body-xs font-medium text-gray-300 select-none"
-                    >
-                      Password
-                    </label>
-                    <button
-                      type="button"
-                      onClick={() => showToast("Fitur reset password dikirim ke email terdaftar.")}
-                      className="text-[11px] font-medium text-rose-400 hover:text-rose-300 transition-colors cursor-pointer select-none"
-                    >
-                      Lupa password?
-                    </button>
-                  </div>
-                  <div className="relative flex items-center">
-                    <div className="absolute left-3.5 pointer-events-none text-gray-400">
-                      <LockIcon />
-                    </div>
-                    <input
-                      id="login-password"
-                      type={showLoginPassword ? "text" : "password"}
-                      value={loginPassword}
-                      onChange={(e) => setLoginPassword(e.target.value)}
-                      placeholder="••••••••"
-                      autoComplete="current-password"
-                      required
-                      className="w-full min-h-11 bg-deep-blue-950 border border-white/10 rounded-lg pl-10.5 pr-11 text-body-sm text-gray-100 placeholder:text-gray-500 focus:outline-none focus:border-rose-500/80 transition-colors shadow-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowLoginPassword(!showLoginPassword)}
-                      className="absolute right-3.5 p-1 text-gray-400 hover:text-gray-200 cursor-pointer transition-colors"
-                      aria-label={showLoginPassword ? "Sembunyikan password" : "Tampilkan password"}
-                    >
-                      {showLoginPassword ? <EyeOffIcon /> : <EyeIcon />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Remember Me Checkbox */}
-                <div className="flex items-center gap-2.5 pt-1">
-                  <input
-                    id="remember-me"
-                    type="checkbox"
-                    checked={rememberMe}
-                    onChange={(e) => setRememberMe(e.target.checked)}
-                    className="w-4 h-4 rounded-sm border-white/20 bg-deep-blue-950 text-rose-500 accent-rose-500 cursor-pointer shadow-none"
-                  />
-                  <label
-                    htmlFor="remember-me"
-                    className="text-body-xs text-gray-400 select-none cursor-pointer"
-                  >
-                    Ingat saya di perangkat ini
-                  </label>
-                </div>
-
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting || isLoading}
-                  className="w-full min-h-11 mt-2 flex items-center justify-center gap-2 bg-linear-to-r from-rose-600 via-rose-500 to-rose-600 hover:from-rose-500 hover:to-rose-500 text-white font-semibold text-body-sm rounded-lg transition-all duration-150 cursor-pointer active:scale-98 disabled:opacity-50 disabled:pointer-events-none shadow-none"
-                >
-                  {isSubmitting || isLoading ? (
-                    <>
-                      <SpinnerIcon className="w-4 h-4 text-white" />
-                      <span>Memproses...</span>
-                    </>
-                  ) : (
-                    <span>Masuk ke Akun</span>
-                  )}
-                </button>
-              </form>
+              </div>
             )}
 
-            {/* Form Content: TAB DAFTAR (SIGN UP) */}
-            {activeTab === "signup" && (
-              <form onSubmit={handleRegisterSubmit} className="flex flex-col gap-4">
-                {/* Full Name Field */}
-                <div className="flex flex-col gap-1.5">
-                  <label
-                    htmlFor="reg-name"
-                    className="text-body-xs font-medium text-gray-300 select-none"
+            {/* ===============================================================
+                TAB 1: MASUK (LOGIN)
+                - Pelanggan / Gamers: Google Auth
+                - Admin / Staf Gamezygo: Username & Password
+                =============================================================== */}
+            {activeTab === "login" && (
+              <div className="flex flex-col gap-6">
+                
+                {/* Section A: Customer Google Login */}
+                <div className="flex flex-col gap-2.5">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 select-none">
+                    Pelanggan & Gamers
+                  </span>
+
+                  <button
+                    type="button"
+                    onClick={handleGoogleLogin}
+                    disabled={isSubmitting || isLoading || lockoutSeconds > 0}
+                    className="w-full flex items-center justify-center gap-3 py-3 px-4 rounded-lg border border-white/10 bg-white/5 hover:bg-white/10 text-body-sm font-semibold text-gray-100 transition-all duration-150 cursor-pointer active:scale-98 disabled:opacity-50 disabled:pointer-events-none shadow-none"
                   >
-                    Nama Lengkap
-                  </label>
-                  <div className="relative flex items-center">
-                    <div className="absolute left-3.5 pointer-events-none text-gray-400">
-                      <UserIcon />
-                    </div>
-                    <input
-                      id="reg-name"
-                      type="text"
-                      value={registerName}
-                      onChange={(e) => setRegisterName(e.target.value)}
-                      placeholder="Contoh: Rendy Pratama"
-                      autoComplete="name"
-                      required
-                      className="w-full min-h-11 bg-deep-blue-950 border border-white/10 rounded-lg pl-10.5 pr-4 text-body-sm text-gray-100 placeholder:text-gray-500 focus:outline-none focus:border-rose-500/80 transition-colors shadow-none"
-                    />
-                  </div>
+                    <GoogleIcon />
+                    <span>Lanjutkan dengan Google</span>
+                  </button>
+                  <p className="text-[11px] text-gray-400 text-center">
+                    Masuk instan untuk mengakses perpustakaan & riwayat pesanan game Anda.
+                  </p>
                 </div>
 
-                {/* Email Field */}
-                <div className="flex flex-col gap-1.5">
-                  <label
-                    htmlFor="reg-email"
-                    className="text-body-xs font-medium text-gray-300 select-none"
-                  >
-                    Alamat Email
-                  </label>
-                  <div className="relative flex items-center">
-                    <div className="absolute left-3.5 pointer-events-none text-gray-400">
-                      <MailIcon />
-                    </div>
-                    <input
-                      id="reg-email"
-                      type="email"
-                      value={registerEmail}
-                      onChange={(e) => setRegisterEmail(e.target.value)}
-                      placeholder="nama@email.com"
-                      autoComplete="email"
-                      required
-                      className="w-full min-h-11 bg-deep-blue-950 border border-white/10 rounded-lg pl-10.5 pr-4 text-body-sm text-gray-100 placeholder:text-gray-500 focus:outline-none focus:border-rose-500/80 transition-colors shadow-none"
-                    />
+                {/* Section Divider: Admin Access */}
+                <div className="flex items-center gap-3 w-full">
+                  <div className="flex-1 h-px bg-white/10" />
+                  <div className="flex items-center gap-1.5 px-2 py-0.5 rounded bg-white/5 border border-white/10">
+                    <KeyIcon />
+                    <span className="text-[10px] uppercase tracking-wider text-rose-300 font-bold select-none">
+                      Login Khusus Admin
+                    </span>
                   </div>
+                  <div className="flex-1 h-px bg-white/10" />
                 </div>
 
-                {/* Password Field */}
-                <div className="flex flex-col gap-1.5">
-                  <label
-                    htmlFor="reg-pass"
-                    className="text-body-xs font-medium text-gray-300 select-none"
-                  >
-                    Password Baru (Min. 6 Karakter)
-                  </label>
-                  <div className="relative flex items-center">
-                    <div className="absolute left-3.5 pointer-events-none text-gray-400">
-                      <LockIcon />
-                    </div>
-                    <input
-                      id="reg-pass"
-                      type={showRegisterPassword ? "text" : "password"}
-                      value={registerPassword}
-                      onChange={(e) => setRegisterPassword(e.target.value)}
-                      placeholder="••••••••"
-                      autoComplete="new-password"
-                      required
-                      className="w-full min-h-11 bg-deep-blue-950 border border-white/10 rounded-lg pl-10.5 pr-11 text-body-sm text-gray-100 placeholder:text-gray-500 focus:outline-none focus:border-rose-500/80 transition-colors shadow-none"
-                    />
-                    <button
-                      type="button"
-                      onClick={() => setShowRegisterPassword(!showRegisterPassword)}
-                      className="absolute right-3.5 p-1 text-gray-400 hover:text-gray-200 cursor-pointer transition-colors"
-                      aria-label={showRegisterPassword ? "Sembunyikan password" : "Tampilkan password"}
+                {/* Section B: Form Login Admin (Username & Password) */}
+                <form onSubmit={handleAdminLoginSubmit} className="flex flex-col gap-4">
+                  {/* Admin Username Field */}
+                  <div className="flex flex-col gap-1.5">
+                    <label
+                      htmlFor="admin-username"
+                      className="text-body-xs font-medium text-gray-300 select-none flex items-center justify-between"
                     >
-                      {showRegisterPassword ? <EyeOffIcon /> : <EyeIcon />}
-                    </button>
-                  </div>
-                </div>
-
-                {/* Confirm Password Field */}
-                <div className="flex flex-col gap-1.5">
-                  <label
-                    htmlFor="reg-pass-confirm"
-                    className="text-body-xs font-medium text-gray-300 select-none"
-                  >
-                    Konfirmasi Password
-                  </label>
-                  <div className="relative flex items-center">
-                    <div className="absolute left-3.5 pointer-events-none text-gray-400">
-                      <LockIcon />
+                      <span>Username / Email Admin</span>
+                      <span className="text-[10px] text-rose-400 font-semibold uppercase tracking-wider">
+                        Internal Staf
+                      </span>
+                    </label>
+                    <div className="relative flex items-center">
+                      <div className="absolute left-3.5 pointer-events-none text-gray-400">
+                        <UserBadgeIcon />
+                      </div>
+                      <input
+                        id="admin-username"
+                        type="text"
+                        value={adminUsername}
+                        onChange={(e) => setAdminUsername(e.target.value)}
+                        placeholder="admin@gamezygo.com"
+                        autoComplete="username"
+                        required
+                        disabled={isSubmitting || lockoutSeconds > 0}
+                        className="w-full min-h-11 bg-deep-blue-950 border border-white/10 rounded-lg pl-10.5 pr-4 text-body-sm text-gray-100 placeholder:text-gray-500 focus:outline-none focus:border-rose-500/80 transition-colors shadow-none disabled:opacity-50"
+                      />
                     </div>
+                  </div>
+
+                  {/* Admin Password Field */}
+                  <div className="flex flex-col gap-1.5">
+                    <div className="flex items-center justify-between">
+                      <label
+                        htmlFor="admin-password"
+                        className="text-body-xs font-medium text-gray-300 select-none"
+                      >
+                        Password Admin
+                      </label>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          showToast(
+                            "Untuk reset password akun administrator, hubungi Superadmin atau DevOps Gamezygo.",
+                            "default"
+                          )
+                        }
+                        className="text-[11px] font-medium text-rose-400 hover:text-rose-300 transition-colors cursor-pointer select-none"
+                      >
+                        Bantuan Akses?
+                      </button>
+                    </div>
+                    <div className="relative flex items-center">
+                      <div className="absolute left-3.5 pointer-events-none text-gray-400">
+                        <LockIcon />
+                      </div>
+                      <input
+                        id="admin-password"
+                        type={showAdminPassword ? "text" : "password"}
+                        value={adminPassword}
+                        onChange={(e) => setAdminPassword(e.target.value)}
+                        placeholder="••••••••"
+                        autoComplete="current-password"
+                        required
+                        disabled={isSubmitting || lockoutSeconds > 0}
+                        className="w-full min-h-11 bg-deep-blue-950 border border-white/10 rounded-lg pl-10.5 pr-11 text-body-sm text-gray-100 placeholder:text-gray-500 focus:outline-none focus:border-rose-500/80 transition-colors shadow-none disabled:opacity-50"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => setShowAdminPassword(!showAdminPassword)}
+                        className="absolute right-3.5 p-1 text-gray-400 hover:text-gray-200 cursor-pointer transition-colors"
+                        aria-label={
+                          showAdminPassword ? "Sembunyikan password" : "Tampilkan password"
+                        }
+                      >
+                        {showAdminPassword ? <EyeOffIcon /> : <EyeIcon />}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Remember Me Checkbox */}
+                  <div className="flex items-center gap-2.5 pt-0.5">
                     <input
-                      id="reg-pass-confirm"
-                      type={showRegisterPassword ? "text" : "password"}
-                      value={registerConfirmPassword}
-                      onChange={(e) => setRegisterConfirmPassword(e.target.value)}
-                      placeholder="••••••••"
-                      autoComplete="new-password"
-                      required
-                      className="w-full min-h-11 bg-deep-blue-950 border border-white/10 rounded-lg pl-4 pr-4 text-body-sm text-gray-100 placeholder:text-gray-500 focus:outline-none focus:border-rose-500/80 transition-colors shadow-none"
+                      id="remember-me"
+                      type="checkbox"
+                      checked={rememberMe}
+                      onChange={(e) => setRememberMe(e.target.checked)}
+                      className="w-4 h-4 rounded-sm border-white/20 bg-deep-blue-950 text-rose-500 accent-rose-500 cursor-pointer shadow-none"
                     />
+                    <label
+                      htmlFor="remember-me"
+                      className="text-body-xs text-gray-400 select-none cursor-pointer"
+                    >
+                      Ingat sesi admin di perangkat ini
+                    </label>
+                  </div>
+
+                  {/* Submit Button */}
+                  <button
+                    type="submit"
+                    disabled={isSubmitting || isLoading || lockoutSeconds > 0}
+                    className="w-full min-h-11 mt-1 flex items-center justify-center gap-2 bg-linear-to-r from-rose-600 via-rose-500 to-rose-600 hover:from-rose-500 hover:to-rose-500 text-white font-semibold text-body-sm rounded-lg transition-all duration-150 cursor-pointer active:scale-98 disabled:opacity-50 disabled:pointer-events-none shadow-none"
+                  >
+                    {isSubmitting || isLoading ? (
+                      <>
+                        <SpinnerIcon className="w-4 h-4 text-white" />
+                        <span>Memverifikasi Kredensial...</span>
+                      </>
+                    ) : (
+                      <span>Masuk sebagai Administrator</span>
+                    )}
+                  </button>
+                </form>
+              </div>
+            )}
+
+            {/* ===============================================================
+                TAB 2: DAFTAR (SIGN UP)
+                - Eksklusif Google Auth (Tidak ada form manual)
+                - Keamanan & Perlindungan Anti-Bot / Anti-Spam
+                =============================================================== */}
+            {activeTab === "signup" && (
+              <div className="flex flex-col gap-6">
+                
+                {/* Primary Google Registration Button */}
+                <button
+                  type="button"
+                  onClick={handleGoogleLogin}
+                  disabled={isSubmitting || isLoading || lockoutSeconds > 0}
+                  className="w-full flex items-center justify-center gap-3 py-3.5 px-4 rounded-xl border border-white/15 bg-white/10 hover:bg-white/15 text-body-sm font-bold text-white transition-all duration-150 cursor-pointer disabled:opacity-50 disabled:pointer-events-none active:scale-98 shadow-lg"
+                >
+                  <GoogleIcon />
+                  <span>Daftar dengan Google</span>
+                </button>
+
+                {/* Benefits / Security Highlights */}
+                <div className="flex flex-col gap-3 p-4 rounded-lg bg-deep-blue-950/70 border border-white/5">
+                  <span className="text-[11px] font-bold uppercase tracking-wider text-gray-300">
+                    Kenapa Menggunakan Google Auth?
+                  </span>
+
+                  <div className="flex items-start gap-2.5">
+                    <ShieldCheckIcon className="mt-0.5" />
+                    <div className="flex flex-col">
+                      <span className="text-body-xs font-semibold text-gray-200">
+                        Aktivasi Akun Otomatis
+                      </span>
+                      <span className="text-[11px] text-gray-400">
+                        Langsung aktif seketika tanpa perlu verifikasi email manual.
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2.5">
+                    <ShieldCheckIcon className="mt-0.5" />
+                    <div className="flex flex-col">
+                      <span className="text-body-xs font-semibold text-gray-200">
+                        Keamanan & Perlindungan Terenkripsi
+                      </span>
+                      <span className="text-[11px] text-gray-400">
+                        Dilindungi protokol Google OAuth 2.0 dan vault kredensial game AES-256.
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-start gap-2.5">
+                    <ShieldCheckIcon className="mt-0.5" />
+                    <div className="flex flex-col">
+                      <span className="text-body-xs font-semibold text-gray-200">
+                        Akses Instan Game Library
+                      </span>
+                      <span className="text-[11px] text-gray-400">
+                        Riwayat pembelian dan kredensial game langsung terikat ke akun Google Anda.
+                      </span>
+                    </div>
                   </div>
                 </div>
 
-                {/* Agree Terms Checkbox */}
-                <div className="flex items-start gap-2.5 pt-1">
-                  <input
-                    id="agree-terms"
-                    type="checkbox"
-                    checked={agreeTerms}
-                    onChange={(e) => setAgreeTerms(e.target.checked)}
-                    required
-                    className="w-4 h-4 mt-0.5 rounded-sm border-white/20 bg-deep-blue-950 text-rose-500 accent-rose-500 cursor-pointer shrink-0 shadow-none"
-                  />
-                  <label
-                    htmlFor="agree-terms"
-                    className="text-body-xs text-gray-400 leading-snug select-none cursor-pointer"
-                  >
-                    Saya menyetujui{" "}
+                {/* Security Note regarding DDoS & Bot Prevention */}
+                <div className="text-center px-1">
+                  <p className="text-[11px] text-gray-400 leading-relaxed">
+                    Gamezygo menerapkan registrasi berbasis Google OAuth untuk memverifikasi keaslian pengguna, mencegah pembuatan akun massal (bot/DDoS), serta menjamin integritas transaksi game.
+                  </p>
+                </div>
+
+                {/* Terms of Service notice */}
+                <div className="text-center pt-1 border-t border-white/5">
+                  <p className="text-[11px] text-gray-400 select-none">
+                    Dengan mendaftar, Anda menyetujui{" "}
                     <button
                       type="button"
                       onClick={() => showToast("Syarat & Ketentuan Layanan Gamezygo")}
-                      className="text-rose-400 hover:underline inline cursor-pointer"
+                      className="text-rose-400 hover:underline inline cursor-pointer font-medium"
                     >
                       Syarat & Ketentuan
                     </button>{" "}
-                    serta{" "}
+                    dan{" "}
                     <button
                       type="button"
                       onClick={() => showToast("Kebijakan Privasi Pengguna Gamezygo")}
-                      className="text-rose-400 hover:underline inline cursor-pointer"
+                      className="text-rose-400 hover:underline inline cursor-pointer font-medium"
                     >
                       Kebijakan Privasi
                     </button>
                     .
-                  </label>
+                  </p>
                 </div>
-
-                {/* Submit Register Button */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting || isLoading}
-                  className="w-full min-h-11 mt-2 flex items-center justify-center gap-2 bg-linear-to-r from-rose-600 via-rose-500 to-rose-600 hover:from-rose-500 hover:to-rose-500 text-white font-semibold text-body-sm rounded-lg transition-all duration-150 cursor-pointer active:scale-98 disabled:opacity-50 disabled:pointer-events-none shadow-none"
-                >
-                  {isSubmitting || isLoading ? (
-                    <>
-                      <SpinnerIcon className="w-4 h-4 text-white" />
-                      <span>Mendaftarkan...</span>
-                    </>
-                  ) : (
-                    <span>Buat Akun Gamezygo</span>
-                  )}
-                </button>
-              </form>
+              </div>
             )}
 
             {/* Bottom Footer Switcher */}
@@ -924,7 +982,7 @@ export default function LoginPage() {
                       onClick={() => handleTabChange("signup")}
                       className="text-rose-400 hover:text-rose-300 font-semibold cursor-pointer select-none"
                     >
-                      Daftar sekarang
+                      Daftar dengan Google
                     </button>
                   </>
                 ) : (

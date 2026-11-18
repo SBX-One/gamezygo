@@ -6,13 +6,13 @@ import { Skeleton } from "@/components/ui/Skeleton";
 import type { CredentialRevealerProps } from "../types";
 
 // ============================================================================
-// SVG ICONS
+// SVG ICONS (Matching Original Figma Design Reference)
 // ============================================================================
 
-const ShieldUserIcon = (props: React.SVGProps<SVGSVGElement>) => (
+const DefaultPeopleSearchIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
-    width="22"
-    height="22"
+    width="24"
+    height="24"
     viewBox="0 0 24 24"
     fill="none"
     xmlns="http://www.w3.org/2000/svg"
@@ -20,25 +20,8 @@ const ShieldUserIcon = (props: React.SVGProps<SVGSVGElement>) => (
     {...props}
   >
     <path
-      d="M12 2L4 5V11.09C4 16.14 7.41 20.85 12 22C16.59 20.85 20 16.14 20 11.09V5L12 2Z"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M12 11C13.1046 11 14 10.1046 14 9C14 7.89543 13.1046 7 12 7C10.8954 7 10 7.89543 10 9C10 10.1046 10.8954 11 12 11Z"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M8.5 15C8.5 13.6193 10.067 12.5 12 12.5C13.933 12.5 15.5 13.6193 15.5 15"
-      stroke="currentColor"
-      strokeWidth="1.75"
-      strokeLinecap="round"
-      strokeLinejoin="round"
+      d="M11.91 14H19.753C20.3498 14 20.9221 14.2371 21.344 14.659C21.766 15.081 22.003 15.6533 22.003 16.25V17.155C22.003 17.6954 21.8862 18.2294 21.6607 18.7204C21.4351 19.2115 21.106 19.648 20.696 20C19.13 21.345 16.89 22.002 14 22.002H13.821C13.9719 21.6984 14.0314 21.3575 13.9921 21.0207C13.9529 20.6839 13.8167 20.3658 13.6 20.105L13.489 19.984L11.259 17.76C11.9192 16.625 12.1508 15.2907 11.91 14ZM6.50004 10.5C7.3549 10.5 8.19207 10.7436 8.91355 11.2021C9.63504 11.6606 10.211 12.3152 10.574 13.0891C10.937 13.8631 11.072 14.7244 10.9633 15.5724C10.8546 16.4203 10.5066 17.2197 9.96004 17.877L12.783 20.691C12.9163 20.8248 12.9942 21.004 13.0011 21.1928C13.008 21.3816 12.9435 21.566 12.8203 21.7092C12.6972 21.8524 12.5245 21.9439 12.3369 21.9654C12.1492 21.9869 11.9604 21.9367 11.808 21.825L11.723 21.753L8.82004 18.857C8.22564 19.2143 7.5567 19.4293 6.86547 19.4853C6.17424 19.5413 5.47941 19.4368 4.83523 19.18C4.19105 18.9231 3.61496 18.5208 3.15192 18.0045C2.68889 17.4883 2.35144 16.872 2.16594 16.2037C1.98043 15.5355 1.95188 14.8334 2.08251 14.1524C2.21314 13.4713 2.49942 12.8296 2.919 12.2774C3.33858 11.7252 3.88011 11.2775 4.5013 10.9692C5.1225 10.6609 5.80654 10.5003 6.50004 10.5ZM6.50004 12C5.7044 12 4.94133 12.3161 4.37872 12.8787C3.81612 13.4413 3.50004 14.2044 3.50004 15C3.50004 15.7957 3.81612 16.5587 4.37872 17.1213C4.94133 17.6839 5.7044 18 6.50004 18C7.29569 18 8.05876 17.6839 8.62137 17.1213C9.18397 16.5587 9.50004 15.7957 9.50004 15C9.50004 14.2044 9.18397 13.4413 8.62137 12.8787C8.05876 12.3161 7.29569 12 6.50004 12ZM14 2.005C14.6567 2.005 15.3068 2.13433 15.9135 2.38561C16.5201 2.63688 17.0713 3.00518 17.5356 3.46947C17.9999 3.93376 18.3682 4.48496 18.6194 5.09159C18.8707 5.69822 19 6.3484 19 7.005C19 7.66161 18.8707 8.31179 18.6194 8.91842C18.3682 9.52505 17.9999 10.0762 17.5356 10.5405C17.0713 11.0048 16.5201 11.3731 15.9135 11.6244C15.3068 11.8757 14.6567 12.005 14 12.005C12.674 12.005 11.4022 11.4782 10.4645 10.5405C9.52683 9.60286 9.00004 8.33109 9.00004 7.005C9.00004 5.67892 9.52683 4.40715 10.4645 3.46947C11.4022 2.53179 12.674 2.005 14 2.005Z"
+      fill="currentColor"
     />
   </svg>
 );
@@ -105,6 +88,7 @@ const CopyIcon = (props: React.SVGProps<SVGSVGElement>) => (
       width="13"
       height="13"
       rx="2"
+      ry="2"
       stroke="currentColor"
       strokeWidth="2"
       strokeLinecap="round"
@@ -161,8 +145,9 @@ const PhoneIcon = (props: React.SVGProps<SVGSVGElement>) => (
 /**
  * CredentialRevealer Component
  *
- * Secure, glassmorphic UI component to reveal, mask, and copy game account credentials.
- * Complies with Gamezygo PRD (US-002: Secure Game Library Delivery & FR-04: Isolated Game Library Delivery).
+ * Restores the exact Figma Image 1 visual design while encapsulating
+ * show/hide state, 1-click clipboard copy, pre-order handling,
+ * and Steam Guard / access token support.
  */
 export function CredentialRevealer({
   gameTitle,
@@ -180,7 +165,7 @@ export function CredentialRevealer({
   const [showPassword, setShowPassword] = React.useState(false);
   const [showToken, setShowToken] = React.useState(false);
 
-  // Copied indicator feedback states
+  // Copied indicator feedback
   const [copiedField, setCopiedField] = React.useState<string | null>(null);
 
   const handleCopy = async (text: string, fieldName: string) => {
@@ -203,7 +188,7 @@ export function CredentialRevealer({
 
   const handleContactAdmin = () => {
     const message = encodeURIComponent(
-      `Halo Admin Gamezygo, saya butuh bantuan terkait akun untuk game "${gameTitle}".`
+      `Halo Admin Gamezygo, saya butuh bantuan akun untuk game ${gameTitle}`
     );
     window.open(`https://wa.me/${supportPhone}?text=${message}`, "_blank");
   };
@@ -212,19 +197,19 @@ export function CredentialRevealer({
     return (
       <div
         className={cn(
-          "w-full rounded-lg bg-deep-blue-900 border border-white/10 p-5 flex flex-col gap-4 shadow-xl select-none",
+          "w-full rounded-lg bg-deep-blue-900 p-5 mt-5 flex flex-col gap-4 shadow-xl select-none",
           className
         )}
       >
         <div className="flex items-center gap-3">
-          <Skeleton className="w-11 h-11 rounded-lg" />
+          <Skeleton className="rounded-lg w-11 h-11" />
           <Skeleton className="h-6 w-44" />
         </div>
-        <div className="w-full rounded-lg border border-white/10 p-4 flex flex-col gap-3">
+        <div className="w-full rounded-lg border-gradient-secondary p-4 flex flex-col gap-3">
           <Skeleton className="h-6 w-full" />
           <Skeleton className="h-6 w-full" />
         </div>
-        <div className="flex justify-end">
+        <div className="flex justify-end pt-1">
           <Skeleton className="h-9 w-36 rounded-lg" />
         </div>
       </div>
@@ -234,89 +219,62 @@ export function CredentialRevealer({
   return (
     <div
       className={cn(
-        "w-full rounded-lg bg-deep-blue-900 border border-white/10 p-5 flex flex-col gap-4 shadow-xl select-none transition-all duration-200",
+        "w-full rounded-lg bg-deep-blue-900 p-5 mt-5 flex flex-col gap-4 shadow-xl select-none",
         className
       )}
     >
-      {/* 1. Header: Shield Icon + Section Title */}
-      <div className="flex items-center justify-between pb-1">
-        <div className="flex items-center gap-3">
-          <div className="rounded-lg bg-deep-blue-800 border border-deep-blue-700/80 p-2.5 flex items-center justify-center text-rose-400 shrink-0 shadow-inner">
-            <ShieldUserIcon />
-          </div>
-          <div className="flex flex-col">
-            <span className="font-semibold text-gray-50 text-body-lg">
-              Informasi Akun Game
-            </span>
-            <span className="text-body-xs text-gray-400">
-              Kredensial akun aman terenkripsi AES-256
-            </span>
-          </div>
+      {/* 1. Header (Exact Figma Design: DefaultPeopleSearchIcon + Single Title) */}
+      <div className="flex items-center gap-3">
+        <div className="rounded-lg bg-deep-blue-800 border border-deep-blue-700 p-3 flex items-center justify-center text-deep-blue-100 shrink-0">
+          <DefaultPeopleSearchIcon />
         </div>
-
-        {/* Status Badge */}
-        {isPreorder ? (
-          <Pill
-            variant="warning"
-            size="xs"
-            className="bg-[#2B1B10] text-amber-500 border border-amber-900/40"
-          >
-            Pre-order
-          </Pill>
-        ) : (
-          <Pill
-            variant="secondary"
-            size="xs"
-            className="bg-emerald-950/60 text-emerald-400 border border-emerald-500/30"
-          >
-            Siap Dimainkan
-          </Pill>
-        )}
+        <span className="font-semibold text-gray-50 text-body-lg">
+          Informasi Akun Game
+        </span>
       </div>
 
-      {/* 2. Pre-order Notice Pill (shown when game is pre-order) */}
+      {/* 2. Pre-order Notice Pill (Exact Previous Styling) */}
       {isPreorder && (
-        <div className="flex justify-center w-full py-1">
-          <div className="w-full py-2 px-3 rounded-lg bg-amber-500/10 border border-amber-500/20 text-center">
-            <p className="text-body-xs text-amber-300 font-medium">
-              Game ini masih dalam status Pre-order. Kredensial akun akan otomatis tersedia setelah game resmi dirilis.
-            </p>
-          </div>
+        <div className="flex justify-center w-full py-0.5">
+          <Pill
+            variant="warning"
+            size="sm"
+            className="bg-[#2B1B10] text-amber-600 border border-amber-900/40 font-medium px-4 py-1.5 rounded-full text-label-xs tracking-normal"
+          >
+            Game ini Pre-order Silahkan Tunggu Rilis
+          </Pill>
         </div>
       )}
 
-      {/* 3. Unified Credentials Box */}
-      <div className="w-full rounded-lg border-gradient-secondary overflow-hidden bg-deep-blue-950/50 backdrop-blur-sm">
+      {/* 3. Unified Credentials Box (Exact Previous border-gradient-secondary) */}
+      <div className="w-full rounded-lg border-gradient-secondary">
         {/* Username Row */}
         <div className="mx-4 py-3 flex items-center justify-between border-b-gradient-secondary">
-          <div className="flex items-center min-w-0 pr-2">
-            <span className="text-gray-400 text-body-xs w-20 shrink-0">Username :</span>
-            <span className="font-mono text-sm text-gray-100 font-semibold truncate ml-1">
+          <div className="flex items-center">
+            <span className="text-gray-400 text-body-xs">Username :</span>
+            <span className="font-mono text-sm text-white ml-2">
               {isPreorder ? "-" : showUsername ? username : "*********"}
             </span>
           </div>
-          <div className="flex items-center gap-1.5 shrink-0">
-            {/* Toggle Visibility */}
+          <div className="flex items-center gap-2">
             <Button
-              type="button"
               variant="outline"
               size="xs"
               disabled={isPreorder}
               onClick={() => !isPreorder && setShowUsername(!showUsername)}
               className={cn(
-                "p-1.5 text-gray-400 transition-colors border-gradient-secondary h-8 w-8",
+                "p-1 text-gray-400 transition-colors border-gradient-secondary",
                 isPreorder
                   ? "opacity-40 cursor-not-allowed text-gray-500"
-                  : "hover:text-white cursor-pointer active:scale-95"
+                  : "hover:text-white cursor-pointer"
               )}
               title={
                 isPreorder
                   ? "Belum tersedia"
                   : showUsername
-                  ? "Sembunyikan Username"
-                  : "Tampilkan Username"
+                  ? "Sembunyikan"
+                  : "Tampilkan"
               }
-              aria-label={showUsername ? "Sembunyikan Username" : "Tampilkan Username"}
             >
               {showUsername && !isPreorder ? (
                 <EyeOffIcon className="w-4 h-4" />
@@ -324,23 +282,19 @@ export function CredentialRevealer({
                 <EyeIcon className="w-4 h-4" />
               )}
             </Button>
-
-            {/* Copy Button */}
             <Button
-              type="button"
               variant="outline"
               size="xs"
               disabled={isPreorder}
-              onClick={() => handleCopy(username, "Username")}
+              onClick={() => !isPreorder && handleCopy(username, "Username")}
               className={cn(
-                "p-1.5 text-gray-400 transition-colors border-gradient-secondary h-8 w-8",
-                copiedField === "Username" && "text-emerald-400 border-emerald-500/50",
+                "p-1 text-gray-400 transition-colors",
+                copiedField === "Username" && "text-emerald-400",
                 isPreorder
                   ? "opacity-40 cursor-not-allowed text-gray-500"
-                  : "hover:text-white cursor-pointer active:scale-95"
+                  : "hover:text-white cursor-pointer"
               )}
               title={isPreorder ? "Belum tersedia" : "Salin Username"}
-              aria-label="Salin Username"
             >
               {copiedField === "Username" ? (
                 <CheckIcon className="w-4 h-4 text-emerald-400" />
@@ -354,38 +308,35 @@ export function CredentialRevealer({
         {/* Password Row */}
         <div
           className={cn(
-            "mx-4 py-3 flex items-center justify-between",
+            "px-4 py-3 flex items-center justify-between",
             accessToken ? "border-b-gradient-secondary" : ""
           )}
         >
-          <div className="flex items-center min-w-0 pr-2">
-            <span className="text-gray-400 text-body-xs w-20 shrink-0">Password :</span>
-            <span className="font-mono text-sm text-gray-100 font-semibold truncate ml-1">
+          <div className="flex items-center">
+            <span className="text-gray-400 text-body-xs">Password :</span>
+            <span className="font-mono text-sm text-white ml-2">
               {isPreorder ? "-" : showPassword ? password : "**********"}
             </span>
           </div>
-          <div className="flex items-center gap-1.5 shrink-0">
-            {/* Toggle Visibility */}
+          <div className="flex items-center gap-2">
             <Button
-              type="button"
               variant="outline"
               size="xs"
               disabled={isPreorder}
               onClick={() => !isPreorder && setShowPassword(!showPassword)}
               className={cn(
-                "p-1.5 text-gray-400 transition-colors border-gradient-secondary h-8 w-8",
+                "p-1 text-gray-400 transition-colors border-gradient-secondary",
                 isPreorder
                   ? "opacity-40 cursor-not-allowed text-gray-500"
-                  : "hover:text-white cursor-pointer active:scale-95"
+                  : "hover:text-white cursor-pointer"
               )}
               title={
                 isPreorder
                   ? "Belum tersedia"
                   : showPassword
-                  ? "Sembunyikan Password"
-                  : "Tampilkan Password"
+                  ? "Sembunyikan"
+                  : "Tampilkan"
               }
-              aria-label={showPassword ? "Sembunyikan Password" : "Tampilkan Password"}
             >
               {showPassword && !isPreorder ? (
                 <EyeOffIcon className="w-4 h-4" />
@@ -393,23 +344,19 @@ export function CredentialRevealer({
                 <EyeIcon className="w-4 h-4" />
               )}
             </Button>
-
-            {/* Copy Button */}
             <Button
-              type="button"
               variant="outline"
               size="xs"
               disabled={isPreorder}
-              onClick={() => handleCopy(password, "Password")}
+              onClick={() => !isPreorder && handleCopy(password, "Password")}
               className={cn(
-                "p-1.5 text-gray-400 transition-colors border-gradient-secondary h-8 w-8",
-                copiedField === "Password" && "text-emerald-400 border-emerald-500/50",
+                "p-1 text-gray-400 transition-colors",
+                copiedField === "Password" && "text-emerald-400",
                 isPreorder
                   ? "opacity-40 cursor-not-allowed text-gray-500"
-                  : "hover:text-white cursor-pointer active:scale-95"
+                  : "hover:text-white cursor-pointer"
               )}
               title={isPreorder ? "Belum tersedia" : "Salin Password"}
-              aria-label="Salin Password"
             >
               {copiedField === "Password" ? (
                 <CheckIcon className="w-4 h-4 text-emerald-400" />
@@ -420,55 +367,56 @@ export function CredentialRevealer({
           </div>
         </div>
 
-        {/* Optional Access Token / Steam Guard Row */}
+        {/* Optional Steam Guard / Access Token Row (if provided by Backend) */}
         {accessToken && (
-          <div className="mx-4 py-3 flex items-center justify-between">
-            <div className="flex items-center min-w-0 pr-2">
-              <span className="text-gray-400 text-body-xs w-20 shrink-0">Steam Guard :</span>
-              <span className="font-mono text-sm text-amber-300 font-semibold truncate ml-1">
-                {isPreorder ? "-" : showToken ? accessToken : "••••••••••"}
+          <div className="px-4 py-3 flex items-center justify-between">
+            <div className="flex items-center">
+              <span className="text-gray-400 text-body-xs">Access Token :</span>
+              <span className="font-mono text-sm text-white ml-2">
+                {isPreorder ? "-" : showToken ? accessToken : "••••••••••••"}
               </span>
             </div>
-            <div className="flex items-center gap-1.5 shrink-0">
+            <div className="flex items-center gap-2">
               <Button
-                type="button"
                 variant="outline"
                 size="xs"
                 disabled={isPreorder}
                 onClick={() => !isPreorder && setShowToken(!showToken)}
                 className={cn(
-                  "p-1.5 text-gray-400 transition-colors border-gradient-secondary h-8 w-8",
+                  "p-1 text-gray-400 transition-colors border-gradient-secondary",
                   isPreorder
                     ? "opacity-40 cursor-not-allowed text-gray-500"
-                    : "hover:text-white cursor-pointer active:scale-95"
+                    : "hover:text-white cursor-pointer"
                 )}
-                title={showToken ? "Sembunyikan Token" : "Tampilkan Token"}
-                aria-label="Toggle Token"
+                title={
+                  isPreorder
+                    ? "Belum tersedia"
+                    : showToken
+                    ? "Sembunyikan"
+                    : "Tampilkan"
+                }
               >
-                {showToken ? (
+                {showToken && !isPreorder ? (
                   <EyeOffIcon className="w-4 h-4" />
                 ) : (
                   <EyeIcon className="w-4 h-4" />
                 )}
               </Button>
-
               <Button
-                type="button"
                 variant="outline"
                 size="xs"
                 disabled={isPreorder}
-                onClick={() => handleCopy(accessToken, "Steam Guard Token")}
+                onClick={() => !isPreorder && handleCopy(accessToken, "Access Token")}
                 className={cn(
-                  "p-1.5 text-gray-400 transition-colors border-gradient-secondary h-8 w-8",
-                  copiedField === "Steam Guard Token" && "text-emerald-400 border-emerald-500/50",
+                  "p-1 text-gray-400 transition-colors",
+                  copiedField === "Access Token" && "text-emerald-400",
                   isPreorder
                     ? "opacity-40 cursor-not-allowed text-gray-500"
-                    : "hover:text-white cursor-pointer active:scale-95"
+                    : "hover:text-white cursor-pointer"
                 )}
-                title="Salin Token"
-                aria-label="Salin Token"
+                title={isPreorder ? "Belum tersedia" : "Salin Token"}
               >
-                {copiedField === "Steam Guard Token" ? (
+                {copiedField === "Access Token" ? (
                   <CheckIcon className="w-4 h-4 text-emerald-400" />
                 ) : (
                   <CopyIcon className="w-4 h-4" />
@@ -479,18 +427,12 @@ export function CredentialRevealer({
         )}
       </div>
 
-      {/* 4. Footer: Help Text + Hubungi Admin WhatsApp CTA */}
-      <div className="flex items-center justify-between flex-wrap gap-3 pt-1">
-        <span className="text-body-xs text-gray-400">
-          Mengalami kendala login atau akun terkunci?
-        </span>
+      {/* 4. Right-aligned Hubungi Admin Button (Exact Previous Styling) */}
+      <div className="flex justify-end pt-1">
         <Button
-          type="button"
           variant="outline"
           size="sm"
           onClick={handleContactAdmin}
-          className="gap-2 px-3 py-2 text-xs"
-          title="Bantuan WhatsApp Admin Gamezygo"
         >
           <PhoneIcon className="w-3.5 h-3.5 text-gray-300" />
           <span>Hubungi Admin</span>

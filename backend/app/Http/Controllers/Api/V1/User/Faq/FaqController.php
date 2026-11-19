@@ -16,7 +16,7 @@ class FaqController extends Controller
 
     public function index(Request $request): FaqCollection
     {
-        $faqs = $this->faqService->getActiveFaqs();
+        $faqs = $this->faqService->getActiveFaqs($request->query('page'));
 
         return new FaqCollection($faqs);
     }

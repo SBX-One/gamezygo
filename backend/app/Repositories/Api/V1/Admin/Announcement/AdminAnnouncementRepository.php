@@ -232,6 +232,8 @@ class AdminAnnouncementRepository implements AdminAnnouncementRepositoryInterfac
         'sort_order' => $index + 1,
       ]);
     }
+
+    app(\App\Services\Cache\RedisCacheService::class)->flushTags(\App\Services\Cache\RedisCacheService::TAG_ANNOUNCEMENTS);
   }
 
   /**

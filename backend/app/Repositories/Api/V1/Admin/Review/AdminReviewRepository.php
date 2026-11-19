@@ -225,7 +225,14 @@ class AdminReviewRepository implements AdminReviewRepositoryInterface
   public function bulkDeleteReviews(array $ids): int
   {
     ReviewReply::whereIn('review_id', $ids)->delete();
-    return Review::whereIn('id', $ids)->delete();
+    $deleted = Review::whereIn('id', $ids)->delete();
+
+    app(\App\Services\Cache\RedisCacheService::class)->flushTags([
+      \App\Services\Cache\RedisCacheService::TAG_REVIEWS,
+      \App\Services\Cache\RedisCacheService::TAG_PRODUCTS,
+    ]);
+
+    return $deleted;
   }
 
   /**

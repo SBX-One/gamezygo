@@ -4,6 +4,7 @@ namespace App\Services\Api\V1\User\Profile;
 
 use App\Models\User;
 use App\Repositories\Contracts\Api\V1\User\Profile\ProfileRepositoryInterface;
+use App\Services\Cache\RedisCacheService;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\Storage;
@@ -11,7 +12,8 @@ use Illuminate\Support\Facades\Storage;
 class ProfileService
 {
   public function __construct(
-    protected ProfileRepositoryInterface $profileRepository
+    protected ProfileRepositoryInterface $profileRepository,
+    protected RedisCacheService $cacheService
   ) {
   }
 
@@ -23,17 +25,26 @@ class ProfileService
    */
   public function getProfile(User $user): array
   {
-    $user->loadMissing('avatar');
-    $rankings = $this->profileRepository->getUserRankings($user);
-    $totalGames = $this->profileRepository->getTotalGamesOwned($user);
-    $recentTransactions = $this->profileRepository->getRecentTransactions($user, 3);
+    $cacheKey = "user:profile:{$user->id}";
 
-    return [
-      'user'                => $user,
-      'rankings'            => $rankings,
-      'total_games_owned'   => $totalGames,
-      'recent_transactions' => $recentTransactions,
-    ];
+    return $this->cacheService->remember(
+      $cacheKey,
+      RedisCacheService::TTL_SHORT,
+      function () use ($user) {
+        $user->loadMissing('avatar');
+        $rankings = $this->profileRepository->getUserRankings($user);
+        $totalGames = $this->profileRepository->getTotalGamesOwned($user);
+        $recentTransactions = $this->profileRepository->getRecentTransactions($user, 3);
+
+        return [
+          'user'                => $user,
+          'rankings'            => $rankings,
+          'total_games_owned'   => $totalGames,
+          'recent_transactions' => $recentTransactions,
+        ];
+      },
+      [RedisCacheService::userTag($user->id)]
+    );
   }
 
   /**
@@ -90,6 +101,8 @@ class ProfileService
       $updateData['avatar_url'] = $data['avatar'];
     }
 
+    $this->cacheService->flushUser($user->id);
+
     if (!empty($updateData)) {
       return $this->profileRepository->updateProfile($user, $updateData);
     }
@@ -113,6 +126,7 @@ class ProfileService
     }
 
     $this->profileRepository->updatePassword($user, $newPassword);
+    $this->cacheService->flushUser($user->id);
   }
 
   /**

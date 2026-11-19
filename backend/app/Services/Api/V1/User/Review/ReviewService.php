@@ -7,6 +7,7 @@ use App\Models\Product;
 use App\Models\Review;
 use App\Models\User;
 use App\Repositories\Contracts\Api\V1\User\Review\ReviewRepositoryInterface;
+use App\Services\Cache\RedisCacheService;
 use Illuminate\Auth\Access\AuthorizationException;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
@@ -14,7 +15,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException;
 class ReviewService
 {
   public function __construct(
-    protected ReviewRepositoryInterface $reviewRepository
+    protected ReviewRepositoryInterface $reviewRepository,
+    protected RedisCacheService $cacheService
   ) {
   }
 
@@ -26,7 +28,14 @@ class ReviewService
    */
   public function getApprovedReviews(array $filters = []): Collection
   {
-    return $this->reviewRepository->getApprovedReviews($filters);
+    $cacheKey = 'reviews:approved:list:' . md5(json_encode($filters));
+
+    return $this->cacheService->remember(
+      $cacheKey,
+      RedisCacheService::TTL_SHORT,
+      fn () => $this->reviewRepository->getApprovedReviews($filters),
+      [RedisCacheService::TAG_REVIEWS]
+    );
   }
 
   /**

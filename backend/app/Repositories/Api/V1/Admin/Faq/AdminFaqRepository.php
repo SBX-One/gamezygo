@@ -215,7 +215,11 @@ class AdminFaqRepository implements AdminFaqRepositoryInterface
    */
   public function deleteFaqs(array $ids): int
   {
-    return Faq::whereIn('id', $ids)->delete();
+    $deleted = Faq::whereIn('id', $ids)->delete();
+
+    app(\App\Services\Cache\RedisCacheService::class)->flushTags(\App\Services\Cache\RedisCacheService::TAG_FAQS);
+
+    return $deleted;
   }
 
   /**

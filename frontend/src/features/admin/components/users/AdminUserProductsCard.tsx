@@ -1,5 +1,4 @@
 import * as React from "react";
-import Image from "next/image";
 import { cn } from "@/lib/utils";
 import {
   AdminTable,
@@ -9,6 +8,7 @@ import {
   AdminTableHead,
   AdminTableCell,
 } from "@/components/admin/AdminTable";
+import { CatalogProductThumbnail } from "@/features/admin/components/catalog/CatalogProductThumbnail";
 import type { AdminUserProduct } from "../../types/admin-user.types";
 
 export interface AdminUserProductsCardProps {
@@ -69,18 +69,11 @@ export function AdminUserProductsCard({
                 {/* Product Name with Thumbnail Icon */}
                 <AdminTableCell className="py-4 px-6 text-label-xs">
                   <div className="flex items-center gap-3">
-                    <div className="relative w-5 h-5 rounded overflow-hidden shrink-0 bg-deep-blue-900 border border-deep-blue-700/60">
-                      <Image
-                        src={
-                          prod.imageSrc ||
-                          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg"
-                        }
-                        alt={prod.name}
-                        fill
-                        sizes="20px"
-                        className="object-cover"
-                      />
-                    </div>
+                    <CatalogProductThumbnail
+                      src={prod.imageSrc}
+                      alt={prod.name}
+                      size="md"
+                    />
                     <span className="font-semibold text-white">{prod.name}</span>
                   </div>
                 </AdminTableCell>

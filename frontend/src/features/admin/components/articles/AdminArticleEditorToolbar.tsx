@@ -233,7 +233,7 @@ export function AdminArticleEditorToolbar({
   return (
     <div
       className={cn(
-        "w-full flex items-center justify-between flex-wrap gap-2 px-4 py-3 bg-[#11121A] border-b border-white/10 select-none text-gray-300",
+        "w-full flex items-center justify-between flex-wrap gap-2 px-4 py-3 bg-deep-blue-900 border-b border-white/10 select-none text-gray-300",
         className
       )}
     >

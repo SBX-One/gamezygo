@@ -738,7 +738,7 @@ export function AdminArticleBlockEditor({
                       </div>
                     ) : (
                       /* Empty Image Upload Box */
-                      <div className="p-8 border-2 border-dashed border-[#2F3241] rounded-lg bg-[#11121A] flex flex-col items-center justify-center gap-3">
+                      <div className="p-8 border-2 border-dashed border-[#2F3241] rounded-lg bg-deep-blue-900 flex flex-col items-center justify-center gap-3">
                         <ImageIcon className="w-8 h-8 text-gray-400" />
                         <div className="text-center space-y-1">
                           <p className="text-label-xs font-medium text-gray-300">
@@ -748,7 +748,7 @@ export function AdminArticleBlockEditor({
                             PNG, JPG, WebP hingga 10MB
                           </p>
                         </div>
-                        <label className="px-4 py-2 rounded-lg bg-[#181A26] hover:bg-[#222534] border border-white/10 text-label-xs font-medium text-white cursor-pointer transition-colors">
+                        <label className="px-4 py-2 rounded-lg bg-deep-blue-900 hover:bg-[#222534] border border-white/10 text-label-xs font-medium text-white cursor-pointer transition-colors">
                           Pilih File Gambar
                           <input
                             type="file"

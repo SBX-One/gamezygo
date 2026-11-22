@@ -385,7 +385,7 @@ export default function AdminArticlesPage() {
           <div className="w-full h-px bg-white/10 -mt-2" />
 
           {isError ? (
-            <div className="w-full py-16 rounded-lg bg-[#13151F] border border-rose-500/30 flex flex-col items-center justify-center text-center gap-3 px-4">
+            <div className="w-full py-16 rounded-lg bg-deep-blue-900 border border-rose-500/30 flex flex-col items-center justify-center text-center gap-3 px-4">
               <p className="text-sm text-rose-300 font-medium">
                 Gagal memuat daftar artikel dari database. Pastikan Anda sudah login sebagai Admin.
               </p>

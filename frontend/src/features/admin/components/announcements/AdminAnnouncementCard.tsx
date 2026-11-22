@@ -150,7 +150,7 @@ export function AdminAnnouncementCard({
               }}
               placeholder="Page Link (misal: /store)"
               disabled={isBusy}
-              className="h-9 w-52 sm:w-72 px-3.5 pr-8 bg-[#181A26] border border-white/10 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
+              className="h-9 w-52 sm:w-72 px-3.5 pr-8 bg-deep-blue-900 border border-white/10 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
             />
             {draftLink && (
               <button
@@ -190,7 +190,7 @@ export function AdminAnnouncementCard({
               type="button"
               disabled={isBusy}
               onClick={() => onEdit(item)}
-              className="px-3.5 py-1.5 rounded-lg bg-[#181A26] hover:bg-[#222534] border border-white/10 text-gray-200 hover:text-white text-label-xs sm:text-sm font-medium transition-colors cursor-pointer"
+              className="px-3.5 py-1.5 rounded-lg bg-deep-blue-900 hover:bg-[#222534] border border-white/10 text-gray-200 hover:text-white text-label-xs sm:text-sm font-medium transition-colors cursor-pointer"
             >
               Edit
             </button>
@@ -200,7 +200,7 @@ export function AdminAnnouncementCard({
             type="button"
             disabled={isBusy}
             onClick={() => onDelete(item)}
-            className="px-4 py-1.5 rounded-lg bg-[#181A26] hover:bg-[#222534] border border-white/10 text-white text-label-xs sm:text-sm font-medium transition-colors cursor-pointer"
+            className="px-4 py-1.5 rounded-lg bg-deep-blue-900 hover:bg-[#222534] border border-white/10 text-white text-label-xs sm:text-sm font-medium transition-colors cursor-pointer"
           >
             Delete
           </button>
@@ -222,7 +222,7 @@ export function AdminAnnouncementCard({
               }
             }}
           >
-            <div className="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border border-white/10 bg-[#181A26] p-0.5 transition-colors">
+            <div className="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border border-white/10 bg-deep-blue-900 p-0.5 transition-colors">
               <span
                 className={cn(
                   "pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full transition-transform shadow-xs",

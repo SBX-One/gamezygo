@@ -341,7 +341,7 @@ export default function AdminAddNewInstructionPage() {
       >
         {/* Toast Alert */}
         {toastMessage && (
-          <div className="fixed top-20 right-8 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-[#181A26] border border-emerald-500/40 text-emerald-300 text-label-xs sm:text-sm font-medium shadow-none animate-in fade-in slide-in-from-top-2 duration-150">
+          <div className="fixed top-20 right-8 z-50 flex items-center gap-2.5 px-4 py-2.5 rounded-lg bg-deep-blue-900 border border-emerald-500/40 text-emerald-300 text-label-xs sm:text-sm font-medium shadow-none animate-in fade-in slide-in-from-top-2 duration-150">
             <CheckCircleIcon className="w-4 h-4 text-emerald-400" />
             <span>{toastMessage}</span>
           </div>
@@ -357,7 +357,7 @@ export default function AdminAddNewInstructionPage() {
           />
 
           {/* Outer Editor Container Card (Identical to Add Article style, Gambar 2 thumbnail removed!) */}
-          <div className="w-full rounded-lg bg-[#13151F] border border-white/10 overflow-hidden shadow-none pb-16">
+          <div className="w-full rounded-lg bg-deep-blue-900 border border-white/10 overflow-hidden shadow-none pb-16">
             {/* 1. Top Formatting Toolbar (Identical to Add Article) */}
             <AdminArticleEditorToolbar
               canUndo={historyIndex > 0}

@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/api-client";
+import { formatPaymentMethodLabel } from "@/features/history/utils/payment-method";
 import type {
   AdminUserDeviceLogin,
   AdminUserItem,
@@ -42,6 +43,18 @@ export interface AdminUserDetailResponse {
   data: AdminUserItem;
 }
 
+export function toBackendUserId(id: string | number): string | number {
+  if (typeof id === "number") return id;
+  if (!id) return id;
+  const trimmed = String(id).trim();
+  if (/^\d+$/.test(trimmed)) return trimmed;
+  const matched = trimmed.match(/^GZO-?0*(\d+)$/i);
+  if (matched && matched[1]) {
+    return matched[1];
+  }
+  return trimmed;
+}
+
 function formatUserDate(iso?: string | null, withTime = false): string {
   if (!iso) return "-";
   const d = new Date(iso);
@@ -75,8 +88,16 @@ function mapBackendUser(raw: Record<string, unknown>): AdminUserItem {
   const sub = (raw.subscription ?? null) as Record<string, unknown> | null;
   const stats = (raw.statistics ?? {}) as Record<string, unknown>;
 
+  const rawId = raw.id !== undefined && raw.id !== null ? String(raw.id) : "";
+  const customerId = raw.customer_id
+    ? String(raw.customer_id)
+    : rawId
+    ? `GZO-${rawId.padStart(8, "0")}`
+    : "";
+
   return {
-    id: String(raw.customer_id ?? raw.id ?? ""),
+    id: rawId || customerId,
+    customerId: customerId || rawId,
     email: String(raw.email ?? "-"),
     username: raw.username ? String(raw.username) : undefined,
     name: raw.name ? String(raw.name) : raw.username ? String(raw.username) : undefined,
@@ -175,30 +196,31 @@ export const adminUserService = {
    * Fetch detailed profile of a single user along with devices, products, and transactions.
    */
   async getUser(id: string | number): Promise<AdminUserDetailResponse> {
+    const targetId = toBackendUserId(id);
     const [detailRes, devicesRes, productsRes, txRes] = await Promise.all([
       apiClient.get<{
         success?: boolean;
         message?: string;
         data?: Record<string, unknown>;
-      }>(`/admin/users/${id}`),
+      }>(`/admin/users/${targetId}`),
       apiClient
         .get<{ data?: { devices?: Record<string, unknown>[] } }>(
-          `/admin/users/${id}/devices`
+          `/admin/users/${targetId}/devices`
         )
         .catch(() => null),
       apiClient
         .get<{ data?: { products?: Record<string, unknown>[] } }>(
-          `/admin/users/${id}/products`
+          `/admin/users/${targetId}/products`
         )
         .catch(() => null),
       apiClient
         .get<{ data?: { transactions?: Record<string, unknown>[] } }>(
-          `/admin/users/${id}/transactions`
+          `/admin/users/${targetId}/transactions`
         )
         .catch(() => null),
     ]);
 
-    const user = mapBackendUser(detailRes.data?.data ?? { id });
+    const user = mapBackendUser(detailRes.data?.data ?? { id: targetId, customer_id: id });
 
     const rawDevices = devicesRes?.data?.data?.devices ?? [];
     const deviceLogins: AdminUserDeviceLogin[] = rawDevices.map((d, i) => ({
@@ -232,7 +254,7 @@ export const adminUserService = {
         id: String(t.transaction_id ?? i + 1),
         transactionId: String(t.transaction_id ?? "-"),
         productName: String(t.product_name ?? "-"),
-        paymentMethod: String(t.payment_method ?? "-"),
+        paymentMethod: formatPaymentMethodLabel(String(t.payment_method ?? "")),
         amount,
         formattedAmount: `Rp ${amount.toLocaleString("id-ID")}`,
         date: formatUserDate(typeof t.date === "string" ? t.date : null, true),
@@ -264,12 +286,13 @@ export const adminUserService = {
     id: string | number,
     status: UserStatus
   ): Promise<{ success: boolean; data: { id: string; status: UserStatus } }> {
+    const targetId = toBackendUserId(id);
     const normalized = status.toLowerCase();
     if (normalized === "suspended") {
-      const response = await apiClient.patch<{
+      const response = await apiClient.post<{
         success: boolean;
         data: { id: string; status: UserStatus };
-      }>(`/admin/users/${id}/suspend`, {
+      }>(`/admin/users/${targetId}/suspend`, {
         reason: "Suspended by admin",
       });
       return response.data;
@@ -278,7 +301,7 @@ export const adminUserService = {
     const response = await apiClient.patch<{
       success: boolean;
       data: { id: string; status: UserStatus };
-    }>(`/admin/users/${id}/status`, {
+    }>(`/admin/users/${targetId}/status`, {
       status: normalized === "pending" ? "inactive" : normalized,
     });
     return response.data;
@@ -291,8 +314,9 @@ export const adminUserService = {
     id: string | number,
     data: Record<string, unknown>
   ): Promise<{ success: boolean; data: unknown }> {
+    const targetId = toBackendUserId(id);
     const response = await apiClient.patch<{ success: boolean; data: unknown }>(
-      `/admin/users/${id}`,
+      `/admin/users/${targetId}`,
       data
     );
     return response.data;
@@ -304,8 +328,9 @@ export const adminUserService = {
   async wipeSession(
     id: string | number
   ): Promise<{ success: boolean; message: string }> {
-    const response = await apiClient.patch<{ success: boolean; message: string }>(
-      `/admin/users/${id}/unsuspend`
+    const targetId = toBackendUserId(id);
+    const response = await apiClient.post<{ success: boolean; message: string }>(
+      `/admin/users/${targetId}/unsuspend`
     );
     return response.data;
   },

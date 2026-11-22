@@ -108,7 +108,7 @@ export function AdminQuickAddSubModal({
               onChange={(e) => setName(e.target.value)}
               placeholder="Contoh: News & Update / Action"
               required
-              className="w-full h-11 px-4 bg-[#181A26] border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
+              className="w-full h-11 px-4 bg-deep-blue-900 border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
             />
           </div>
 

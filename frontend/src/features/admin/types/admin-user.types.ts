@@ -29,7 +29,8 @@ export interface AdminUserTransaction {
 }
 
 export interface AdminUserItem {
-  id: string; // e.g. "GZO-00000001"
+  id: string; // Resource/database ID, e.g. "52"
+  customerId?: string; // Display customer ID, e.g. "GZO-00000052"
   email: string; // e.g. "user123@test.com"
   username?: string; // e.g. "Cihuy67"
   name?: string;

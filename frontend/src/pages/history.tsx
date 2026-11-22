@@ -166,12 +166,17 @@ export default function HistoryPage() {
   const { data: libraryRes, isLoading: isLibraryLoading } = useUserLibrary();
 
   // Retrieve user selected payment methods saved during checkout
-  const savedPaymentMethods = React.useMemo(() => {
-    if (typeof window === "undefined") return {} as Record<string, string>;
+  const [savedPaymentMethods, setSavedPaymentMethods] = React.useState<Record<string, string>>({});
+
+  React.useEffect(() => {
     try {
-      return JSON.parse(localStorage.getItem("gamezygo_order_payment_methods") || "{}");
+      const stored = localStorage.getItem("gamezygo_order_payment_methods");
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        setTimeout(() => setSavedPaymentMethods(parsed), 0);
+      }
     } catch {
-      return {} as Record<string, string>;
+      // ignore
     }
   }, []);
 

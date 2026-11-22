@@ -313,8 +313,8 @@ function AdminCommunityForm({
                 className={cn(
                   "px-3.5 py-1.5 rounded-lg text-label-xs sm:text-sm font-medium border transition-colors cursor-pointer disabled:opacity-50",
                   isTagSelected
-                    ? "bg-[#181A26] border-[#DF3848] text-white ring-1 ring-[#DF3848]/40"
-                    : "bg-[#181A26] hover:bg-[#222534] border-white/10 text-gray-300 hover:text-white"
+                    ? "bg-deep-blue-900 border-[#DF3848] text-white ring-1 ring-[#DF3848]/40"
+                    : "bg-deep-blue-900 hover:bg-[#222534] border-white/10 text-gray-300 hover:text-white"
                 )}
               >
                 {quickTag}
@@ -378,7 +378,7 @@ function AdminCommunityForm({
               onClick={() => {
                 if (!isSubmitting) fileInputRef.current?.click();
               }}
-              className="w-32 h-40 rounded-lg border border-dashed border-white/15 bg-[#181A26]/40 hover:bg-[#181A26]/70 hover:border-white/30 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all group shrink-0"
+              className="w-32 h-40 rounded-lg border border-dashed border-white/15 bg-deep-blue-900/40 hover:bg-deep-blue-900/70 hover:border-white/30 flex flex-col items-center justify-center gap-1.5 cursor-pointer transition-all group shrink-0"
             >
               <PlusIcon className="w-5 h-5 text-gray-400 group-hover:text-white transition-colors" />
               <span className="text-[10px] font-semibold text-gray-400 group-hover:text-white uppercase tracking-wider transition-colors text-center">
@@ -391,7 +391,7 @@ function AdminCommunityForm({
             onClick={() => {
               if (!isSubmitting) fileInputRef.current?.click();
             }}
-            className="w-full min-h-[140px] rounded-lg border border-dashed border-white/15 bg-[#181A26]/40 hover:bg-[#181A26]/70 hover:border-white/30 p-6 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all group overflow-hidden relative"
+            className="w-full min-h-[140px] rounded-lg border border-dashed border-white/15 bg-deep-blue-900/40 hover:bg-deep-blue-900/70 hover:border-white/30 p-6 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all group overflow-hidden relative"
           >
             <PlusIcon className="w-6 h-6 text-gray-400 group-hover:text-white transition-colors" />
             <span className="text-label-xs font-semibold text-gray-400 group-hover:text-white uppercase tracking-wider transition-colors">

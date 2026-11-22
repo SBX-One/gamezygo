@@ -25,7 +25,7 @@ export function formatPaymentMethodLabel(rawMethod?: string | null): string {
 
   // E-Wallets
   if (m.includes("gopay")) return "GoPay";
-  if (m.includes("shopeepay")) return "ShopeePay";
+  if (m.includes("shopeepay") || m.includes("shopee")) return "ShopeePay";
   if (m.includes("ovo")) return "OVO";
   if (m.includes("dana")) return "DANA";
 
@@ -37,6 +37,11 @@ export function formatPaymentMethodLabel(rawMethod?: string | null): string {
   if (m.includes("permata")) return "Permata Virtual Account";
   if (m.includes("va") || m.includes("virtual") || m.includes("bank_transfer")) {
     return "Virtual Account";
+  }
+
+  // Midtrans fallback to Visa / Mastercard
+  if (m.includes("midtrans") || m.includes("snap")) {
+    return "Visa / Mastercard";
   }
 
   // Capitalize neatly

@@ -274,7 +274,7 @@ export function AdminCategoryDrawer({
               onChange={(e) => setTitle(e.target.value)}
               placeholder="Judul kategori"
               required
-              className="w-full h-11 px-4 bg-[#181A26] border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
+              className="w-full h-11 px-4 bg-deep-blue-900 border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
             />
           </div>
 
@@ -361,7 +361,7 @@ export function AdminCategoryDrawer({
               {/* Dashed button: [ + TAMBAH SUB ] */}
               <div
                 onClick={handleAddSubField}
-                className="w-full h-12 rounded-lg border border-dashed border-white/15 bg-[#181A26]/40 hover:bg-[#181A26]/70 hover:border-white/30 flex items-center justify-center gap-2 cursor-pointer transition-all text-label-xs font-semibold text-gray-400 hover:text-white uppercase tracking-wider select-none mt-1"
+                className="w-full h-12 rounded-lg border border-dashed border-white/15 bg-deep-blue-900/40 hover:bg-deep-blue-900/70 hover:border-white/30 flex items-center justify-center gap-2 cursor-pointer transition-all text-label-xs font-semibold text-gray-400 hover:text-white uppercase tracking-wider select-none mt-1"
               >
                 <PlusIcon />
                 <span>TAMBAH SUB</span>

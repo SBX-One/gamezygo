@@ -49,7 +49,7 @@ export function AdminUserDetailModal({
           <div className="flex items-center gap-3">
             <h3 className="text-sm font-semibold text-white">Detail Pengguna</h3>
             <span className="text-label-xs font-mono text-gray-400 bg-deep-blue-950 px-2 py-0.5 rounded border border-deep-blue-700">
-              {user.id}
+              {user.customerId ?? user.id}
             </span>
           </div>
           <button

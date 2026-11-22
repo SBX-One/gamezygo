@@ -2,6 +2,8 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   adminUserService,
   type AdminUserQueryParams,
+  type AdminUserDetailResponse,
+  type AdminUsersListResponse,
 } from "@/services/admin-user.service";
 import type { UserStatus } from "@/features/admin/types/admin-user.types";
 
@@ -14,7 +16,7 @@ export const ADMIN_USER_KEYS = {
 };
 
 export function useAdminUsers(params?: AdminUserQueryParams) {
-  return useQuery({
+  return useQuery<AdminUsersListResponse>({
     queryKey: ADMIN_USER_KEYS.list(params),
     queryFn: () => adminUserService.getUsers(params),
     staleTime: 30 * 1000,
@@ -23,9 +25,9 @@ export function useAdminUsers(params?: AdminUserQueryParams) {
 }
 
 export function useAdminUserDetail(id: string | number | undefined) {
-  return useQuery({
+  return useQuery<AdminUserDetailResponse>({
     queryKey: ADMIN_USER_KEYS.detail(id || ""),
-    queryFn: () => adminUserService.getUser(id!),
+    queryFn: () => adminUserService.getUser(id || ""),
     enabled: Boolean(id),
     staleTime: 60 * 1000,
   });

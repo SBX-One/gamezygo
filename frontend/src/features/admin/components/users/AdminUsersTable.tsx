@@ -113,7 +113,7 @@ export function AdminUsersTable({
               >
                 {/* 1. Customer ID */}
                 <AdminTableCell className="py-4 px-5 text-label-xs text-gray-400 font-mono tracking-wider">
-                  {user.id}
+                  {user.customerId ?? user.id}
                 </AdminTableCell>
 
                 {/* 2. Customer Email */}

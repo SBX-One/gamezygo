@@ -63,7 +63,7 @@ export function AdminCommunityEmptyState({
       )}
     >
       {/* 1. Wifi Alert Icon inside rounded square container matching Image 4 */}
-      <div className="w-16 h-16 rounded-lg bg-[#181A26] border border-white/5 flex items-center justify-center text-gray-200 mb-5 shadow-xs">
+      <div className="w-16 h-16 rounded-lg bg-deep-blue-900 border border-white/5 flex items-center justify-center text-gray-200 mb-5 shadow-xs">
         <WifiAlertIcon className="w-7 h-7 text-gray-200" />
       </div>
 

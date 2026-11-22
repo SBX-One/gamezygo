@@ -298,7 +298,7 @@ export default function AdminAnnouncementsPage() {
               ))}
             </div>
           ) : isError ? (
-            <div className="w-full py-14 rounded-lg bg-[#13151F] border border-rose-500/30 flex flex-col items-center justify-center text-center gap-3 px-4">
+            <div className="w-full py-14 rounded-lg bg-deep-blue-900 border border-rose-500/30 flex flex-col items-center justify-center text-center gap-3 px-4">
               <p className="text-sm text-rose-300 font-medium">
                 {isEndpointMissing
                   ? "Endpoint Admin Announcements (/api/v1/admin/announcements) belum tersedia di backend be/dev (404 Not Found)."

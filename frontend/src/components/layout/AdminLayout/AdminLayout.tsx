@@ -20,6 +20,13 @@ export function AdminLayout({
   const { isAdminSidebarCollapsed, toggleAdminSidebar } = useUiStore();
   const [isMobileOpen, setIsMobileOpen] = React.useState(false);
 
+  // Hydration-safe mounting flag (Server and initial Client render both return false)
+  const isMounted = React.useSyncExternalStore(
+    () => () => {},
+    () => true,
+    () => false
+  );
+
   const checkAdminAuth = React.useCallback(() => {
     if (typeof window === "undefined") return false;
     const storeState = useAuthStore.getState();
@@ -47,43 +54,19 @@ export function AdminLayout({
     return false;
   }, []);
 
-  const [isCheckingAuth, setIsCheckingAuth] = React.useState<boolean>(() => {
-    if (typeof window !== "undefined") {
-      const storeState = useAuthStore.getState();
-      if (storeState.token && (storeState.role === "admin" || storeState.user?.role === "admin")) {
-        return false;
-      }
-      try {
-        const raw = localStorage.getItem("gamezygo-auth-storage");
-        if (raw) {
-          const parsed = JSON.parse(raw);
-          const t = parsed?.state?.token;
-          const r = parsed?.state?.role;
-          const u = parsed?.state?.user;
-          if (t && (r === "admin" || u?.role === "admin")) return false;
-        }
-        if (localStorage.getItem("gamezygo-admin-token")) return false;
-      } catch {
-        // ignore
-      }
-    }
-    return true;
-  });
+  const isAdmin =
+    isMounted &&
+    ((token && (role === "admin" || user?.role === "admin")) || checkAdminAuth());
 
   // Route protection: verify admin session on mount
   React.useEffect(() => {
-    if (!router.isReady) return;
-
-    const isAdmin =
-      (token && (role === "admin" || user?.role === "admin")) || checkAdminAuth();
+    if (!router.isReady || !isMounted) return;
 
     if (!isAdmin) {
       const redirectTarget = encodeURIComponent(router.asPath || "/admin/dashboard");
       router.replace(`/login?redirect=${redirectTarget}`);
-    } else {
-      setTimeout(() => setIsCheckingAuth(false), 0);
     }
-  }, [token, role, user, router, checkAdminAuth]);
+  }, [isAdmin, isMounted, router]);
 
   // Toggle handler for both desktop and mobile
   const handleToggleSidebar = () => {
@@ -95,7 +78,7 @@ export function AdminLayout({
     }
   };
 
-  if (isCheckingAuth) {
+  if (!isMounted || !isAdmin) {
     return (
       <div className="h-screen w-full bg-deep-blue-900 text-gray-100 flex flex-col items-center justify-center gap-4">
         <div className="w-10 h-10 border-3 border-indigo-500/20 border-t-indigo-500 rounded-full animate-spin" />

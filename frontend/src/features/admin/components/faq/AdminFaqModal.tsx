@@ -126,7 +126,7 @@ export function AdminFaqModal({
               value={question}
               onChange={(e) => setQuestion(e.target.value)}
               placeholder="Pertanyaan"
-              className="w-full h-11 px-4 bg-[#181A26] border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
+              className="w-full h-11 px-4 bg-deep-blue-900 border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
             />
           </div>
 
@@ -141,7 +141,7 @@ export function AdminFaqModal({
               value={answer}
               onChange={(e) => setAnswer(e.target.value)}
               placeholder="Jawaban"
-              className="w-full min-h-[96px] p-4 bg-[#181A26] border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors resize-none leading-relaxed"
+              className="w-full min-h-[96px] p-4 bg-deep-blue-900 border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors resize-none leading-relaxed"
             />
           </div>
 

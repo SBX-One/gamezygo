@@ -337,7 +337,7 @@ function AdminEditBlogForm({ detail, categories }: AdminEditBlogFormProps) {
       activeNavId="artikel"
       headerRight={headerRight}
     >
-      <div className="w-full rounded-lg bg-[#13151F] border border-white/10 overflow-hidden shadow-none pb-16">
+      <div className="w-full rounded-lg bg-deep-blue-900 border border-white/10 overflow-hidden shadow-none pb-16">
         <AdminArticleEditorToolbar
           canUndo={historyIndex > 0}
           canRedo={historyIndex < history.length - 1}
@@ -402,7 +402,7 @@ function AdminEditBlogForm({ detail, categories }: AdminEditBlogFormProps) {
                       e.target.value ? Number(e.target.value) : ""
                     )
                   }
-                  className="h-9 px-3 rounded-lg bg-[#181A26] border border-white/10 text-label-xs text-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
+                  className="h-9 px-3 rounded-lg bg-deep-blue-900 border border-white/10 text-label-xs text-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
                 >
                   <option value="">-- Tanpa Kategori --</option>
                   {categories.map((cat) => (
@@ -426,7 +426,7 @@ function AdminEditBlogForm({ detail, categories }: AdminEditBlogFormProps) {
                   onChange={(e) =>
                     setCurrentStatus(e.target.value as BackendBlogStatus)
                   }
-                  className="h-9 px-3 rounded-lg bg-[#181A26] border border-white/10 text-label-xs text-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
+                  className="h-9 px-3 rounded-lg bg-deep-blue-900 border border-white/10 text-label-xs text-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
                 >
                   <option value="draft">Draft</option>
                   <option value="published">Published</option>
@@ -517,7 +517,7 @@ export default function AdminEditBlogPage() {
 
       {isLoading || !router.isReady ? (
         <AdminLayout title={fallbackTitle} activeNavId="artikel">
-          <div className="w-full rounded-lg bg-[#13151F] border border-white/10 p-6 sm:p-10 space-y-6 animate-pulse">
+          <div className="w-full rounded-lg bg-deep-blue-900 border border-white/10 p-6 sm:p-10 space-y-6 animate-pulse">
             <div className="w-full h-56 rounded-lg bg-white/5" />
             <div className="h-10 w-64 rounded-lg bg-white/5" />
             <div className="w-full h-px bg-white/10" />
@@ -530,7 +530,7 @@ export default function AdminEditBlogPage() {
         </AdminLayout>
       ) : isError || !detail ? (
         <AdminLayout title={fallbackTitle} activeNavId="artikel">
-          <div className="w-full rounded-lg bg-[#13151F] border border-rose-500/30 p-12 flex flex-col items-center justify-center text-center gap-4">
+          <div className="w-full rounded-lg bg-deep-blue-900 border border-rose-500/30 p-12 flex flex-col items-center justify-center text-center gap-4">
             <p className="text-sm sm:text-base text-rose-300 font-medium">
               Artikel tidak ditemukan atau gagal dimuat dari database.
             </p>

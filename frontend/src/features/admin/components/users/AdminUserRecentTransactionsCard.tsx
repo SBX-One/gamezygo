@@ -9,6 +9,7 @@ import {
   AdminTableCell,
 } from "@/components/admin/AdminTable";
 import { AdminBadge } from "@/components/admin/AdminBadge";
+import { formatPaymentMethodLabel } from "@/features/history/utils/payment-method";
 import type { AdminUserTransaction } from "../../types/admin-user.types";
 
 export interface AdminUserRecentTransactionsCardProps {
@@ -84,7 +85,7 @@ export function AdminUserRecentTransactionsCard({
 
                 {/* Payment Method */}
                 <AdminTableCell className="py-4 px-6 text-label-xs font-semibold text-gray-200">
-                  {tx.paymentMethod}
+                  {formatPaymentMethodLabel(tx.paymentMethod)}
                 </AdminTableCell>
 
                 {/* Transactions (Amount) */}

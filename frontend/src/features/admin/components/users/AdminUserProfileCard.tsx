@@ -19,9 +19,23 @@ export function AdminUserProfileCard({
   onWipe,
   className,
 }: AdminUserProfileCardProps) {
-  const avatarSrc =
-    user.avatarUrl ||
-    "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/header.jpg";
+  const [hasAvatarError, setHasAvatarError] = React.useState(false);
+
+  const cleanAvatarSrc = React.useMemo(() => {
+    if (!user.avatarUrl || hasAvatarError) return null;
+    const lower = user.avatarUrl.toLowerCase();
+    if (
+      lower.includes("placehold.co") ||
+      lower.includes("placeholder") ||
+      lower.includes("dummyimage")
+    ) {
+      return null;
+    }
+    return user.avatarUrl;
+  }, [user.avatarUrl, hasAvatarError]);
+
+  const displayName = user.username || user.name || "User";
+  const initial = displayName.charAt(0).toUpperCase() || "U";
 
   return (
     <div
@@ -32,20 +46,28 @@ export function AdminUserProfileCard({
     >
       {/* Left: Avatar + Username + Email */}
       <div className="flex items-center gap-4">
-        <div className="relative w-14 h-14 rounded-full overflow-hidden border border-deep-blue-700 shrink-0 bg-deep-blue-900">
-          <Image
-            src={avatarSrc}
-            alt={user.username || user.name || user.email}
-            fill
-            sizes="56px"
-            className="object-cover"
-            priority
-          />
-        </div>
+        {cleanAvatarSrc ? (
+          <div className="relative w-14 h-14 rounded-full overflow-hidden border border-deep-blue-700 shrink-0 bg-deep-blue-900 shadow-sm">
+            <Image
+              src={cleanAvatarSrc}
+              alt={displayName}
+              fill
+              sizes="56px"
+              unoptimized
+              onError={() => setHasAvatarError(true)}
+              className="object-cover"
+              priority
+            />
+          </div>
+        ) : (
+          <div className="w-14 h-14 rounded-full flex items-center justify-center border border-deep-blue-700 bg-gradient-to-br from-indigo-600 to-deep-blue-900 text-white font-bold text-lg select-none shrink-0 shadow-inner">
+            {initial}
+          </div>
+        )}
 
         <div className="flex flex-col">
           <h2 className="text-lg font-bold text-white tracking-normal leading-tight">
-            {user.username || user.name || "Cihuy67"}
+            {displayName}
           </h2>
           <span className="text-label-xs text-gray-400 mt-1">{user.email}</span>
         </div>

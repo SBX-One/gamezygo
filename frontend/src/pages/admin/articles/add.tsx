@@ -321,7 +321,7 @@ export default function AdminAddBlogPage() {
         activeNavId="artikel"
         headerRight={headerRight}
       >
-        <div className="w-full rounded-lg bg-[#13151F] border border-white/10 overflow-hidden shadow-none pb-16">
+        <div className="w-full rounded-lg bg-deep-blue-900 border border-white/10 overflow-hidden shadow-none pb-16">
           {/* 1. Top Formatting Toolbar */}
           <AdminArticleEditorToolbar
             canUndo={historyIndex > 0}
@@ -389,7 +389,7 @@ export default function AdminAddBlogPage() {
                       e.target.value ? Number(e.target.value) : ""
                     )
                   }
-                  className="h-9 px-3 rounded-lg bg-[#181A26] border border-white/10 text-label-xs text-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
+                  className="h-9 px-3 rounded-lg bg-deep-blue-900 border border-white/10 text-label-xs text-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
                 >
                   <option value="">-- Pilih Kategori --</option>
                   {categories.map((cat) => (

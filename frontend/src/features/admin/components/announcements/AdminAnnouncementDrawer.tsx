@@ -122,7 +122,7 @@ function AdminAnnouncementForm({
           onChange={(e) => setPageLink(e.target.value)}
           placeholder="https://gamezygo.com/promo/... atau /store"
           disabled={isSubmitting}
-          className="w-full h-11 px-4 bg-[#181A26] border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
+          className="w-full h-11 px-4 bg-deep-blue-900 border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
         />
       </div>
 
@@ -159,7 +159,7 @@ function AdminAnnouncementForm({
           onClick={() => {
             if (!isSubmitting) fileInputRef.current?.click();
           }}
-          className="w-full min-h-[160px] rounded-lg border border-dashed border-white/15 bg-[#181A26]/40 hover:bg-[#181A26]/70 hover:border-white/30 p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all group overflow-hidden relative"
+          className="w-full min-h-[160px] rounded-lg border border-dashed border-white/15 bg-deep-blue-900/40 hover:bg-deep-blue-900/70 hover:border-white/30 p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all group overflow-hidden relative"
         >
           {imageUrl ? (
             <div className="relative w-full h-36 rounded-lg overflow-hidden border border-white/10 group-hover:opacity-90 transition-opacity">
@@ -201,7 +201,7 @@ function AdminAnnouncementForm({
               ? `File dipilih: ${imageFile.name}`
               : "Atau tempel URL gambar banner (https://...)"
           }
-          className="w-full h-10 px-3.5 bg-[#181A26] border border-white/10 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
+          className="w-full h-10 px-3.5 bg-deep-blue-900 border border-white/10 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
         />
 
         {errorMessage && (
@@ -225,7 +225,7 @@ function AdminAnnouncementForm({
           }
         }}
       >
-        <div className="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border border-white/10 bg-[#181A26] p-0.5 transition-colors">
+        <div className="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border border-white/10 bg-deep-blue-900 p-0.5 transition-colors">
           <span
             className={cn(
               "pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full transition-transform shadow-xs",

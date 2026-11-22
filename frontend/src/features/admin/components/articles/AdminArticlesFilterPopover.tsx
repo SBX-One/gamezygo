@@ -184,7 +184,7 @@ export function AdminArticlesFilterPopover({
             value={searchTag}
             onChange={(e) => setSearchTag(e.target.value)}
             placeholder="Search tags..."
-            className="w-full h-9 px-3 bg-[#181A26] border border-[#232634] rounded-lg text-label-xs text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
+            className="w-full h-9 px-3 bg-deep-blue-900 border border-[#232634] rounded-lg text-label-xs text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
           />
           <div className="flex flex-wrap gap-2 pt-1">
             {filteredTags.map((cat) => {

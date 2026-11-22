@@ -397,21 +397,24 @@ export default function LoginPage() {
 
   // Security: Brute-Force & DDoS Mitigation (Failed Attempts + Lockout Timer)
   const [failedAttempts, setFailedAttempts] = React.useState(0);
-  const [lockoutSeconds, setLockoutSeconds] = React.useState<number>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const storedLockout = sessionStorage.getItem("gamezygo_auth_lockout_until");
-        if (storedLockout) {
-          const remaining = Math.ceil((Number(storedLockout) - Date.now()) / 1000);
-          if (remaining > 0) return remaining;
-          sessionStorage.removeItem("gamezygo_auth_lockout_until");
+  const [lockoutSeconds, setLockoutSeconds] = React.useState<number>(0);
+
+  // Sync lockout state from session storage on mount
+  React.useEffect(() => {
+    try {
+      const storedLockout = sessionStorage.getItem("gamezygo_auth_lockout_until");
+      if (storedLockout) {
+        const remaining = Math.ceil((Number(storedLockout) - Date.now()) / 1000);
+        if (remaining > 0) {
+          setTimeout(() => setLockoutSeconds(remaining), 0);
+          return;
         }
-      } catch {
-        // ignore storage error
+        sessionStorage.removeItem("gamezygo_auth_lockout_until");
       }
+    } catch {
+      // ignore storage error
     }
-    return 0;
-  });
+  }, []);
 
   // Countdown timer for lockout
   React.useEffect(() => {

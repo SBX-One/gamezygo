@@ -8,3 +8,4 @@ export * from "./AdminUserDeviceLoginsCard";
 export * from "./AdminUserProductsCard";
 export * from "./AdminUserRecentTransactionsCard";
 export * from "./AdminUserEditDrawer";
+export * from "./AdminUserDetailSkeleton";

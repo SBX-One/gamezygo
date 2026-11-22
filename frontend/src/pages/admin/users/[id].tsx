@@ -10,6 +10,7 @@ import {
   AdminUserProductsCard,
   AdminUserRecentTransactionsCard,
   AdminUserEditDrawer,
+  AdminUserDetailSkeleton,
 } from "@/features/admin/components/users";
 import {
   MOCK_ADMIN_USERS,
@@ -63,11 +64,13 @@ export default function AdminUserDetailPage() {
     const spaceId = cleanId.replace(/-/g, " ");
     const found = MOCK_ADMIN_USERS.find((u) => {
       const uId = u.id.toLowerCase();
+      const uCustId = (u.customerId || "").toLowerCase();
       const uEmail = u.email.toLowerCase();
       return (
         uId === cleanId ||
         uId === hyphenId ||
         uId === spaceId ||
+        uCustId === cleanId ||
         uEmail === cleanId
       );
     });
@@ -144,7 +147,18 @@ export default function AdminUserDetailPage() {
         Pengguna
       </Link>
       <ChevronRightIcon className="w-3.5 h-3.5 text-gray-500 shrink-0" />
-      <span className="text-white font-semibold">{user.email}</span>
+      {isLoading ? (
+        <span className="w-36 h-4 rounded bg-white/10 animate-pulse inline-block align-middle" />
+      ) : (
+        <>
+          <span className="text-white font-semibold">{user.email}</span>
+          {user.customerId && (
+            <span className="text-gray-400 font-mono text-[11px] bg-deep-blue-900 px-2 py-0.5 rounded border border-deep-blue-700">
+              {user.customerId}
+            </span>
+          )}
+        </>
+      )}
     </div>
   );
 
@@ -163,42 +177,41 @@ export default function AdminUserDetailPage() {
         activeNavId="pengguna"
       >
         <div className="w-full space-y-6 select-none pb-12">
-          {isLoading && (
-            <div className="p-3 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 text-sm flex items-center gap-2">
-              <span className="w-2 h-2 rounded-full bg-indigo-400 animate-pulse" />
-              <span>Memuat data pengguna dari database...</span>
-            </div>
+          {isLoading ? (
+            <AdminUserDetailSkeleton />
+          ) : (
+            <>
+              {/* 1. Profile Top Card */}
+              <AdminUserProfileCard
+                user={user}
+                onSuspend={handleSuspend}
+                onBan={handleBan}
+                onWipe={handleWipe}
+              />
+
+              {/* 2. Three Metric Cards: LIFETIME VALUE, CURRENT POINTS, SUBS DURATION */}
+              <AdminUserMetricsGrid
+                user={user}
+                onEditPoints={() => setIsEditDrawerOpen(true)}
+                onEditSubsDuration={() => setIsEditDrawerOpen(true)}
+              />
+
+              {/* 3. TOTAL DEVICE LOGIN Table */}
+              <AdminUserDeviceLoginsCard
+                deviceLogins={user.deviceLogins || []}
+              />
+
+              {/* 4. TOTAL PRODUCT Table */}
+              <AdminUserProductsCard
+                products={user.products || []}
+              />
+
+              {/* 5. RECENT TRANSACTIONS Table */}
+              <AdminUserRecentTransactionsCard
+                transactions={user.recentTransactions || []}
+              />
+            </>
           )}
-
-          {/* 1. Profile Top Card */}
-          <AdminUserProfileCard
-            user={user}
-            onSuspend={handleSuspend}
-            onBan={handleBan}
-            onWipe={handleWipe}
-          />
-
-          {/* 2. Three Metric Cards: LIFETIME VALUE, CURRENT POINTS, SUBS DURATION */}
-          <AdminUserMetricsGrid
-            user={user}
-            onEditPoints={() => setIsEditDrawerOpen(true)}
-            onEditSubsDuration={() => setIsEditDrawerOpen(true)}
-          />
-
-          {/* 3. TOTAL DEVICE LOGIN Table */}
-          <AdminUserDeviceLoginsCard
-            deviceLogins={user.deviceLogins || MOCK_ADMIN_USER_DETAIL.deviceLogins || []}
-          />
-
-          {/* 4. TOTAL PRODUCT Table */}
-          <AdminUserProductsCard
-            products={user.products || MOCK_ADMIN_USER_DETAIL.products || []}
-          />
-
-          {/* 5. RECENT TRANSACTIONS Table */}
-          <AdminUserRecentTransactionsCard
-            transactions={user.recentTransactions || MOCK_ADMIN_USER_DETAIL.recentTransactions || []}
-          />
         </div>
 
         {/* Edit User Sidebar / Drawer */}

@@ -1,5 +1,6 @@
 import * as React from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { cn } from "@/lib/utils";
 import { Pill } from "@/components/ui/Pill";
@@ -55,8 +56,8 @@ export function ProductCard({
   const isUnavailable = state === "unavailable";
   const isPreOrder = state === "pre-order";
 
-  const resolvedImageSrc = React.useMemo(() => {
-    if (!imageSrc) return imageSrc;
+  const resolvedImageSrc = React.useMemo((): string => {
+    if (!imageSrc) return "";
     // Replace zoomed-in library art for 107410 / targeted with proper hero_capsule
     if (imageSrc.includes("107410/library_600x900_2x.jpg")) {
       return "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/107410/hero_capsule.jpg";
@@ -64,11 +65,8 @@ export function ProductCard({
     return imageSrc;
   }, [imageSrc]);
 
-  const [hasImgError, setHasImgError] = React.useState(false);
-
-  React.useEffect(() => {
-    setHasImgError(false);
-  }, [imageSrc]);
+  const [failedSrc, setFailedSrc] = React.useState<string | null>(null);
+  const hasImgError = Boolean(failedSrc && failedSrc === resolvedImageSrc);
 
   // Action Button Rendering
   const renderActionButton = () => {
@@ -197,11 +195,13 @@ export function ProductCard({
           {imageSlot ? (
             imageSlot
           ) : imageSrc && !hasImgError ? (
-            <img
+            <Image
               src={resolvedImageSrc}
               alt={imageAlt || (typeof title === "string" ? title : "Game cover")}
-              className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-              onError={() => setHasImgError(true)}
+              fill
+              sizes="(max-width: 640px) 100vw, 176px"
+              className="object-cover transition-transform duration-300 hover:scale-105"
+              onError={() => setFailedSrc(resolvedImageSrc)}
             />
           ) : (
             <div className="w-full h-full bg-deep-blue-900/40 border border-white/5 flex flex-col items-center justify-center text-gray-500 gap-1.5 animate-pulse">
@@ -289,11 +289,13 @@ export function ProductCard({
         {imageSlot ? (
           imageSlot
         ) : imageSrc && !hasImgError ? (
-          <img
+          <Image
             src={resolvedImageSrc}
             alt={imageAlt || (typeof title === "string" ? title : "Game cover")}
-            className="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
-            onError={() => setHasImgError(true)}
+            fill
+            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            className="object-cover transition-transform duration-300 hover:scale-105"
+            onError={() => setFailedSrc(resolvedImageSrc)}
           />
         ) : (
           <div className="w-full h-full bg-deep-blue-900/40 border border-white/5 flex flex-col items-center justify-center text-gray-500 gap-2 animate-pulse">

@@ -1,5 +1,6 @@
 import * as React from "react";
 import Head from "next/head";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import {
   BlogCard,
@@ -67,11 +68,10 @@ export default function BlogDetailPage() {
   // Auth state to differentiate between back (logged in) and back-guest
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const authUser = useAuthStore((s) => s.user);
-  const isMounted = React.useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false
-  );
+  const [isMounted, setIsMounted] = React.useState(false);
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
   const isLoggedIn = isMounted && Boolean(isAuthenticated && authUser);
 
   // API Blog Detail Hook
@@ -126,7 +126,7 @@ export default function BlogDetailPage() {
   // Quadrupled items for seamless infinite carousel loop
   const carouselGames = React.useMemo(() => {
     return [...PROMO_GAMES, ...PROMO_GAMES, ...PROMO_GAMES, ...PROMO_GAMES];
-  }, [blogsListRes]);
+  }, []);
 
 
   return (
@@ -185,17 +185,14 @@ export default function BlogDetailPage() {
             </div>
 
             {/* B. HERO BANNER COVER IMAGE */}
-            <div className="w-full aspect-21/9 sm:aspect-3/1 max-h-110 rounded-lg sm:rounded-lg overflow-hidden   bg-deep-blue-900 shrink-0 relative">
-              <img
-                src={blog.bannerSrc || blog.imageSrc}
+            <div className="w-full aspect-21/9 sm:aspect-3/1 max-h-110 rounded-lg sm:rounded-lg overflow-hidden bg-deep-blue-900 shrink-0 relative">
+              <Image
+                src={blog.bannerSrc || blog.imageSrc || "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=85"}
                 alt={blog.title}
-                onError={(e) => {
-                  const target = e.currentTarget;
-                  target.onerror = null;
-                  target.src =
-                    "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=1600&q=85";
-                }}
-                className="w-full h-full object-cover"
+                fill
+                priority
+                sizes="(max-width: 1280px) 100vw, 1280px"
+                className="object-cover"
               />
               <div className="absolute inset-0 bg-linear-to-t from-deep-blue-950/40 via-transparent to-transparent pointer-events-none" />
             </div>
@@ -323,19 +320,14 @@ export default function BlogDetailPage() {
                   <div
                     key={`${game.id}-${idx}`}
                     onClick={() => router.push("/bundle")}
-                    className="relative w-48 sm:w-56 md:w-60 shrink-0 aspect-2/3 rounded-lg overflow-hidden border border-gradient-secondary  transition-all duration-300 group cursor-pointer bg-deep-blue-900 hover:border-white/30 hover:scale-105 hover:z-20 hover:brightness-105"
+                    className="relative w-48 sm:w-56 md:w-60 shrink-0 aspect-2/3 rounded-lg overflow-hidden border border-gradient-secondary transition-all duration-300 group cursor-pointer bg-deep-blue-900 hover:border-white/30 hover:scale-105 hover:z-20 hover:brightness-105"
                   >
-                    <img
-                      src={game.imageSrc}
+                    <Image
+                      src={game.imageSrc || game.fallbackSrc || "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&h=900&q=80"}
                       alt={game.title}
-                      onError={(e) => {
-                        const target = e.currentTarget;
-                        target.onerror = null;
-                        target.src =
-                          game.fallbackSrc ||
-                          "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&h=900&q=80";
-                      }}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      fill
+                      sizes="240px"
+                      className="object-cover group-hover:scale-105 transition-transform duration-300"
                     />
                     {/* Shadow overlay inside each card matching Gambar 2 */}
                     <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />

@@ -20,14 +20,12 @@ import {
 } from "@/hooks/use-admin-subscriptions";
 import {
   INITIAL_SUBSCRIPTION_PLANS,
-  SUBSCRIPTION_GAME_STATS,
   SUBSCRIPTION_GAMES,
   MOCK_SUBSCRIBERS,
 } from "@/features/admin/data/admin-subscription-mock-data";
 import type {
   SubscriptionPlan,
   SubscriberAccount,
-  SubscriptionGameStats,
 } from "@/features/admin/types/admin-subscription.types";
 import type { SectionProduct } from "@/features/admin/types/admin-section.types";
 
@@ -38,7 +36,6 @@ export default function AdminSubscriptionManagementPage() {
   // Live database queries and mutations
   const {
     plans: serverPlans,
-    gameStats: serverGameStats,
     games: serverGames,
     subscribers: serverSubscribers,
     meta,
@@ -59,13 +56,6 @@ export default function AdminSubscriptionManagementPage() {
     if (serverPlans && serverPlans.length > 0) return serverPlans;
     return INITIAL_SUBSCRIPTION_PLANS;
   }, [serverPlans]);
-
-  const gameStats: SubscriptionGameStats = React.useMemo(() => {
-    if (serverGameStats && serverGameStats.totalGames !== undefined) {
-      return serverGameStats;
-    }
-    return SUBSCRIPTION_GAME_STATS;
-  }, [serverGameStats]);
 
   const games: SectionProduct[] = React.useMemo(() => {
     if (Array.isArray(serverGames)) return serverGames;

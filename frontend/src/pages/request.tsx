@@ -7,7 +7,6 @@ import {
   Button,
   ListRowSkeleton,
   Toast,
-  Tabs,
   RequestListItem,
   type RequestCardVariant,
 } from "@/components/ui";
@@ -139,58 +138,6 @@ interface RequestGameData {
   requestCount: number;
   isUpvoted?: boolean;
 }
-
-// Initial Data for Tab 1: Request Saya (Data beragam dari products.json)
-const INITIAL_MY_REQUESTS: RequestGameData[] = [
-  {
-    id: "beholder-conductor",
-    title: "Beholder: Conductor",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/475550/library_600x900_2x.jpg",
-    requestDate: "20/07/2026",
-    requestCount: 18,
-  },
-  {
-    id: "targeted-10-days",
-    title: "Targeted - 10 Days",
-    imageSrc:
-      "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/107410/hero_capsule.jpg",
-    requestDate: "21/07/2026",
-    requestCount: 24,
-  },
-  {
-    id: "tukoni-forest-keepers",
-    title: "Tukoni: Forest Keepers",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1387610/library_600x900_2x.jpg",
-    requestDate: "22/07/2026",
-    requestCount: 15,
-  },
-  {
-    id: "first-light",
-    title: "SCP - First Light",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/library_600x900_2x.jpg",
-    requestDate: "23/07/2026",
-    requestCount: 31,
-  },
-  {
-    id: "subnautica-2",
-    title: "Subnautica 2",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1962700/library_600x900_2x.jpg",
-    requestDate: "24/07/2026",
-    requestCount: 42,
-  },
-  {
-    id: "college-football-27",
-    title: "EA SPORTS College Football 27",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2582560/library_600x900_2x.jpg",
-    requestDate: "25/07/2026",
-    requestCount: 50,
-  },
-];
 
 // Initial Data for Tab 2: Request Komunitas
 const INITIAL_COMMUNITY_REQUESTS: RequestGameData[] = [
@@ -373,11 +320,17 @@ export default function RequestGamePage() {
         if (savedMy) {
           const parsed = JSON.parse(savedMy);
           if (Array.isArray(parsed)) {
-            setMyRequests(parsed);
+            const timer = setTimeout(() => {
+              setMyRequests(parsed);
+            }, 0);
+            return () => clearTimeout(timer);
           }
         }
       } else {
-        setMyRequests([]);
+        const timer = setTimeout(() => {
+          setMyRequests([]);
+        }, 0);
+        return () => clearTimeout(timer);
       }
 
       // 2. Upvoted Request IDs
@@ -389,23 +342,31 @@ export default function RequestGamePage() {
       if (savedCommunity) {
         const parsedComm = JSON.parse(savedCommunity);
         if (Array.isArray(parsedComm)) {
-          setCommunityRequests(
-            parsedComm.map((item: RequestGameData) => ({
-              ...item,
-              isUpvoted: upvotedIds.includes(item.id),
-            }))
-          );
+          const timer = setTimeout(() => {
+            setCommunityRequests(
+              parsedComm.map((item: RequestGameData) => ({
+                ...item,
+                isUpvoted: upvotedIds.includes(item.id),
+              }))
+            );
+          }, 0);
+          return () => clearTimeout(timer);
         }
       } else {
         const initialWithUpvotes = INITIAL_COMMUNITY_REQUESTS.map((item) => ({
           ...item,
           isUpvoted: upvotedIds.includes(item.id) || Boolean(item.isUpvoted),
         }));
-        setCommunityRequests(initialWithUpvotes);
-        localStorage.setItem(
-          LOCAL_STORAGE_KEY_COMMUNITY_REQUESTS,
-          JSON.stringify(initialWithUpvotes)
-        );
+        const timer = setTimeout(() => {
+          setCommunityRequests(initialWithUpvotes);
+        }, 0);
+        try {
+          localStorage.setItem(
+            LOCAL_STORAGE_KEY_COMMUNITY_REQUESTS,
+            JSON.stringify(initialWithUpvotes)
+          );
+        } catch {}
+        return () => clearTimeout(timer);
       }
     } catch (err) {
       console.error("Gagal membaca request dari localStorage:", err);
@@ -577,7 +538,7 @@ export default function RequestGamePage() {
               LOCAL_STORAGE_KEY_UPVOTED,
               JSON.stringify(nextUpvotes)
             );
-          } catch (storageErr) {}
+          } catch {}
           return updatedCommunity;
         }
         return prev;
@@ -701,7 +662,6 @@ export default function RequestGamePage() {
   // Determine current display list based on active tab with API fallback
   const currentItems = React.useMemo(() => {
     if (forceEmptyState) return [];
-    const id = "";
 
     if (activeTab === "my-requests") {
       if (
@@ -722,9 +682,9 @@ export default function RequestGamePage() {
                 ? `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${steamAppId}/library_600x900_2x.jpg`
                 : fallback?.imageSrc ||
                   "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-              requestDate: new Date(
-                r.created_at || Date.now()
-              ).toLocaleDateString("id-ID"),
+              requestDate: r.created_at
+                ? new Date(r.created_at).toLocaleDateString("id-ID")
+                : "-",
               requestCount: r.request_count || 1,
               isUpvoted: false,
             };
@@ -758,7 +718,9 @@ export default function RequestGamePage() {
               ? `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${steamAppId}/library_600x900_2x.jpg`
               : fallback?.imageSrc ||
                 "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-            requestDate: new Date(r.created_at || Date.now()).toLocaleDateString("id-ID"),
+            requestDate: r.created_at
+              ? new Date(r.created_at).toLocaleDateString("id-ID")
+              : "-",
             requestCount: r.request_count || 1,
             isUpvoted: false,
           };
@@ -780,8 +742,12 @@ export default function RequestGamePage() {
               ? `https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/${steamAppId}/library_600x900_2x.jpg`
               : fallback?.imageSrc ||
                 "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-            requestDate: new Date(r.created_at || Date.now()).toLocaleDateString("id-ID"),
-            addedDate: new Date(r.updated_at || Date.now()).toLocaleDateString("id-ID"),
+            requestDate: r.created_at
+              ? new Date(r.created_at).toLocaleDateString("id-ID")
+              : "-",
+            addedDate: r.updated_at
+              ? new Date(r.updated_at).toLocaleDateString("id-ID")
+              : "-",
             requestCount: r.request_count || 1,
             storeHref: `/store/${r.id}`,
           };
@@ -800,6 +766,7 @@ export default function RequestGamePage() {
     myRequests,
     communityRequests,
     addedRequests,
+    isAuthenticated,
   ]);
 
   const currentVariant: RequestCardVariant = React.useMemo(() => {

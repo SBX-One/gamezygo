@@ -175,12 +175,6 @@ export default function CartPage() {
     }
   }, [storeCartItems, ownedGameIds, removeItemFromStore]);
 
-  // Voucher input & applied states
-  const [voucherInput, setVoucherInput] = React.useState("");
-  const [appliedVoucher, setAppliedVoucher] = React.useState<string | null>(null);
-  const [discountPercent, setDiscountPercent] = React.useState<number>(0);
-  const [voucherError, setVoucherError] = React.useState<string | null>(null);
-
   // Toast feedback state
   const [toastMessage, setToastMessage] = React.useState<{
     type: "success" | "error";
@@ -197,8 +191,7 @@ export default function CartPage() {
 
   // Calculations
   const subtotal = cartItems.reduce((acc, item) => acc + item.price, 0);
-  const discountAmount = Math.round(subtotal * (discountPercent / 100));
-  const totalBelanja = Math.max(0, subtotal - discountAmount);
+  const totalBelanja = subtotal;
 
   // Remove individual item
   const handleRemoveItem = (id: string, title: string) => {
@@ -223,44 +216,7 @@ export default function CartPage() {
     if (isAuthenticated && cartApiRes?.data) {
       clearCartMutation.mutate();
     }
-    setAppliedVoucher(null);
-    setDiscountPercent(0);
-    setVoucherInput("");
     showToast("error", "Keranjang Dikosongkan", "Semua item di keranjang telah dihapus.");
-  };
-
-  // Apply Voucher
-  const handleApplyVoucher = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    setVoucherError(null);
-
-    const cleanCode = voucherInput.trim().toUpperCase();
-    if (!cleanCode) {
-      setVoucherError("Masukkan kode voucher terlebih dahulu.");
-      return;
-    }
-
-    if (cleanCode === "DISCOUNT50" || cleanCode === "FLASH50") {
-      setAppliedVoucher(cleanCode);
-      setDiscountPercent(50);
-      showToast("success", "Voucher Berhasil Digunakan!", "Diskon 50% berhasil diterapkan pada total belanja.");
-    } else if (cleanCode === "WELCOME2026") {
-      setAppliedVoucher(cleanCode);
-      setDiscountPercent(25);
-      showToast("success", "Voucher Berhasil Digunakan!", "Diskon 25% promo pengguna baru berhasil diterapkan.");
-    } else if (
-      cleanCode === "DISCOUNT10" ||
-      cleanCode === "GAMEZYGO10" ||
-      cleanCode === "SUMMER26" ||
-      cleanCode === "WINTER26"
-    ) {
-      setAppliedVoucher(cleanCode);
-      setDiscountPercent(10);
-      showToast("success", "Voucher Berhasil Digunakan!", "Diskon 10% berhasil diterapkan pada total belanja.");
-    } else {
-      setVoucherError("Kode voucher tidak valid atau telah kedaluwarsa.");
-      showToast("error", "Voucher Gagal", "Kode voucher tidak valid atau tidak ditemukan.");
-    }
   };
 
   // Buy Now on Single Item
@@ -422,100 +378,6 @@ export default function CartPage() {
              ====================================================== */}
           <div className="lg:col-span-6 w-full lg:sticky top-28">
             <div className=" rounded-lg border-gradient-secondary p-6 flex flex-col gap-8">
-              {/* Card Header */}
-              {/* <div className="flex flex-col gap-4">
-                <h2 className="text-body-lg font-semibold text-white tracking-normal">
-                  Detail Transaksi
-                </h2>
-                <div className="w-full border-b-gradient-secondary" />
-              </div> */}
-
-              {/* VOUCHER INPUT SECTION */}
-              {/* <div className="flex flex-col gap-3">
-                <label
-                  htmlFor="voucher-input"
-                  className="text-label-xs font-semibold text-gray-400 uppercase "
-                >
-                  VOUCHER
-                </label>
-                <form onSubmit={handleApplyVoucher} className="flex items-center gap-2">
-                  <div className="flex-1 relative flex items-center bg-deep-blue-900 rounded-lg px-3.5 py-2.5">
-                    <input
-                      id="voucher-input"
-                      type="text"
-                      value={voucherInput}
-                      onChange={(e) => setVoucherInput(e.target.value)}
-                      placeholder="Kode voucher"
-                      className="w-full bg-transparent text-body-sm text-gray-50 placeholder:text-gray-400 outline-none"
-                    />
-                  </div>
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    size="sm"
-                  >
-                    Gunakan
-                  </Button>
-                </form>
-
-                {voucherError && (
-                  <p className="text-label-xs text-pale-red-400 mt-0.5">
-                    {voucherError}
-                  </p>
-                )}
-                {appliedVoucher && (
-                  <div className="flex items-center justify-between text-label-xs text-emerald-400 mt-0.5">
-                    <span>
-                      Voucher &quot;{appliedVoucher}&quot; aktif (-{discountPercent}%)
-                    </span>
-                    <Button
-                      type="button"
-                      variant='inactive'
-                      onClick={() => {
-                        setAppliedVoucher(null);
-                        setDiscountPercent(0);
-                        setVoucherInput("");
-                        showToast("success", "Voucher Dihapus", "Kode voucher telah dilepas.");
-                      }}
-                    >
-                      Hapus
-                    </Button>
-                  </div>
-                )}
-              </div> */}
-
-              {/* DETAIL PESANAN SECTION */}
-              {/* <div className="flex flex-col gap-3">
-                <span className="text-label-xs font-semibold text-gray-400 uppercase ">
-                  DETAIL PESANAN
-                </span>
-
-                <div className="flex items-center justify-between text-body-sm">
-                  <span className="text-gray-300">Item(s) Subtotal</span>
-                  <span className="text-white font-medium">
-                    {formatCurrency(subtotal)}
-                  </span>
-                </div>
-
-                {appliedVoucher && discountAmount > 0 && (
-                  <div className="flex items-center justify-between text-body-sm text-emerald-400">
-                    <span>Diskon Voucher ({discountPercent}%)</span>
-                    <span className="font-medium">-{formatCurrency(discountAmount)}</span>
-                  </div>
-                )}
-
-                <div className="flex items-center justify-between text-body-sm">
-                  <span className="text-gray-400">Pajak</span>
-                  <span className="text-gray-400">-</span>
-                </div>
-
-                <div className="flex items-center justify-between text-body-sm pb-8 border-b-gradient-secondary">
-                  <span className="text-gray-400">Pajak</span>
-                  <span className="text-gray-400">-</span>
-                </div>
-
-              </div> */}
-
               {/* TOTAL BELANJA BOX */}
               <div className="bg-surface-secondary-default border-gradient-secondary rounded-lg px-4 py-3.5 flex items-center justify-between">
                 <span className="text-body-sm font-semibold text-white">

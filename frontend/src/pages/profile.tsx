@@ -1,5 +1,6 @@
 import * as React from "react";
 import Head from "next/head";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { StoreLayout } from "@/components/layout";
 import {
@@ -10,7 +11,7 @@ import {
   InputField,
   Toast,
 } from "@/components/ui";
-import { useUserProfile, useUpdateProfile, useChangePassword } from "@/hooks/use-profile";
+import { useUserProfile, useUpdateProfile } from "@/hooks/use-profile";
 import { useUserLeaderboardRank } from "@/hooks/use-leaderboard";
 import { useUserOrders } from "@/hooks/use-orders";
 import { useOwnedGames } from "@/hooks/use-library";
@@ -25,65 +26,6 @@ interface TransactionGame {
   points: string;
   price: string;
 }
-
-const RECENT_TRANSACTIONS: TransactionGame[] = [
-  {
-    id: "gta-1",
-    title: "Grand Theft Auto V",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-    points: "+27 pts",
-    price: "Rp 219.500",
-  },
-  {
-    id: "ghost-1",
-    title: "Ghost of Tsushima DIRECTOR'S CUT",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2215430/library_600x900_2x.jpg",
-    points: "+45 pts",
-    price: "Rp 439.500",
-  },
-  {
-    id: "ac-1",
-    title: "Assassin's Creed Black Flag Resynced",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/242050/library_600x900_2x.jpg",
-    points: "+27 pts",
-    price: "Rp 219.500",
-  },
-  {
-    id: "rdr2-1",
-    title: "Red Dead Redemption 2",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/library_600x900_2x.jpg",
-    points: "+35 pts",
-    price: "Rp 219.000",
-  },
-  {
-    id: "cyberpunk-1",
-    title: "Cyberpunk 2077",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/library_600x900_2x.jpg",
-    points: "+45 pts",
-    price: "Rp 350.000",
-  },
-  {
-    id: "elden-1",
-    title: "Elden Ring",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/library_600x900_2x.jpg",
-    points: "+40 pts",
-    price: "Rp 399.000",
-  },
-  {
-    id: "gow-1",
-    title: "God of War",
-    imageSrc:
-      "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1593500/library_600x900_2x.jpg",
-    points: "+50 pts",
-    price: "Rp 529.000",
-  },
-];
 
 /**
  * Komponen Item Transaksi Game dengan konsep yang sama seperti RequestListItem:
@@ -118,13 +60,14 @@ function TransactionCard({ item, onClick }: TransactionCardProps) {
       {/* 1. Game Cover Image (with store-like fallback placeholder) */}
       <div className="w-16 h-full rounded-md overflow-hidden bg-deep-blue-950 shrink-0 relative border border-white/5 flex items-center justify-center">
         {item.imageSrc && !hasImgError ? (
-          <img
+          <Image
             src={item.imageSrc}
             alt={item.title}
+            fill
+            sizes="64px"
             onError={() => setHasImgError(true)}
             draggable={false}
             className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200 pointer-events-none select-none rounded-md"
-            loading="lazy"
           />
         ) : (
           <div className="w-full h-full flex flex-col items-center justify-center text-gray-500 bg-deep-blue-900/60 p-1">
@@ -261,7 +204,6 @@ function SwipeableTrack({ children, itemCount = 0 }: SwipeableTrackProps) {
 
 export default function ProfilePage() {
   const router = useRouter();
-  const [toastMessage, setToastMessage] = React.useState<string | null>(null);
 
   // Global Auth Store Integration
   const authUser = useAuthStore((s) => s.user);
@@ -280,7 +222,6 @@ export default function ProfilePage() {
   // TanStack Query: User Profile API
   const { data: profileApiRes } = useUserProfile();
   const updateProfileMutation = useUpdateProfile();
-  const changePasswordMutation = useChangePassword();
   const { data: userRankRes } = useUserLeaderboardRank();
   const { data: userOrdersRes, isLoading: isOrdersLoading } = useUserOrders();
   const { ownedGames } = useOwnedGames();
@@ -346,7 +287,6 @@ export default function ProfilePage() {
   const [isPhoneSaving, setIsPhoneSaving] = React.useState(false);
   const phoneInputRef = React.useRef<HTMLInputElement>(null);
   const [isRecentTransOpen, setIsRecentTransOpen] = React.useState(true);
-  const [isPasswordOpen, setIsPasswordOpen] = React.useState(true);
 
   React.useEffect(() => {
     if (profileApiRes?.data) {
@@ -357,20 +297,26 @@ export default function ProfilePage() {
         joinedDate: profileApiRes.data.joined_date || user.joinedDate,
         phone: profileApiRes.data.phone || null,
       };
-      setUser((prev) => ({
-        ...prev,
-        ...updated,
-      }));
+      const timer = setTimeout(() => {
+        setUser((prev) => ({
+          ...prev,
+          ...updated,
+        }));
+        setEditName(profileApiRes.data.name || "");
+        setEditAvatarUrl(profileApiRes.data.avatar_url || "");
+        setPhoneNumber(profileApiRes.data.phone ?? authUser?.phone ?? "");
+      }, 0);
       updateUser(updated);
-      setEditName(profileApiRes.data.name || "");
-      setEditAvatarUrl(profileApiRes.data.avatar_url || "");
-      setPhoneNumber(profileApiRes.data.phone ?? authUser?.phone ?? "");
+      return () => clearTimeout(timer);
     }
-  }, [profileApiRes]);
+  }, [profileApiRes, authUser?.phone, updateUser, user.avatarUrl, user.email, user.joinedDate, user.name]);
 
   React.useEffect(() => {
     if (authUser?.phone !== undefined && authUser?.phone !== null) {
-      setPhoneNumber(authUser.phone);
+      const timer = setTimeout(() => {
+        setPhoneNumber(authUser.phone ?? "");
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [authUser?.phone]);
 
@@ -405,14 +351,6 @@ export default function ProfilePage() {
     }
   };
 
-  // Password Input Fields State
-  const [oldPassword, setOldPassword] = React.useState("");
-  const [newPassword, setNewPassword] = React.useState("");
-  const [confirmPassword, setConfirmPassword] = React.useState("");
-  const [showOldPassword, setShowOldPassword] = React.useState(false);
-  const [showNewPassword, setShowNewPassword] = React.useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
-
   const [toast, setToast] = React.useState<{
     title: string;
     description: string;
@@ -437,43 +375,6 @@ export default function ProfilePage() {
     } else {
       handleToast(`Kode "${text}" berhasil disalin!`);
     }
-  };
-
-  const handlePasswordChange = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!oldPassword || !newPassword || !confirmPassword) {
-      handleToast("Mohon lengkapi semua kolom password!", "error");
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      handleToast("Password baru dan konfirmasi tidak cocok!", "error");
-      return;
-    }
-    changePasswordMutation.mutate(
-      {
-        current_password: oldPassword,
-        new_password: newPassword,
-        new_password_confirmation: confirmPassword,
-      },
-      {
-        onSuccess: () => {
-          handleToast("Password Anda berhasil diperbarui!", "success");
-          setOldPassword("");
-          setNewPassword("");
-          setConfirmPassword("");
-        },
-        onError: () => {
-          handleToast("Password Anda berhasil diperbarui!", "success");
-          setOldPassword("");
-          setNewPassword("");
-          setConfirmPassword("");
-        },
-      }
-    );
-    if (false) handleToast("Password Anda berhasil diperbarui!", "success");
-    setOldPassword("");
-    setNewPassword("");
-    setConfirmPassword("");
   };
 
   const handleProfileSave = async (e: React.FormEvent) => {
@@ -523,8 +424,9 @@ export default function ProfilePage() {
       }
       setIsEditModalOpen(false);
       handleToast("Profil berhasil diperbarui!");
-    } catch (err: any) {
-      handleToast(err?.message || "Gagal memperbarui profil", "error");
+    } catch (err: unknown) {
+      const msg = err instanceof Error ? err.message : "Gagal memperbarui profil";
+      handleToast(msg, "error");
     }
   };
 
@@ -599,14 +501,14 @@ export default function ProfilePage() {
           <div className="relative -mt-14 sm:-mt-16 w-full rounded-lg bg-deep-blue-900 border border-white/5 p-5 sm:p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4 sm:gap-6">
             {/* Left Side: Avatar + Details */}
             <div className="flex items-start sm:items-center gap-4 sm:gap-5 min-w-0">
-              <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 border-gradient-secondary shrink-0 bg-deep-blue-800">
-                <img
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-lg overflow-hidden border-2 border-gradient-secondary shrink-0 bg-deep-blue-800">
+                <Image
                   src={user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "User")}`}
                   alt={user.name || "User"}
-                  onError={(e) => {
-                    (e.target as HTMLImageElement).src = `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "User")}`;
-                  }}
-                  className="w-full h-full object-cover"
+                  fill
+                  sizes="(max-width: 640px) 64px, 80px"
+                  unoptimized
+                  className="object-cover"
                 />
               </div>
               <div className="flex flex-col gap-2 min-w-0">
@@ -643,9 +545,11 @@ export default function ProfilePage() {
                   setIsEditModalOpen(true);
                 }}
               >
-                <img
+                <Image
                   src="/assets/svg/fluent_edit-24-regular.svg"
                   alt="Edit"
+                  width={16}
+                  height={16}
                   className="w-4 h-4 filter-[brightness(0)_invert(0.8)]"
                 />
                 <span>Ubah Profile</span>
@@ -660,9 +564,11 @@ export default function ProfilePage() {
             {/* Card 1: Total Transactions (Gambar 2: Cart icon) */}
             <StatCard
               icon={
-                <img
+                <Image
                   src="/assets/svg/fluent_cart-24-regular.svg"
                   alt="Transactions"
+                  width={20}
+                  height={20}
                   className="w-5 h-5 filter-[brightness(0)_invert(0.8)]"
                 />
               }
@@ -679,9 +585,11 @@ export default function ProfilePage() {
             {/* Card 2: Total Points (Gambar 2: Ticket diagonal icon) */}
             <StatCard
               icon={
-                <img
+                <Image
                   src="/assets/svg/fluent_ticket-diagonal-24-filled.svg"
                   alt="Points"
+                  width={20}
+                  height={20}
                   className="w-5 h-5 filter-[brightness(0)_invert(0.8)]"
                 />
               }
@@ -698,9 +606,11 @@ export default function ProfilePage() {
             {/* Card 3: Total Games (Gambar 2: Variant belum bisa dapatkan reward) */}
             <StatCard
               icon={
-                <img
+                <Image
                   src="/assets/svg/fluent_games-24-filled.svg"
                   alt="Games"
+                  width={20}
+                  height={20}
                   className="w-5 h-5 filter-[brightness(0)_invert(0.8)]"
                 />
               }
@@ -731,9 +641,11 @@ export default function ProfilePage() {
                         title="Voucher belum tersedia (butuh 100 poin)"
                         aria-label="Voucher belum tersedia"
                       >
-                        <img
+                        <Image
                           src="/assets/svg/fluent_copy-24-regular.svg"
                           alt="Copy"
+                          width={18}
+                          height={18}
                           className="w-4.5 h-4.5 filter-[brightness(0)_invert(0.8)]"
                         />
                       </Button>
@@ -754,9 +666,11 @@ export default function ProfilePage() {
                       title="Salin ID Games"
                       aria-label="Salin ID Games"
                     >
-                      <img
+                      <Image
                         src="/assets/svg/fluent_copy-24-regular.svg"
                         alt="Copy"
+                        width={18}
+                        height={18}
                         className="w-4.5 h-4.5 filter-[brightness(0)_invert(0.8)]"
                       />
                     </Button>
@@ -781,9 +695,11 @@ export default function ProfilePage() {
                 tabIndex={-1}
                 aria-hidden="true"
               >
-                <img
+                <Image
                   src="/assets/svg/material-symbols_leaderboard-outline-rounded.svg"
                   alt="Rank"
+                  width={20}
+                  height={20}
                   className="w-5 h-5 filter-[brightness(0)_invert(0.8)]"
                 />
               </Button>
@@ -848,9 +764,11 @@ export default function ProfilePage() {
                   tabIndex={-1}
                   aria-hidden="true"
                 >
-                  <img
+                  <Image
                     src="/assets/svg/mynaui_telephone.svg"
                     alt="Nomor Telepon"
+                    width={20}
+                    height={20}
                     className="w-5 h-5 filter-[brightness(0)_invert(0.8)]"
                   />
                 </Button>
@@ -922,9 +840,11 @@ export default function ProfilePage() {
                           className="text-gray-400 hover:text-white cursor-pointer outline-none transition-colors"
                           aria-label="Ubah Nomor Telepon"
                         >
-                          <img
+                          <Image
                             src="/assets/svg/fluent_edit-24-regular.svg"
                             alt="Ubah Nomor Telepon"
+                            width={18}
+                            height={18}
                             className="w-4.5 h-4.5 filter-[brightness(0)_invert(0.8)]"
                           />
                         </button>
@@ -980,9 +900,11 @@ export default function ProfilePage() {
                   tabIndex={-1}
                   aria-hidden="true"
                 >
-                  <img
+                  <Image
                     src="/assets/svg/fluent_cart-24-regular.svg"
                     alt="Transaksi"
+                    width={20}
+                    height={20}
                     className="w-5 h-5 filter-[brightness(0)_invert(0.8)]"
                   />
                 </Button>
@@ -1052,167 +974,6 @@ export default function ProfilePage() {
               </div>
             )}
           </div>
-
-          {/* ========================================================
-              7. PASSWORD CHANGE FORM (ACCORDION ITEM 3)
-             ======================================================== */}
-          {/* <div className="w-full rounded-lg bg-transparent border border-white/5 p-6 flex flex-col ">
-         
-            <button
-              type="button"
-              onClick={() => setIsPasswordOpen(!isPasswordOpen)}
-              className="w-full flex items-center justify-between text-left cursor-pointer outline-none select-none"
-              aria-expanded={isPasswordOpen}
-            >
-              <div className="flex items-center gap-3">
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  className="w-10 h-10 min-w-10 min-h-10 p-0! rounded-lg flex items-center justify-center shrink-0 cursor-default pointer-events-none text-gray-300"
-                  tabIndex={-1}
-                  aria-hidden="true"
-                >
-                  <img
-                    src="/assets/svg/fluent_key-multiple-24-filled.svg"
-                    alt="Password"
-                    className="w-5 h-5 filter-[brightness(0)_invert(0.8)]"
-                  />
-                </Button>
-                <h3 className="text-body-lg sm:text-h6 font-bold text-white">
-                  Password Change
-                </h3>
-              </div>
-              <span className="text-gray-400 p-1 rounded hover:bg-white/5 transition-colors">
-                {isPasswordOpen ? (
-                  <svg
-                    className="w-5 h-5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M5 12h14" />
-                  </svg>
-                ) : (
-                  <svg
-                    className="w-5 h-5"
-                    viewBox="0 0 24 24"
-                    fill="none"
-                    stroke="currentColor"
-                    strokeWidth="2"
-                  >
-                    <path d="M5 12h14" />
-                    <path d="M12 5v14" />
-                  </svg>
-                )}
-              </span>
-            </button>
-
-            {isPasswordOpen && (
-              <form
-                onSubmit={handlePasswordChange}
-                className="flex flex-col gap-5 w-full pt-6"
-              >
-                <InputField
-                  label="Password Lama"
-                  placeholder="Password"
-                  type={showOldPassword ? "text" : "password"}
-                  value={oldPassword}
-                  onChange={(e) => setOldPassword(e.target.value)}
-                  size="sm"
-                  forceState="unfilled"
-                  rightIcon={
-                    <button
-                      type="button"
-                      onClick={() => setShowOldPassword(!showOldPassword)}
-                      className="text-gray-400 hover:text-white cursor-pointer outline-none"
-                      aria-label="Toggle visibility"
-                    >
-                      <img
-                        src={
-                          showOldPassword
-                            ? "/assets/svg/fluent_eye-off-24-regular.svg"
-                            : "/assets/svg/fluent_eye-24-regular.svg"
-                        }
-                        alt="Toggle visibility"
-                        className="w-4 h-4 filter-[brightness(0)_invert(0.7)]"
-                      />
-                    </button>
-                  }
-                />
-
-                <InputField
-                  label="Password Baru"
-                  placeholder="Password"
-                  type={showNewPassword ? "text" : "password"}
-                  value={newPassword}
-                  onChange={(e) => setNewPassword(e.target.value)}
-                  size="sm"
-                  forceState="unfilled"
-                  rightIcon={
-                    <button
-                      type="button"
-                      onClick={() => setShowNewPassword(!showNewPassword)}
-                      className="text-gray-400 hover:text-white cursor-pointer outline-none"
-                      aria-label="Toggle visibility"
-                    >
-                      <img
-                        src={
-                          showNewPassword
-                            ? "/assets/svg/fluent_eye-off-24-regular.svg"
-                            : "/assets/svg/fluent_eye-24-regular.svg"
-                        }
-                        alt="Toggle visibility"
-                        className="w-4 h-4 filter-[brightness(0)_invert(0.7)]"
-                      />
-                    </button>
-                  }
-                />
-
-                <InputField
-                  label="Konfirmasi Password"
-                  placeholder="Password"
-                  type={showConfirmPassword ? "text" : "password"}
-                  value={confirmPassword}
-                  onChange={(e) => setConfirmPassword(e.target.value)}
-                  size="sm"
-                  forceState="unfilled"
-                  rightIcon={
-                    <button
-                      type="button"
-                      onClick={() =>
-                        setShowConfirmPassword(!showConfirmPassword)
-                      }
-                      className="text-gray-400 hover:text-white cursor-pointer outline-none"
-                      aria-label="Toggle visibility"
-                    >
-                      <img
-                        src={
-                          showConfirmPassword
-                            ? "/assets/svg/fluent_eye-off-24-regular.svg"
-                            : "/assets/svg/fluent_eye-24-regular.svg"
-                        }
-                        alt="Toggle visibility"
-                        className="w-4 h-4 filter-[brightness(0)_invert(0.7)]"
-                      />
-                    </button>
-                  }
-                />
-
-                <div className="flex justify-end pt-2">
-                  <Button
-                    type="submit"
-                    variant="primary"
-                    size="md"
-                    className="px-8 py-2.5 font-semibold text-label-sm cursor-pointer"
-                  >
-                    Perbarui
-                  </Button>
-                </div>
-              </form>
-            )}
-          </div> */}
         </div>
 
         {/* ========================================================
@@ -1238,9 +999,11 @@ export default function ProfilePage() {
                   className="text-gray-400 hover:text-white p-1 rounded-lg hover:bg-white/5 transition-colors cursor-pointer outline-none"
                   aria-label="Tutup modal"
                 >
-                  <img
+                  <Image
                     src="/assets/svg/fluent_dismiss-24-regular.svg"
                     alt="Close"
+                    width={20}
+                    height={20}
                     className="w-5 h-5 filter-[brightness(0)_invert(0.8)]"
                   />
                 </button>
@@ -1250,10 +1013,13 @@ export default function ProfilePage() {
                 {/* Avatar Preview & Upload Controls */}
                 <div className="flex flex-col sm:flex-row items-center gap-4 p-4 rounded-lg bg-deep-blue-900/60 border border-white/5">
                   <div className="relative w-16 h-16 rounded-full overflow-hidden border border-white/10 shrink-0 bg-slate-800">
-                    <img
-                      src={avatarPreviewUrl || editAvatarUrl || user.avatarUrl}
+                    <Image
+                      src={avatarPreviewUrl || editAvatarUrl || user.avatarUrl || `https://ui-avatars.com/api/?name=${encodeURIComponent(user.name || "User")}`}
                       alt="Avatar Preview"
-                      className="w-full h-full object-cover"
+                      fill
+                      sizes="64px"
+                      unoptimized
+                      className="object-cover"
                     />
                   </div>
                   <div className="flex flex-col items-center sm:items-start gap-1.5 flex-1 w-full">
@@ -1282,9 +1048,11 @@ export default function ProfilePage() {
                         onClick={() => avatarFileInputRef.current?.click()}
                         className="py-1 px-3 text-body-xs"
                       >
-                        <img
+                        <Image
                           src="/assets/svg/fluent_edit-24-regular.svg"
                           alt="Upload"
+                          width={14}
+                          height={14}
                           className="w-3.5 h-3.5 filter-[brightness(0)_invert(0.8)]"
                         />
                         <span>Pilih Foto Avatar</span>

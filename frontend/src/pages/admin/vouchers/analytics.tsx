@@ -58,7 +58,6 @@ export default function AdminVoucherAnalyticsPage() {
   const {
     data: serverAnalytics,
     isLoading: isQueryLoading,
-    isFetching,
   } = useVoucherAnalytics(
     {
       id: voucherId,

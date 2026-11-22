@@ -14,16 +14,12 @@ import {
   TransactionDetailModal,
   OrderHistoryFilter,
   formatPaymentMethodLabel,
-  DEFAULT_HISTORY_STATS,
-  EMPTY_HISTORY_STATS,
-  MOCK_HISTORY_ORDERS,
   type OrderHistoryItem,
   type HistoryFilterState,
   type OrderStatus,
 } from "@/features/history";
 import { useUserOrders } from "@/hooks/use-orders";
 import { useUserLibrary } from "@/hooks/use-library";
-import { useAuthStore } from "@/stores/use-auth-store";
 import { formatRupiah } from "@/utils/formatters";
 
 // Funnel / Filter Icon
@@ -182,16 +178,62 @@ export default function HistoryPage() {
   // Map API data accurately
   const apiOrders: OrderHistoryItem[] = React.useMemo(() => {
     if (!userOrdersRes?.data) return [];
-    const rawData: any = userOrdersRes.data;
-    const items = Array.isArray(rawData)
+    interface RawOrderApiItem {
+      id?: string | number;
+      order_id?: string;
+      order_number?: string;
+      total_price?: number | string;
+      grand_total?: number | string;
+      subtotal_price?: number | string;
+      status?: string;
+      created_at?: string;
+      payment_method?: string;
+      item_name?: string;
+      item_type?: string;
+      payment?: {
+        gateway_reference?: string;
+        payment_method?: string;
+      };
+      order_items?: Array<{
+        name?: string;
+        title?: string;
+        price?: number | string;
+        product?: {
+          name?: string;
+          title?: string;
+          cover_image_url?: string;
+          thumbnail?: string;
+          price?: number;
+        };
+      }>;
+      items?: Array<{
+        name?: string;
+        title?: string;
+        price?: number | string;
+        product?: {
+          name?: string;
+          title?: string;
+          cover_image_url?: string;
+          thumbnail?: string;
+          price?: number;
+        };
+      }>;
+      credentials?: {
+        username?: string;
+        password?: string;
+        access_token?: string;
+      };
+    }
+    const rawData = userOrdersRes.data as unknown as RawOrderApiItem[] | { data?: RawOrderApiItem[] };
+    const items: RawOrderApiItem[] = Array.isArray(rawData)
       ? rawData
-      : Array.isArray(rawData.data)
-      ? rawData.data
+      : Array.isArray(rawData?.data)
+      ? (rawData.data as RawOrderApiItem[])
       : [];
 
     if (!Array.isArray(items) || items.length === 0) return [];
 
-    return items.map((o: any, idx: number) => {
+    return items.map((o: RawOrderApiItem, idx: number) => {
       const priceVal = Number(o.total_price || o.grand_total || o.subtotal_price || 0);
 
       // Support order_items or items array

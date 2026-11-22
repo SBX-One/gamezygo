@@ -10,7 +10,6 @@ import {
   AdminCatalogAddModal,
   AdminCatalogDeleteModal,
 } from "@/features/admin/components/catalog";
-import { MOCK_ADMIN_CATALOG_ITEMS } from "@/features/admin/data/admin-catalog-mock-data";
 import {
   INITIAL_CATALOG_FILTER_STATE,
   type AdminCatalogFilterState,
@@ -52,7 +51,6 @@ export default function AdminCatalogPage() {
     totalProducts,
     meta,
     isLoading,
-    isError,
   } = useAdminCatalog({
     page: currentPage,
     per_page: 20,
@@ -69,9 +67,11 @@ export default function AdminCatalogPage() {
   const items = React.useMemo(() => serverItems || [], [serverItems]);
 
   // Reset to page 1 whenever filters change
-  React.useEffect(() => {
+  const [prevFilters, setPrevFilters] = React.useState(filters);
+  if (prevFilters !== filters) {
+    setPrevFilters(filters);
     setCurrentPage(1);
-  }, [filters]);
+  }
 
   // Filter & sort logic
   const filteredItems = React.useMemo(() => {

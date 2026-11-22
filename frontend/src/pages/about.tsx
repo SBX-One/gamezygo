@@ -1,5 +1,6 @@
 import * as React from "react";
 import Head from "next/head";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { StoreLayout } from "@/components/layout";
 import {
@@ -25,19 +26,6 @@ import type { CustomSectionItem } from "@/types";
 // ==========================================
 // SVG Icons
 // ==========================================
-
-const FluentPlayIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="18"
-    height="18"
-    viewBox="0 0 24 24"
-    fill="currentColor"
-    className="shrink-0"
-    {...props}
-  >
-    <path d="M5 5.27403C5 3.56703 6.826 2.48203 8.325 3.29703L20.687 10.024C22.253 10.876 22.253 13.124 20.687 13.976L8.325 20.702C6.826 21.518 5 20.432 5 18.726V5.27403Z" />
-  </svg>
-);
 
 const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -407,17 +395,12 @@ export default function AboutPage() {
                   onClick={() => router.push("/store")}
                   className="relative w-48 sm:w-56 md:w-60 shrink-0 aspect-2/3 rounded-lg overflow-hidden border border-gradient-secondary transition-all duration-300 group cursor-pointer bg-deep-blue-900 hover:border-white/30 hover:scale-105 hover:z-20 hover:brightness-105"
                 >
-                  <img
-                    src={game.imageSrc}
+                  <Image
+                    src={game.imageSrc || game.fallbackSrc || "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&h=900&q=80"}
                     alt={game.title}
-                    onError={(e) => {
-                      const target = e.currentTarget;
-                      target.onerror = null;
-                      target.src =
-                        game.fallbackSrc ||
-                        "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&h=900&q=80";
-                    }}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                    fill
+                    sizes="240px"
+                    className="object-cover group-hover:scale-105 transition-transform duration-300"
                   />
                   {/* Shadow overlay inside each card */}
                   <div className="absolute inset-0 bg-linear-to-t from-black/90 via-black/30 to-transparent pointer-events-none" />
@@ -618,9 +601,11 @@ export default function AboutPage() {
                   {/* Top: Icon + Langkah N */}
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-surface-secondary-default border border-white/10 flex items-center justify-center text-gray-300 shrink-0">
-                      <img
+                      <Image
                         src={step.icon}
                         alt={step.step}
+                        width={20}
+                        height={20}
                         className="w-5 h-5 filter-[brightness(0)_invert(0.85)]"
                       />
                     </div>
@@ -705,14 +690,15 @@ export default function AboutPage() {
                   onChange={(e) => setOpinionInput(e.target.value)}
                   placeholder="Beri pendapat"
                   className="w-full bg-transparent text-body-sm text-gray-100 placeholder:text-gray-500 focus:outline-none"
-                      onSubmit={useAuthStore.getState().role === "guest" ? () => router.push("/login") :  () => router.push("/review") }
-                 
                   onKeyDown={(e) => {
                     if (e.key === "Enter" && opinionInput.trim()) {
                       showToast("Terima kasih atas pendapat Anda!");
                       setOpinionInput("");
-                      useAuthStore.getState().role === "guest" ? router.push("/login") :  router.push("/review")
-
+                      if (useAuthStore.getState().role === "guest") {
+                        router.push("/login");
+                      } else {
+                        router.push("/review");
+                      }
                     }
                   }}
                 />
@@ -722,9 +708,12 @@ export default function AboutPage() {
                     if (opinionInput.trim()) {
                       showToast("Terima kasih atas pendapat Anda!");
                       setOpinionInput("");
-                      useAuthStore.getState().role === "guest" ? router.push("/login") :  router.push("/review")
+                      if (useAuthStore.getState().role === "guest") {
+                        router.push("/login");
+                      } else {
+                        router.push("/review");
+                      }
                     }
-
                   }}
                   className="text-gray-400 hover:text-white transition-colors cursor-pointer p-1"
                 >

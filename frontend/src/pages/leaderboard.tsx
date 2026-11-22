@@ -1,10 +1,10 @@
 import * as React from "react";
 import Head from "next/head";
+import Image from "next/image";
 import { StoreLayout } from "@/components/layout";
 import { Header, Button, UserRank, Toast, Pill, Skeleton } from "@/components/ui";
 import { useLeaderboard, useUserLeaderboardRank } from "@/hooks/use-leaderboard";
 import { useAuthStore } from "@/stores/use-auth-store";
-import { MOCK_USER } from "@/lib/mock/data";
 import router from "next/router";
 
 interface LeaderboardUser {
@@ -106,13 +106,6 @@ export default function LeaderboardPage() {
       }
     : undefined;
 
-  const handleToast = (msg: string) => {
-    setToastMessage(msg);
-    setTimeout(() => {
-      setToastMessage(null);
-    }, 3000);
-  };
-
   const getUserRankClass = (idx: number) =>
     idx === 0
       ? "bg-surface-secondary-default border border-[#2F2F37] rounded-lg px-6 py-3.5 shadow-none hover:border-[#2F2F37] [&_.text-h6]:text-body-md [&_.text-h6]:font-semibold"
@@ -159,9 +152,11 @@ export default function LeaderboardPage() {
               {/* Header: Icon + Title */}
               <div className="flex items-center gap-3">
                 <div className="w-8 h-8 rounded-lg bg-surface-secondary-default border border-deep-blue-700 flex items-center justify-center text-gray-300 shrink-0">
-                  <img
+                  <Image
                     src="/assets/svg/fluent_person-add-24-filled.svg"
                     alt="Peringkat"
+                    width={18}
+                    height={18}
                     className="w-4.5 h-4.5 filter-[brightness(0)_invert(0.8)]"
                   />
                 </div>

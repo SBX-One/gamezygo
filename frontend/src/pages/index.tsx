@@ -1,11 +1,10 @@
 import * as React from "react";
 import Head from "next/head";
-import Link from "next/link";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { cn } from "@/lib/utils";
 import {
   Button,
-  Pill,
   BannerCarousel,
   ProductCard,
   ProductCardRow,
@@ -30,12 +29,10 @@ import { useAddToCart } from "@/hooks/use-cart";
 import { useOwnedGames } from "@/hooks/use-library";
 import { useAnnouncements, useCommunities, useFaqs } from "@/hooks/use-common";
 import { resolveImageUrl } from "@/utils/image-url";
-import { useCustomSections, useProducts } from "@/hooks/use-products";
+import { useCustomSections } from "@/hooks/use-products";
 import { useLeaderboard } from "@/hooks/use-leaderboard";
 import { useReviews } from "@/hooks/use-reviews";
 import { useBlogs } from "@/hooks/use-blogs";
-import { useGameRequests } from "@/hooks/use-requests";
-import { formatRupiah } from "@/utils/formatters";
 import { mapAnnouncementToSlide, mapSectionProducts } from "@/utils/adapters";
 import type { BannerSlide } from "@/components/ui/BannerCarousel/BannerCarousel.types";
 import type { ProductCardRowItem } from "@/components/ui/ProductCardRow/ProductCardRow.types";
@@ -43,90 +40,6 @@ import type { CustomSectionItem, FaqItem } from "@/types";
 import productsData from "@/json/products.json";
 
 // Feature Icons (SVG)
-const ShieldIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <path
-      d="M12 2L4 5V11C4 16.55 7.41 21.74 12 23C16.59 21.74 20 16.55 20 11V5L12 2ZM10 16.5L6 12.5L7.41 11.09L10 13.67L16.59 7.09L18 8.5L10 16.5Z"
-      fill="currentColor"
-    />
-  </svg>
-);
-
-const BoltIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <path
-      d="M11 21H13L19 12H14L16 3H8L6 14H11V21Z"
-      fill="currentColor"
-    />
-  </svg>
-);
-
-const TagIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <path
-      d="M21.41 11.58L12.41 2.58C12.03 2.21 11.53 2 11 2H4C2.9 2 2 2.9 2 4V11C2 11.53 2.21 12.03 2.59 12.42L11.59 21.42C11.97 21.79 12.47 22 13 22C13.53 22 14.03 21.79 14.41 21.41L21.41 14.41C21.79 14.03 22 13.53 22 13C22 12.47 21.79 11.97 21.41 11.58ZM5.5 7C4.67 7 4 6.33 4 5.5C4 4.67 4.67 4 5.5 4C6.33 4 7 4.67 7 5.5C7 6.33 6.33 7 5.5 7Z"
-      fill="currentColor"
-    />
-  </svg>
-);
-
-const HeadsetIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <path
-      d="M12 2C6.48 2 2 6.48 2 12V20C2 21.1 2.9 22 4 22H7C7.55 22 8 21.55 8 21V15C8 14.45 7.55 14 7 14H4V12C4 7.58 7.58 4 12 4C16.42 4 20 7.58 20 12V14H17C16.45 14 16 14.45 16 15V21C16 21.55 16.45 22 17 22H20C21.1 22 22 21.1 22 20V12C22 6.48 17.52 2 12 2Z"
-      fill="currentColor"
-    />
-  </svg>
-);
-
-const ArrowUpIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 16 16"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className="w-4 h-4"
-    {...props}
-  >
-    <path
-      d="M8 3.33334V12.6667M8 3.33334L3.33333 8.00001M8 3.33334L12.6667 8.00001"
-      stroke="currentColor"
-      strokeWidth="1.5"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
 const PhoneIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     width="24"
@@ -316,26 +229,25 @@ export default function LandingPage() {
   const addToCartMutation = useAddToCart();
   const { isGameOwned } = useOwnedGames();
 
+  const [hasMounted, setHasMounted] = React.useState(false);
+  React.useEffect(() => {
+    setHasMounted(true);
+  }, []);
+  const isUserLoggedIn = hasMounted && isAuthenticated;
+
   const enrichRowItems = React.useCallback(
     (items: ProductCardRowItem[]) =>
       items.map((item) => {
-        const owned = isGameOwned(item.id, item.title);
-        const inCart = isInCart(item.id, item.title);
+        const owned = hasMounted && isGameOwned(item.id, item.title);
+        const inCart = hasMounted && isInCart(item.id, item.title);
         return {
           ...item,
           buttonText: owned ? "Sudah Dimiliki" : inCart ? "Di Keranjang" : "Tambah Keranjang",
           isActionDisabled: owned || inCart,
         };
       }),
-    [isGameOwned, isInCart]
+    [hasMounted, isGameOwned, isInCart]
   );
-
-  const isMounted = React.useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false
-  );
-  const isUserLoggedIn = isMounted && isAuthenticated;
 
   // Opening sequence completion state and section-by-section scroll animations
   const [isOpeningComplete, setIsOpeningComplete] = React.useState(false);
@@ -433,7 +345,6 @@ export default function LandingPage() {
 
   // 2. Custom Sections & Products
   const { data: sectionsRes, isLoading: isSectionsLoading } = useCustomSections();
-  const { data: productsRes } = useProducts();
 
   const customSections = React.useMemo(() => {
     const rawData = sectionsRes?.data ?? sectionsRes;
@@ -448,63 +359,11 @@ export default function LandingPage() {
     return null;
   }, [sectionsRes]);
 
-  const productsList = productsRes?.data || [];
-
-  // Special Flash Sale Section (e.g. from sections or first 3 products)
-  const specialOffers = React.useMemo(() => {
-    if (productsList.length > 0) {
-      return productsList.slice(0, 3).map((p) => ({
-        id: p.id,
-        title: p.name,
-        imageSrc:
-          p.thumbnail ||
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-        price: p.discount_price || p.price,
-        originalPrice: p.price,
-        discount: p.discount ? `${p.discount}%` : "50%",
-        platform: "Steam",
-      }));
-    }
-    return [
-      {
-        id: 1,
-        title: "Grand Theft Auto V: Premium Edition",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/header.jpg",
-        price: 189000,
-        originalPrice: 429000,
-        discount: "56%",
-        platform: "Steam",
-      },
-      {
-        id: 2,
-        title: "Red Dead Redemption 2",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/header.jpg",
-        price: 240000,
-        originalPrice: 640000,
-        discount: "62%",
-        platform: "Steam",
-      },
-      {
-        id: 3,
-        title: "Cyberpunk 2077: Ultimate Edition",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/header.jpg",
-        price: 299000,
-        originalPrice: 699000,
-        discount: "57%",
-        platform: "Steam",
-      },
-    ];
-  }, [productsList]);
-
   // 3. Deretan Game Terpopuler (Tabs: Trending, Terbaru, Segera)
   const [popularTab, setPopularTab] = React.useState<string>("trending");
   const popularScrollRef = React.useRef<HTMLDivElement>(null);
   const [canPopularScrollUp, setCanPopularScrollUp] = React.useState<boolean>(false);
   const [canPopularScrollDown, setCanPopularScrollDown] = React.useState<boolean>(true);
-  const [popularScrollProgress, setPopularScrollProgress] = React.useState<number>(0);
 
   const checkPopularScroll = React.useCallback(() => {
     const el = popularScrollRef.current;
@@ -513,7 +372,6 @@ export default function LandingPage() {
     const maxScroll = scrollHeight - clientHeight;
     setCanPopularScrollUp(scrollTop > 12);
     setCanPopularScrollDown(maxScroll > 10 && scrollTop < maxScroll - 16);
-    setPopularScrollProgress(maxScroll > 0 ? Math.min(1, Math.max(0, scrollTop / maxScroll)) : 0);
   }, []);
 
   React.useEffect(() => {
@@ -1182,61 +1040,6 @@ export default function LandingPage() {
     ];
   }, [blogsRes]);
 
-  // 11. Game Requests (4 items)
-  const { data: requestsRes } = useGameRequests({ scope: "all", page: 1 });
-  const requestCards = React.useMemo(() => {
-    if (requestsRes?.data && requestsRes.data.length >= 4) {
-      return requestsRes.data.slice(0, 4).map((r, idx) => ({
-        id: r.id,
-        name: r.name,
-        steam_url: r.steam_url,
-        request_count: r.request_count || 100,
-        cover_image:
-          idx === 0
-            ? "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg"
-            : idx === 1
-            ? "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2195250/library_600x900_2x.jpg"
-            : idx === 2
-            ? "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2124490/library_600x900_2x.jpg"
-            : "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2322010/library_600x900_2x.jpg",
-      }));
-    }
-    return [
-      {
-        id: 1,
-        name: "Grand Theft Auto VI",
-        steam_url: "https://store.steampowered.com/app/271590",
-        request_count: 852,
-        cover_image:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-      },
-      {
-        id: 2,
-        name: "Football Manager 2026",
-        steam_url: "https://store.steampowered.com/app/2195250",
-        request_count: 423,
-        cover_image:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2195250/library_600x900_2x.jpg",
-      },
-      {
-        id: 3,
-        name: "Resident Evil 9",
-        steam_url: "https://store.steampowered.com/app/2124490",
-        request_count: 389,
-        cover_image:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2124490/library_600x900_2x.jpg",
-      },
-      {
-        id: 4,
-        name: "Ghost of Yotei",
-        steam_url: "https://store.steampowered.com/app/2322010",
-        request_count: 275,
-        cover_image:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2322010/library_600x900_2x.jpg",
-      },
-    ];
-  }, [requestsRes]);
-
   return (
     <>
       {/* Cinematic Opening Sequence */}
@@ -1251,11 +1054,11 @@ export default function LandingPage() {
       </Head>
 
       <StoreLayout
-        navbarVariant={isAuthenticated ? "login" : "guest"}
+        navbarVariant={hasMounted && isAuthenticated ? "login" : "guest"}
         activeNavId="home"
         hideSidebar={true}
         user={
-          authUser
+          hasMounted && authUser
             ? {
                 name: authUser.name || "Customer Gamezygo",
                 avatarUrl: authUser.avatarUrl,
@@ -1442,7 +1245,7 @@ export default function LandingPage() {
                   <ProductCardRow
                     products={secProducts}
                     visibleCount={
-                      isUserLoggedIn
+                      hasMounted && isUserLoggedIn
                         ? 4
                         : sec.slug === "rilis-terbaru" || sec.title?.toLowerCase().includes("terbaru")
                         ? 5
@@ -1511,7 +1314,7 @@ export default function LandingPage() {
               <div data-animate="cards-track">
                 <ProductCardRow
                   products={enrichRowItems(RILIS_TERBARU_PRODUCTS)}
-                  visibleCount={isUserLoggedIn ? 4 : 5}
+                  visibleCount={hasMounted && isUserLoggedIn ? 4 : 5}
                   onAddToCart={(title) => {
                     const item = RILIS_TERBARU_PRODUCTS.find((p) => p.title === title);
                     const price = item?.numericPrice || (item?.price ? parseInt(item.price.replace(/\D/g, '')) || 0 : 0);
@@ -1629,9 +1432,11 @@ export default function LandingPage() {
                   {/* Top: Icon + Langkah N */}
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-lg bg-surface-secondary-default border border-white/10 flex items-center justify-center text-gray-300 shrink-0">
-                      <img
+                      <Image
                         src={step.icon}
                         alt={step.step}
+                        width={20}
+                        height={20}
                         className="w-5 h-5 filter-[brightness(0)_invert(0.85)]"
                       />
                     </div>

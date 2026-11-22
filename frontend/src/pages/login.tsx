@@ -341,6 +341,8 @@ export default function LoginPage() {
   const login = useAuthStore((s) => s.login);
   const loginWithGoogle = useAuthStore((s) => s.loginWithGoogle);
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+  const user = useAuthStore((s) => s.user);
+  const role = useAuthStore((s) => s.role);
   const isLoading = useAuthStore((s) => s.isLoading);
 
   // Active Tab: derived from router query param ?tab=signup
@@ -352,13 +354,27 @@ export default function LoginPage() {
     });
   };
 
+  // Submitting State
+  const [isSubmitting, setIsSubmitting] = React.useState(false);
+
   // If already authenticated, redirect automatically
   React.useEffect(() => {
-    if (isAuthenticated) {
-      const destination = typeof redirect === "string" ? redirect : "/";
-      router.push(destination);
+    if (isAuthenticated && !isSubmitting) {
+      if (role === "admin" || user?.role === "admin") {
+        const destination =
+          typeof redirect === "string" && redirect.startsWith("/admin")
+            ? redirect
+            : "/admin/dashboard";
+        router.replace(destination);
+      } else {
+        const destination =
+          typeof redirect === "string" && !redirect.startsWith("/admin")
+            ? redirect
+            : "/";
+        router.replace(destination);
+      }
     }
-  }, [isAuthenticated, redirect, router]);
+  }, [isAuthenticated, isSubmitting, role, user, redirect, router]);
 
   // Toast Notification State
   const [toast, setToast] = React.useState<{
@@ -378,9 +394,6 @@ export default function LoginPage() {
   const [adminPassword, setAdminPassword] = React.useState("");
   const [rememberMe, setRememberMe] = React.useState(true);
   const [showAdminPassword, setShowAdminPassword] = React.useState(false);
-
-  // Submitting State
-  const [isSubmitting, setIsSubmitting] = React.useState(false);
 
   // Security: Brute-Force & DDoS Mitigation (Failed Attempts + Lockout Timer)
   const [failedAttempts, setFailedAttempts] = React.useState(0);
@@ -486,13 +499,15 @@ export default function LoginPage() {
       }
 
       showToast("Login Admin berhasil! Mengalihkan ke Dashboard...", "success");
-      setTimeout(() => {
-        const destination =
-          typeof redirect === "string" && redirect.startsWith("/admin")
-            ? redirect
-            : "/admin/dashboard";
-        router.push(destination);
-      }, 700);
+
+      // Verifikasi Admin: Arahkan LANGSUNG ke Admin Dashboard
+      // Jangan pernah kembalikan admin ke tempat terakhir saat menjadi guest
+      const destination =
+        typeof redirect === "string" && redirect.startsWith("/admin")
+          ? redirect
+          : "/admin/dashboard";
+
+      router.replace(destination);
     } catch (err) {
       recordFailedAttempt();
       const errorMsg =
@@ -500,7 +515,6 @@ export default function LoginPage() {
           ? err.message
           : "Gagal masuk sebagai admin. Periksa kembali username dan password Anda.";
       showToast(errorMsg, "error");
-    } finally {
       setIsSubmitting(false);
     }
   };
@@ -564,17 +578,25 @@ export default function LoginPage() {
                   "success"
                 );
 
-                setTimeout(() => {
-                  const destination = typeof redirect === "string" ? redirect : "/";
-                  router.push(destination);
-                }, 700);
+                const currentRole = useAuthStore.getState().role;
+                const currentUser = useAuthStore.getState().user;
+                const isAdmin = currentRole === "admin" || currentUser?.role === "admin";
+
+                const destination = isAdmin
+                  ? typeof redirect === "string" && redirect.startsWith("/admin")
+                    ? redirect
+                    : "/admin/dashboard"
+                  : typeof redirect === "string" && !redirect.startsWith("/admin")
+                  ? redirect
+                  : "/";
+
+                router.replace(destination);
               } catch (err) {
                 const msg =
                   err instanceof Error
                     ? err.message
                     : "Gagal memproses autentikasi Google.";
                 showToast(msg, "error");
-              } finally {
                 setIsSubmitting(false);
               }
             }
@@ -631,7 +653,7 @@ export default function LoginPage() {
       >
         {/* Toast Alert Notification */}
         {toast && (
-          <div className="fixed top-4 left-4 right-4 md:top-auto md:left-auto md:bottom-6 md:right-6 z-50 md:w-auto md:min-w-[320px] md:max-w-[420px] animate-fade-in">
+          <div className="fixed top-4 left-4 right-4 md:top-auto md:left-auto md:bottom-6 md:right-6 z-50 md:w-auto md:min-w-80 md:max-w-105 animate-fade-in">
             <Toast
               variant={toast.variant}
               title={
@@ -650,9 +672,9 @@ export default function LoginPage() {
 
         {/* ===================================================================
             MAIN AUTHENTICATION CARD
-            Fixed generous widths for Mobile & Tablet (NO max-w-sm / max-w-7xl)
+            Canonical spacing classes for Mobile & Tablet
             =================================================================== */}
-        <div className="w-[460px] max-w-[92vw] sm:w-[480px] md:w-[500px] mx-auto flex flex-col">
+        <div className="w-115 max-w-[92vw] sm:w-120 md:w-125 mx-auto flex flex-col">
           <div className="w-full bg-deep-blue-900 border border-white/10 rounded-xl p-6 sm:p-8 md:p-9 flex flex-col gap-6 shadow-2xl backdrop-blur-md">
             
             {/* 1. Header: Logo & Branding */}

@@ -1,5 +1,6 @@
 import * as React from "react";
 import Head from "next/head";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import axios from "axios";
 import { useQueryClient } from "@tanstack/react-query";
@@ -111,72 +112,65 @@ export default function CheckoutPage() {
   // TanStack Query Cart data
   const { data: cartApiRes, isLoading: isCartLoading } = useCart();
 
-  // Checkout items state (sourced dynamically from sessionStorage, API, or Zustand store)
-  const [checkoutItems, setCheckoutItems] = React.useState<CheckoutItem[]>([]);
-
-  React.useEffect(() => {
-    try {
-      if (typeof window !== "undefined") {
+  // Initial session checkout items (if any, e.g. Buy Now direct flow)
+  const [sessionItems] = React.useState<CheckoutItem[]>(() => {
+    if (typeof window !== "undefined") {
+      try {
         const stored = sessionStorage.getItem("gamezygo_checkout_items");
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed) && parsed.length > 0) {
-            const mapped: CheckoutItem[] = parsed.map((item: any, idx: number) => ({
+            return parsed.map((item: Record<string, unknown>, idx: number) => ({
               id: String(item.id || item.productId || `item-${idx}`),
               productId: Number(item.productId || item.id) || (idx + 1),
-              title: item.title || item.name || "Game",
-              imageSrc: item.imageSrc || item.cover_image_url || item.thumbnail || "",
+              title: String(item.title || item.name || "Game"),
+              imageSrc: String(item.imageSrc || item.cover_image_url || item.thumbnail || ""),
               price: Number(item.price) || 0,
             }));
-            setCheckoutItems(mapped);
-            return;
           }
         }
+      } catch {
+        // ignore parsing error
       }
-    } catch {
-      // ignore parsing error
     }
+    return [];
+  });
 
+  // Checkout items state (derived dynamically from sessionStorage, API, or Zustand store)
+  const checkoutItems: CheckoutItem[] = React.useMemo(() => {
+    if (sessionItems.length > 0) {
+      return sessionItems;
+    }
     if (isAuthenticated) {
       if (cartApiRes?.data?.items && cartApiRes.data.items.length > 0) {
-        const mapped: CheckoutItem[] = cartApiRes.data.items.map((item: CartProductItem) => ({
+        return cartApiRes.data.items.map((item: CartProductItem) => ({
           id: String(item.id),
           productId: item.id,
           title: item.name,
           imageSrc: item.thumbnail || "",
           price: item.discount_price > 0 ? item.discount_price : item.price,
         }));
-        setCheckoutItems(mapped);
-        return;
       }
-      if (isCartLoading) {
-        return;
-      }
-      setCheckoutItems([]);
-      return;
+      return [];
     }
-
     if (storeCartItems && storeCartItems.length > 0) {
-      const mapped: CheckoutItem[] = storeCartItems.map((item, idx) => ({
+      return storeCartItems.map((item, idx) => ({
         id: String(item.productId || `item-${idx}`),
         productId: Number(item.productId) || (idx + 1),
         title: item.product?.title || "Game",
         imageSrc: item.product?.imageSrc || item.product?.cover_image_url || "",
         price: Number(item.product?.price) || 0,
       }));
-      setCheckoutItems(mapped);
-      return;
     }
-
-    setCheckoutItems([]);
-  }, [isAuthenticated, isCartLoading, cartApiRes, storeCartItems]);
+    return [];
+  }, [sessionItems, isAuthenticated, cartApiRes, storeCartItems]);
 
   // Midtrans Snap SDK hook
   const { openSnap } = useMidtransSnap();
   const [isSnapLoading, setIsSnapLoading] = React.useState(false);
 
   // Selected Payment Method (defaults to Midtrans Snap Sandbox)
-  const [selectedPayment, setSelectedPayment] = React.useState<string>("midtrans");
+  const selectedPayment = "midtrans";
 
   // Voucher state
   const [voucherInput, setVoucherInput] = React.useState("");
@@ -293,7 +287,7 @@ export default function CheckoutPage() {
         unsubscribe();
       };
     }
-  }, [paymentStatusRes, activeReference, clearCart, router]);
+  }, [paymentStatusRes, activeReference, clearCart, router, queryClient]);
 
   // Calculations
   const subtotal = checkoutItems.reduce((acc, item) => acc + item.price, 0);
@@ -447,7 +441,10 @@ export default function CheckoutPage() {
                 paymentMethod: "midtrans",
               });
               if (payRes?.data) {
-                const pData: any = payRes.data;
+                const pData = payRes.data as unknown as Record<string, unknown> & {
+                  gateway_reference?: string;
+                  payment?: { gateway_reference?: string };
+                };
                 gRef =
                   pData.gateway_reference ||
                   pData.payment?.gateway_reference ||
@@ -515,7 +512,12 @@ export default function CheckoutPage() {
               paymentMethod: "midtrans",
             });
             if (paymentRes?.data) {
-              const pData: any = paymentRes.data;
+              const pData = paymentRes.data as unknown as Record<string, unknown> & {
+                gateway?: { snap_token?: string };
+                snap_token?: string;
+                gateway_reference?: string;
+                payment?: { gateway_reference?: string };
+              };
               snapToken = pData.gateway?.snap_token || pData.snap_token || "";
               gatewayRef =
                 gatewayRef ||
@@ -575,7 +577,8 @@ export default function CheckoutPage() {
               } else if (pType === "shopeepay") {
                 detectedMethod = "ShopeePay";
               } else if (pType === "bank_transfer") {
-                const bankName = ((result as any).bank || ((result as any).va_numbers?.[0]?.bank) || "BCA").toUpperCase();
+                const resObj = result as { bank?: string; va_numbers?: Array<{ bank?: string }> };
+                const bankName = (resObj.bank || resObj.va_numbers?.[0]?.bank || "BCA").toUpperCase();
                 detectedMethod = `${bankName} Virtual Account`;
               } else if (result.payment_type) {
                 detectedMethod = result.payment_type;
@@ -745,11 +748,8 @@ export default function CheckoutPage() {
       return;
     }
 
-    // Non-QRIS payment simulation (BCA, Mandiri, BNI)
-    const currentMethod =
-      selectedPayment === "midtrans"
-        ? "Midtrans Gateway"
-        : selectedPayment.toUpperCase();
+    // Non-QRIS payment simulation (Midtrans Gateway)
+    const currentMethod = "Midtrans Gateway";
 
     showToast(
       "success",
@@ -902,13 +902,13 @@ export default function CheckoutPage() {
                     {/* Thumbnail Cover Game */}
                     <div className="w-16.25 h-17.5 rounded-md overflow-hidden shrink-0 bg-deep-blue-950 relative flex items-center justify-center">
                       {item.imageSrc ? (
-                        <img
+                        <Image
                           src={item.imageSrc}
                           alt={item.title}
-                          className="w-full h-full object-cover rounded-md"
-                          onError={(e) => {
-                            (e.currentTarget as HTMLElement).style.display = "none";
-                          }}
+                          fill
+                          sizes="65px"
+                          priority={idx === 0}
+                          className="object-cover rounded-md"
                         />
                       ) : (
                         <div className="w-full h-full bg-deep-blue-900/40 flex items-center justify-center text-gray-500">
@@ -1065,7 +1065,7 @@ export default function CheckoutPage() {
            ======================================================== */}
         {qrisModalData && (
           <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-            <div className="bg-deep-blue-950/95 border border-white/15 rounded-2xl p-6 sm:p-8 w-full shadow-2xl backdrop-blur-xl relative flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-200">
+            <div className="bg-deep-blue-950/95 border border-white/15 rounded-2xl p-6 sm:p-8 w-full max-w-110 shadow-2xl backdrop-blur-xl relative flex flex-col items-center text-center animate-in fade-in zoom-in-95 duration-200">
               {/* Badge & Title */}
               <div className="flex items-center gap-2 mb-2">
                 <span className="px-2.5 py-0.5 rounded-full bg-rose-500/10 border border-rose-500/20 text-rose-400 text-label-xs font-semibold uppercase ">

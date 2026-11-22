@@ -84,101 +84,105 @@ export default function AdminAddVoucherPage() {
   // Populate existing voucher fields when editing
   React.useEffect(() => {
     if (voucherDetail?.data) {
-      const v = voucherDetail.data as unknown as Record<string, unknown>;
+      const timer = setTimeout(() => {
+        const v = voucherDetail.data as unknown as Record<string, unknown>;
 
-      const formatCurrencyVal = (num?: number): string =>
-        `IDR ${Number(num || 0).toLocaleString("id-ID")}`;
+        const formatCurrencyVal = (num?: number): string =>
+          `IDR ${Number(num || 0).toLocaleString("id-ID")}`;
 
-      const formatIsoToDdMmYyyy = (iso?: unknown): string => {
-        if (!iso || typeof iso !== "string") return "";
-        const d = new Date(iso);
-        if (Number.isNaN(d.getTime())) return "";
-        const dd = String(d.getDate()).padStart(2, "0");
-        const mm = String(d.getMonth() + 1).padStart(2, "0");
-        const yyyy = d.getFullYear();
-        return `${dd}/${mm}/${yyyy}`;
-      };
-
-      const rawDiscountType =
-        v.discount_type === "percent" || v.discount_type === "percentage"
-          ? "percentage"
-          : "fixed";
-
-      const discountNum = Number(v.discount_value ?? v.discount_amount ?? v.discountAmount ?? 0);
-      const rawDiscountVal =
-        rawDiscountType === "percentage"
-          ? `${discountNum}%`
-          : formatCurrencyVal(discountNum);
-
-      const rawProducts = (
-        Array.isArray(v.products)
-          ? v.products
-          : Array.isArray(v.target_games)
-          ? v.target_games
-          : Array.isArray(v.targetGames)
-          ? v.targetGames
-          : []
-      ) as Record<string, unknown>[];
-
-      const mappedGames: VoucherTargetGame[] = rawProducts.map((p) => {
-        const originalPrice = Number(p.original_price ?? p.price ?? p.originalPrice ?? 0);
-        const hasExistingDiscount =
-          Number(p.discount_percentage ?? p.discountPercentage ?? 0) > 0 &&
-          Number(p.discounted_price ?? p.discountedPrice ?? 0) > 0;
-
-        const calculated = hasExistingDiscount
-          ? {
-              discountPercentage: Number(p.discount_percentage ?? p.discountPercentage),
-              discountedPrice: Number(p.discounted_price ?? p.discountedPrice),
-            }
-          : calculateDiscountedGamePrice(originalPrice, rawDiscountType, discountNum);
-
-        return {
-          id: String(p.id ?? ""),
-          title: String(p.name ?? p.title ?? "Game"),
-          imageSrc: String(p.image_url ?? p.thumbnail ?? p.cover_image ?? p.imageSrc ?? ""),
-          originalPrice,
-          discountPercentage: calculated.discountPercentage,
-          discountedPrice: calculated.discountedPrice,
-          categories: Array.isArray(p.categories) ? (p.categories as string[]) : [],
+        const formatIsoToDdMmYyyy = (iso?: unknown): string => {
+          if (!iso || typeof iso !== "string") return "";
+          const d = new Date(iso);
+          if (Number.isNaN(d.getTime())) return "";
+          const dd = String(d.getDate()).padStart(2, "0");
+          const mm = String(d.getMonth() + 1).padStart(2, "0");
+          const yyyy = d.getFullYear();
+          return `${dd}/${mm}/${yyyy}`;
         };
-      });
 
-      const rawUsers = (
-        Array.isArray(v.users)
-          ? v.users
-          : Array.isArray(v.target_users)
-          ? v.target_users
-          : Array.isArray(v.targetUsers)
-          ? v.targetUsers
-          : []
-      ) as Record<string, unknown>[];
+        const rawDiscountType =
+          v.discount_type === "percent" || v.discount_type === "percentage"
+            ? "percentage"
+            : "fixed";
 
-      const mappedUsers: VoucherTargetUser[] = rawUsers.map((u) => ({
-        id: String(u.id ?? ""),
-        email: String(u.email ?? "-"),
-        points: u.total_points ? `${u.total_points} Pts` : undefined,
-      }));
+        const discountNum = Number(v.discount_value ?? v.discount_amount ?? v.discountAmount ?? 0);
+        const rawDiscountVal =
+          rawDiscountType === "percentage"
+            ? `${discountNum}%`
+            : formatCurrencyVal(discountNum);
 
-      const slot = Number(v.slot ?? v.usageLimit ?? 0);
-      const usageLimitUser = Number(v.usage_limit_per_user ?? 0);
-      const minPurchase = Number(v.min_purchase ?? 0);
+        const rawProducts = (
+          Array.isArray(v.products)
+            ? v.products
+            : Array.isArray(v.target_games)
+            ? v.target_games
+            : Array.isArray(v.targetGames)
+            ? v.targetGames
+            : []
+        ) as Record<string, unknown>[];
 
-      setFormData((prev) => ({
-        ...prev,
-        name: String(v.name ?? v.code ?? ""),
-        code: String(v.code ?? ""),
-        discountType: rawDiscountType,
-        discountValue: rawDiscountVal,
-        minPurchaseAmount: minPurchase > 0 ? formatCurrencyVal(minPurchase) : "IDR 0",
-        maxUsage: slot > 0 ? String(slot) : "Unlimited",
-        limitPerUser: usageLimitUser > 0 ? String(usageLimitUser) : "Unlimited",
-        applicableToSubs: v.applies_to === "all",
-        startDate: formatIsoToDdMmYyyy(v.started_at) || prev.startDate,
-        endDate: formatIsoToDdMmYyyy(v.expired_at) || prev.endDate,
-        targetGames: mappedGames,
-        targetUsers: mappedUsers,
-      }));
+        const mappedGames: VoucherTargetGame[] = rawProducts.map((p) => {
+          const originalPrice = Number(p.original_price ?? p.price ?? p.originalPrice ?? 0);
+          const hasExistingDiscount =
+            Number(p.discount_percentage ?? p.discountPercentage ?? 0) > 0 &&
+            Number(p.discounted_price ?? p.discountedPrice ?? 0) > 0;
+
+          const calculated = hasExistingDiscount
+            ? {
+                discountPercentage: Number(p.discount_percentage ?? p.discountPercentage),
+                discountedPrice: Number(p.discounted_price ?? p.discountedPrice),
+              }
+            : calculateDiscountedGamePrice(originalPrice, rawDiscountType, discountNum);
+
+          return {
+            id: String(p.id ?? ""),
+            title: String(p.name ?? p.title ?? "Game"),
+            imageSrc: String(p.image_url ?? p.thumbnail ?? p.cover_image ?? p.imageSrc ?? ""),
+            originalPrice,
+            discountPercentage: calculated.discountPercentage,
+            discountedPrice: calculated.discountedPrice,
+            categories: Array.isArray(p.categories) ? (p.categories as string[]) : [],
+          };
+        });
+
+        const rawUsers = (
+          Array.isArray(v.users)
+            ? v.users
+            : Array.isArray(v.target_users)
+            ? v.target_users
+            : Array.isArray(v.targetUsers)
+            ? v.targetUsers
+            : []
+        ) as Record<string, unknown>[];
+
+        const mappedUsers: VoucherTargetUser[] = rawUsers.map((u) => ({
+          id: String(u.id ?? ""),
+          email: String(u.email ?? "-"),
+          points: u.total_points ? `${u.total_points} Pts` : undefined,
+        }));
+
+        const slot = Number(v.slot ?? v.usageLimit ?? 0);
+        const usageLimitUser = Number(v.usage_limit_per_user ?? 0);
+        const minPurchase = Number(v.min_purchase ?? 0);
+
+        setFormData((prev) => ({
+          ...prev,
+          name: String(v.name ?? v.code ?? ""),
+          code: String(v.code ?? ""),
+          discountType: rawDiscountType,
+          discountValue: rawDiscountVal,
+          minPurchaseAmount: minPurchase > 0 ? formatCurrencyVal(minPurchase) : "IDR 0",
+          maxUsage: slot > 0 ? String(slot) : "Unlimited",
+          limitPerUser: usageLimitUser > 0 ? String(usageLimitUser) : "Unlimited",
+          applicableToSubs: v.applies_to === "all",
+          startDate: formatIsoToDdMmYyyy(v.started_at) || prev.startDate,
+          endDate: formatIsoToDdMmYyyy(v.expired_at) || prev.endDate,
+          targetGames: mappedGames,
+          targetUsers: mappedUsers,
+        }));
+      }, 0);
+
+      return () => clearTimeout(timer);
     }
   }, [voucherDetail]);
 

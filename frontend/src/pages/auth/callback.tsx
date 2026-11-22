@@ -17,25 +17,25 @@ export default function AuthCallbackPage() {
 
     const { token, error } = router.query;
 
-    if (error) {
-      setErrorMessage(
-        typeof error === "string" ? error : "Terjadi kesalahan saat autentikasi Google."
-      );
-      setTimeout(() => {
-        router.replace("/login");
-      }, 2500);
-      return;
-    }
-
-    if (typeof token !== "string" || !token) {
-      setErrorMessage("Token autentikasi tidak ditemukan.");
-      setTimeout(() => {
-        router.replace("/login");
-      }, 2500);
-      return;
-    }
-
     const processLogin = async () => {
+      if (error) {
+        setErrorMessage(
+          typeof error === "string" ? error : "Terjadi kesalahan saat autentikasi Google."
+        );
+        setTimeout(() => {
+          router.replace("/login");
+        }, 2500);
+        return;
+      }
+
+      if (typeof token !== "string" || !token) {
+        setErrorMessage("Token autentikasi tidak ditemukan.");
+        setTimeout(() => {
+          router.replace("/login");
+        }, 2500);
+        return;
+      }
+
       try {
         setStatusMessage("Menghubungkan profil pengguna...");
 
@@ -82,9 +82,17 @@ export default function AuthCallbackPage() {
           }
         }
 
-        setStatusMessage("Login berhasil! Mengalihkan ke halaman utama...");
+        setStatusMessage(
+          mappedRole === "admin"
+            ? "Login Admin berhasil! Mengalihkan ke Dashboard..."
+            : "Login berhasil! Mengalihkan ke halaman utama..."
+        );
         setTimeout(() => {
-          router.replace("/");
+          if (mappedRole === "admin") {
+            router.replace("/admin/dashboard");
+          } else {
+            router.replace("/");
+          }
         }, 600);
       } catch (err) {
         console.error("Auth callback error:", err);
@@ -104,7 +112,7 @@ export default function AuthCallbackPage() {
         <title>Autentikasi Google - Gamezygo</title>
       </Head>
       <div className="min-h-screen w-full flex flex-col items-center justify-center bg-deep-blue-950 text-gray-100 select-none p-4">
-        <div className="w-[420px] max-w-[95vw] flex flex-col items-center gap-5 p-8 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md shadow-2xl animate-fade-in text-center">
+        <div className="w-105 max-w-[95vw] flex flex-col items-center gap-5 p-8 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md shadow-2xl animate-fade-in text-center">
           {errorMessage ? (
             <>
               <div className="w-12 h-12 rounded-full bg-rose-500/20 text-rose-400 flex items-center justify-center">

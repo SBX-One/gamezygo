@@ -10,7 +10,6 @@ import {
 import { AdminCatalogDeleteModal } from "@/features/admin/components/catalog";
 import {
   SearchIcon,
-  CloseXIcon,
 } from "@/features/admin/components/catalog/section/AdminSectionIcons";
 import { cn } from "@/lib/utils";
 import { FilterModal } from "@/components/ui/FilterModal";

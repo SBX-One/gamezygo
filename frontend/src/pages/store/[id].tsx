@@ -1,5 +1,6 @@
 import * as React from "react";
 import Head from "next/head";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { StoreLayout } from "@/components/layout";
 import { cn } from "@/lib/utils";
@@ -8,7 +9,6 @@ import {
   Button,
   Pill,
   Skeleton,
-  TestimonialCard,
   Toast,
 } from "@/components/ui";
 import {
@@ -52,70 +52,6 @@ const SteamIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-const DefaultPeopleSearchIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="24"
-    height="24"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className="w-5 h-5"
-    {...props}
-  >
-    <path
-      d="M11.91 14H19.753C20.3498 14 20.9221 14.2371 21.344 14.659C21.766 15.081 22.003 15.6533 22.003 16.25V17.155C22.003 17.6954 21.8862 18.2294 21.6607 18.7204C21.4351 19.2115 21.106 19.648 20.696 20C19.13 21.345 16.89 22.002 14 22.002H13.821C13.9719 21.6984 14.0314 21.3575 13.9921 21.0207C13.9529 20.6839 13.8167 20.3658 13.6 20.105L13.489 19.984L11.259 17.76C11.9192 16.625 12.1508 15.2907 11.91 14ZM6.50004 10.5C7.3549 10.5 8.19207 10.7436 8.91355 11.2021C9.63504 11.6606 10.211 12.3152 10.574 13.0891C10.937 13.8631 11.072 14.7244 10.9633 15.5724C10.8546 16.4203 10.5066 17.2197 9.96004 17.877L12.783 20.691C12.9163 20.8248 12.9942 21.004 13.0011 21.1928C13.008 21.3816 12.9435 21.566 12.8203 21.7092C12.6972 21.8524 12.5245 21.9439 12.3369 21.9654C12.1492 21.9869 11.9604 21.9367 11.808 21.825L11.723 21.753L8.82004 18.857C8.22564 19.2143 7.5567 19.4293 6.86547 19.4853C6.17424 19.5413 5.47941 19.4368 4.83523 19.18C4.19105 18.9231 3.61496 18.5208 3.15192 18.0045C2.68889 17.4883 2.35144 16.872 2.16594 16.2037C1.98043 15.5355 1.95188 14.8334 2.08251 14.1524C2.21314 13.4713 2.49942 12.8296 2.919 12.2774C3.33858 11.7252 3.88011 11.2775 4.5013 10.9692C5.1225 10.6609 5.80654 10.5003 6.50004 10.5ZM6.50004 12C5.7044 12 4.94133 12.3161 4.37872 12.8787C3.81612 13.4413 3.50004 14.2044 3.50004 15C3.50004 15.7957 3.81612 16.5587 4.37872 17.1213C4.94133 17.6839 5.7044 18 6.50004 18C7.29569 18 8.05876 17.6839 8.62137 17.1213C9.18397 16.5587 9.50004 15.7957 9.50004 15C9.50004 14.2044 9.18397 13.4413 8.62137 12.8787C8.05876 12.3161 7.29569 12 6.50004 12ZM14 2.005C14.6567 2.005 15.3068 2.13433 15.9135 2.38561C16.5201 2.63688 17.0713 3.00518 17.5356 3.46947C17.9999 3.93376 18.3682 4.48496 18.6194 5.09159C18.8707 5.69822 19 6.3484 19 7.005C19 7.66161 18.8707 8.31179 18.6194 8.91842C18.3682 9.52505 17.9999 10.0762 17.5356 10.5405C17.0713 11.0048 16.5201 11.3731 15.9135 11.6244C15.3068 11.8757 14.6567 12.005 14 12.005C12.674 12.005 11.4022 11.4782 10.4645 10.5405C9.52683 9.60286 9.00004 8.33109 9.00004 7.005C9.00004 5.67892 9.52683 4.40715 10.4645 3.46947C11.4022 2.53179 12.674 2.005 14 2.005Z"
-      fill="currentColor"
-    />
-  </svg>
-);
-
-const EyeIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <path
-      d="M1 12S5 4 12 4s11 8 11 8-4 8-11 8-11-8-11-8z"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <circle
-      cx="12"
-      cy="12"
-      r="3"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const EyeOffIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <path
-      d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24M1 1l22 22"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
 const StarFilledIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
     width="24"
@@ -146,56 +82,6 @@ const StarRegularIcon = (props: React.SVGProps<SVGSVGElement>) => (
     <path
       d="M10.788 3.10198C11.283 2.09898 12.714 2.09898 13.209 3.10198L15.567 7.87998L20.84 8.64598C21.947 8.80598 22.389 10.168 21.588 10.949L17.772 14.668L18.673 19.918C18.863 21.022 17.705 21.863 16.714 21.342L11.998 18.862L7.28303 21.342C6.29303 21.862 5.13503 21.022 5.32303 19.919L6.22403 14.668L2.40903 10.948C1.60803 10.168 2.05003 8.80698 3.15703 8.64598L8.43003 7.87998L10.788 3.10198ZM11.998 4.03898L9.74003 8.61398C9.64327 8.81029 9.50023 8.98013 9.32323 9.10887C9.14624 9.23761 8.9406 9.32139 8.72403 9.35298L3.67403 10.087L7.32803 13.649C7.64603 13.959 7.79103 14.406 7.71603 14.844L6.85403 19.873L11.37 17.498C11.5638 17.396 11.7795 17.3428 11.9985 17.3428C12.2175 17.3428 12.4332 17.396 12.627 17.498L17.143 19.873L16.281 14.843C16.2442 14.6274 16.2602 14.4061 16.3278 14.1981C16.3954 13.9901 16.5125 13.8017 16.669 13.649L20.323 10.087L15.273 9.35298C15.0565 9.32139 14.8508 9.23761 14.6738 9.10887C14.4968 8.98013 14.3538 8.81029 14.257 8.61398L11.998 4.03898Z"
       fill="currentColor"
-    />
-  </svg>
-);
-
-const CopyIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <rect
-      x="9"
-      y="9"
-      width="13"
-      height="13"
-      rx="2"
-      ry="2"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
-
-const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    {...props}
-  >
-    <path
-      d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
     />
   </svg>
 );
@@ -332,66 +218,21 @@ const ArrowRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+
+
 // ============================================================================
-// MOCK TESTIMONIAL DATA
+// SYSTEM SPEC DEFAULT
 // ============================================================================
 
-const TESTIMONIALS_DATA = [
-  {
-    id: "t-1",
-    userName: "Cihuyy6767",
-    gameName: "Black Myth Wukong, 2+",
-    avatarSrc: "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&h=120&q=80",
-    rating: "5 Star",
-    review:
-      "“gue gatau ada berapa org dibalik bisnis ini, 1 atau seberapapun org terlibat, gue mengapresiasi sebesar besarnya udah ada jasa kaya gini. in this economy, harga game mahal bgt? dan buat gue yg butuh \" test drive \" buat game yg harganya mahal itu kayanya ini jadi solusi terbaik...”",
-    images: [
-      "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=320&h=180&q=80",
-      "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=320&h=180&q=80",
-      "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=320&h=180&q=80",
-    ],
-  },
-  {
-    id: "t-2",
-    userName: "Rendy Pratama",
-    gameName: "Assassin's Creed Black Flag",
-    avatarSrc: "https://images.unsplash.com/photo-1570295999919-56ceb5ecca61?auto=format&fit=crop&w=120&h=120&q=80",
-    rating: "5 Star",
-    review:
-      "“Proses instan banget, begitu selesai bayar langsung muncul username sama passwordnya. Akun lancar jaya tinggal switch Steam ke offline mode trus tamatin story-nya tanpa gangguan. Recommended seller!”",
-    images: [
-      "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?auto=format&fit=crop&w=320&h=180&q=80",
-      "https://images.unsplash.com/photo-1552824722-ddab1374e622?auto=format&fit=crop&w=320&h=180&q=80",
-    ],
-  },
-  {
-    id: "t-3",
-    userName: "Bima_Gaming99",
-    gameName: "Elden Ring: Shadow of the Erdtree",
-    avatarSrc: "https://images.unsplash.com/photo-1527980965255-d3b416303d12?auto=format&fit=crop&w=120&h=120&q=80",
-    rating: "5 Star",
-    review:
-      "“Awalnya ragu beli shared account, pas dicoba ternyata gampang banget tutorialnya. Adminnya juga responsif pas ditanya cara aktivasi offline. Hemat ratusan ribu buat main game AAA impian!”",
-    images: [
-      "https://images.unsplash.com/photo-1518709268805-4e9042af9f23?auto=format&fit=crop&w=320&h=180&q=80",
-      "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?auto=format&fit=crop&w=320&h=180&q=80",
-      "https://images.unsplash.com/photo-1509198397868-475647b2a1e5?auto=format&fit=crop&w=320&h=180&q=80",
-    ],
-  },
-  {
-    id: "t-4",
-    userName: "Aldo_Kurnia",
-    gameName: "Cyberpunk 2077: Phantom Liberty",
-    avatarSrc: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=120&h=120&q=80",
-    rating: "5 Star",
-    review:
-      "“Gamezygo penyelamat dompet mahasiswa! Spek game detail banget ditampilin jadi sebelum beli tau kuat apa ngga PC gue. Sukses terus Gamezygo!”",
-    images: [
-      "https://images.unsplash.com/photo-1612287233216-52c6f1f8b65c?auto=format&fit=crop&w=320&h=180&q=80",
-      "https://images.unsplash.com/photo-1563089145-599997674d42?auto=format&fit=crop&w=320&h=180&q=80",
-    ],
-  },
-];
+const DEFAULT_EMPTY_SPECS: ParsedSystemRequirements = {
+  os: "-",
+  cpu: "-",
+  ram: "-",
+  gpu: "-",
+  directx: "-",
+  storage: "-",
+  soundCard: "-",
+};
 
 // ============================================================================
 // MAIN PAGE COMPONENT
@@ -434,7 +275,6 @@ export default function GameStoreDetailPage() {
     setToast({ title, variant });
     setTimeout(() => setToast(null), 3000);
   };
-  const [opinionInput, setOpinionInput] = React.useState("");
 
   const thumbnailsRef = React.useRef<HTMLDivElement>(null);
 
@@ -451,16 +291,6 @@ export default function GameStoreDetailPage() {
       thumbnailsRef.current.scrollBy({ left: 140, behavior: "smooth" });
     }
   };
-
-  // Quadrupled items for seamless infinite moving carousel (matching blogs/[id].tsx)
-  const infiniteTestimonials = React.useMemo(() => {
-    return [
-      ...TESTIMONIALS_DATA,
-      ...TESTIMONIALS_DATA,
-      ...TESTIMONIALS_DATA,
-      ...TESTIMONIALS_DATA,
-    ];
-  }, []);
 
   // Match game in catalog or library
   const matchedProduct = React.useMemo(() => {
@@ -532,7 +362,7 @@ export default function GameStoreDetailPage() {
         "",
       genres: [],
     };
-  }, [id, steamData?.name]);
+  }, [id, steamData?.name, searchedSteamAppId]);
 
   // Pre-order detection: query param (?preorder=true or ?state=pre-order), product status, or game state
   const isPreorder = React.useMemo(() => {
@@ -571,7 +401,7 @@ export default function GameStoreDetailPage() {
       }
     }
     return null;
-  }, [apiProduct?.steam_url]);
+  }, [apiProduct]);
 
   // Auto search Steam if no steam_url or numeric ID
   React.useEffect(() => {
@@ -600,10 +430,7 @@ export default function GameStoreDetailPage() {
     0;
 
   React.useEffect(() => {
-    if (!appId || appId <= 0) {
-      setSteamData(null);
-      return;
-    }
+    if (!appId || appId <= 0) return;
 
     let isMounted = true;
     fetchSteamGame(appId)
@@ -621,15 +448,7 @@ export default function GameStoreDetailPage() {
     };
   }, [appId]);
 
-  const defaultEmptySpecs: ParsedSystemRequirements = {
-    os: "-",
-    cpu: "-",
-    ram: "-",
-    gpu: "-",
-    directx: "-",
-    storage: "-",
-    soundCard: "-",
-  };
+  const effectiveSteamData = appId > 0 ? steamData : null;
 
   // Parse Minimum & Recommended specifications from Steam Store API or Backend API
   const minSpecs: ParsedSystemRequirements = React.useMemo(() => {
@@ -651,11 +470,11 @@ export default function GameStoreDetailPage() {
         soundCard: findReq("sound"),
       };
     }
-    if (steamData?.pc_requirements?.minimum) {
-      return parseSteamRequirements(steamData.pc_requirements.minimum, defaultEmptySpecs);
+    if (effectiveSteamData?.pc_requirements?.minimum) {
+      return parseSteamRequirements(effectiveSteamData.pc_requirements.minimum, DEFAULT_EMPTY_SPECS);
     }
-    return defaultEmptySpecs;
-  }, [apiProduct, steamData?.pc_requirements?.minimum]);
+    return DEFAULT_EMPTY_SPECS;
+  }, [apiProduct, effectiveSteamData]);
 
   const recSpecs: ParsedSystemRequirements = React.useMemo(() => {
     const apiSpecs =
@@ -676,20 +495,20 @@ export default function GameStoreDetailPage() {
         soundCard: findReq("sound"),
       };
     }
-    if (steamData?.pc_requirements?.recommended) {
-      return parseSteamRequirements(steamData.pc_requirements.recommended, defaultEmptySpecs);
+    if (effectiveSteamData?.pc_requirements?.recommended) {
+      return parseSteamRequirements(effectiveSteamData.pc_requirements.recommended, DEFAULT_EMPTY_SPECS);
     }
-    return defaultEmptySpecs;
-  }, [apiProduct, steamData?.pc_requirements?.recommended]);
+    return DEFAULT_EMPTY_SPECS;
+  }, [apiProduct, effectiveSteamData]);
 
   // Gallery screenshots from Steam or Backend
-  const mediaList = React.useMemo(() => {
+  const mediaList = (() => {
     const list: string[] = [];
     if (apiProduct?.thumbnail) {
       list.push(apiProduct.thumbnail);
     }
-    if (steamData?.screenshots && steamData.screenshots.length > 0) {
-      steamData.screenshots.forEach((s) => {
+    if (effectiveSteamData?.screenshots && effectiveSteamData.screenshots.length > 0) {
+      effectiveSteamData.screenshots.forEach((s) => {
         const url = s.full || s.thumbnail;
         if (url && !list.includes(url)) list.push(url);
       });
@@ -706,12 +525,12 @@ export default function GameStoreDetailPage() {
       list.push(`https://cdn.akamai.steamstatic.com/steam/apps/${appId}/header.jpg`);
     }
     return list.filter(Boolean);
-  }, [apiProduct?.thumbnail, steamData?.screenshots, matchedProduct, appId]);
+  })();
 
   // Dynamic Game Title & Description
   const gameTitle =
     apiProduct?.name ||
-    steamData?.name ||
+    effectiveSteamData?.name ||
     (matchedProduct as { title?: string })?.title ||
     "-";
 
@@ -917,7 +736,7 @@ export default function GameStoreDetailPage() {
               size="sm"
               className="flex-1 py-3"
             >
-              Beli Sekarang
+              {isPreorder ? "Pre-order Sekarang" : "Beli Sekarang"}
             </Button>
             <Button
               type="button"
@@ -1056,8 +875,25 @@ export default function GameStoreDetailPage() {
 
       <StoreLayout 
         hideSidebar={true} 
-        navbarVariant="private" 
+        navbarVariant={isAuthenticated ? "login" : "guest"} 
         activeNavId="toko"
+        user={
+          authUser
+            ? {
+                name: authUser.name || "Customer Gamezygo",
+                avatarUrl: authUser.avatarUrl,
+              }
+            : undefined
+        }
+        onLoginClick={() =>
+          router.push(`/login?redirect=${encodeURIComponent(router.asPath)}`)
+        }
+        onSignUpClick={() =>
+          router.push(
+            `/login?mode=signup&redirect=${encodeURIComponent(router.asPath)}`
+          )
+        }
+        onCartClick={() => toggleCart()}
         contentClassName="p-0"
       >
         <div className="w-full max-w-full min-w-0 px-4 sm:px-6 md:px-8 lg:px-20 flex flex-col gap-8 sm:gap-12 lg:gap-11xl py-6 sm:py-10 lg:py-16">
@@ -1124,10 +960,13 @@ export default function GameStoreDetailPage() {
                   {/* Main Media Display */}
                   {mediaList.length > 0 && (mediaList[activeMediaIndex] || mediaList[0]) ? (
                     <div className="relative w-full aspect-square sm:aspect-video rounded-xl overflow-hidden bg-deep-blue-900 border border-white/10 shadow-lg group">
-                      <img
+                      <Image
                         src={mediaList[activeMediaIndex] || mediaList[0]}
                         alt={gameTitle}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-102"
+                        fill
+                        priority
+                        sizes="(max-width: 1024px) 100vw, 50vw"
+                        className="object-cover transition-transform duration-500 group-hover:scale-102"
                       />
                       <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent pointer-events-none" />
                     </div>
@@ -1173,10 +1012,12 @@ export default function GameStoreDetailPage() {
                                 : "border-white/10 opacity-60 hover:opacity-100"
                             }`}
                           >
-                            <img
+                            <Image
                               src={thumb}
                               alt={`Thumbnail ${idx + 1}`}
-                              className="w-full h-full object-cover"
+                              fill
+                              sizes="112px"
+                              className="object-cover"
                             />
                           </button>
                         ))}

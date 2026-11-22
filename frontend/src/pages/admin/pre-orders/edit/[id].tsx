@@ -59,69 +59,72 @@ export default function AdminPreOrderEditProductPage() {
   // Populate form with real database data
   React.useEffect(() => {
     if (serverProduct) {
-      setFormData((prev) => ({
-        ...prev,
-        name: serverProduct.name,
-        finalPrice: String(serverProduct.price),
-        initialPrice: String(
-          serverProduct.original_price || serverProduct.price
-        ),
-        // If "Continue to List", toggle Pre-order to false so it is prepared for immediate storefront listing
-        isPreOrder: isContinueToList ? false : Boolean(serverProduct.is_preorder),
-        genres: serverProduct.categories
-          ? Array.from(
-              new Set(
-                serverProduct.categories
-                  .map((c) => (c.name ? c.name.trim() : ""))
-                  .filter(Boolean)
+      const timer = setTimeout(() => {
+        setFormData((prev) => ({
+          ...prev,
+          name: serverProduct.name,
+          finalPrice: String(serverProduct.price),
+          initialPrice: String(
+            serverProduct.original_price || serverProduct.price
+          ),
+          // If "Continue to List", toggle Pre-order to false so it is prepared for immediate storefront listing
+          isPreOrder: isContinueToList ? false : Boolean(serverProduct.is_preorder),
+          genres: serverProduct.categories
+            ? Array.from(
+                new Set(
+                  serverProduct.categories
+                    .map((c) => (c.name ? c.name.trim() : ""))
+                    .filter(Boolean)
+                )
               )
-            )
-          : prev.genres,
-        imageSrc: serverProduct.image_url || prev.imageSrc,
-        launcher:
-          (serverProduct.launchers?.[0]?.name as "Steam") || prev.launcher,
-        promotionSection:
-          serverProduct.promotion_section || prev.promotionSection || "Pilih section",
-        storeUrl: serverProduct.steam_url || "",
-        accountUsername: serverProduct.game_account?.username || "",
-        accountPassword: serverProduct.game_account?.password || "",
-        minimumSpecs:
-          serverProduct.specifications?.minimum &&
-          serverProduct.specifications.minimum.length > 0
-            ? serverProduct.specifications.minimum.map((s, idx) => ({
-                id: `min-${idx}`,
-                label: s.type,
-                value: s.value,
-              }))
-            : prev.minimumSpecs,
-        recommendationSpecs:
-          serverProduct.specifications?.recommended &&
-          serverProduct.specifications.recommended.length > 0
-            ? serverProduct.specifications.recommended.map((s, idx) => ({
-                id: `rec-${idx}`,
-                label: s.type,
-                value: s.value,
-              }))
-            : prev.recommendationSpecs,
-        hasInstructionTemplate: Boolean(serverProduct.instruction_template),
-        selectedTemplate: serverProduct.instruction_template
-          ? {
-              id: String(serverProduct.instruction_template.id),
-              title: serverProduct.instruction_template.name,
-              badge: "Listed",
-              createdAt: "22/07/2026",
-              lastEdit: "Last edit 7 days ago",
-              steps: prev.selectedTemplate?.steps || [
-                {
-                  stepNumber: 1,
-                  title: serverProduct.instruction_template.name,
-                  description:
-                    "Ikuti langkah download dan login sesuai panduan resmi akun game.",
-                },
-              ],
-            }
-          : prev.selectedTemplate,
-      }));
+            : prev.genres,
+          imageSrc: serverProduct.image_url || prev.imageSrc,
+          launcher:
+            (serverProduct.launchers?.[0]?.name as "Steam") || prev.launcher,
+          promotionSection:
+            serverProduct.promotion_section || prev.promotionSection || "Pilih section",
+          storeUrl: serverProduct.steam_url || "",
+          accountUsername: serverProduct.game_account?.username || "",
+          accountPassword: serverProduct.game_account?.password || "",
+          minimumSpecs:
+            serverProduct.specifications?.minimum &&
+            serverProduct.specifications.minimum.length > 0
+              ? serverProduct.specifications.minimum.map((s, idx) => ({
+                  id: `min-${idx}`,
+                  label: s.type,
+                  value: s.value,
+                }))
+              : prev.minimumSpecs,
+          recommendationSpecs:
+            serverProduct.specifications?.recommended &&
+            serverProduct.specifications.recommended.length > 0
+              ? serverProduct.specifications.recommended.map((s, idx) => ({
+                  id: `rec-${idx}`,
+                  label: s.type,
+                  value: s.value,
+                }))
+              : prev.recommendationSpecs,
+          hasInstructionTemplate: Boolean(serverProduct.instruction_template),
+          selectedTemplate: serverProduct.instruction_template
+            ? {
+                id: String(serverProduct.instruction_template.id),
+                title: serverProduct.instruction_template.name,
+                badge: "Listed",
+                createdAt: "22/07/2026",
+                lastEdit: "Last edit 7 days ago",
+                steps: prev.selectedTemplate?.steps || [
+                  {
+                    stepNumber: 1,
+                    title: serverProduct.instruction_template.name,
+                    description:
+                      "Ikuti langkah download dan login sesuai panduan resmi akun game.",
+                  },
+                ],
+              }
+            : prev.selectedTemplate,
+        }));
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [serverProduct, isContinueToList]);
 
@@ -133,10 +136,13 @@ export default function AdminPreOrderEditProductPage() {
       if (savedDraft) {
         const parsed = JSON.parse(savedDraft);
         if (parsed && typeof parsed === "object") {
-          setFormData((prev) => ({
-            ...prev,
-            ...parsed,
-          }));
+          const timer = setTimeout(() => {
+            setFormData((prev) => ({
+              ...prev,
+              ...parsed,
+            }));
+          }, 0);
+          return () => clearTimeout(timer);
         }
         sessionStorage.removeItem(`edit_preorder_draft_${productId}`);
       }

@@ -37,25 +37,7 @@ export function CinematicLoader({
   className,
   ...props
 }: CinematicLoaderProps) {
-  // Support ?intro=true in URL for easy manual testing / preview
-  const isForcedByUrl = React.useSyncExternalStore(
-    () => () => {},
-    () =>
-      typeof window !== "undefined" &&
-      new URLSearchParams(window.location.search).has("intro"),
-    () => false
-  );
-
-  const shouldForce = forceShow || isForcedByUrl;
-
-  // SSR-safe session cache check without calling setState in an effect
-  const isAlreadyLoaded = React.useSyncExternalStore(
-    () => () => {},
-    () => (!shouldForce && Boolean(sessionStorage.getItem("gamezygo_loaded"))),
-    () => false
-  );
-
-  const [isCompleted, setIsCompleted] = React.useState<boolean>(false);
+  const [isDismissed, setIsDismissed] = React.useState<boolean>(false);
 
   // References to animated DOM nodes
   const containerRef = React.useRef<HTMLDivElement>(null);
@@ -67,7 +49,15 @@ export function CinematicLoader({
   const statusRef = React.useRef<HTMLSpanElement>(null);
 
   React.useEffect(() => {
+    const isForcedByUrl =
+      typeof window !== "undefined" &&
+      new URLSearchParams(window.location.search).has("intro");
+    const shouldForce = forceShow || isForcedByUrl;
+    const isAlreadyLoaded =
+      !shouldForce && Boolean(sessionStorage.getItem("gamezygo_loaded"));
+
     if (isAlreadyLoaded) {
+      setIsDismissed(true);
       onComplete?.();
       return;
     }
@@ -81,7 +71,7 @@ export function CinematicLoader({
       const tl = gsap.timeline({
         onComplete: () => {
           document.body.style.overflow = originalOverflow;
-          setIsCompleted(true);
+          setIsDismissed(true);
           if (typeof window !== "undefined") {
             sessionStorage.setItem("gamezygo_loaded", "true");
           }
@@ -192,9 +182,9 @@ export function CinematicLoader({
       document.body.style.overflow = originalOverflow;
       ctx.revert();
     };
-  }, [isAlreadyLoaded, onComplete]);
+  }, [forceShow, onComplete]);
 
-  if (isAlreadyLoaded || isCompleted) {
+  if (isDismissed) {
     return null;
   }
 
@@ -205,7 +195,7 @@ export function CinematicLoader({
       aria-modal="true"
       aria-label="Loading Gamezygo Storefront"
       className={cn(
-        "fixed inset-0 z-9999 pointer-events-auto select-none overflow-hidden font-sans",
+        "fixed inset-0 z-9999 pointer-events-auto select-none overflow-hidden font-sans invisible",
         className
       )}
       {...props}

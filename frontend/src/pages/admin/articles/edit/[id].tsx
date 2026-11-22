@@ -303,7 +303,7 @@ function AdminEditBlogForm({ detail, categories }: AdminEditBlogFormProps) {
         Artikel
       </Link>
       <ChevronRightIcon className="w-3.5 h-3.5 text-gray-500 shrink-0" />
-      <span className="text-white font-semibold truncate w-[240px] sm:w-[360px]">
+      <span className="text-white font-semibold truncate w-60 sm:w-90">
         {title || "Edit Blog"}
       </span>
     </div>

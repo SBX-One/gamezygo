@@ -17,11 +17,10 @@ const emptySubscribe = () => () => {};
 
 export default function AdminRevenuePage() {
   const router = useRouter();
-  const isMounted = React.useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false
-  );
+  const [isMounted, setIsMounted] = React.useState(false);
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
   const [isEmptyManual, setIsEmptyManual] = React.useState<boolean | null>(null);
 
   const [selectedPeriod, setSelectedPeriod] = React.useState<string>("today");

@@ -1,5 +1,6 @@
 import * as React from "react";
 import Head from "next/head";
+import Image from "next/image";
 import { useRouter } from "next/router";
 import { StoreLayout } from "@/components/layout";
 import {
@@ -322,11 +323,10 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
   const authUser = useAuthStore((s) => s.user);
   const { data: profileRes } = useUserProfile();
 
-  const isMounted = React.useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false
-  );
+  const [isMounted, setIsMounted] = React.useState(false);
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
 
   const isLoggedIn = isMounted && Boolean(isAuthenticated || authUser);
 
@@ -347,7 +347,6 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
   const [localReviews, setLocalReviews] = React.useState<ReviewItem[]>([]);
   const [quickFeedback, setQuickFeedback] = React.useState("");
   const [guestOpinionInput, setGuestOpinionInput] = React.useState("");
-  const [toastMessage, setToastMessage] = React.useState<string | null>(null);
 
   // Load persistent reviews from localStorage
   React.useEffect(() => {
@@ -357,7 +356,10 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
         if (stored) {
           const parsed = JSON.parse(stored);
           if (Array.isArray(parsed)) {
-            setLocalReviews(parsed);
+            const timer = setTimeout(() => {
+              setLocalReviews(parsed);
+            }, 0);
+            return () => clearTimeout(timer);
           }
         }
       }
@@ -575,7 +577,11 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
       return;
     }
     setGuestOpinionInput("");
-     useAuthStore.getState().role === "guest" ? router.push("/login") :  router.push("/review")
+    if (useAuthStore.getState().role === "guest") {
+      router.push("/login");
+    } else {
+      router.push("/review");
+    }
   };
 
   // Shared Review Modal (Used in both guest and customer views)
@@ -688,9 +694,12 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
                       className="w-full rounded-lg bg-deep-blue-900 border border-deep-blue-700/60 px-3 py-2 flex items-center justify-between text-body-sm text-gray-200"
                     >
                       <div className="flex items-center gap-3 truncate">
-                        <img
+                        <Image
                           src={img.url}
                           alt={img.name}
+                          width={56}
+                          height={32}
+                          unoptimized
                           className="w-14 h-8 object-cover rounded-md border border-gradient-secondary shrink-0"
                         />
                         <span className="text-body-sm text-gray-300 font-normal truncate">
@@ -790,18 +799,15 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
                       onChange={(e) => setGuestOpinionInput(e.target.value)}
                       placeholder="Beri pendapat"
                       className="w-full bg-transparent text-body-sm text-gray-100 placeholder:text-gray-500 focus:outline-none"
-                        onSubmit={useAuthStore.getState().role === "guest" ? () => router.push("/login") :  () => router.push("/review") }
                       onKeyDown={(e) => {
                         if (e.key === "Enter") {
                           handleSendGuestOpinion();
-                            useAuthStore.getState().role === "guest" ? () => router.push("/login") :  () => router.push("/review") 
                         }
                       }}
                     />
                     <button
                       type="button"
-                       onClick={useAuthStore.getState().role === "guest" ? () => router.push("/login") :  () => router.push("/review") }
-                 
+                      onClick={handleSendGuestOpinion}
                       className="p-1 rounded-lg hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer outline-none shrink-0"
                       aria-label="Kirim pendapat"
                       title="Kirim pendapat"
@@ -933,9 +939,11 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
                       }
                     }}
                     leftIcon={
-                      <img
+                      <Image
                         src="/assets/svg/fluent_comment-note-24-regular.svg"
                         alt="Chat"
+                        width={18}
+                        height={18}
                         className="w-4.5 h-4.5 filter-[brightness(0)_invert(0.7)]"
                       />
                     }
@@ -947,9 +955,11 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
                         aria-label="Kirim pendapat"
                         title="Kirim pendapat"
                       >
-                        <img
+                        <Image
                           src="/assets/svg/fluent_send-24-regular.svg"
                           alt="Send"
+                          width={18}
+                          height={18}
                           className="w-4.5 h-4.5 filter-[brightness(0)_invert(0.7)] hover:filter-[brightness(0)_invert(1)] transition-all"
                         />
                       </button>

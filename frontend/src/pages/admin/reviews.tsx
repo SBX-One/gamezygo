@@ -1,5 +1,6 @@
 import * as React from "react";
 import Head from "next/head";
+import Image from "next/image";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Button } from "@/components/ui/Button";
 import {
@@ -452,9 +453,12 @@ export default function AdminReviewsPage() {
               >
                 <CloseIcon />
               </button>
-              <img
+              <Image
                 src={previewImage}
                 alt="Enlarged screenshot"
+                width={800}
+                height={600}
+                unoptimized
                 className="w-full h-auto max-h-[80vh] object-contain rounded-lg"
               />
             </div>

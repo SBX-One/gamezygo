@@ -207,7 +207,6 @@ export default function WishlistPage() {
   const localWishlistItems = React.useMemo(() => {
     return getUserItems(currentUserId);
   }, [getUserItems, currentUserId]);
-  const removeFromWishlistStore = useWishlistStore((s) => s.removeFromWishlist);
 
   // Wishlist API integration
   const [searchQuery, setSearchQuery] = React.useState("");

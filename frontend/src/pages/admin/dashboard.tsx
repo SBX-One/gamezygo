@@ -25,11 +25,10 @@ export default function AdminDashboardPage() {
     isLoading,
   } = useAdminDashboard(selectedTimeframe);
 
-  const isMounted = React.useSyncExternalStore(
-    emptySubscribe,
-    () => true,
-    () => false
-  );
+  const [isMounted, setIsMounted] = React.useState(false);
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
   const [isEmptyManual, setIsEmptyManual] = React.useState<boolean | null>(null);
 
   const isEmptyState =

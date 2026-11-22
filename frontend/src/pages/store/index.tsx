@@ -20,7 +20,7 @@ import {
 import { StoreLayout } from "@/components/layout";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useCartStore } from "@/stores/use-cart-store";
-import { formatRupiah, formatDiscount } from "@/utils/formatters";
+import { formatDiscount } from "@/utils/formatters";
 import { useAddToCart } from "@/hooks/use-cart";
 import { useOwnedGames } from "@/hooks/use-library";
 import { cn } from "@/lib/utils";
@@ -71,33 +71,7 @@ const CrossIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-// Magnifying glass icon for search badge
-const SearchIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    xmlns="http://www.w3.org/2000/svg"
-    className="w-3.5 h-3.5 shrink-0"
-    {...props}
-  >
-    <path
-      d="M11 19C15.4183 19 19 15.4183 19 11C19 6.58172 15.4183 3 11 3C6.58172 3 3 6.58172 3 11C3 15.4183 6.58172 19 11 19Z"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-    <path
-      d="M21 21L16.65 16.65"
-      stroke="currentColor"
-      strokeWidth="2"
-      strokeLinecap="round"
-      strokeLinejoin="round"
-    />
-  </svg>
-);
+
 
 
 import productsData from "@/json/products.json";
@@ -112,7 +86,6 @@ import {
   mapProductToCardItem,
   mapAnnouncementToSlide,
   mapSectionProducts,
-  type AnnouncementLike,
 } from "@/utils/adapters";
 
 interface ProductItem {
@@ -230,7 +203,7 @@ export default function StorePage() {
     isFetchingNextPage,
     fetchNextPage,
   } = useInfiniteProducts(apiQueryParams);
-  const { data: filtersApiData } = useProductFilters();
+  useProductFilters();
 
   const allApiProducts = React.useMemo(
     () => productsInfiniteData?.pages.flatMap((page) => page.data ?? []) ?? [],
@@ -252,101 +225,105 @@ export default function StorePage() {
   React.useEffect(() => {
     if (!router.isReady) return;
 
-    const {
-      q,
-      search,
-      genres,
-      genre,
-      categories,
-      category,
-      launchers,
-      launcher,
-      minPrice,
-      maxPrice,
-      sort,
-    } = router.query;
+    const timer = setTimeout(() => {
+      const {
+        q,
+        search,
+        genres,
+        genre,
+        categories,
+        category,
+        launchers,
+        launcher,
+        minPrice,
+        maxPrice,
+        sort,
+      } = router.query;
 
-    const rawQuery = (q || search) as string | undefined;
-    setSearchQuery(rawQuery || "");
+      const rawQuery = (q || search) as string | undefined;
+      setSearchQuery(rawQuery || "");
 
-    const rawGenres = (genres || genre) as string | undefined;
-    if (rawGenres) {
-      const parsedGenres = rawGenres
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
-      setSelectedGenres(parsedGenres);
-      setAppliedGenres(parsedGenres);
-    } else {
-      setSelectedGenres([]);
-      setAppliedGenres([]);
-    }
+      const rawGenres = (genres || genre) as string | undefined;
+      if (rawGenres) {
+        const parsedGenres = rawGenres
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+        setSelectedGenres(parsedGenres);
+        setAppliedGenres(parsedGenres);
+      } else {
+        setSelectedGenres([]);
+        setAppliedGenres([]);
+      }
 
-    const rawCategories = (categories || category) as string | undefined;
-    if (rawCategories) {
-      const parsedCategories = rawCategories
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
-      setSelectedCategories(parsedCategories);
-      setAppliedCategories(parsedCategories);
-    } else {
-      setSelectedCategories([]);
-      setAppliedCategories([]);
-    }
+      const rawCategories = (categories || category) as string | undefined;
+      if (rawCategories) {
+        const parsedCategories = rawCategories
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+        setSelectedCategories(parsedCategories);
+        setAppliedCategories(parsedCategories);
+      } else {
+        setSelectedCategories([]);
+        setAppliedCategories([]);
+      }
 
-    const rawLaunchers = (launchers || launcher) as string | undefined;
-    if (rawLaunchers) {
-      const parsedLaunchers = rawLaunchers
-        .split(",")
-        .map((s) => s.trim())
-        .filter(Boolean);
-      setSelectedLaunchers(parsedLaunchers);
-      setAppliedLaunchers(parsedLaunchers);
-    } else {
-      setSelectedLaunchers([]);
-      setAppliedLaunchers([]);
-    }
+      const rawLaunchers = (launchers || launcher) as string | undefined;
+      if (rawLaunchers) {
+        const parsedLaunchers = rawLaunchers
+          .split(",")
+          .map((s) => s.trim())
+          .filter(Boolean);
+        setSelectedLaunchers(parsedLaunchers);
+        setAppliedLaunchers(parsedLaunchers);
+      } else {
+        setSelectedLaunchers([]);
+        setAppliedLaunchers([]);
+      }
 
-    const parsedMin = minPrice ? parseInt(minPrice as string, 10) : 0;
-    const parsedMax = maxPrice ? parseInt(maxPrice as string, 10) : 200000;
-    if (
-      !isNaN(parsedMin) &&
-      !isNaN(parsedMax) &&
-      (parsedMin > 0 || parsedMax < 200000)
-    ) {
-      setPriceRange([parsedMin, parsedMax]);
-      setAppliedPriceRange([parsedMin, parsedMax]);
-    } else {
-      setPriceRange([0, 200000]);
-      setAppliedPriceRange([0, 200000]);
-    }
+      const parsedMin = minPrice ? parseInt(minPrice as string, 10) : 0;
+      const parsedMax = maxPrice ? parseInt(maxPrice as string, 10) : 200000;
+      if (
+        !isNaN(parsedMin) &&
+        !isNaN(parsedMax) &&
+        (parsedMin > 0 || parsedMax < 200000)
+      ) {
+        setPriceRange([parsedMin, parsedMax]);
+        setAppliedPriceRange([parsedMin, parsedMax]);
+      } else {
+        setPriceRange([0, 200000]);
+        setAppliedPriceRange([0, 200000]);
+      }
 
-    const rawSort = sort as string | undefined;
-    if (rawSort) {
-      setSelectedSort(rawSort);
-      setAppliedSort(rawSort);
-    } else {
-      setSelectedSort("Terbaru");
-      setAppliedSort("Terbaru");
-    }
+      const rawSort = sort as string | undefined;
+      if (rawSort) {
+        setSelectedSort(rawSort);
+        setAppliedSort(rawSort);
+      } else {
+        setSelectedSort("Terbaru");
+        setAppliedSort("Terbaru");
+      }
 
-    const hasFilters = Boolean(
-      rawGenres ||
-        rawCategories ||
-        rawLaunchers ||
-        (!isNaN(parsedMin) && parsedMin > 0) ||
-        (!isNaN(parsedMax) && parsedMax < 200000) ||
-        (rawSort && rawSort !== "Terbaru")
-    );
+      const hasFilters = Boolean(
+        rawGenres ||
+          rawCategories ||
+          rawLaunchers ||
+          (!isNaN(parsedMin) && parsedMin > 0) ||
+          (!isNaN(parsedMax) && parsedMax < 200000) ||
+          (rawSort && rawSort !== "Terbaru")
+      );
 
-    if (rawQuery && rawQuery.trim()) {
-      setPreviewState("default");
-    } else if (hasFilters) {
-      setPreviewState("filter-applied");
-    } else {
-      setPreviewState("default");
-    }
+      if (rawQuery && rawQuery.trim()) {
+        setPreviewState("default");
+      } else if (hasFilters) {
+        setPreviewState("filter-applied");
+      } else {
+        setPreviewState("default");
+      }
+    }, 0);
+
+    return () => clearTimeout(timer);
   }, [router.isReady, router.query]);
 
   // Cart notification toast
@@ -737,7 +714,9 @@ export default function StorePage() {
     (appliedSort && appliedSort !== "Terbaru" ? 1 : 0);
 
   const isHeaderFlexCol =
-    totalFilterCount >= 4 || (searchQuery.trim().length > 0 && totalFilterCount >= 2);
+    totalFilterCount >= 4 ||
+    (searchQuery.trim().length > 0 && totalFilterCount >= 1) ||
+    searchQuery.trim().length > 20;
 
   return (
     <>
@@ -818,15 +797,15 @@ export default function StorePage() {
             {/* Header with Dynamic Title and Active Filter Badges */}
             <div
               className={cn(
-                "w-full pb-6.5 border-b border-b-gradient-secondary gap-4 select-none",
+                "w-full pb-6.5 border-b border-b-gradient-secondary select-none",
                 isHeaderFlexCol
-                  ? "flex flex-col items-start"
-                  : "flex flex-col sm:flex-row sm:items-center justify-between"
+                  ? "flex flex-col items-start gap-3"
+                  : "flex flex-col sm:flex-row sm:items-center justify-between gap-4"
               )}
             >
-              <div className="shrink-0 max-w-full">
+              <div className={cn("min-w-0", isHeaderFlexCol ? "w-full" : "shrink-0 max-w-full sm:max-w-[40%]")}>
                 <h3
-                  className="text-h3 font-semibold text-gray-50 tracking-normal shrink-0"
+                  className="text-h3 font-semibold text-gray-50 tracking-normal break-words"
                   title={searchQuery.trim() ? `Cari "${searchQuery.trim()}"` : "Semua Produk"}
                 >
                   {searchQuery.trim()
@@ -840,7 +819,7 @@ export default function StorePage() {
                   onClearAll={handleClearAllFilters}
                   className={cn(
                     "min-w-0",
-                    isHeaderFlexCol ? "w-full" : "max-w-full sm:max-w-[70%]"
+                    isHeaderFlexCol ? "w-full" : "w-full sm:w-auto max-w-full sm:max-w-[65%]"
                   )}
                 >
                   {/* 1. Genre Badges */}
@@ -934,8 +913,8 @@ export default function StorePage() {
               <>
                 <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
                   {searchResults.map((product) => {
-                    const owned = isGameOwned(product.id, product.title);
-                    const inCart = isInCartStore(product.id, product.title);
+                    const owned = isMounted && isGameOwned(product.id, product.title);
+                    const inCart = isMounted && isInCartStore(product.id, product.title);
                     return (
                       <ProductCard
                         key={product.id}

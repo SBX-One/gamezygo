@@ -11,7 +11,6 @@ import {
   AdminDeleteSectionModal,
   ChevronRightIcon,
 } from "@/features/admin/components/catalog/section";
-import { INITIAL_PRODUCT_SECTIONS } from "@/features/admin/data/admin-section-mock-data";
 import type { ProductSection, SectionProduct } from "@/features/admin/types/admin-section.types";
 import {
   useAdminSections,
@@ -42,7 +41,10 @@ export default function AdminProductSectionPage() {
   // Sync server sections into local state when fetched
   React.useEffect(() => {
     if (serverSections !== undefined) {
-      setSections(serverSections);
+      const timer = setTimeout(() => {
+        setSections(serverSections);
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [serverSections]);
 

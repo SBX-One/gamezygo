@@ -93,15 +93,16 @@ export default function AdminAddProductPage() {
     const categoryIds = (formData.genres || [])
       .map((g) => {
         const match = filterMeta?.categories?.find(
-          (c: any) => c.name?.toLowerCase() === g.toLowerCase()
+          (c: { name?: string; id?: number }) => c.name?.toLowerCase() === g.toLowerCase()
         );
         return match ? match.id : null;
       })
       .filter((id): id is number => id !== null);
 
     // Resolve launcher ID
-    const launcherMatch = (filterMeta as any)?.launcher?.find(
-      (l: any) => l.name?.toLowerCase() === (formData.launcher || "").toLowerCase()
+    const launcherList = (filterMeta as { launcher?: Array<{ name?: string; id?: number }> } | null)?.launcher;
+    const launcherMatch = launcherList?.find(
+      (l) => l.name?.toLowerCase() === (formData.launcher || "").toLowerCase()
     );
     const launcherId = launcherMatch ? launcherMatch.id : undefined;
 

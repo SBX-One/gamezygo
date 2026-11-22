@@ -71,72 +71,75 @@ export default function AdminEditProductPage() {
   // Populate form with real database data
   React.useEffect(() => {
     if (serverProduct) {
-      setFormData((prev) => ({
-        ...prev,
-        name: serverProduct.name,
-        finalPrice: String(serverProduct.price),
-        initialPrice: String(
-          serverProduct.original_price || serverProduct.price
-        ),
-        isPreOrder: Boolean(serverProduct.is_preorder),
-        genres: serverProduct.categories
-          ? Array.from(
-              new Set(
-                serverProduct.categories
-                  .map((c) => (c.name ? c.name.trim() : ""))
-                  .filter(Boolean)
+      const timer = setTimeout(() => {
+        setFormData((prev) => ({
+          ...prev,
+          name: serverProduct.name,
+          finalPrice: String(serverProduct.price),
+          initialPrice: String(
+            serverProduct.original_price || serverProduct.price
+          ),
+          isPreOrder: Boolean(serverProduct.is_preorder),
+          genres: serverProduct.categories
+            ? Array.from(
+                new Set(
+                  serverProduct.categories
+                    .map((c) => (c.name ? c.name.trim() : ""))
+                    .filter(Boolean)
+                )
               )
-            )
-          : prev.genres,
-        imageSrc: serverProduct.image_url || prev.imageSrc,
-        launcher:
-          (serverProduct.launchers?.[0]?.name as "Steam") || prev.launcher,
-        promotionSection:
-          serverProduct.promotion_section ||
-          serverSections?.find(
-            (s) => Number(s.id) === Number(serverProduct.promotion_section_id)
-          )?.title ||
-          "Pilih section",
-        storeUrl: serverProduct.steam_url || "",
-        accountUsername: serverProduct.game_account?.username || "",
-        accountPassword: serverProduct.game_account?.password || "",
-        minimumSpecs:
-          serverProduct.specifications?.minimum &&
-          serverProduct.specifications.minimum.length > 0
-            ? serverProduct.specifications.minimum.map((s, idx) => ({
-                id: `min-${idx}`,
-                label: s.type,
-                value: s.value,
-              }))
-            : prev.minimumSpecs,
-        recommendationSpecs:
-          serverProduct.specifications?.recommended &&
-          serverProduct.specifications.recommended.length > 0
-            ? serverProduct.specifications.recommended.map((s, idx) => ({
-                id: `rec-${idx}`,
-                label: s.type,
-                value: s.value,
-              }))
-            : prev.recommendationSpecs,
-        hasInstructionTemplate: Boolean(serverProduct.instruction_template),
-        selectedTemplate: serverProduct.instruction_template
-          ? {
-              id: String(serverProduct.instruction_template.id),
-              title: serverProduct.instruction_template.name,
-              badge: "Listed",
-              createdAt: "22/07/2026",
-              lastEdit: "Last edit 7 days ago",
-              steps: prev.selectedTemplate?.steps || [
-                {
-                  stepNumber: 1,
-                  title: serverProduct.instruction_template.name,
-                  description:
-                    "Ikuti langkah download dan login sesuai panduan resmi akun game.",
-                },
-              ],
-            }
-          : prev.selectedTemplate,
-      }));
+            : prev.genres,
+          imageSrc: serverProduct.image_url || prev.imageSrc,
+          launcher:
+            (serverProduct.launchers?.[0]?.name as "Steam") || prev.launcher,
+          promotionSection:
+            serverProduct.promotion_section ||
+            serverSections?.find(
+              (s) => Number(s.id) === Number(serverProduct.promotion_section_id)
+            )?.title ||
+            "Pilih section",
+          storeUrl: serverProduct.steam_url || "",
+          accountUsername: serverProduct.game_account?.username || "",
+          accountPassword: serverProduct.game_account?.password || "",
+          minimumSpecs:
+            serverProduct.specifications?.minimum &&
+            serverProduct.specifications.minimum.length > 0
+              ? serverProduct.specifications.minimum.map((s, idx) => ({
+                  id: `min-${idx}`,
+                  label: s.type,
+                  value: s.value,
+                }))
+              : prev.minimumSpecs,
+          recommendationSpecs:
+            serverProduct.specifications?.recommended &&
+            serverProduct.specifications.recommended.length > 0
+              ? serverProduct.specifications.recommended.map((s, idx) => ({
+                  id: `rec-${idx}`,
+                  label: s.type,
+                  value: s.value,
+                }))
+              : prev.recommendationSpecs,
+          hasInstructionTemplate: Boolean(serverProduct.instruction_template),
+          selectedTemplate: serverProduct.instruction_template
+            ? {
+                id: String(serverProduct.instruction_template.id),
+                title: serverProduct.instruction_template.name,
+                badge: "Listed",
+                createdAt: "22/07/2026",
+                lastEdit: "Last edit 7 days ago",
+                steps: prev.selectedTemplate?.steps || [
+                  {
+                    stepNumber: 1,
+                    title: serverProduct.instruction_template.name,
+                    description:
+                      "Ikuti langkah download dan login sesuai panduan resmi akun game.",
+                  },
+                ],
+              }
+            : prev.selectedTemplate,
+        }));
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [serverProduct, serverSections]);
 
@@ -148,10 +151,13 @@ export default function AdminEditProductPage() {
       if (savedDraft) {
         const parsed = JSON.parse(savedDraft);
         if (parsed && typeof parsed === "object") {
-          setFormData((prev) => ({
-            ...prev,
-            ...parsed,
-          }));
+          const timer = setTimeout(() => {
+            setFormData((prev) => ({
+              ...prev,
+              ...parsed,
+            }));
+          }, 0);
+          return () => clearTimeout(timer);
         }
         sessionStorage.removeItem(`edit_product_draft_${productId}`);
       }
@@ -209,15 +215,15 @@ export default function AdminEditProductPage() {
         const categoryIds = (formData.genres || [])
           .map((g) => {
             const match = filterMeta?.categories?.find(
-              (c: any) => c.name?.toLowerCase() === g.toLowerCase()
+              (c: { id: number; name?: string }) => c.name?.toLowerCase() === g.toLowerCase()
             );
             return match ? match.id : null;
           })
           .filter((id): id is number => id !== null);
 
         // Resolve launcher ID
-        const launcherMatch = (filterMeta as any)?.launcher?.find(
-          (l: any) => l.name?.toLowerCase() === (formData.launcher || "").toLowerCase()
+        const launcherMatch = (filterMeta as { launcher?: Array<{ id: number; name?: string }> })?.launcher?.find(
+          (l: { id: number; name?: string }) => l.name?.toLowerCase() === (formData.launcher || "").toLowerCase()
         );
         const launcherId = launcherMatch ? launcherMatch.id : undefined;
 
@@ -330,15 +336,15 @@ export default function AdminEditProductPage() {
     const categoryIds = (formData.genres || [])
       .map((g) => {
         const match = filterMeta?.categories?.find(
-          (c: any) => c.name?.toLowerCase() === g.toLowerCase()
+          (c: { id: number; name?: string }) => c.name?.toLowerCase() === g.toLowerCase()
         );
         return match ? match.id : null;
       })
       .filter((id): id is number => id !== null);
 
     // Resolve launcher ID
-    const launcherMatch = (filterMeta as any)?.launcher?.find(
-      (l: any) => l.name?.toLowerCase() === (formData.launcher || "").toLowerCase()
+    const launcherMatch = (filterMeta as { launcher?: Array<{ id: number; name?: string }> })?.launcher?.find(
+      (l: { id: number; name?: string }) => l.name?.toLowerCase() === (formData.launcher || "").toLowerCase()
     );
     const launcherId = launcherMatch ? launcherMatch.id : undefined;
 

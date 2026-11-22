@@ -16,36 +16,74 @@ export function AdminLayout({
   headerClassName,
 }: AdminLayoutProps) {
   const router = useRouter();
-  const { token, role, isAuthenticated } = useAuthStore();
+  const { token, role, user } = useAuthStore();
   const { isAdminSidebarCollapsed, toggleAdminSidebar } = useUiStore();
   const [isMobileOpen, setIsMobileOpen] = React.useState(false);
-  const [isCheckingAuth, setIsCheckingAuth] = React.useState(true);
 
-  // Route protection: verify admin session on mount
-  React.useEffect(() => {
-    let currentToken = token;
-    let currentRole = role;
+  const checkAdminAuth = React.useCallback(() => {
+    if (typeof window === "undefined") return false;
+    const storeState = useAuthStore.getState();
+    if (storeState.token && (storeState.role === "admin" || storeState.user?.role === "admin")) {
+      return true;
+    }
+    try {
+      const raw = localStorage.getItem("gamezygo-auth-storage");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const t = parsed?.state?.token;
+        const r = parsed?.state?.role;
+        const u = parsed?.state?.user;
+        if (t && (r === "admin" || u?.role === "admin")) {
+          return true;
+        }
+      }
+      const adminToken = localStorage.getItem("gamezygo-admin-token");
+      if (adminToken) {
+        return true;
+      }
+    } catch {
+      // ignore
+    }
+    return false;
+  }, []);
 
-    if (!currentToken && typeof window !== "undefined") {
+  const [isCheckingAuth, setIsCheckingAuth] = React.useState<boolean>(() => {
+    if (typeof window !== "undefined") {
+      const storeState = useAuthStore.getState();
+      if (storeState.token && (storeState.role === "admin" || storeState.user?.role === "admin")) {
+        return false;
+      }
       try {
         const raw = localStorage.getItem("gamezygo-auth-storage");
         if (raw) {
           const parsed = JSON.parse(raw);
-          currentToken = parsed?.state?.token || null;
-          currentRole = parsed?.state?.role || "guest";
+          const t = parsed?.state?.token;
+          const r = parsed?.state?.role;
+          const u = parsed?.state?.user;
+          if (t && (r === "admin" || u?.role === "admin")) return false;
         }
+        if (localStorage.getItem("gamezygo-admin-token")) return false;
       } catch {
         // ignore
       }
     }
+    return true;
+  });
 
-    if (!currentToken || currentRole !== "admin") {
+  // Route protection: verify admin session on mount
+  React.useEffect(() => {
+    if (!router.isReady) return;
+
+    const isAdmin =
+      (token && (role === "admin" || user?.role === "admin")) || checkAdminAuth();
+
+    if (!isAdmin) {
       const redirectTarget = encodeURIComponent(router.asPath || "/admin/dashboard");
       router.replace(`/login?redirect=${redirectTarget}`);
     } else {
-      setIsCheckingAuth(false);
+      setTimeout(() => setIsCheckingAuth(false), 0);
     }
-  }, [token, role, router]);
+  }, [token, role, user, router, checkAdminAuth]);
 
   // Toggle handler for both desktop and mobile
   const handleToggleSidebar = () => {

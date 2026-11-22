@@ -35,6 +35,9 @@ apiClient.interceptors.request.use(
           const parsed = JSON.parse(raw);
           token = parsed?.state?.token || null;
         }
+        if (!token) {
+          token = localStorage.getItem("gamezygo-admin-token");
+        }
       } catch {
         // ignore JSON parse errors
       }

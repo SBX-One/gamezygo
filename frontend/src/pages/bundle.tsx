@@ -25,7 +25,6 @@ import {
 import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
 import { formatRupiah } from "@/utils/formatters";
 import { useFaqs } from "@/hooks/use-common";
-import { useCreateOrder } from "@/hooks/use-orders";
 
 // Crown Icon (Existing standard system icon)
 const CrownIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -585,12 +584,10 @@ export default function BundlePage() {
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const authUser = useAuthStore((s) => s.user);
   const addItem = useCartStore((s) => s.addItem);
-  const isInCart = useCartStore((s) => s.isInCart);
-  const isMounted = React.useSyncExternalStore(
-    () => () => {},
-    () => true,
-    () => false
-  );
+  const [isMounted, setIsMounted] = React.useState(false);
+  React.useEffect(() => {
+    setIsMounted(true);
+  }, []);
   const isLoggedIn = isMounted && Boolean(isAuthenticated && authUser);
 
   // TanStack Query: Subscriptions API
@@ -609,7 +606,6 @@ export default function BundlePage() {
     fetchNextPage: fetchNextSubsProducts,
   });
   const { data: faqsApiRes, isLoading: isFaqsLoading } = useFaqs();
-  const createOrderMutation = useCreateOrder();
   const resolvedFaqs = React.useMemo(() => {
     if (faqsApiRes?.data && faqsApiRes.data.length > 0) {
       return faqsApiRes.data
@@ -629,11 +625,14 @@ export default function BundlePage() {
   // Sync active subscription from API if available
   React.useEffect(() => {
     if (userSubRes?.data) {
-      if (userSubRes.data.status === "active") {
-        setViewMode("subscribed");
-      } else if (userSubRes.data.status === "expired") {
-        setViewMode("unsubscribed");
-      }
+      const timer = setTimeout(() => {
+        if (userSubRes.data?.status === "active") {
+          setViewMode("subscribed");
+        } else if (userSubRes.data?.status === "expired") {
+          setViewMode("unsubscribed");
+        }
+      }, 0);
+      return () => clearTimeout(timer);
     }
   }, [userSubRes]);
 

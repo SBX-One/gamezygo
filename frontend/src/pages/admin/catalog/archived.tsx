@@ -12,7 +12,6 @@ import {
 import {
   INITIAL_CATALOG_FILTER_STATE,
   type AdminCatalogFilterState,
-  type AdminCatalogItem,
 } from "@/features/admin/types/admin-catalog.types";
 import {
   useAdminArchivedCatalog,

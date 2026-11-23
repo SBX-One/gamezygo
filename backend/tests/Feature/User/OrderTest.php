@@ -841,4 +841,109 @@ class OrderTest extends TestCase
                 'message' => 'Validation error',
             ]);
     }
+
+    public function test_authenticated_user_can_checkout_entire_cart_successfully(): void
+    {
+        $user = User::factory()->create(['status' => 'active']);
+
+        $productA = Product::factory()->create([
+            'name' => 'Cyberpunk 2077',
+            'price' => 500000,
+            'discount_price' => 350000,
+        ]);
+
+        $productB = Product::factory()->create([
+            'name' => 'Witcher 3',
+            'price' => 200000,
+            'discount_price' => 0,
+        ]);
+
+        $credA = \App\Models\GameCredential::create([
+            'product_id' => $productA->id,
+            'username' => encrypt('user_a'),
+            'password' => encrypt('pass_a'),
+            'status' => 'available',
+        ]);
+
+        $credB = \App\Models\GameCredential::create([
+            'product_id' => $productB->id,
+            'username' => encrypt('user_b'),
+            'password' => encrypt('pass_b'),
+            'status' => 'available',
+        ]);
+
+        $user->cartItems()->attach([$productA->id, $productB->id]);
+        $token = auth('api')->login($user);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/user/orders', [
+                'item_type' => 'cart',
+            ]);
+
+        $response->assertStatus(201)
+            ->assertJson([
+                'success' => true,
+                'message' => 'Order created successfully',
+                'data' => [
+                    'subtotal_price' => 550000,
+                    'discount_amount' => 0,
+                    'total_price' => 550000,
+                    'status' => 'pending',
+                ],
+            ]);
+
+        $orderId = $response->json('data.id');
+
+        $this->assertDatabaseHas('orders', [
+            'id' => $orderId,
+            'user_id' => $user->id,
+            'total_price' => 550000,
+            'status' => 'pending',
+        ]);
+
+        $this->assertDatabaseHas('order_items', [
+            'order_id' => $orderId,
+            'purchasable_id' => $productA->id,
+            'price' => 350000,
+        ]);
+
+        $this->assertDatabaseHas('order_items', [
+            'order_id' => $orderId,
+            'purchasable_id' => $productB->id,
+            'price' => 200000,
+        ]);
+
+        // Cart must be emptied after checkout
+        $this->assertDatabaseEmpty('user_cart_items');
+
+        // Credentials must be reserved
+        $this->assertDatabaseHas('game_credentials', [
+            'id' => $credA->id,
+            'status' => 'reserved',
+            'assigned_to_user_id' => $user->id,
+        ]);
+
+        $this->assertDatabaseHas('game_credentials', [
+            'id' => $credB->id,
+            'status' => 'reserved',
+            'assigned_to_user_id' => $user->id,
+        ]);
+    }
+
+    public function test_cannot_checkout_empty_cart(): void
+    {
+        $user = User::factory()->create(['status' => 'active']);
+        $token = auth('api')->login($user);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/user/orders', [
+                'item_type' => 'cart',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Keranjang belanja Anda kosong.',
+            ]);
+    }
 }

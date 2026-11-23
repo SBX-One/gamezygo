@@ -26,13 +26,22 @@ class OrderController extends Controller
     public function store(CreateOrderRequest $request): JsonResponse
     {
         $user = $request->user();
-        $order = $this->orderService->createOrder($user, $request->validated());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Order created successfully',
-            'data' => (new CreateOrderResource($order))->resolve(),
-        ], 201);
+        try {
+            $order = $this->orderService->createOrder($user, $request->validated());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Order created successfully',
+                'data' => (new CreateOrderResource($order))->resolve(),
+            ], 201);
+        } catch (DomainException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'data' => null,
+            ], 422);
+        }
     }
 
     /**

@@ -60,6 +60,72 @@ class OrderRepository implements OrderRepositoryInterface
     }
 
     /**
+     * Create a new pending order from all items in user's cart.
+     */
+    public function createOrderFromCart(User $user): Order
+    {
+        $cartItems = $user->cartItems()->get();
+
+        if ($cartItems->isEmpty()) {
+            throw new \DomainException('Keranjang belanja Anda kosong.');
+        }
+
+        $orderCode = $this->generateOrderCode();
+
+        return DB::transaction(function () use ($user, $cartItems, $orderCode) {
+            $subtotalPrice = 0;
+            $itemsData = [];
+
+            foreach ($cartItems as $product) {
+                $unitPrice = ($product->discount_price > 0 && $product->discount_price < $product->price)
+                  ? (int) $product->discount_price
+                  : (int) $product->price;
+
+                $subtotalPrice += $unitPrice;
+                $itemsData[] = [
+                    'product'   => $product,
+                    'unitPrice' => $unitPrice,
+                ];
+            }
+
+            $order = Order::create([
+                'user_id'         => $user->id,
+                'order_code'      => $orderCode,
+                'voucher_id'      => null,
+                'subtotal_price'  => $subtotalPrice,
+                'discount_amount' => 0,
+                'total_price'     => $subtotalPrice,
+                'status'          => 'pending',
+                'expired_at'      => now()->addHours(24),
+                'paid_at'         => null,
+            ]);
+
+            $allocationService = app(CredentialAllocationService::class);
+
+            foreach ($itemsData as $item) {
+                $orderItem = $order->items()->create([
+                    'purchasable_type' => Product::class,
+                    'purchasable_id'   => $item['product']->id,
+                    'price'            => $item['unitPrice'],
+                ]);
+
+                // Anti-Double Allocation Concurrency Control
+                $allocationService->reserveCredential(
+                    $item['product'],
+                    $user,
+                    $orderItem,
+                    15
+                );
+            }
+
+            // Clear the user's cart after creating the order
+            $user->cartItems()->detach();
+
+            return $order->load(['items.purchasable', 'payment']);
+        });
+    }
+
+    /**
      * Create a new pending order for a subscription plan.
      */
     public function createOrderForSubscription(User $user, SubscriptionPlan $plan): Order

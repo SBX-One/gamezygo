@@ -16,6 +16,11 @@ interface OrderRepositoryInterface
     public function createOrderForProduct(User $user, Product $product): Order;
 
     /**
+     * Create a new pending order from all items in user's cart.
+     */
+    public function createOrderFromCart(User $user): Order;
+
+    /**
      * Create a new pending order for a subscription plan.
      */
     public function createOrderForSubscription(User $user, SubscriptionPlan $plan): Order;

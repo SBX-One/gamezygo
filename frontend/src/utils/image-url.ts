@@ -1,7 +1,8 @@
 /**
- * Resolves an image URL to a fully qualified URL.
- * Handles relative backend storage paths like '/storage/products/xyz.jpg' by prefixing
- * the backend origin or returning fallback placeholder.
+ * Resolves an image URL to a clean URL for Next.js Image component.
+ * Converts local storage URLs (e.g. 'http://localhost:8000/storage/...') to relative '/storage/...'
+ * paths so that Next.js rewrites handle it directly, preventing Next.js SSRF private IP blocks
+ * ["::1", "127.0.0.1"] and ensuring images work properly when accessed via tunnels (ngrok).
  */
 export function resolveImageUrl(
   url?: string | null,
@@ -13,28 +14,40 @@ export function resolveImageUrl(
 
   const trimmed = url.trim();
 
-  // If accidentally formatted as http://localhost/ without port 8000
-  if (trimmed.startsWith("http://localhost/") && !trimmed.startsWith("http://localhost:8000/")) {
-    const subPath = trimmed.replace("http://localhost/", "").trim();
-    if (!subPath) return fallback;
-    return `http://localhost:8000/${subPath}`;
-  }
-
-  // If accidentally formatted as http://127.0.0.1/ without port 8000
-  if (trimmed.startsWith("http://127.0.0.1/") && !trimmed.startsWith("http://127.0.0.1:8000/")) {
-    const subPath = trimmed.replace("http://127.0.0.1/", "").trim();
-    if (!subPath) return fallback;
-    return `http://localhost:8000/${subPath}`;
-  }
-
   // If accidentally formatted as http://localhost:8000/storage/ but path is empty
-  if (trimmed === "http://localhost:8000/storage/" || trimmed === "http://localhost:8000/storage") {
+  if (
+    trimmed === "http://localhost:8000/storage/" ||
+    trimmed === "http://localhost:8000/storage" ||
+    trimmed === "http://127.0.0.1:8000/storage/" ||
+    trimmed === "http://127.0.0.1:8000/storage"
+  ) {
     return fallback;
   }
 
-  // If already full absolute URL or blob or data URI
+  // Convert localhost/127.0.0.1 storage URLs to relative '/storage/...'
+  // Next.js rewrites in next.config.ts automatically proxy '/storage/:path*' to backend.
+  // This avoids Next.js Image optimizer blocking private IP ["::1", "127.0.0.1"]
+  // and allows images to load when accessed through ngrok or mobile devices.
+  if (trimmed.startsWith("http://localhost:8000/storage/")) {
+    return trimmed.replace("http://localhost:8000", "");
+  }
+  if (trimmed.startsWith("http://127.0.0.1:8000/storage/")) {
+    return trimmed.replace("http://127.0.0.1:8000", "");
+  }
+  if (trimmed.startsWith("http://localhost/storage/")) {
+    return trimmed.replace("http://localhost", "");
+  }
+  if (trimmed.startsWith("http://127.0.0.1/storage/")) {
+    return trimmed.replace("http://127.0.0.1", "");
+  }
+
+  // If already relative /storage/...
+  if (trimmed.startsWith("/storage/")) {
+    return trimmed;
+  }
+
+  // If already full external absolute URL (S3, Steam, placeholder, etc.)
   if (
-    trimmed.startsWith("http://") ||
     trimmed.startsWith("https://") ||
     trimmed.startsWith("blob:") ||
     trimmed.startsWith("data:")
@@ -42,12 +55,15 @@ export function resolveImageUrl(
     return trimmed;
   }
 
-  // If relative path from storage (e.g. '/storage/products/...')
-  const backendOrigin =
-    process.env.NEXT_PUBLIC_BACKEND_URL ||
-    process.env.NEXT_PUBLIC_API_URL?.replace(/\/api\/v1\/?$/, "") ||
-    "http://localhost:8000";
+  // Other http absolute URLs (not localhost)
+  if (trimmed.startsWith("http://")) {
+    return trimmed;
+  }
 
-  return `${backendOrigin}${trimmed.startsWith("/") ? "" : "/"}${trimmed}`;
+  // If relative path from storage without leading slash (e.g. 'storage/products/...')
+  if (trimmed.startsWith("storage/")) {
+    return `/${trimmed}`;
+  }
+
+  return `/${trimmed.replace(/^\/+/, "")}`;
 }
-

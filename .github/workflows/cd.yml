@@ -45,7 +45,7 @@ jobs:
           NODE_ENV: production
         run: |
           if [ -f pnpm-lock.yaml ]; then
-            pnpm install --frozen-lockfile || pnpm install
+            pnpm install --frozen-lockfile --prod=false || pnpm install --prod=false
           else
             npm install
           fi
@@ -53,6 +53,7 @@ jobs:
 
       - name: Validate Docker Compose Production Spec
         run: |
+          touch backend/.env
           docker compose -f docker-compose.prod.yml config
 
   deploy:

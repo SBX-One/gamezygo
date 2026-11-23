@@ -8,6 +8,7 @@ use App\Http\Controllers\Api\V1\User\CustomSection\CustomSectionController;
 use App\Http\Controllers\Api\V1\User\Faq\FaqController;
 use App\Http\Controllers\Api\V1\User\GameRequest\GameRequestController;
 use App\Http\Controllers\Api\V1\User\Leaderboard\LeaderboardController;
+use App\Http\Controllers\Api\V1\User\Library\LibraryController;
 use App\Http\Controllers\Api\V1\User\Order\OrderController;
 use App\Http\Controllers\Api\V1\User\Payment\PaymentController;
 use App\Http\Controllers\Api\V1\User\Product\ProductController;
@@ -117,6 +118,15 @@ Route::prefix('user')
         Route::get('/{slug}/credentials', 'credentials')->name('credentials');
       });
 
+    // Game Library delivery (Data Isolation Shield)
+    Route::controller(LibraryController::class)
+      ->prefix('library')
+      ->name('library.')
+      ->group(function () {
+        Route::get('/', 'getLibrary')->name('index');
+        Route::get('/{productIdentifier}', 'show')->name('show');
+      });
+
     // Shopping cart
     Route::controller(CartController::class)
       ->prefix('cart')
@@ -179,3 +189,13 @@ Route::prefix('user')
         Route::get('/{id}', 'show')->name('show')->whereNumber('id');
       });
   });
+
+/*
+|--------------------------------------------------------------------------
+| Decrypted Game Library direct endpoint (Data Isolation Shield)
+|--------------------------------------------------------------------------
+*/
+Route::middleware(['auth:api,sanctum'])->group(function () {
+  Route::get('library', [LibraryController::class, 'getLibrary'])->name('direct.library.index');
+  Route::get('library/{productIdentifier}', [LibraryController::class, 'show'])->name('direct.library.show');
+});

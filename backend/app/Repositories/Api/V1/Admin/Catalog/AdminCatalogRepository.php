@@ -436,8 +436,7 @@ class AdminCatalogRepository implements AdminCatalogRepositoryInterface
   private function attachThumbnail(Product $product, mixed $thumbnail): void
   {
     if ($thumbnail instanceof UploadedFile) {
-      $storedPath = $thumbnail->store('products', 'public');
-      $url = Storage::disk('public')->url($storedPath);
+      $url = app(\App\Services\Storage\S3StorageService::class)->upload($thumbnail, 'products');
 
       $product->files()->delete();
       $product->files()->create([

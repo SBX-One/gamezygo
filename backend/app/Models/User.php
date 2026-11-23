@@ -94,6 +94,11 @@ class User extends Authenticatable implements JWTSubject
         return $this->belongsToMany(Product::class, 'user_owned_games');
     }
 
+    public function gameCredentials(): HasMany
+    {
+        return $this->hasMany(GameCredential::class, 'assigned_to_user_id');
+    }
+
     public function vouchers(): BelongsToMany
     {
         return $this->belongsToMany(Voucher::class, 'voucher_users');

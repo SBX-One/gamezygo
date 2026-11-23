@@ -126,9 +126,11 @@ class PaymentRepository implements PaymentRepositoryInterface
       }
 
       // Deliver games or activate subscription
+      $allocationService = app(\App\Services\Credential\CredentialAllocationService::class);
       foreach ($order->items as $item) {
         if ($item->purchasable instanceof Product) {
           $order->user->ownedGames()->syncWithoutDetaching([$item->purchasable_id]);
+          $allocationService->allocateCredential($item, $order->user);
         } elseif ($item->purchasable instanceof SubscriptionPlan) {
           $plan = $item->purchasable;
 
@@ -153,14 +155,20 @@ class PaymentRepository implements PaymentRepositoryInterface
         }
       }
 
-      return $order->fresh([
+      $freshOrder = $order->fresh([
         'items.purchasable' => function (MorphTo $morphTo) {
           $morphTo->morphWith([
             Product::class => ['files'],
           ]);
         },
         'payment',
+        'user',
       ]);
+
+      // Dispatch order delivery email via event
+      event(new \App\Events\OrderFulfilledEvent($freshOrder));
+
+      return $freshOrder;
     });
   }
 }

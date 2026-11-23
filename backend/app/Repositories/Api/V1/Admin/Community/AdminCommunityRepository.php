@@ -281,6 +281,8 @@ class AdminCommunityRepository implements AdminCommunityRepositoryInterface
       ];
     }
 
+    app(\App\Services\Cache\RedisCacheService::class)->flushTags(\App\Services\Cache\RedisCacheService::TAG_COMMUNITIES);
+
     return [
       'communities' => $result,
     ];

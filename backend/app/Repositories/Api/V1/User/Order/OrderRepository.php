@@ -43,11 +43,19 @@ class OrderRepository implements OrderRepositoryInterface
         'paid_at'         => null,
       ]);
 
-      $order->items()->create([
+      $orderItem = $order->items()->create([
         'purchasable_type' => Product::class,
         'purchasable_id'   => $product->id,
         'price'            => $unitPrice,
       ]);
+
+      // Anti-Double Allocation Concurrency Control
+      app(\App\Services\Credential\CredentialAllocationService::class)->reserveCredential(
+        $product,
+        $user,
+        $orderItem,
+        15
+      );
 
       return $order->load(['items.purchasable', 'payment']);
     });

@@ -7,10 +7,30 @@ import axios, {
 import { useAuthStore } from "@/stores/use-auth-store";
 import { MOCK_TOKEN } from "@/lib/mock/data";
 
-export const API_BASE_URL =
-  process.env.NEXT_PUBLIC_API_BASE_URL ||
-  process.env.NEXT_PUBLIC_API_URL ||
-  "http://localhost:8000/api/v1";
+export const getBaseUrl = (): string => {
+  const envUrl =
+    process.env.NEXT_PUBLIC_API_BASE_URL ||
+    process.env.NEXT_PUBLIC_API_URL;
+
+  // Di browser (client-side): jika tidak diset atau mengarah ke localhost/relatif, gunakan /api/v1
+  if (typeof window !== "undefined") {
+    if (!envUrl || envUrl.includes("localhost:8000") || envUrl.startsWith("/")) {
+      return "/api/v1";
+    }
+    return envUrl;
+  }
+
+  // Di server (SSR Node.js): gunakan URL backend internal absolut
+  const serverBackendUrl =
+    process.env.BACKEND_INTERNAL_URL ||
+    (envUrl && !envUrl.startsWith("/") ? envUrl : "http://localhost:8000");
+
+  return serverBackendUrl.endsWith("/api/v1")
+    ? serverBackendUrl
+    : `${serverBackendUrl}/api/v1`;
+};
+
+export const API_BASE_URL = getBaseUrl();
 
 export const apiClient: AxiosInstance = axios.create({
   baseURL: API_BASE_URL,

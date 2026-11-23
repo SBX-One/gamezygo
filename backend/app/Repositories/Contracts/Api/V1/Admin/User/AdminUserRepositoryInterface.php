@@ -51,8 +51,10 @@ interface AdminUserRepositoryInterface
 
     /**
      * Delete a user account.
+     *
+     * @return array<string, mixed>
      */
-    public function deleteUser(int $id): void;
+    public function deleteUser(int $id): array;
 
     /**
      * Get user login devices.

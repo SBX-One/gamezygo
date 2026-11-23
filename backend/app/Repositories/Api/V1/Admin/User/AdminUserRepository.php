@@ -344,6 +344,7 @@ class AdminUserRepository implements AdminUserRepositoryInterface
         return [
             'id' => $user->id,
             'status' => $user->status,
+            'suspend_reason' => null,
             'suspended_at' => null,
             'suspended_until' => null,
         ];
@@ -351,14 +352,23 @@ class AdminUserRepository implements AdminUserRepositoryInterface
 
     /**
      * Delete a user account.
+     *
+     * @return array<string, mixed>
      */
-    public function deleteUser(int $id): void
+    public function deleteUser(int $id): array
     {
         $user = User::findOrFail($id);
+        $deletedData = [
+            'id' => $user->id,
+            'customer_id' => $user->customer_id,
+        ];
+
         $user->devices()->delete();
         $user->pointHistories()->delete();
         $user->ownedGames()->detach();
         $user->delete();
+
+        return $deletedData;
     }
 
     /**
@@ -552,6 +562,7 @@ class AdminUserRepository implements AdminUserRepositoryInterface
         ];
 
         return [
+            'total_records' => $paginator->total(),
             'current_points' => $user->points,
             'histories' => $items,
             'meta' => $meta,

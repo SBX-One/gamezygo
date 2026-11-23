@@ -1,5 +1,6 @@
 import * as React from "react";
 import { AdminBarChart } from "@/components/admin";
+import { cn } from "@/lib/utils";
 import { MOCK_ADMIN_CHART_DATA } from "../data/admin-mock-data";
 import type { AdminProductPerformance } from "../types/admin.types";
 
@@ -48,27 +49,33 @@ export function AdminPerformanceChartSection({
   if (isLoading) {
     return (
       <div
-        className={`rounded-xl border border-deep-blue-700/60 bg-deep-blue-900/60 p-6 shadow-lg select-none ${
-          className || ""
-        }`}
+        className={cn(
+          "rounded-xl border border-deep-blue-700/60 bg-deep-blue-900/60 p-4 sm:p-6 shadow-lg select-none overflow-hidden",
+          className
+        )}
       >
         <div className="flex items-center justify-between mb-8">
-          <div className="w-56 h-5 rounded bg-white/10 animate-pulse" />
+          <div className="w-44 sm:w-56 h-5 rounded bg-white/10 animate-pulse" />
           <div className="w-20 h-6 rounded bg-white/10 animate-pulse" />
         </div>
-        <div className="flex items-end justify-between gap-4 h-64 pt-6 px-4">
-          {[40, 75, 55, 90, 65, 80, 45, 95].map((h, i) => (
-            <div
-              key={`chart-skel-${i}`}
-              className="flex-1 flex flex-col items-center gap-2"
-            >
+        <div className="w-full overflow-hidden">
+          <div className="flex items-end justify-between gap-2 sm:gap-4 h-64 pt-6 px-1 sm:px-4">
+            {[40, 75, 55, 90, 65, 80, 45, 95].map((h, i) => (
               <div
-                style={{ height: `${h}%` }}
-                className="w-full max-w-[48px] rounded-t-md bg-white/10 animate-pulse"
-              />
-              <div className="w-10 h-3 rounded bg-white/10 animate-pulse" />
-            </div>
-          ))}
+                key={`chart-skel-${i}`}
+                className={cn(
+                  "flex-1 h-full flex flex-col justify-end items-center gap-2 min-w-0",
+                  i >= 5 && "hidden sm:flex"
+                )}
+              >
+                <div
+                  style={{ height: `${h}%` }}
+                  className="w-full max-w-[36px] sm:max-w-[48px] rounded-t-md bg-white/10 animate-pulse"
+                />
+                <div className="w-6 sm:w-10 h-3 rounded bg-white/10 animate-pulse" />
+              </div>
+            ))}
+          </div>
         </div>
       </div>
     );

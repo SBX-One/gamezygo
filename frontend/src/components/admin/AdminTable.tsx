@@ -8,10 +8,10 @@ export function AdminTable({
   ...props
 }: React.HTMLAttributes<HTMLTableElement> & { ref?: React.Ref<HTMLTableElement> }) {
   return (
-    <div className="w-full overflow-x-auto">
+    <div className="w-full overflow-x-auto no-scrollbar">
       <table
         ref={ref}
-        className={cn("w-full text-left text-sm text-gray-300 border-collapse", className)}
+        className={cn("w-full min-w-[650px] text-left text-sm text-gray-300 border-collapse", className)}
         {...props}
       >
         {children}
@@ -75,7 +75,7 @@ export function AdminTableHead({
 }: React.ThHTMLAttributes<HTMLTableCellElement>) {
   return (
     <th
-      className={cn("py-4 px-5 text-label-xs font-semibold text-gray-100 select-none", className)}
+      className={cn("py-4 px-5 text-label-xs font-semibold text-gray-100 select-none whitespace-nowrap", className)}
       {...props}
     >
       {children}

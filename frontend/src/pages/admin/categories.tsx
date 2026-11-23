@@ -283,16 +283,13 @@ export default function AdminCategoriesPage() {
           </div>
         }
         className="!p-0 !pt-0 !pb-0 !space-y-0 w-full bg-deep-blue-950"
+        isError={!isLoading && isError}
+        onReload={() => refetch()}
       >
-        {/* Loading / Error Banner */}
+        {/* Loading Banner */}
         {isLoading && (
           <div className="w-full p-4 text-center text-xs text-gray-400 bg-deep-blue-900 border-b border-white/5">
             Memuat daftar kategori dari database...
-          </div>
-        )}
-        {!isLoading && isError && (
-          <div className="w-full p-4 text-center text-xs text-rose-300 bg-rose-500/10 border-b border-rose-500/20">
-            Gagal memuat kategori dari server. Klik &quot;Refresh Data&quot; untuk mencoba lagi.
           </div>
         )}
 

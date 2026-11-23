@@ -37,4 +37,9 @@ export interface AdminLayoutProps {
   headerRight?: ReactNode;
   className?: string;
   headerClassName?: string;
+  isError?: boolean;
+  hasError?: boolean;
+  onReload?: () => void;
+  errorTitle?: string;
+  errorDescription?: string;
 }

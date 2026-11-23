@@ -230,9 +230,9 @@ export default function AdminPreOrdersPage() {
 
   const hasActiveFilters = selectedCategories.length > 0 || sortBy !== "terbaru";
 
-  // Header Right Actions (Search & Filter)
+  // Header Right Actions (Search & Filter - Desktop only)
   const headerRight = (
-    <div className="relative flex items-center gap-3 sm:gap-4 select-none">
+    <div className="hidden sm:flex relative items-center gap-3 sm:gap-4 select-none">
       {/* 1. Search Field */}
       <div className="relative flex items-center w-48 sm:w-64">
         <div className="absolute left-3 text-gray-400 pointer-events-none flex items-center">
@@ -278,46 +278,6 @@ export default function AdminPreOrdersPage() {
             <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#FF5364]" />
           )}
         </button>
-
-        {/* 3. FilterModal Dropdown */}
-        <FilterModal
-          isOpen={isFilterOpen}
-          variant="dropdown"
-          placement="content"
-          onClose={() => setIsFilterOpen(false)}
-          title="Filter & Sort"
-          categories={[]}
-          genres={[
-            "Action",
-            "Adventure",
-            "Sport-Racing",
-            "Fighting",
-            "RPG",
-            "Multiplayer",
-          ]}
-          genresLabel="CATEGORY"
-          launchers={[]}
-          selectedGenres={selectedCategories}
-          onToggleGenre={(cat) => {
-            setSelectedCategories((prev) =>
-              prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
-            );
-          }}
-          sortOptions={["Terbaru", "Nama (A - Z)"]}
-          selectedSort={sortBy === "name_asc" ? "Nama (A - Z)" : "Terbaru"}
-          onSelectSort={(sort) => {
-            setSortBy(sort === "Nama (A - Z)" ? "name_asc" : "terbaru");
-          }}
-          showPriceRange={false}
-          showCancelButton={false}
-          onReset={() => {
-            setSelectedCategories([]);
-            setSortBy("terbaru");
-            setIsFilterOpen(false);
-          }}
-          onApply={() => setIsFilterOpen(false)}
-          popoverClassName="w-80 sm:w-96 !h-auto max-h-[90vh] top-11 right-0 shadow-2xl"
-        />
       </div>
     </div>
   );
@@ -338,6 +298,97 @@ export default function AdminPreOrdersPage() {
         headerRight={headerRight}
       >
         <div className="space-y-6 pb-16">
+          {/* Mobile-Only Search & Filter Bar placed above table */}
+          <div className="block sm:hidden w-full">
+            <div className="flex items-center gap-2.5 w-full">
+              <div className="relative flex-1 min-w-0 flex items-center">
+                <div className="absolute left-3 text-gray-400 pointer-events-none flex items-center">
+                  <SearchIcon className="w-4 h-4" />
+                </div>
+                <input
+                  type="text"
+                  value={searchQuery}
+                  onChange={(e) => {
+                    setSearchQuery(e.target.value);
+                    setCurrentPage(1);
+                  }}
+                  placeholder="Cari produk"
+                  className="w-full h-10 pl-9 pr-8 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-label-xs text-white placeholder-gray-500 focus:outline-none focus:border-gray-500 transition-colors"
+                />
+                {searchQuery && (
+                  <button
+                    type="button"
+                    onClick={() => setSearchQuery("")}
+                    aria-label="Hapus pencarian"
+                    className="absolute right-2.5 text-gray-400 hover:text-white transition-colors cursor-pointer"
+                  >
+                    <ClearIcon className="w-3.5 h-3.5" />
+                  </button>
+                )}
+              </div>
+
+              {/* Mobile Filter Button */}
+              <div className={cn("relative shrink-0", isFilterOpen && "z-30")}>
+                <button
+                  type="button"
+                  onClick={() => setIsFilterOpen(!isFilterOpen)}
+                  aria-label="Filter & Sort"
+                  className={cn(
+                    "h-10 w-10 rounded-lg border flex items-center justify-center transition-all cursor-pointer relative shrink-0",
+                    isFilterOpen || hasActiveFilters
+                      ? "bg-[#1E202B] border-gray-400 text-white"
+                      : "bg-deep-blue-900 border-deep-blue-700 text-gray-300 hover:text-white hover:border-gray-500"
+                  )}
+                >
+                  <FilterIcon className="w-4 h-4" />
+                  {hasActiveFilters && (
+                    <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[#FF5364]" />
+                  )}
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* FilterModal Dropdown */}
+          <FilterModal
+            isOpen={isFilterOpen}
+            variant="dropdown"
+            placement="content"
+            onClose={() => setIsFilterOpen(false)}
+            title="Filter & Sort"
+            categories={[]}
+            genres={[
+              "Action",
+              "Adventure",
+              "Sport-Racing",
+              "Fighting",
+              "RPG",
+              "Multiplayer",
+            ]}
+            genresLabel="CATEGORY"
+            launchers={[]}
+            selectedGenres={selectedCategories}
+            onToggleGenre={(cat) => {
+              setSelectedCategories((prev) =>
+                prev.includes(cat) ? prev.filter((c) => c !== cat) : [...prev, cat]
+              );
+            }}
+            sortOptions={["Terbaru", "Nama (A - Z)"]}
+            selectedSort={sortBy === "name_asc" ? "Nama (A - Z)" : "Terbaru"}
+            onSelectSort={(sort) => {
+              setSortBy(sort === "Nama (A - Z)" ? "name_asc" : "terbaru");
+            }}
+            showPriceRange={false}
+            showCancelButton={false}
+            onReset={() => {
+              setSelectedCategories([]);
+              setSortBy("terbaru");
+              setIsFilterOpen(false);
+            }}
+            onApply={() => setIsFilterOpen(false)}
+            popoverClassName="w-80 sm:w-96 !h-auto max-h-[90vh] top-11 right-0 shadow-2xl"
+          />
+
           {/* Pre-order Table Card */}
           <AdminPreOrderTable
             items={filteredItems}

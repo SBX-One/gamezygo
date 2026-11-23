@@ -126,9 +126,10 @@ export function AdminFaqCard({
           variant="outline"
           size="sm"
           onClick={() => onRemove(item)}
-          className="min-h-9 h-9 px-3.5 text-label-xs font-medium"
+          className="min-h-9 h-9 px-3.5 text-label-xs font-medium shrink-0 whitespace-nowrap"
         >
-          Remove from List
+          <span className="sm:hidden whitespace-nowrap">Remove</span>
+          <span className="hidden sm:inline whitespace-nowrap">Remove from List</span>
         </Button>
       </div>
     </div>

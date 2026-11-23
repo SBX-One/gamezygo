@@ -18,6 +18,7 @@ import {
   type ProductCardRowItem,
 } from "@/components/ui";
 import { StoreLayout } from "@/components/layout";
+import { Error500View } from "@/components/shared/Error500View";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useCartStore } from "@/stores/use-cart-store";
 import { formatDiscount } from "@/utils/formatters";
@@ -778,14 +779,10 @@ export default function StorePage() {
            ====================================================== */}
         {previewState === "error-500" ? (
           <div className="py-24 flex items-center justify-center">
-            <EmptyState
-              icon={<WifiOffIcon className="w-8 h-8 text-gray-50" />}
-              title="500: Internal Server Error"
-              description="The page you're looking for doesn't exist or has been moved. Please check the URL or return to the homepage."
-              backLabel="Kembali"
-              searchLabel="Muat"
+            <Error500View
+              showBackButton={true}
               onBack={() => setExactState("default")}
-              onSearch={() => setExactState("default")}
+              onReload={() => setExactState("default")}
             />
           </div>
         ) : isSearchActive || isFilterActive ? (

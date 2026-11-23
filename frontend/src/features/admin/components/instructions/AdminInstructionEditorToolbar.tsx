@@ -203,7 +203,20 @@ export function AdminInstructionEditorToolbar({
   className,
 }: AdminInstructionEditorToolbarProps) {
   const [isHeadingMenuOpen, setIsHeadingMenuOpen] = React.useState(false);
+  const [headingMenuPos, setHeadingMenuPos] = React.useState({ top: 0, left: 0 });
   const headingMenuRef = React.useRef<HTMLDivElement>(null);
+  const headingBtnRef = React.useRef<HTMLButtonElement>(null);
+
+  const handleToggleHeadingMenu = () => {
+    if (!isHeadingMenuOpen && headingBtnRef.current) {
+      const rect = headingBtnRef.current.getBoundingClientRect();
+      setHeadingMenuPos({
+        top: rect.bottom + 6,
+        left: Math.max(10, Math.min(rect.left, window.innerWidth - 160)),
+      });
+    }
+    setIsHeadingMenuOpen(!isHeadingMenuOpen);
+  };
 
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
@@ -233,39 +246,39 @@ export function AdminInstructionEditorToolbar({
   return (
     <div
       className={cn(
-        "w-full flex items-center justify-between flex-wrap gap-2 px-4 py-2.5 bg-deep-blue-950 border-b border-deep-blue-700 select-none text-gray-300 font-sans",
+        "w-full flex items-center justify-between gap-2 sm:gap-3 px-3 sm:px-4 py-2.5 bg-deep-blue-950 border-b border-deep-blue-700 select-none text-gray-300 font-sans min-w-0 overflow-hidden",
         className
       )}
     >
-      {/* Left: Undo & Redo (Matching Gambar 3) */}
-      <div className="flex items-center gap-1.5">
-        <button
-          type="button"
-          onClick={onUndo}
-          disabled={!canUndo}
-          aria-label="Undo"
-          className="h-7 w-7 rounded-lg border border-deep-blue-700 bg-deep-blue-900/60 hover:bg-deep-blue-800 disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center text-gray-300 hover:text-white transition-colors cursor-pointer"
-        >
-          <UndoIcon />
-        </button>
-        <button
-          type="button"
-          onClick={onRedo}
-          disabled={!canRedo}
-          aria-label="Redo"
-          className="h-7 w-7 rounded-lg border border-deep-blue-700 bg-deep-blue-900/60 hover:bg-deep-blue-800 disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center text-gray-300 hover:text-white transition-colors cursor-pointer"
-        >
-          <RedoIcon />
-        </button>
-      </div>
+      {/* 1. Left Pinned Section (Undo, Redo, Zoom In/Out) - Dikecualikan dari overflow (Gambar 4) */}
+      <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+        {/* Undo & Redo */}
+        <div className="flex items-center gap-1 sm:gap-1.5">
+          <button
+            type="button"
+            onClick={onUndo}
+            disabled={!canUndo}
+            aria-label="Undo"
+            className="h-7 w-7 rounded-lg border border-deep-blue-700 bg-deep-blue-900/60 hover:bg-deep-blue-800 disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center text-gray-300 hover:text-white transition-colors cursor-pointer shrink-0"
+          >
+            <UndoIcon />
+          </button>
+          <button
+            type="button"
+            onClick={onRedo}
+            disabled={!canRedo}
+            aria-label="Redo"
+            className="h-7 w-7 rounded-lg border border-deep-blue-700 bg-deep-blue-900/60 hover:bg-deep-blue-800 disabled:opacity-40 disabled:pointer-events-none flex items-center justify-center text-gray-300 hover:text-white transition-colors cursor-pointer shrink-0"
+          >
+            <RedoIcon />
+          </button>
+        </div>
 
-      {/* Right/Center Controls Group (Matching Gambar 3) */}
-      <div className="flex items-center gap-2.5 flex-wrap">
         {/* Divider */}
-        <div className="h-4 w-px bg-deep-blue-700" />
+        <div className="h-4 w-px bg-deep-blue-700 shrink-0" />
 
-        {/* Zoom Controls: — 100% + */}
-        <div className="flex items-center gap-1.5 text-label-xs font-semibold text-white">
+        {/* Zoom Controls: — 100% + (Always visible & pinned, excluded from scroll) */}
+        <div className="flex items-center gap-1 sm:gap-1.5 text-label-xs font-semibold text-white shrink-0">
           <button
             type="button"
             onClick={handleZoomOut}
@@ -287,193 +300,202 @@ export function AdminInstructionEditorToolbar({
           </button>
         </div>
 
-        {/* Divider */}
-        <div className="h-4 w-px bg-deep-blue-700" />
+        {/* Divider between Zoom and Tools */}
+        <div className="h-4 w-px bg-deep-blue-700 shrink-0" />
+      </div>
 
-        {/* Heading Dropdown H */}
-        <div ref={headingMenuRef} className="relative">
+      {/* 2. Tools Section (Horizontal scrollable overflow-x-auto on mobile, flex-nowrap) */}
+      <div className="flex-1 min-w-0 overflow-x-auto [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden py-1 pl-1">
+        <div className="flex items-center gap-2 sm:gap-2.5 w-max">
+          {/* Heading Dropdown H */}
+          <div ref={headingMenuRef} className="relative shrink-0">
+            <button
+              ref={headingBtnRef}
+              type="button"
+              onClick={handleToggleHeadingMenu}
+              aria-label="Heading options"
+              className={cn(
+                "h-7 min-w-[28px] px-2 rounded-lg border text-label-xs font-bold transition-colors flex items-center justify-center cursor-pointer",
+                isHeadingMenuOpen || activeHeading
+                  ? "bg-deep-blue-800 border-deep-blue-600 text-white"
+                  : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
+              )}
+            >
+              {activeHeading ? activeHeading.toUpperCase() : "H"}
+            </button>
+
+            {/* Heading Dropdown Popup */}
+            {isHeadingMenuOpen && (
+              <div
+                style={{ top: headingMenuPos.top, left: headingMenuPos.left }}
+                className="fixed z-50 w-36 rounded-lg bg-deep-blue-900 border border-deep-blue-700 p-1.5 shadow-xl animate-in fade-in zoom-in-95 duration-150 space-y-0.5"
+              >
+                {(["h1", "h2", "h3", "h4"] as const).map((hType) => (
+                  <button
+                    key={hType}
+                    type="button"
+                    onClick={() => {
+                      onSelectHeading?.(hType);
+                      setIsHeadingMenuOpen(false);
+                    }}
+                    className={cn(
+                      "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-label-xs font-medium transition-colors text-left cursor-pointer",
+                      activeHeading === hType
+                        ? "bg-deep-blue-800 text-white"
+                        : "text-gray-300 hover:bg-deep-blue-800/60 hover:text-white"
+                    )}
+                  >
+                    <span className="text-[11px] font-bold text-gray-400">
+                      {hType.toUpperCase()}
+                    </span>
+                    <span>Heading {hType.slice(1)}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* List Button */}
           <button
             type="button"
-            onClick={() => setIsHeadingMenuOpen(!isHeadingMenuOpen)}
-            aria-label="Heading options"
+            onClick={onToggleList}
+            aria-label="Toggle List"
             className={cn(
-              "h-7 min-w-[28px] px-2 rounded-lg border text-label-xs font-bold transition-colors flex items-center justify-center cursor-pointer",
-              isHeadingMenuOpen || activeHeading
+              "h-7 w-7 rounded-lg border flex items-center justify-center transition-colors cursor-pointer shrink-0",
+              activeList
                 ? "bg-deep-blue-800 border-deep-blue-600 text-white"
                 : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
             )}
           >
-            {activeHeading ? activeHeading.toUpperCase() : "H"}
+            <ListIcon />
           </button>
 
-          {/* Heading Dropdown Popup */}
-          {isHeadingMenuOpen && (
-            <div className="absolute left-0 top-9 z-50 w-36 rounded-lg bg-deep-blue-900 border border-deep-blue-700 p-1.5 shadow-xl animate-in fade-in zoom-in-95 duration-150 space-y-0.5">
-              {(["h1", "h2", "h3", "h4"] as const).map((hType) => (
-                <button
-                  key={hType}
-                  type="button"
-                  onClick={() => {
-                    onSelectHeading?.(hType);
-                    setIsHeadingMenuOpen(false);
-                  }}
-                  className={cn(
-                    "w-full flex items-center gap-2 px-2.5 py-1.5 rounded-md text-label-xs font-medium transition-colors text-left cursor-pointer",
-                    activeHeading === hType
-                      ? "bg-deep-blue-800 text-white"
-                      : "text-gray-300 hover:bg-deep-blue-800/60 hover:text-white"
-                  )}
-                >
-                  <span className="text-[11px] font-bold text-gray-400">
-                    {hType.toUpperCase()}
-                  </span>
-                  <span>Heading {hType.slice(1)}</span>
-                </button>
-              ))}
-            </div>
-          )}
+          {/* Divider */}
+          <div className="h-4 w-px bg-deep-blue-700 shrink-0" />
+
+          {/* Inline Formatting: B, I, U, S, Clear Format */}
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              type="button"
+              onClick={onToggleBold}
+              aria-label="Bold"
+              className={cn(
+                "h-7 w-7 rounded-lg border text-label-xs font-bold transition-colors flex items-center justify-center cursor-pointer",
+                isBold
+                  ? "bg-deep-blue-800 border-deep-blue-600 text-white"
+                  : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
+              )}
+            >
+              B
+            </button>
+            <button
+              type="button"
+              onClick={onToggleItalic}
+              aria-label="Italic"
+              className={cn(
+                "h-7 w-7 rounded-lg border text-label-xs italic font-serif transition-colors flex items-center justify-center cursor-pointer",
+                isItalic
+                  ? "bg-deep-blue-800 border-deep-blue-600 text-white"
+                  : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
+              )}
+            >
+              I
+            </button>
+            <button
+              type="button"
+              onClick={onToggleUnderline}
+              aria-label="Underline"
+              className={cn(
+                "h-7 w-7 rounded-lg border text-label-xs underline transition-colors flex items-center justify-center cursor-pointer",
+                isUnderline
+                  ? "bg-deep-blue-800 border-deep-blue-600 text-white"
+                  : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
+              )}
+            >
+              U
+            </button>
+            <button
+              type="button"
+              onClick={onToggleStrike}
+              aria-label="Strikethrough"
+              className={cn(
+                "h-7 w-7 rounded-lg border text-label-xs line-through transition-colors flex items-center justify-center cursor-pointer",
+                isStrike
+                  ? "bg-deep-blue-800 border-deep-blue-600 text-white"
+                  : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
+              )}
+            >
+              S
+            </button>
+            <button
+              type="button"
+              onClick={onClearFormat}
+              aria-label="Clear formatting"
+              className="h-7 w-7 rounded-lg border border-deep-blue-700 bg-deep-blue-900/60 hover:bg-deep-blue-800 text-gray-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
+            >
+              <ClearFormatIcon />
+            </button>
+          </div>
+
+          {/* Divider */}
+          <div className="h-4 w-px bg-deep-blue-700 shrink-0" />
+
+          {/* Alignment: Left, Center, Right */}
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              type="button"
+              onClick={() => onAlignChange?.("left")}
+              aria-label="Align Left"
+              className={cn(
+                "h-7 w-7 rounded-lg border flex items-center justify-center transition-colors cursor-pointer",
+                align === "left"
+                  ? "bg-deep-blue-800 border-deep-blue-600 text-white"
+                  : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
+              )}
+            >
+              <AlignLeftIcon />
+            </button>
+            <button
+              type="button"
+              onClick={() => onAlignChange?.("center")}
+              aria-label="Align Center"
+              className={cn(
+                "h-7 w-7 rounded-lg border flex items-center justify-center transition-colors cursor-pointer",
+                align === "center"
+                  ? "bg-deep-blue-800 border-deep-blue-600 text-white"
+                  : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
+              )}
+            >
+              <AlignCenterIcon />
+            </button>
+            <button
+              type="button"
+              onClick={() => onAlignChange?.("right")}
+              aria-label="Align Right"
+              className={cn(
+                "h-7 w-7 rounded-lg border flex items-center justify-center transition-colors cursor-pointer",
+                align === "right"
+                  ? "bg-deep-blue-800 border-deep-blue-600 text-white"
+                  : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
+              )}
+            >
+              <AlignRightIcon />
+            </button>
+          </div>
+
+          {/* Divider */}
+          <div className="h-4 w-px bg-deep-blue-700 shrink-0" />
+
+          {/* Insert Table Grid Icon */}
+          <button
+            type="button"
+            onClick={onInsertTable}
+            aria-label="Insert Table"
+            className="h-7 w-7 rounded-lg border border-deep-blue-700 bg-deep-blue-900/60 hover:bg-deep-blue-800 text-gray-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer shrink-0"
+          >
+            <TableIcon />
+          </button>
         </div>
-
-        {/* List Button */}
-        <button
-          type="button"
-          onClick={onToggleList}
-          aria-label="Toggle List"
-          className={cn(
-            "h-7 w-7 rounded-lg border flex items-center justify-center transition-colors cursor-pointer",
-            activeList
-              ? "bg-deep-blue-800 border-deep-blue-600 text-white"
-              : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
-          )}
-        >
-          <ListIcon />
-        </button>
-
-        {/* Divider */}
-        <div className="h-4 w-px bg-deep-blue-700" />
-
-        {/* Inline Formatting: B, I, U, S, Clear Format */}
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={onToggleBold}
-            aria-label="Bold"
-            className={cn(
-              "h-7 w-7 rounded-lg border text-label-xs font-bold transition-colors flex items-center justify-center cursor-pointer",
-              isBold
-                ? "bg-deep-blue-800 border-deep-blue-600 text-white"
-                : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
-            )}
-          >
-            B
-          </button>
-          <button
-            type="button"
-            onClick={onToggleItalic}
-            aria-label="Italic"
-            className={cn(
-              "h-7 w-7 rounded-lg border text-label-xs italic font-serif transition-colors flex items-center justify-center cursor-pointer",
-              isItalic
-                ? "bg-deep-blue-800 border-deep-blue-600 text-white"
-                : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
-            )}
-          >
-            I
-          </button>
-          <button
-            type="button"
-            onClick={onToggleUnderline}
-            aria-label="Underline"
-            className={cn(
-              "h-7 w-7 rounded-lg border text-label-xs underline transition-colors flex items-center justify-center cursor-pointer",
-              isUnderline
-                ? "bg-deep-blue-800 border-deep-blue-600 text-white"
-                : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
-            )}
-          >
-            U
-          </button>
-          <button
-            type="button"
-            onClick={onToggleStrike}
-            aria-label="Strikethrough"
-            className={cn(
-              "h-7 w-7 rounded-lg border text-label-xs line-through transition-colors flex items-center justify-center cursor-pointer",
-              isStrike
-                ? "bg-deep-blue-800 border-deep-blue-600 text-white"
-                : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
-            )}
-          >
-            S
-          </button>
-          <button
-            type="button"
-            onClick={onClearFormat}
-            aria-label="Clear formatting"
-            className="h-7 w-7 rounded-lg border border-deep-blue-700 bg-deep-blue-900/60 hover:bg-deep-blue-800 text-gray-400 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
-          >
-            <ClearFormatIcon />
-          </button>
-        </div>
-
-        {/* Divider */}
-        <div className="h-4 w-px bg-deep-blue-700" />
-
-        {/* Alignment: Left, Center, Right */}
-        <div className="flex items-center gap-1">
-          <button
-            type="button"
-            onClick={() => onAlignChange?.("left")}
-            aria-label="Align Left"
-            className={cn(
-              "h-7 w-7 rounded-lg border flex items-center justify-center transition-colors cursor-pointer",
-              align === "left"
-                ? "bg-deep-blue-800 border-deep-blue-600 text-white"
-                : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
-            )}
-          >
-            <AlignLeftIcon />
-          </button>
-          <button
-            type="button"
-            onClick={() => onAlignChange?.("center")}
-            aria-label="Align Center"
-            className={cn(
-              "h-7 w-7 rounded-lg border flex items-center justify-center transition-colors cursor-pointer",
-              align === "center"
-                ? "bg-deep-blue-800 border-deep-blue-600 text-white"
-                : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
-            )}
-          >
-            <AlignCenterIcon />
-          </button>
-          <button
-            type="button"
-            onClick={() => onAlignChange?.("right")}
-            aria-label="Align Right"
-            className={cn(
-              "h-7 w-7 rounded-lg border flex items-center justify-center transition-colors cursor-pointer",
-              align === "right"
-                ? "bg-deep-blue-800 border-deep-blue-600 text-white"
-                : "bg-deep-blue-900/60 border-deep-blue-700 text-gray-300 hover:text-white hover:border-deep-blue-600"
-            )}
-          >
-            <AlignRightIcon />
-          </button>
-        </div>
-
-        {/* Divider */}
-        <div className="h-4 w-px bg-deep-blue-700" />
-
-        {/* Insert Table Grid Icon */}
-        <button
-          type="button"
-          onClick={onInsertTable}
-          aria-label="Insert Table"
-          className="h-7 w-7 rounded-lg border border-deep-blue-700 bg-deep-blue-900/60 hover:bg-deep-blue-800 text-gray-300 hover:text-white flex items-center justify-center transition-colors cursor-pointer"
-        >
-          <TableIcon />
-        </button>
       </div>
     </div>
   );

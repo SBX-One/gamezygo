@@ -80,8 +80,12 @@ export default function AdminInstructionsPage() {
   }, [templates, searchQuery]);
 
   // Handlers
-  const handleEdit = (template: InstructionTemplate) => {
+  const handleSelect = (template: InstructionTemplate) => {
     setSelectedId(template.id);
+  };
+
+  const handleEdit = (template: InstructionTemplate) => {
+    router.push(`/admin/instructions/edit/${template.id}`);
   };
 
   const handleDeleteClick = (template: InstructionTemplate) => {
@@ -157,6 +161,8 @@ export default function AdminInstructionsPage() {
       <AdminLayout
         title="Instruksi"
         activeNavId="instruksi"
+        isError={!isLoading && isError}
+        onReload={() => refetch()}
       >
         <div className="flex flex-col gap-6 w-full pb-12 select-none font-sans">
           {/* Top Controls Bar: Search, Filter, + Add New (Matching Gambar 3) */}
@@ -174,26 +180,13 @@ export default function AdminInstructionsPage() {
               </div>
             )}
 
-            {!isLoading && isError && (
-              <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-6 text-center text-red-300 text-sm space-y-3">
-                <p>Gagal memuat template instruksi dari database.</p>
-                <button
-                  type="button"
-                  onClick={() => refetch()}
-                  className="px-4 py-1.5 rounded-md bg-red-500/20 hover:bg-red-500/30 text-white text-xs font-medium cursor-pointer"
-                >
-                  Coba Lagi
-                </button>
-              </div>
-            )}
-
             {!isLoading &&
-              !isError &&
               filteredTemplates.map((template) => (
                 <AdminInstructionCard
                   key={template.id}
                   template={template}
                   isSelected={activeTemplate?.id === template.id}
+                  onSelect={handleSelect}
                   onEdit={handleEdit}
                   onDelete={handleDeleteClick}
                 />

@@ -273,7 +273,7 @@ export function AdminReviewsFilterModal({
     <div
       ref={popoverRef}
       className={cn(
-        "absolute right-0 top-11 z-50 w-80 sm:w-96 rounded-xl bg-deep-blue-950 border border-deep-blue-700/80 shadow-2xl p-5 sm:p-6 flex flex-col gap-5 select-none animate-in fade-in zoom-in-95 duration-150 text-white",
+        "absolute right-0 top-11 z-50 w-80 max-w-[calc(100vw-2rem)] sm:w-96 rounded-xl bg-deep-blue-950 border border-deep-blue-700/80 shadow-2xl p-5 sm:p-6 flex flex-col gap-5 select-none animate-in fade-in zoom-in-95 duration-150 text-white",
         className
       )}
     >

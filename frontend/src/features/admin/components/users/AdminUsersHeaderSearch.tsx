@@ -109,7 +109,7 @@ export function AdminUsersHeaderSearch({
   return (
     <div className={cn("relative flex items-center gap-3 sm:gap-4 select-none", className)}>
       {/* 1. Search Field */}
-      <div className="relative flex items-center w-48 sm:w-64">
+      <div className="relative flex-1 sm:flex-initial sm:w-64 min-w-0 flex items-center">
         <div className="absolute left-3 text-gray-400 pointer-events-none flex items-center">
           <SearchIcon className="w-4 h-4" />
         </div>
@@ -228,7 +228,7 @@ export function AdminUsersHeaderSearch({
             }
             setIsFilterOpen(false);
           }}
-          popoverClassName="w-80 sm:w-96 lg:w-[22vw] lg:min-w-[320px] !h-auto max-h-[90vh] top-11 right-0 shadow-2xl"
+          popoverClassName="w-80 max-w-[calc(100vw-2rem)] sm:w-96 lg:w-[22vw] lg:min-w-[320px] !h-auto max-h-[90vh] top-11 right-0 shadow-2xl"
         />
       </div>
     </div>

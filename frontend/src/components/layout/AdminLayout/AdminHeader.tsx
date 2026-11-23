@@ -33,7 +33,7 @@ export function AdminHeader({
   return (
     <header
       className={cn(
-        "w-full flex items-center justify-between px-6 py-6 bg-deep-blue-950 border-b border-deep-blue-700 select-none",
+        "w-full flex items-center justify-between px-6 py-6 bg-deep-blue-950 border-b border-deep-blue-500 select-none",
         className
       )}
     >

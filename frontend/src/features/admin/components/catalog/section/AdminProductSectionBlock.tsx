@@ -136,17 +136,19 @@ export function AdminProductSectionBlock({
               )}
             </div>
 
-            {/* 3 Action Buttons (Matching Images 2 & 3 using Button variant='inactive') */}
-            <div className="flex items-center gap-2 sm:gap-2.5">
+            {/* 3 Action Buttons (Edit Section icon-only on mobile to save space) */}
+            <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
               <Button
                 type="button"
                 variant="inactive"
                 size="sm"
                 onClick={onEditSection}
-                className="font-medium gap-2"
+                title="Edit Section"
+                aria-label="Edit Section"
+                className="font-medium gap-1.5 px-2.5 sm:px-3.5"
               >
-                <EditPencilIcon className="w-3.5 h-3.5" />
-                <span>Edit Section</span>
+                <EditPencilIcon className="w-3.5 h-3.5 shrink-0" />
+                <span className="hidden sm:inline whitespace-nowrap">Edit Section</span>
               </Button>
 
               <Button
@@ -154,7 +156,7 @@ export function AdminProductSectionBlock({
                 variant="inactive"
                 size="sm"
                 onClick={onClearSection}
-                className="font-medium"
+                className="font-medium text-label-xs sm:text-label-sm px-2.5 sm:px-3.5 whitespace-nowrap"
               >
                 Clear Section
               </Button>
@@ -164,7 +166,7 @@ export function AdminProductSectionBlock({
                 variant="inactive"
                 size="sm"
                 onClick={onDeleteSection}
-                className="font-medium"
+                className="font-medium text-label-xs sm:text-label-sm px-2.5 sm:px-3.5 whitespace-nowrap"
               >
                 Delete Section
               </Button>

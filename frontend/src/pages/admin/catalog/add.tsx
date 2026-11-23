@@ -242,9 +242,9 @@ export default function AdminAddProductPage() {
     </div>
   );
 
-  // Header Right Actions: Save and List, Save Draft, Close Button
+  // Header Right Actions: Save and List, Save Draft, Close Button (Desktop only on md+)
   const headerRight = (
-    <div className="flex items-center gap-3 select-none">
+    <div className="hidden md:flex items-center gap-3 select-none">
       <Button
         type="button"
         variant="primary"
@@ -293,6 +293,33 @@ export default function AdminAddProductPage() {
         headerRight={headerRight}
       >
         <div className="space-y-6 pb-12">
+          {/* Mobile-Only Action Buttons placed above the form */}
+          <div className="flex flex-col gap-3 w-full md:hidden">
+            <Button
+              type="button"
+              variant="primary"
+              size="md"
+              fullWidth
+              disabled={isSaving}
+              onClick={handleSaveAndList}
+              className="cursor-pointer"
+            >
+              {isSaving ? "Menyimpan..." : "Save and List"}
+            </Button>
+
+            <Button
+              type="button"
+              variant="inactive"
+              size="md"
+              fullWidth
+              disabled={isSaving}
+              onClick={handleSaveDraft}
+              className="cursor-pointer"
+            >
+              Save Draft
+            </Button>
+          </div>
+
           {errorMessage && (
             <div className="p-3.5 rounded-lg bg-rose-500/15 border border-rose-500/30 text-rose-300 text-sm">
               {errorMessage}

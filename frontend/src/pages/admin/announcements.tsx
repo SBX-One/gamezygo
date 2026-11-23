@@ -275,7 +275,12 @@ export default function AdminAnnouncementsPage() {
         />
       </Head>
 
-      <AdminLayout title="Pengumuman" activeNavId="pengumuman">
+      <AdminLayout
+        title="Pengumuman"
+        activeNavId="pengumuman"
+        isError={isError && !isEndpointMissing}
+        onReload={() => refetch()}
+      >
         <div className="w-full pb-16 flex flex-col gap-6 select-none font-sans">
           {isLoading ? (
             <div className="flex flex-col gap-8 w-full">

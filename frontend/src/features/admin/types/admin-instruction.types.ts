@@ -43,6 +43,7 @@ export interface InstructionTemplate {
   lastEdit: string;
   steps: InstructionStep[];
   blocks?: InstructionEditorBlock[];
+  content?: string;
 }
 
 export interface AdminInstructionFilterState {

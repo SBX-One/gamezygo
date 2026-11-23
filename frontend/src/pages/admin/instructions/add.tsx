@@ -304,8 +304,9 @@ export default function AdminAddNewInstructionPage() {
   );
 
   // Header Right Actions: Save Draft & Publish (Matching Add Blog)
+  // On mobile/tablet, Publish & Save Draft are moved above title input to prevent header crowding
   const headerRight = (
-    <div className="flex items-center gap-3 select-none">
+    <div className="hidden md:flex items-center gap-2.5 sm:gap-3 select-none">
       <Button
         variant="inactive"
         size="sm"
@@ -347,7 +348,29 @@ export default function AdminAddNewInstructionPage() {
           </div>
         )}
 
-        <div className="flex flex-col gap-5 w-full select-none font-sans pb-16">
+        <div className="flex flex-col gap-4 sm:gap-5 w-full select-none font-sans pb-16">
+          {/* Mobile/Tablet Action Buttons: Publish placed above Save Draft */}
+          <div className="flex md:hidden flex-col gap-2.5 w-full">
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              onClick={handlePublish}
+              className="w-full justify-center"
+            >
+              Publish
+            </Button>
+            <Button
+              type="button"
+              variant="inactive"
+              size="sm"
+              onClick={handleSaveDraft}
+              className="w-full justify-center"
+            >
+              Save Draft
+            </Button>
+          </div>
+
           {/* Top Action Bar: Title input & Clear / Delete buttons (Matching requested image) */}
           <AdminInstructionEditorTopBar
             title={title}
@@ -395,7 +418,7 @@ export default function AdminAddNewInstructionPage() {
             />
 
             {/* 2. Editor Body (Thumbnail upload removed, starts directly with Notion-style Editor) */}
-            <div className="p-6 sm:p-10 space-y-6">
+            <div className="p-4 sm:p-6 md:p-10 space-y-6">
               {/* Notion-style Interactive Block Editor */}
               <AdminArticleBlockEditor
                 title={title}

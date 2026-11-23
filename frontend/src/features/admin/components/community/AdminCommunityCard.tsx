@@ -116,9 +116,9 @@ export function AdminCommunityCard({
       )}
 
       {/* Main Card Row */}
-      <div className="w-full flex items-center justify-between gap-4 p-3 sm:p-4 rounded-lg bg-deep-blue-900 border border-deep-blue-700 hover:border-deep-blue-600 transition-colors shadow-xs">
+      <div className="w-full flex flex-col sm:flex-row sm:items-center justify-between gap-3.5 sm:gap-4 p-3.5 sm:p-4 rounded-lg bg-deep-blue-900 border border-deep-blue-700 hover:border-deep-blue-600 transition-colors shadow-xs">
         {/* Left Side: Drag Handle + Cover Image + Community Info */}
-        <div className="flex items-center gap-3.5 sm:gap-4 min-w-0">
+        <div className="flex items-start sm:items-center gap-3 sm:gap-4 min-w-0 flex-1">
           <div
             draggable={!isBusy}
             onDragStart={(e) => {
@@ -135,7 +135,7 @@ export function AdminCommunityCard({
               onDragStart(index, e);
             }}
             onDragEnd={onDragEnd}
-            className="p-1.5 text-gray-500 hover:text-white cursor-grab active:cursor-grabbing hover:bg-white/5 rounded-md transition-all shrink-0"
+            className="p-1.5 mt-0.5 sm:mt-0 text-gray-500 hover:text-white cursor-grab active:cursor-grabbing hover:bg-white/5 rounded-md transition-all shrink-0"
             title="Tarik untuk memindahkan urutan komunitas"
             aria-label="Tarik untuk memindahkan urutan komunitas"
           >
@@ -160,18 +160,19 @@ export function AdminCommunityCard({
           </div>
 
           {/* Title, Link & Tag Pills */}
-          <div className="flex flex-col min-w-0 gap-1.5">
+          <div className="flex flex-col min-w-0 flex-1 gap-1.5">
             <div className="flex items-center gap-2 min-w-0">
               <h3 className="text-sm sm:text-base font-semibold text-white tracking-normal truncate">
                 {item.name}
               </h3>
+              {/* Desktop Status Badge (shown beside title on md+) */}
               {onToggleActive ? (
                 <button
                   type="button"
                   disabled={isBusy}
                   onClick={() => onToggleActive(item, !item.isActive)}
                   className={cn(
-                    "px-2 py-0.5 rounded-full text-[11px] font-semibold border transition-colors cursor-pointer shrink-0",
+                    "hidden md:inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold border transition-colors cursor-pointer shrink-0 whitespace-nowrap",
                     item.isActive
                       ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20"
                       : "bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20"
@@ -186,38 +187,68 @@ export function AdminCommunityCard({
                 </button>
               ) : (
                 !item.isActive && (
-                  <span className="px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 border border-amber-500/30 text-amber-300 shrink-0">
+                  <span className="hidden md:inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 border border-amber-500/30 text-amber-300 shrink-0 whitespace-nowrap">
                     Nonaktif
                   </span>
                 )
               )}
             </div>
 
-            <div className="flex items-center gap-1.5 flex-wrap">
+            {/* Tags & Status row: scroll-x on mobile & tablet (overflow-x-auto flex-nowrap no-scrollbar), wrapping on desktop */}
+            <div className="w-full flex items-center gap-1.5 overflow-x-auto flex-nowrap md:flex-wrap no-scrollbar py-0.5 min-w-0 max-w-full">
+              {/* Mobile-only status badge at start of scroll-x row */}
+              {onToggleActive ? (
+                <button
+                  type="button"
+                  disabled={isBusy}
+                  onClick={() => onToggleActive(item, !item.isActive)}
+                  className={cn(
+                    "md:hidden inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold border transition-colors cursor-pointer shrink-0 whitespace-nowrap",
+                    item.isActive
+                      ? "bg-emerald-500/10 border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/20"
+                      : "bg-amber-500/10 border-amber-500/30 text-amber-300 hover:bg-amber-500/20"
+                  )}
+                  title={
+                    item.isActive
+                      ? "Klik untuk menonaktifkan"
+                      : "Klik untuk mengaktifkan"
+                  }
+                >
+                  {item.isActive ? "Aktif" : "Nonaktif"}
+                </button>
+              ) : (
+                !item.isActive && (
+                  <span className="md:hidden inline-flex px-2 py-0.5 rounded-full text-[11px] font-semibold bg-amber-500/10 border border-amber-500/30 text-amber-300 shrink-0 whitespace-nowrap">
+                    Nonaktif
+                  </span>
+                )
+              )}
+
               {tagsList.length > 0 ? (
                 tagsList.map((tag) => (
                   <span
                     key={tag}
-                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-label-xs font-medium bg-deep-blue-950 border border-deep-blue-700 text-gray-300 w-fit"
+                    className="inline-flex items-center px-2.5 py-0.5 rounded-full text-label-xs font-medium bg-deep-blue-950 border border-deep-blue-700 text-gray-300 shrink-0 whitespace-nowrap"
                   >
                     {tag}
                   </span>
                 ))
               ) : (
-                <span className="text-xs text-gray-500">Tanpa tag</span>
+                <span className="text-xs text-gray-500 shrink-0">Tanpa tag</span>
               )}
             </div>
           </div>
         </div>
 
         {/* Right Side: Edit & Delete buttons */}
-        <div className="flex items-center gap-2 sm:gap-2.5 shrink-0">
+        <div className="flex items-center justify-end gap-2 sm:gap-2.5 w-full sm:w-auto pt-2.5 sm:pt-0 border-t border-white/5 sm:border-0 shrink-0">
           <Button
             variant="inactive"
             size="sm"
             disabled={isBusy}
             onClick={() => onEdit(item)}
             leftIcon={<EditIcon className="w-3.5 h-3.5" />}
+            className="flex-1 sm:flex-initial"
           >
             Edit
           </Button>
@@ -227,6 +258,7 @@ export function AdminCommunityCard({
             size="sm"
             disabled={isBusy}
             onClick={() => onDelete(item)}
+            className="flex-1 sm:flex-initial"
           >
             Delete
           </Button>

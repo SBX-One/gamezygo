@@ -521,7 +521,7 @@ export function AdminCommunityDrawer({
 
       <div
         className={cn(
-          "fixed inset-y-0 right-0 z-10 w-[480px] max-w-[95vw] h-full bg-deep-blue-950 border-l border-deep-blue-700 shadow-2xl flex flex-col justify-start animate-in slide-in-from-right duration-200 overflow-y-auto",
+          "fixed inset-0 lg:left-auto lg:right-0 z-10 w-full lg:w-[480px] h-full bg-deep-blue-950 border-l border-deep-blue-700 shadow-2xl flex flex-col justify-start animate-in slide-in-from-right duration-200 overflow-y-auto",
           className
         )}
       >

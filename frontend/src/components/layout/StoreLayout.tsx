@@ -9,6 +9,8 @@ import { useRouter } from "next/router";
 import { useUiStore } from "@/stores/use-ui-store";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useProductFilters } from "@/hooks/use-products";
+import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
+import { Error500View } from "@/components/shared/Error500View";
 import type { SidebarItem } from "@/components/ui/Sidebar/Sidebar.types";
 import type { StoreLayoutProps } from "./StoreLayout.types";
 
@@ -62,12 +64,18 @@ export function StoreLayout({
   contentClassName,
   backTitle,
   onBackClick,
+  isError = false,
+  hasError = false,
+  onReload,
+  errorTitle,
+  errorDescription,
   className,
   ref,
   style,
   ...props
 }: StoreLayoutProps) {
   const router = useRouter();
+  const effectiveIsError = Boolean(isError || hasError);
   const {
     isSidebarOpen,
     toggleSidebar,
@@ -372,7 +380,25 @@ export function StoreLayout({
             contentClassName ?? "px-4 sm:px-6 lg:px-8 py-6 sm:py-8"
           )}
         >
-          {children}
+          <ErrorBoundary
+            showBackButton={true}
+            onReset={onReload}
+            errorTitle={errorTitle}
+            errorDescription={errorDescription}
+          >
+            {effectiveIsError ? (
+              <div className="py-20 flex items-center justify-center w-full">
+                <Error500View
+                  title={errorTitle}
+                  description={errorDescription}
+                  showBackButton={true}
+                  onReload={onReload}
+                />
+              </div>
+            ) : (
+              children
+            )}
+          </ErrorBoundary>
         </main>
       </div>
 

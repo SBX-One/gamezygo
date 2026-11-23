@@ -151,7 +151,12 @@ export default function AdminProductPerformancePage() {
         />
       </Head>
 
-      <AdminLayout title={breadcrumbs} activeNavId="pendapatan">
+      <AdminLayout
+        title={breadcrumbs}
+        activeNavId="pendapatan"
+        isError={!isLoading && (isError || !resolvedProductId)}
+        onReload={() => refetch()}
+      >
         <div className="space-y-8 pb-10">
           {isLoading ? (
             <div className="space-y-8 animate-pulse">
@@ -162,15 +167,6 @@ export default function AdminProductPerformancePage() {
                 <div className="h-36 rounded-lg bg-deep-blue-900 border border-deep-blue-700" />
               </div>
               <div className="h-64 rounded-lg bg-deep-blue-900 border border-deep-blue-700" />
-            </div>
-          ) : isError || !resolvedProductId ? (
-            <div className="w-full py-14 rounded-lg bg-deep-blue-900 border border-rose-500/30 flex flex-col items-center justify-center text-center gap-3 px-4">
-              <p className="text-sm text-rose-300 font-medium">
-                Gagal memuat data performa produk dari database.
-              </p>
-              <Button variant="secondary" size="sm" onClick={() => refetch()}>
-                Muat Ulang
-              </Button>
             </div>
           ) : (
             <>

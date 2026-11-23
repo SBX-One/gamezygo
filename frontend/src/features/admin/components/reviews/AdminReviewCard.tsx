@@ -50,26 +50,28 @@ export function AdminReviewCard({
       )}
     >
       <div>
-        {/* Top Header: Email & Date on left, Rating Pill on right (Matching Image 1 & 3) */}
-        <div className="flex items-start justify-between gap-4">
-          <div>
-            <h4 className="text-body-sm font-bold text-gray-50 tracking-tight truncate max-w-[200px] sm:max-w-[260px]">
+        {/* Top Header: Email & Date on left, Rating Pill on right (flex-col on mobile to prevent clipping) */}
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5 sm:gap-4">
+          <div className="min-w-0 flex-1">
+            <h4 className="text-body-sm font-bold text-gray-50 tracking-tight truncate sm:max-w-[260px]">
               {review.userEmail}
             </h4>
-            <p className="text-body-xs text-gray-400 mt-1 font-normal">
+            <p className="text-body-xs text-gray-400 mt-0.5 sm:mt-1 font-normal">
               {review.createdAt}
             </p>
           </div>
 
-          {/* Rating Pill using Pill component (Matching Image 1 & 3) */}
-          <Pill
-            variant="secondary"
-            size="sm"
-            rightIcon={<StarFilledIcon />}
-            className="shrink-0"
-          >
-            {review.rating} Star
-          </Pill>
+          {/* Rating Pill using Pill component (stacks on mobile below email) */}
+          <div className="self-start sm:self-auto shrink-0">
+            <Pill
+              variant="secondary"
+              size="sm"
+              rightIcon={<StarFilledIcon />}
+              className="shrink-0"
+            >
+              {review.rating} Star
+            </Pill>
+          </div>
         </div>
 
         {/* Review Quote Text (Matching Image 1 & 3) */}

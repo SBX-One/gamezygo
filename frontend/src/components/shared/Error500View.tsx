@@ -1,0 +1,143 @@
+import * as React from "react";
+import { cn } from "@/lib/utils";
+
+export interface Error500ViewProps {
+  title?: string;
+  description?: string;
+  showBackButton?: boolean;
+  backLabel?: string;
+  reloadLabel?: string;
+  onBack?: () => void;
+  onReload?: () => void;
+  className?: string;
+}
+
+/**
+ * Fluent Wifi icon matching Gamezygo assets (fluent_wifi-1-24-filled.svg)
+ */
+export const FluentWifiFilledIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="32"
+    height="32"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className="w-8 h-8 text-white shrink-0"
+    {...props}
+  >
+    <path
+      d="M17.7843 10.708C18.3896 11.3217 18.8969 12.0249 19.2883 12.793C19.3998 13.028 19.4153 13.2971 19.3316 13.5434C19.248 13.7897 19.0716 13.9936 18.84 14.112C18.6084 14.2304 18.3398 14.2539 18.0912 14.1776C17.8426 14.1012 17.6335 13.931 17.5083 13.703C17.2118 13.1213 16.828 12.5885 16.3703 12.123C15.6858 11.4382 14.8487 10.9253 13.9277 10.6265C13.0067 10.3276 12.028 10.2513 11.0718 10.4037C10.1156 10.5561 9.20911 10.9329 8.42665 11.5033C7.6442 12.0736 7.00803 12.8213 6.5703 13.685C6.44714 13.9156 6.23859 14.0887 5.98932 14.1674C5.74004 14.2462 5.46985 14.2241 5.23662 14.1061C5.00339 13.988 4.82566 13.7833 4.74149 13.5358C4.65732 13.2883 4.6734 13.0177 4.7863 12.782C5.3667 11.6363 6.21032 10.6445 7.24801 9.88787C8.28571 9.1312 9.48793 8.63119 10.7562 8.42883C12.0244 8.22647 13.3225 8.32751 14.5442 8.72367C15.7658 9.11984 16.8762 9.79985 17.7843 10.708ZM15.7353 13.7C16.1953 14.16 16.5733 14.724 16.8373 15.324C16.9438 15.5669 16.9494 15.8422 16.8529 16.0893C16.7564 16.3364 16.5657 16.535 16.3228 16.6415C16.0799 16.748 15.8046 16.7536 15.5575 16.6571C15.3104 16.5606 15.1118 16.3699 15.0053 16.127C14.8404 15.7508 14.6086 15.4075 14.3213 15.114C13.715 14.5077 12.8927 14.1671 12.0353 14.1671C11.1779 14.1671 10.3556 14.5077 9.7493 15.114C9.46583 15.4032 9.23803 15.7422 9.0773 16.114C9.02568 16.2358 8.9504 16.3462 8.85581 16.4387C8.76122 16.5313 8.6492 16.6041 8.52625 16.6531C8.4033 16.702 8.27186 16.726 8.13955 16.7238C8.00724 16.7215 7.87669 16.6931 7.75547 16.64C7.63425 16.5869 7.52477 16.5103 7.43337 16.4146C7.34197 16.3189 7.27047 16.2061 7.22301 16.0825C7.17556 15.959 7.15309 15.8273 7.15692 15.695C7.16074 15.5627 7.19078 15.4325 7.2453 15.312C7.50603 14.712 7.87559 14.1654 8.3353 13.7C9.31665 12.7188 10.6476 12.1676 12.0353 12.1676C13.423 12.1676 14.7539 12.7188 15.7353 13.7ZM20.4193 8.29897C20.9273 8.80697 21.4063 9.38597 21.8233 9.98997C21.9718 10.2083 22.0279 10.4765 21.9794 10.736C21.9309 10.9956 21.7817 11.2254 21.5644 11.3753C21.3471 11.5253 21.0793 11.5833 20.8195 11.5366C20.5596 11.4898 20.3288 11.3422 20.1773 11.126C19.8273 10.62 19.4263 10.133 19.0053 9.71297C15.1333 5.84097 8.8553 5.84097 4.9823 9.71297C4.5833 10.112 4.1853 10.599 3.8223 11.123C3.67112 11.341 3.43954 11.49 3.17849 11.5373C2.91744 11.5845 2.6483 11.5261 2.4303 11.375C2.21229 11.2238 2.06326 10.9922 2.016 10.7312C1.96874 10.4701 2.02712 10.201 2.1783 9.98297C2.6063 9.36497 3.0793 8.78797 3.5683 8.29897C8.2213 3.64497 15.7663 3.64497 20.4193 8.29897ZM13.0623 16.441C13.2017 16.5804 13.3123 16.7459 13.3877 16.928C13.4632 17.1101 13.502 17.3053 13.502 17.5025C13.502 17.6996 13.4632 17.8948 13.3877 18.077C13.3123 18.2591 13.2017 18.4246 13.0623 18.564C12.9229 18.7034 12.7574 18.8139 12.5753 18.8894C12.3931 18.9648 12.1979 19.0037 12.0008 19.0037C11.8037 19.0037 11.6084 18.9648 11.4263 18.8894C11.2442 18.8139 11.0787 18.7034 10.9393 18.564C10.6578 18.2824 10.4996 17.9006 10.4996 17.5025C10.4996 17.1043 10.6578 16.7225 10.9393 16.441C11.2208 16.1594 11.6027 16.0013 12.0008 16.0013C12.3989 16.0013 12.7808 16.1594 13.0623 16.441Z"
+      fill="currentColor"
+    />
+  </svg>
+);
+
+const ArrowLeftIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <line x1="19" y1="12" x2="5" y2="12" />
+    <polyline points="12 19 5 12 12 5" />
+  </svg>
+);
+
+const ReloadIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
+    <path d="M3 3v5h5" />
+    <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
+    <path d="M16 21h5v-5" />
+  </svg>
+);
+
+export function Error500View({
+  title = "500: Internal Server Error",
+  description = "This page you're looking for doesn't exist or has been moved. Please check the URL or return to the homepage.",
+  showBackButton = false,
+  backLabel = "Kembali",
+  reloadLabel = "Reload",
+  onBack,
+  onReload,
+  className,
+}: Error500ViewProps) {
+  const handleBack = () => {
+    if (onBack) {
+      onBack();
+    } else if (typeof window !== "undefined") {
+      window.history.back();
+    }
+  };
+
+  const handleReload = () => {
+    if (onReload) {
+      onReload();
+    } else if (typeof window !== "undefined") {
+      window.location.reload();
+    }
+  };
+
+  return (
+    <div
+      className={cn(
+        "flex flex-col items-center justify-center text-center p-6 sm:p-10 select-none mx-auto min-h-[460px] w-full",
+        className
+      )}
+    >
+      {/* 1. Icon Container with 16px border-radius and subtle dark frame */}
+      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white mb-6 shadow-inner">
+        <FluentWifiFilledIcon className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
+      </div>
+
+      {/* 2. Bold Title */}
+      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2.5 tracking-tight">
+        {title}
+      </h2>
+
+      {/* 3. Description */}
+      <p className="text-gray-400 text-sm max-w-md text-center leading-relaxed mb-8 font-normal">
+        {description}
+      </p>
+
+      {/* 4. Action Buttons (Customer has Kembali + Reload, Admin has Reload only) */}
+      <div className="flex items-center justify-center gap-3">
+        {showBackButton && (
+          <button
+            type="button"
+            onClick={handleBack}
+            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-medium text-gray-200 hover:text-white transition-all cursor-pointer shadow-sm active:scale-98"
+          >
+            <ArrowLeftIcon className="w-4 h-4 text-gray-300" />
+            <span>{backLabel}</span>
+          </button>
+        )}
+
+        <button
+          type="button"
+          onClick={handleReload}
+          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-medium text-gray-200 hover:text-white transition-all cursor-pointer shadow-sm active:scale-98"
+        >
+          <ReloadIcon className="w-4 h-4 text-gray-300" />
+          <span>{reloadLabel}</span>
+        </button>
+      </div>
+    </div>
+  );
+}

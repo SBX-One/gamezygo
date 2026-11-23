@@ -189,25 +189,23 @@ export function AdminEditSubscriptionGamesModal({
         </div>
 
         {/* Content Body */}
-        <div className="p-6 overflow-y-auto space-y-6">
-          {/* Sub-bar: Stats Box (Matching Image 4 & Image 5) */}
-          <div className="flex items-center justify-between p-3.5 bg-deep-blue-900/50 border border-deep-blue-700 rounded-lg">
-            <div className="flex items-center gap-2 pl-2">
-              <span className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
+        <div className="p-4 sm:p-6 overflow-y-auto space-y-5 sm:space-y-6">
+          {/* Sub-bar: Stats Box (flex-col layout per item for clean display on mobile & desktop) */}
+          <div className="grid grid-cols-2 gap-3 p-3.5 bg-deep-blue-900/50 border border-deep-blue-700 rounded-lg">
+            <div className="flex flex-col gap-1 pl-1 sm:pl-2">
+              <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider whitespace-nowrap">
                 SUBS WORTH :
               </span>
-              <span className="text-label-xs sm:text-sm font-bold text-gray-50">
+              <span className="text-xs sm:text-sm font-bold text-gray-50 whitespace-nowrap truncate">
                 {effectiveTotalWorth}
               </span>
             </div>
 
-            <div className="w-px h-5 bg-deep-blue-700" />
-
-            <div className="flex items-center gap-2 pr-2">
-              <span className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
+            <div className="flex flex-col gap-1 pl-3 sm:pl-4 border-l border-deep-blue-700">
+              <span className="text-[11px] font-semibold text-gray-400 uppercase tracking-wider whitespace-nowrap">
                 TOTAL GAMES :
               </span>
-              <span className="text-label-xs sm:text-sm font-bold text-gray-50">
+              <span className="text-xs sm:text-sm font-bold text-gray-50 whitespace-nowrap">
                 {effectiveGamesCount} Games
               </span>
             </div>
@@ -243,14 +241,13 @@ export function AdminEditSubscriptionGamesModal({
                   )}
                 </div>
 
-                <Button
+                <button
                   type="button"
-                  variant="inactive"
-                  size="xs"
                   onClick={() => setAddedSearch("")}
+                  className="px-3.5 py-2 rounded-lg border border-deep-blue-700 bg-deep-blue-900 hover:bg-deep-blue-850 text-label-xs font-semibold text-gray-300 hover:text-white transition-colors cursor-pointer shrink-0"
                 >
                   Clear
-                </Button>
+                </button>
               </div>
 
               {/* List or Empty State */}
@@ -343,7 +340,7 @@ export function AdminEditSubscriptionGamesModal({
                 <button
                   type="button"
                   onClick={() => setAvailableSearch("")}
-                  className="px-3.5 py-2 rounded-lg border border-deep-blue-700 bg-deep-blue-900 hover:bg-deep-blue-850 text-label-xs font-semibold text-gray-300 hover:text-white transition-colors cursor-pointer"
+                  className="px-3.5 py-2 rounded-lg border border-deep-blue-700 bg-deep-blue-900 hover:bg-deep-blue-850 text-label-xs font-semibold text-gray-300 hover:text-white transition-colors cursor-pointer shrink-0"
                 >
                   Clear
                 </button>

@@ -43,9 +43,6 @@ export default function AdminVoucherAnalyticsPage() {
   const voucherId = typeof id === "string" ? id : undefined;
   const voucherCode = typeof code === "string" ? code : undefined;
 
-  const [isEmptyMode, setIsEmptyMode] = React.useState<boolean>(
-    empty === "true" || empty === "1"
-  );
   const [currentPage, setCurrentPage] = React.useState<number>(1);
   const [dateFilter, setDateFilter] = React.useState<{
     period?: string;
@@ -72,10 +69,10 @@ export default function AdminVoucherAnalyticsPage() {
     }
   );
 
-  const effectiveIsEmptyMode = isEmptyMode || empty === "true" || empty === "1";
+  const isUrlEmptyMode = empty === "true" || empty === "1";
 
   const analyticsData: VoucherAnalyticsData = React.useMemo(() => {
-    if (effectiveIsEmptyMode) {
+    if (isUrlEmptyMode) {
       return MOCK_VOUCHER_ANALYTICS_EMPTY_DATA;
     }
     if (serverAnalytics?.data) {
@@ -92,14 +89,14 @@ export default function AdminVoucherAnalyticsPage() {
       };
     }
     return base;
-  }, [effectiveIsEmptyMode, serverAnalytics, voucherCode]);
+  }, [isUrlEmptyMode, serverAnalytics, voucherCode]);
 
   // Loading state: when router isn't ready or initial query is loading and no data yet
   const showSkeleton = !isReady || (isQueryLoading && !serverAnalytics);
 
   // Export CSV Handler
   const handleExportCSV = async () => {
-    if (voucherId && !effectiveIsEmptyMode) {
+    if (voucherId && !isUrlEmptyMode) {
       try {
         const blob = await adminVoucherService.exportUsagesCsv(voucherId);
         const url = URL.createObjectURL(blob);
@@ -169,18 +166,9 @@ export default function AdminVoucherAnalyticsPage() {
     </nav>
   );
 
-  // Right Header Buttons: Toggle Empty State demo + [Export CSV]
+  // Right Header Button: [Export CSV]
   const headerRight = (
     <div className="flex items-center gap-3 select-none">
-      <Button
-        variant="outline"
-        size="xs"
-        onClick={() => setIsEmptyMode((prev) => !prev)}
-        className="px-3 py-2"
-      >
-        {isEmptyMode ? "Preview Data" : "Preview Empty State"}
-      </Button>
-
       <Button
         variant="primary"
         size="sm"

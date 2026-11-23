@@ -41,33 +41,36 @@ export function AdminBundleStatisticSection({
       <AdminCard
         title="BUNDLE STATISTIC"
         className={className}
-        bodyClassName="p-6 select-none"
+        bodyClassName="p-4 sm:p-6 select-none"
       >
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-stretch">
           {/* 1. Left Highlight Box Skeleton */}
-          <div className="rounded-lg border border-deep-blue-700/60 p-6 flex flex-col justify-between gap-6">
+          <div className="rounded-lg border border-deep-blue-700/60 p-4 sm:p-6 flex flex-col justify-between gap-6">
             <div className="space-y-2">
-              <div className="w-32 h-4 rounded bg-white/10 animate-pulse" />
-              <div className="w-48 h-8 rounded bg-white/10 animate-pulse" />
+              <div className="w-28 sm:w-32 h-4 rounded bg-white/10 animate-pulse" />
+              <div className="w-40 sm:w-48 h-8 rounded bg-white/10 animate-pulse" />
             </div>
-            <div className="space-y-2">
-              <div className="w-40 h-4 rounded bg-white/10 animate-pulse" />
-              <div className="w-24 h-4 rounded bg-white/10 animate-pulse" />
+            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-deep-blue-700/40">
+              <div className="space-y-1.5">
+                <div className="w-20 h-3 rounded bg-white/10 animate-pulse" />
+                <div className="w-24 sm:w-28 h-6 rounded bg-white/10 animate-pulse" />
+              </div>
+              <div className="space-y-1.5">
+                <div className="w-20 h-3 rounded bg-white/10 animate-pulse" />
+                <div className="w-24 sm:w-28 h-6 rounded bg-white/10 animate-pulse" />
+              </div>
             </div>
           </div>
 
-          {/* 2. Right Chart Skeleton */}
-          <div className="rounded-lg border border-deep-blue-700/60 p-6 flex items-end justify-between gap-4 h-48">
-            {[50, 80, 40, 95, 60, 75].map((h, i) => (
+          {/* 2. Right Subs Metrics Rows Skeleton (sesuai struktur konten asli) */}
+          <div className="flex flex-col divide-y divide-deep-blue-700/60 px-2 sm:px-4 justify-center">
+            {Array.from({ length: 3 }).map((_, idx) => (
               <div
-                key={`bundle-skel-${i}`}
-                className="flex-1 flex flex-col items-center gap-2"
+                key={`bundle-subs-skel-${idx}`}
+                className="flex items-center justify-between py-5 gap-4"
               >
-                <div
-                  style={{ height: `${h}%` }}
-                  className="w-full rounded-t bg-white/10 animate-pulse"
-                />
-                <div className="w-8 h-3 rounded bg-white/10 animate-pulse" />
+                <div className="w-36 sm:w-44 h-4 rounded bg-white/10 animate-pulse" />
+                <div className="w-16 sm:w-20 h-4 rounded bg-white/10 animate-pulse shrink-0" />
               </div>
             ))}
           </div>

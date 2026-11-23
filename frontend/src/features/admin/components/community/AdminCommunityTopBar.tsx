@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { FilterModal } from "@/components/ui/FilterModal";
+import { Button } from "@/components/ui/Button";
 import type { CommunityPlatformTag } from "../../types/admin-community.types";
 
 export interface AdminCommunityTopBarProps {
@@ -122,14 +123,14 @@ export function AdminCommunityTopBar({
   return (
     <div
       className={cn(
-        "w-full flex items-center justify-between gap-3 pb-4 border-b border-white/10 select-none",
+        "w-full flex items-center justify-between gap-2.5 sm:gap-4 pb-4 border-b border-white/10 select-none",
         className
       )}
     >
       {/* Left: Search Input & Filter Button */}
-      <div className="flex items-center gap-3 sm:gap-4">
+      <div className="flex-1 sm:flex-initial flex items-center gap-2.5 sm:gap-4 min-w-0">
         {/* Search input with search icon & clear button */}
-        <div className="relative flex items-center w-48 sm:w-64">
+        <div className="relative flex-1 sm:flex-initial sm:w-64 min-w-0 flex items-center">
           <div className="absolute left-3 text-gray-400 pointer-events-none flex items-center">
             <SearchIcon className="w-4 h-4" />
           </div>
@@ -206,15 +207,17 @@ export function AdminCommunityTopBar({
         </div>
       </div>
 
-      {/* Right: + Add New Button */}
-      <button
-        type="button"
+      {/* Right: + Add New Button (Primary Button with only + on mobile & tablet) */}
+      <Button
+        variant="primary"
+        size="sm"
         onClick={onAddNew}
-        className="inline-flex items-center gap-1.5 px-4 sm:px-5 h-10 rounded-lg bg-linear-to-r from-[#DF3848] to-[#BA343C] hover:brightness-110 active:scale-95 text-white text-label-xs sm:text-sm font-semibold shadow-xs transition-all cursor-pointer shrink-0"
+        className="h-10 px-3 md:px-4 shrink-0 !gap-1.5 whitespace-nowrap"
+        aria-label="Add New Community"
       >
-        <PlusIcon />
-        <span>Add New</span>
-      </button>
+        <PlusIcon className="w-4 h-4 shrink-0" />
+        <span className="hidden md:inline">Add New</span>
+      </Button>
     </div>
   );
 }

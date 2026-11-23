@@ -6,6 +6,7 @@ import type { InstructionTemplate } from "../../types/admin-instruction.types";
 export interface AdminInstructionCardProps {
   template: InstructionTemplate;
   isSelected?: boolean;
+  onSelect?: (template: InstructionTemplate) => void;
   onEdit: (template: InstructionTemplate) => void;
   onDelete: (template: InstructionTemplate) => void;
   className?: string;
@@ -14,13 +15,14 @@ export interface AdminInstructionCardProps {
 export function AdminInstructionCard({
   template,
   isSelected = false,
+  onSelect,
   onEdit,
   onDelete,
   className,
 }: AdminInstructionCardProps) {
   return (
     <div
-      onClick={() => onEdit(template)}
+      onClick={() => (onSelect ? onSelect(template) : onEdit(template))}
       className={cn(
         "w-full rounded-lg bg-deep-blue-900 border border-deep-blue-700 p-4 sm:px-5 sm:py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition-all duration-150 hover:border-deep-blue-600 shadow-xs select-none font-sans cursor-pointer",
         isSelected && "border-deep-blue-500 ring-1 ring-deep-blue-500/40",

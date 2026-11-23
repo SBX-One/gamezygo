@@ -312,11 +312,13 @@ export default function AdminArticlesPage() {
   };
 
   const headerRight = (
-    <AdminArticlesTopBar
-      filters={filters}
-      categories={blogCategories}
-      onFilterChange={handleFilterChange}
-    />
+    <div className="hidden lg:flex items-center">
+      <AdminArticlesTopBar
+        filters={filters}
+        categories={blogCategories}
+        onFilterChange={handleFilterChange}
+      />
+    </div>
   );
 
   const showEmptyDatabaseState =
@@ -336,6 +338,8 @@ export default function AdminArticlesPage() {
         title="Artikel"
         activeNavId="artikel"
         headerRight={headerRight}
+        isError={isError}
+        onReload={() => refetch()}
       >
         <div className="space-y-6 sm:space-y-7 pb-10">
           {/* Top Action Row */}
@@ -382,18 +386,19 @@ export default function AdminArticlesPage() {
             </div>
           </div>
 
+          {/* Tablet & Mobile Search, Status Checkboxes & Filter Bar: placed below total articles */}
+          <div className="block lg:hidden w-full pb-1">
+            <AdminArticlesTopBar
+              filters={filters}
+              categories={blogCategories}
+              onFilterChange={handleFilterChange}
+              className="w-full justify-between flex-wrap gap-3"
+            />
+          </div>
+
           <div className="w-full h-px bg-white/10 -mt-2" />
 
-          {isError ? (
-            <div className="w-full py-16 rounded-lg bg-deep-blue-900 border border-rose-500/30 flex flex-col items-center justify-center text-center gap-3 px-4">
-              <p className="text-sm text-rose-300 font-medium">
-                Gagal memuat daftar artikel dari database. Pastikan Anda sudah login sebagai Admin.
-              </p>
-              <Button variant="secondary" size="sm" onClick={() => refetch()}>
-                Muat Ulang
-              </Button>
-            </div>
-          ) : showEmptyDatabaseState ? (
+          {showEmptyDatabaseState ? (
             <div className="w-full min-h-115 py-20 flex flex-col items-center justify-center text-center select-none animate-in fade-in duration-200">
               <div className="w-16 h-16 rounded-lg bg-[#161822] border border-white/5 flex items-center justify-center text-gray-200 mb-5">
                 <ArticleDocumentIcon className="w-8 h-8 text-gray-200" />

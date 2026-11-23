@@ -465,7 +465,7 @@ export function AdminArticleBlockEditor({
       }}
       onClick={handleCanvasClick}
       className={cn(
-        "w-full transition-transform duration-150 pl-14 sm:pl-16 relative font-sans",
+        "w-full transition-transform duration-150 pl-0 md:pl-14 lg:pl-16 relative font-sans",
         className
       )}
     >
@@ -494,46 +494,10 @@ export function AdminArticleBlockEditor({
               onDragOver={(e) => handleDragOver(e, index)}
               onDrop={(e) => handleDrop(e, index)}
               className={cn(
-                "group relative w-full flex items-start transition-all rounded-lg font-sans",
+                "group relative w-full flex flex-col md:flex-row md:items-start transition-all rounded-lg font-sans",
                 isDragOver && "border-t-2 border-[#DF3848] pt-1"
               )}
             >
-              {/* Left Gutter Action Controls: 
-                  Grip (Drag to swap) + Plus (Add) + Trash (Delete)
-                  Positioned strictly outside the text column with guaranteed gap */}
-              <div className="absolute right-full mr-3.5 top-0.5 opacity-0 group-hover:opacity-100 flex items-center gap-1 select-none transition-opacity z-20">
-                {/* 1. Drag & Drop Reorder Grip Handle (Tukar Section) */}
-                <div
-                  draggable
-                  onDragStart={(e) => handleDragStart(e, index)}
-                  onDragEnd={handleDragEnd}
-                  title="Drag untuk menukar urutan section"
-                  className="p-1 rounded text-gray-400 hover:text-white hover:bg-white/10 cursor-grab active:cursor-grabbing transition-colors"
-                >
-                  <GripVerticalIcon />
-                </div>
-
-                {/* 2. Add Section Below (+) */}
-                <button
-                  type="button"
-                  onClick={() => handleAddBlockBelow(index)}
-                  title="Tambah section baru di bawah"
-                  className="p-1 rounded text-gray-400 hover:text-white hover:bg-white/10 cursor-pointer transition-colors"
-                >
-                  <PlusIcon />
-                </button>
-
-                {/* 3. Delete Section */}
-                <button
-                  type="button"
-                  onClick={() => handleDeleteBlock(block.id)}
-                  title="Hapus section"
-                  className="p-1 rounded text-gray-400 hover:text-rose-400 hover:bg-rose-500/10 cursor-pointer transition-colors"
-                >
-                  <TrashIcon />
-                </button>
-              </div>
-
               {/* Block Content by Type: Starts at x=0 flush with Title */}
               <div className="w-full min-w-0 font-sans">
                 {/* Paragraph */}
@@ -876,6 +840,51 @@ export function AdminArticleBlockEditor({
                     onDeleteTable={() => handleDeleteBlock(block.id)}
                   />
                 )}
+              </div>
+
+              {/* Action Controls: Grip (drag) + Plus (add) + Trash (delete)
+                  - Mobile/Tablet (< md): Positioned cleanly underneath the content block (Gambar 3 improvement)
+                  - Desktop (>= md): Positioned in left gutter outside the text column */}
+              <div
+                className={cn(
+                  "select-none transition-all z-20",
+                  // Desktop: Left Gutter outside the text column
+                  "md:absolute md:right-full md:mr-3.5 md:top-0.5 md:opacity-0 md:group-hover:opacity-100 md:flex md:items-center md:gap-1",
+                  // Mobile: Positioned underneath content so it never squishes or disrupts text flow (Gambar 3)
+                  "mt-2 pt-1 border-t border-white/5 flex items-center gap-1.5 md:border-none md:mt-0 md:pt-0",
+                  block.id !== activeBlockId && "hidden md:flex"
+                )}
+              >
+                {/* 1. Drag & Drop Reorder Grip Handle (Tukar Section) */}
+                <div
+                  draggable
+                  onDragStart={(e) => handleDragStart(e, index)}
+                  onDragEnd={handleDragEnd}
+                  title="Drag untuk menukar urutan section"
+                  className="p-1.5 md:p-1 rounded text-gray-400 hover:text-white hover:bg-white/10 cursor-grab active:cursor-grabbing transition-colors"
+                >
+                  <GripVerticalIcon />
+                </div>
+
+                {/* 2. Add Section Below (+) */}
+                <button
+                  type="button"
+                  onClick={() => handleAddBlockBelow(index)}
+                  title="Tambah section baru di bawah"
+                  className="p-1.5 md:p-1 rounded text-gray-400 hover:text-white hover:bg-white/10 cursor-pointer transition-colors"
+                >
+                  <PlusIcon />
+                </button>
+
+                {/* 3. Delete Section */}
+                <button
+                  type="button"
+                  onClick={() => handleDeleteBlock(block.id)}
+                  title="Hapus section"
+                  className="p-1.5 md:p-1 rounded text-gray-400 hover:text-rose-400 hover:bg-rose-500/10 cursor-pointer transition-colors"
+                >
+                  <TrashIcon />
+                </button>
               </div>
             </div>
           );

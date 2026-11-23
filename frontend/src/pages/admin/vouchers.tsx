@@ -59,7 +59,7 @@ export default function AdminVouchersPage() {
   }, [filters.searchQuery, filters.status, filters.sortBy, isDraftViewActive, currentPage]);
 
   // Live queries & mutations
-  const { data: serverResponse, isLoading } = useAdminVouchers(queryParams);
+  const { data: serverResponse, isLoading, isError, refetch } = useAdminVouchers(queryParams);
   const toggleStatusMutation = useToggleVoucherStatus();
   const deleteMutation = useDeleteVoucher();
   const batchDeleteMutation = useBatchDeleteVouchers();
@@ -197,15 +197,17 @@ export default function AdminVouchersPage() {
     }
   };
 
-  // HeaderRight content for top bar
+  // HeaderRight content for top bar (Desktop only on sm+)
   const headerRight = (
-    <AdminVoucherTopBar
-      filters={filters}
-      onFilterChange={(newFilters) => {
-        setFilters(newFilters);
-        setCurrentPage(1);
-      }}
-    />
+    <div className="hidden sm:flex items-center">
+      <AdminVoucherTopBar
+        filters={filters}
+        onFilterChange={(newFilters) => {
+          setFilters(newFilters);
+          setCurrentPage(1);
+        }}
+      />
+    </div>
   );
 
   return (
@@ -222,8 +224,21 @@ export default function AdminVouchersPage() {
         title="Voucher"
         activeNavId="voucher"
         headerRight={headerRight}
+        isError={isError}
+        onReload={() => refetch()}
       >
         <div className="w-full space-y-6 pb-12 select-none">
+          {/* Mobile-Only Search & Filter Bar placed inside main content */}
+          <div className="block sm:hidden w-full">
+            <AdminVoucherTopBar
+              filters={filters}
+              onFilterChange={(newFilters) => {
+                setFilters(newFilters);
+                setCurrentPage(1);
+              }}
+            />
+          </div>
+
           <AdminVoucherTable
             items={vouchers}
             totalVouchersCount={totalCount}

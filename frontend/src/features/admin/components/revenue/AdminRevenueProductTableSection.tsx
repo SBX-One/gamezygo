@@ -85,14 +85,14 @@ export function AdminRevenueProductTableSection({
       className={className}
       bodyClassName="p-0"
     >
-      <AdminTable>
+      <AdminTable className="min-w-[700px]">
         <AdminTableHeader>
           <tr>
-            <AdminTableHead className="pl-6">Product Name</AdminTableHead>
-            <AdminTableHead>Total Product Sell</AdminTableHead>
-            <AdminTableHead>Total Revenue</AdminTableHead>
-            <AdminTableHead>Date</AdminTableHead>
-            <AdminTableHead>Status</AdminTableHead>
+            <AdminTableHead className="pl-6 min-w-[180px]">Product Name</AdminTableHead>
+            <AdminTableHead className="min-w-[140px]">Total Product Sell</AdminTableHead>
+            <AdminTableHead className="min-w-[130px]">Total Revenue</AdminTableHead>
+            <AdminTableHead className="min-w-[110px]">Date</AdminTableHead>
+            <AdminTableHead className="min-w-[100px]">Status</AdminTableHead>
             {!isEmpty && (
               <AdminTableHead className="pr-6 w-12 text-center" aria-label="Aksi" />
             )}

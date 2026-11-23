@@ -61,6 +61,16 @@ export interface StoreLayoutProps extends React.HTMLAttributes<HTMLDivElement> {
   backTitle?: React.ReactNode;
   /** Callback saat tombol back diklik (mode back) */
   onBackClick?: () => void;
+  /** Apakah terjadi error 500 pada halaman */
+  isError?: boolean;
+  /** Alias apakah terjadi error */
+  hasError?: boolean;
+  /** Callback reload saat error 500 */
+  onReload?: () => void;
+  /** Custom title untuk error 500 */
+  errorTitle?: string;
+  /** Custom deskripsi untuk error 500 */
+  errorDescription?: string;
   /** React 19 native ref */
   ref?: React.Ref<HTMLDivElement>;
 }

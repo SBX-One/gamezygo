@@ -92,7 +92,7 @@ export function AdminArticlesTopBar({
   return (
     <div className={cn("relative flex items-center gap-3 sm:gap-4", className)}>
       {/* 1. Status Checkboxes: Published, Draft, Unpublished (Matching Image 1) */}
-      <div className="hidden md:flex items-center gap-4 sm:gap-5">
+      <div className="hidden sm:flex items-center gap-3 sm:gap-4 shrink-0">
         <AdminCheckbox
           label="Published"
           checked={filters.isPublished}
@@ -117,7 +117,7 @@ export function AdminArticlesTopBar({
       </div>
 
       {/* 2. Search Field: Magnifying glass + 'Cari artikel' placeholder + clear icon (Matching Catalog Design) */}
-      <div className="relative flex items-center w-48 sm:w-64">
+      <div className="relative flex-1 sm:flex-initial sm:w-64 min-w-0 flex items-center">
         <div className="absolute left-3 text-gray-400 pointer-events-none flex items-center">
           <SearchIcon className="w-4 h-4 text-gray-400" />
         </div>

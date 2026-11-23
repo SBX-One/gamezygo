@@ -321,29 +321,24 @@ export default function AdminRequestsPage() {
         />
       </Head>
 
-      <AdminLayout title="Game Request" activeNavId="game-request">
+      <AdminLayout
+        title="Game Request"
+        activeNavId="game-request"
+        isError={isError}
+        onReload={() => refetch()}
+      >
         <div className="w-full space-y-6 pb-12">
-          {/* Section 1: Tab Navigation with Live Counts */}
+          {/* Section 1: Tab Navigation with Live Counts (flex-col on mobile, sm:flex-row on desktop) */}
           <Tabs
             items={dynamicTabs}
             activeId={activeTab}
             onChange={(id) => handleTabChange(id as GameRequestTab)}
             className="border-deep-blue-700"
+            orientation="responsive"
           />
 
           {/* Section 2: Tab Content */}
-          {isError && (
-            <div className="w-full py-12 rounded-lg bg-deep-blue-900 border border-rose-500/30 flex flex-col items-center justify-center text-center gap-3 px-4">
-              <p className="text-sm text-rose-300 font-medium">
-                Gagal memuat data permintaan game dari database. Pastikan Anda sudah login sebagai Admin.
-              </p>
-              <Button variant="secondary" size="sm" onClick={() => refetch()}>
-                Muat Ulang
-              </Button>
-            </div>
-          )}
-
-          {!isError && activeTab === "requested" && (
+          {activeTab === "requested" && (
             <div className="space-y-6">
               {/* Pinned Game Section */}
               {(isLoading || pinnedItems.length > 0) && (
@@ -398,7 +393,7 @@ export default function AdminRequestsPage() {
             </div>
           )}
 
-          {!isError && activeTab === "accepted" && (
+          {activeTab === "accepted" && (
             <div className="space-y-6">
               {/* Accepted Game Section */}
               <AdminGameRequestTableCard
@@ -429,7 +424,7 @@ export default function AdminRequestsPage() {
             </div>
           )}
 
-          {!isError && activeTab === "declined" && (
+          {activeTab === "declined" && (
             <div className="space-y-6">
               {/* Declined Game Section */}
               <AdminGameRequestTableCard

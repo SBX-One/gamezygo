@@ -313,36 +313,21 @@ export default function AdminReviewsPage() {
         activeNavId="ulasan"
         headerClassName="bg-deep-blue-950 border-b border-deep-blue-700"
         headerRight={
-          <AdminReviewsHeaderSearch
-            searchQuery={filters.search}
-            onSearchChange={(search) =>
-              setFilters((prev) => ({ ...prev, search }))
-            }
-            filters={filters}
-            onFilterChange={setFilters}
-          />
+          <div className="hidden sm:flex items-center">
+            <AdminReviewsHeaderSearch
+              searchQuery={filters.search}
+              onSearchChange={(search) =>
+                setFilters((prev) => ({ ...prev, search }))
+              }
+              filters={filters}
+              onFilterChange={setFilters}
+            />
+          </div>
         }
         className="!p-0 !pt-0 !pb-0 !space-y-0 w-full bg-deep-blue-950 min-h-screen"
+        isError={!isLoading && isError}
+        onReload={() => refetch()}
       >
-        {/* Loading / Error Banner */}
-        {isLoading && (
-          <div className="w-full p-4 text-center text-xs text-gray-400 bg-deep-blue-900 border-b border-white/5">
-            Memuat daftar ulasan dari database...
-          </div>
-        )}
-        {!isLoading && isError && (
-          <div className="w-full p-4 flex items-center justify-center gap-3 text-xs text-rose-300 bg-rose-500/10 border-b border-rose-500/20">
-            <span>Gagal memuat ulasan dari server.</span>
-            <button
-              type="button"
-              onClick={() => refetch()}
-              className="px-3 py-1 rounded bg-rose-500/20 hover:bg-rose-500/30 text-rose-200 cursor-pointer font-medium"
-            >
-              Coba Lagi
-            </button>
-          </div>
-        )}
-
         {/* 1. Sub-Header: "92 Ulasan" or "[ < ] 92 Ulasan" (Matching Image 2) */}
         <AdminReviewsTopSection
           totalCount={filteredReviews.length}
@@ -350,9 +335,66 @@ export default function AdminReviewsPage() {
           onTogglePostedView={handleTogglePostedView}
         />
 
+        {/* Mobile-Only Search & Filter Bar: Placed under total reviews on < sm (both normal and posted views) */}
+        <div className="block sm:hidden px-6 sm:px-8 py-3.5 border-b border-deep-blue-700 bg-deep-blue-950">
+          <AdminReviewsHeaderSearch
+            searchQuery={filters.search}
+            onSearchChange={(search) =>
+              setFilters((prev) => ({ ...prev, search }))
+            }
+            filters={filters}
+            onFilterChange={setFilters}
+            className="w-full"
+          />
+        </div>
+
         {/* 2. Review Cards Grid Area (Matching Image 3 & 4) */}
         <div className="p-6 sm:p-8 bg-deep-blue-950">
-          {filteredReviews.length === 0 ? (
+          {isLoading ? (
+            /* Skeleton Loading Cards Grid (Matching Articles Skeleton) */
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5 sm:gap-6">
+              {Array.from({ length: 6 }).map((_, idx) => (
+                <div
+                  key={idx}
+                  className="bg-deep-blue-900 border border-deep-blue-700 rounded-lg p-6 flex flex-col justify-between animate-pulse"
+                >
+                  <div>
+                    {/* Header: Email & Date on left, Rating Pill on right */}
+                    <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2.5 sm:gap-4">
+                      <div className="space-y-2 flex-1">
+                        <div className="h-4 w-40 rounded bg-white/10" />
+                        <div className="h-3 w-20 rounded bg-white/5" />
+                      </div>
+                      <div className="h-6 w-16 rounded-full bg-white/5 shrink-0" />
+                    </div>
+
+                    {/* Review Text */}
+                    <div className="space-y-2 my-4">
+                      <div className="h-3.5 w-full rounded bg-white/5" />
+                      <div className="h-3.5 w-4/5 rounded bg-white/5" />
+                      <div className="h-3.5 w-2/3 rounded bg-white/5" />
+                    </div>
+
+                    {/* Thumbnails Row */}
+                    <div className="flex items-center gap-2.5 mb-5">
+                      <div className="flex-1 h-16 sm:h-18 rounded-lg bg-white/5 border border-white/10" />
+                      <div className="flex-1 h-16 sm:h-18 rounded-lg bg-white/5 border border-white/10" />
+                      <div className="flex-1 h-16 sm:h-18 rounded-lg bg-white/5 border border-white/10" />
+                    </div>
+                  </div>
+
+                  {/* Action Buttons */}
+                  <div className="pt-2 flex flex-col gap-2.5">
+                    <div className="h-9 w-full rounded-lg bg-white/10" />
+                    <div className="flex items-center gap-2.5 w-full">
+                      <div className="h-8 flex-1 rounded-lg bg-white/5" />
+                      <div className="h-8 flex-1 rounded-lg bg-white/5" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          ) : filteredReviews.length === 0 ? (
             /* Empty state if filtered results are 0 */
             <div className="w-full min-h-[400px] flex flex-col items-center justify-center text-center select-none py-16">
               <div className="w-16 h-16 rounded-lg bg-deep-blue-900 border border-deep-blue-700 flex items-center justify-center text-gray-400 mb-4">

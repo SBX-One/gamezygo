@@ -51,6 +51,8 @@ export default function AdminCatalogPage() {
     totalProducts,
     meta,
     isLoading,
+    isError,
+    refetch,
   } = useAdminCatalog({
     page: currentPage,
     per_page: 20,
@@ -321,6 +323,8 @@ export default function AdminCatalogPage() {
         title="Katalog"
         activeNavId="katalog"
         headerRight={headerRight}
+        isError={isError}
+        onReload={() => refetch()}
       >
         <div className="space-y-6">
           {/* 1. Three Action Buttons (View Archived, Edit Section, PO Management) */}

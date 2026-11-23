@@ -310,7 +310,7 @@ function AdminEditBlogForm({ detail, categories }: AdminEditBlogFormProps) {
   );
 
   const headerRight = (
-    <div className="flex items-center gap-2.5 sm:gap-3 select-none">
+    <div className="hidden md:flex items-center gap-2.5 sm:gap-3 select-none">
       <Button
         variant="inactive"
         size="sm"
@@ -337,6 +337,31 @@ function AdminEditBlogForm({ detail, categories }: AdminEditBlogFormProps) {
       activeNavId="artikel"
       headerRight={headerRight}
     >
+      {/* Mobile/Tablet Action Buttons: placed cleanly above edit area */}
+      <div className="flex md:hidden items-center justify-end gap-2.5 w-full mb-4">
+        <Button
+          type="button"
+          variant="inactive"
+          size="sm"
+          disabled={updateMutation.isPending}
+          onClick={() => submitUpdate("draft", false)}
+          className="flex-1 sm:flex-initial justify-center"
+        >
+          {updateMutation.isPending ? "Menyimpan..." : "Save Draft"}
+        </Button>
+
+        <Button
+          type="button"
+          variant="primary"
+          size="sm"
+          disabled={updateMutation.isPending}
+          onClick={() => submitUpdate("published", true)}
+          className="flex-1 sm:flex-initial justify-center"
+        >
+          {currentStatus === "published" ? "Simpan Perubahan" : "Publish"}
+        </Button>
+      </div>
+
       <div className="w-full rounded-lg bg-deep-blue-900 border border-white/10 overflow-hidden shadow-none pb-16">
         <AdminArticleEditorToolbar
           canUndo={historyIndex > 0}
@@ -385,12 +410,12 @@ function AdminEditBlogForm({ detail, categories }: AdminEditBlogFormProps) {
             }}
           />
 
-          <div className="flex flex-wrap items-center justify-between gap-4 py-3 px-4 rounded-lg bg-white/3 border border-white/10">
-            <div className="flex flex-wrap items-center gap-4">
-              <div className="flex items-center gap-2.5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-3.5 px-4 rounded-lg bg-white/3 border border-white/10">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2.5 w-full sm:w-auto">
                 <label
                   htmlFor="edit-blog-category"
-                  className="text-label-xs font-semibold text-gray-300 uppercase tracking-wider"
+                  className="text-label-xs font-semibold text-gray-300 uppercase tracking-wider shrink-0"
                 >
                   Kategori
                 </label>
@@ -402,7 +427,7 @@ function AdminEditBlogForm({ detail, categories }: AdminEditBlogFormProps) {
                       e.target.value ? Number(e.target.value) : ""
                     )
                   }
-                  className="h-9 px-3 rounded-lg bg-deep-blue-900 border border-white/10 text-label-xs text-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
+                  className="w-full sm:w-auto h-9 px-3 rounded-lg bg-deep-blue-900 border border-white/10 text-label-xs text-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
                 >
                   <option value="">-- Tanpa Kategori --</option>
                   {categories.map((cat) => (
@@ -413,10 +438,10 @@ function AdminEditBlogForm({ detail, categories }: AdminEditBlogFormProps) {
                 </select>
               </div>
 
-              <div className="flex items-center gap-2.5">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2.5 w-full sm:w-auto">
                 <label
                   htmlFor="edit-blog-status"
-                  className="text-label-xs font-semibold text-gray-300 uppercase tracking-wider"
+                  className="text-label-xs font-semibold text-gray-300 uppercase tracking-wider shrink-0"
                 >
                   Status
                 </label>
@@ -426,7 +451,7 @@ function AdminEditBlogForm({ detail, categories }: AdminEditBlogFormProps) {
                   onChange={(e) =>
                     setCurrentStatus(e.target.value as BackendBlogStatus)
                   }
-                  className="h-9 px-3 rounded-lg bg-deep-blue-900 border border-white/10 text-label-xs text-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
+                  className="w-full sm:w-auto h-9 px-3 rounded-lg bg-deep-blue-900 border border-white/10 text-label-xs text-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
                 >
                   <option value="draft">Draft</option>
                   <option value="published">Published</option>
@@ -435,27 +460,31 @@ function AdminEditBlogForm({ detail, categories }: AdminEditBlogFormProps) {
               </div>
             </div>
 
-            {currentStatus !== "published" ? (
-              <Button
-                type="button"
-                variant="secondary"
-                size="xs"
-                disabled={updateMutation.isPending}
-                onClick={() => submitUpdate(currentStatus, false)}
-              >
-                Simpan Status
-              </Button>
-            ) : (
-              <Button
-                type="button"
-                variant="outline"
-                size="xs"
-                disabled={updateMutation.isPending}
-                onClick={() => submitUpdate("archived", false)}
-              >
-                Unpublish
-              </Button>
-            )}
+            <div className="w-full sm:w-auto flex justify-end">
+              {currentStatus !== "published" ? (
+                <Button
+                  type="button"
+                  variant="secondary"
+                  size="xs"
+                  disabled={updateMutation.isPending}
+                  onClick={() => submitUpdate(currentStatus, false)}
+                  className="w-full sm:w-auto justify-center"
+                >
+                  Simpan Status
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="xs"
+                  disabled={updateMutation.isPending}
+                  onClick={() => submitUpdate("archived", false)}
+                  className="w-full sm:w-auto justify-center"
+                >
+                  Unpublish
+                </Button>
+              )}
+            </div>
           </div>
 
           <div className="w-full h-px bg-white/10" />
@@ -529,24 +558,13 @@ export default function AdminEditBlogPage() {
           </div>
         </AdminLayout>
       ) : isError || !detail ? (
-        <AdminLayout title={fallbackTitle} activeNavId="artikel">
-          <div className="w-full rounded-lg bg-deep-blue-900 border border-rose-500/30 p-12 flex flex-col items-center justify-center text-center gap-4">
-            <p className="text-sm sm:text-base text-rose-300 font-medium">
-              Artikel tidak ditemukan atau gagal dimuat dari database.
-            </p>
-            <div className="flex items-center gap-3">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={() => router.push("/admin/articles")}
-              >
-                Kembali ke Artikel
-              </Button>
-              <Button variant="primary" size="sm" onClick={() => refetch()}>
-                Coba Lagi
-              </Button>
-            </div>
-          </div>
+        <AdminLayout
+          title={fallbackTitle}
+          activeNavId="artikel"
+          isError={true}
+          onReload={() => refetch()}
+        >
+          <div />
         </AdminLayout>
       ) : (
         <AdminEditBlogForm

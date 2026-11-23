@@ -187,11 +187,11 @@ export function AdminAddGameToSectionModal({
         </div>
 
         {/* 2. Search & Filter Bar (Screenshots 1, 2, 3) */}
-        <div className="px-7 pt-5 pb-3">
-          <div className="flex items-center gap-3">
+        <div className="px-4 sm:px-7 pt-5 pb-3">
+          <div className="flex items-center gap-2.5 sm:gap-3">
             {/* Search Input Field */}
             <div className="relative flex-1 flex items-center bg-deep-blue-900 border border-deep-blue-700 focus-within:border-deep-blue-500 rounded-lg px-3.5 py-2.5 transition-colors">
-              <SearchIcon className="w-4 h-4 text-gray-400 mr-3 shrink-0" />
+              <SearchIcon className="w-4 h-4 text-gray-400 mr-2.5 sm:mr-3 shrink-0" />
               <input
                 type="text"
                 value={searchQuery}
@@ -249,11 +249,11 @@ export function AdminAddGameToSectionModal({
         </div>
 
         {/* 3. Table Card Panel (Matching Screenshots 1, 2, 3) */}
-        <div className="mx-7 my-3 rounded-lg bg-deep-blue-950 border border-deep-blue-700 overflow-hidden">
-          {/* Table Header */}
-          <div className="grid grid-cols-[1.5fr_1fr_1fr] px-6 py-3.5 bg-deep-blue-900/70 border-b border-deep-blue-700 items-center select-none text-label-xs text-gray-300 font-semibold">
+        <div className="mx-4 sm:mx-7 my-3 rounded-lg bg-deep-blue-950 border border-deep-blue-700 overflow-x-auto no-scrollbar">
+          {/* Table Header: Category column hidden on mobile (< sm) to prevent Product Name clipping */}
+          <div className="grid grid-cols-[1fr_auto] sm:grid-cols-[1.5fr_1fr_1fr] px-4 sm:px-6 py-3.5 bg-deep-blue-900/70 border-b border-deep-blue-700 items-center select-none text-label-xs text-gray-300 font-semibold min-w-[280px]">
             {/* Col 1: Checkbox + Product Name */}
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-3 min-w-0 pr-3">
               <AdminCheckbox
                 checked={isAllSelected}
                 onChange={handleToggleSelectAll}
@@ -261,49 +261,49 @@ export function AdminAddGameToSectionModal({
               />
               <label
                 htmlFor="select-all-header"
-                className="cursor-pointer font-semibold text-gray-300"
+                className="cursor-pointer font-semibold text-gray-300 truncate"
               >
                 Product Name
               </label>
             </div>
 
-            {/* Col 2: Category */}
-            <div className="font-semibold text-gray-300">
+            {/* Col 2: Category (Hidden on mobile) */}
+            <div className="hidden sm:block font-semibold text-gray-300">
               Category
             </div>
 
             {/* Col 3: Price */}
-            <div className="font-semibold text-gray-300 text-right sm:text-left sm:pl-8">
+            <div className="font-semibold text-gray-300 text-right sm:text-left sm:pl-8 shrink-0">
               Price
             </div>
           </div>
 
           {/* Table Body */}
           {isLoading ? (
-            <div className="divide-y divide-deep-blue-700/60">
+            <div className="divide-y divide-deep-blue-700/60 min-w-[280px]">
               {Array.from({ length: 5 }).map((_, idx) => (
                 <div
                   key={`modal-loading-${idx}`}
-                  className="grid grid-cols-[1.5fr_1fr_1fr] px-6 py-3.5 items-center"
+                  className="grid grid-cols-[1fr_auto] sm:grid-cols-[1.5fr_1fr_1fr] px-4 sm:px-6 py-3.5 items-center"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className="w-4 h-4 rounded bg-white/10 animate-pulse" />
+                  <div className="flex items-center gap-3 min-w-0 pr-3">
+                    <div className="w-4 h-4 rounded bg-white/10 animate-pulse shrink-0" />
                     <div className="w-9 h-9 rounded-lg bg-white/10 animate-pulse shrink-0" />
-                    <div className="w-36 h-4 rounded bg-white/10 animate-pulse" />
+                    <div className="w-28 sm:w-36 h-4 rounded bg-white/10 animate-pulse" />
                   </div>
-                  <div className="flex items-center gap-1.5">
+                  <div className="hidden sm:flex items-center gap-1.5">
                     <div className="w-14 h-5 rounded-full bg-white/10 animate-pulse" />
                     <div className="w-14 h-5 rounded-full bg-white/10 animate-pulse" />
                   </div>
-                  <div className="sm:pl-8">
-                    <div className="w-20 h-4 rounded bg-white/10 animate-pulse ml-auto sm:ml-0" />
+                  <div className="sm:pl-8 shrink-0">
+                    <div className="w-16 sm:w-20 h-4 rounded bg-white/10 animate-pulse ml-auto sm:ml-0" />
                   </div>
                 </div>
               ))}
             </div>
           ) : filteredGames.length > 0 ? (
             /* Populated Table Rows (Screenshots 1 & 3) */
-            <div className="max-h-[380px] overflow-y-auto divide-y divide-deep-blue-700/60 scrollbar-none">
+            <div className="max-h-[380px] overflow-y-auto divide-y divide-deep-blue-700/60 scrollbar-none min-w-[280px]">
               {filteredGames.map((game) => {
                 const isAlreadyAdded = existingProductIds.includes(game.id);
                 const isChecked = selectedIds.includes(game.id) || isAlreadyAdded;
@@ -313,7 +313,7 @@ export function AdminAddGameToSectionModal({
                     key={game.id}
                     onClick={() => !isAlreadyAdded && handleToggleRow(game.id)}
                     className={cn(
-                      "grid grid-cols-[1.5fr_1fr_1fr] px-6 py-3.5 items-center transition-colors select-none",
+                      "grid grid-cols-[1fr_auto] sm:grid-cols-[1.5fr_1fr_1fr] px-4 sm:px-6 py-3.5 items-center transition-colors select-none",
                       isAlreadyAdded
                         ? "opacity-50 cursor-not-allowed bg-deep-blue-900/10"
                         : isChecked
@@ -322,7 +322,7 @@ export function AdminAddGameToSectionModal({
                     )}
                   >
                     {/* Col 1: Checkbox + Thumbnail + Title */}
-                    <div className="flex items-center gap-3 min-w-0 pr-3">
+                    <div className="flex items-center gap-2.5 sm:gap-3 min-w-0 pr-2 sm:pr-3">
                       <div onClick={(e) => e.stopPropagation()}>
                         <AdminCheckbox
                           checked={isChecked}
@@ -338,15 +338,15 @@ export function AdminAddGameToSectionModal({
                       <span className="text-label-xs sm:text-sm font-semibold text-gray-50 truncate">
                         {game.title}
                         {isAlreadyAdded && (
-                          <span className="ml-2 text-label-xs text-gray-400 font-normal">
+                          <span className="ml-1 sm:ml-2 text-label-xs text-gray-400 font-normal">
                             (Sudah di section)
                           </span>
                         )}
                       </span>
                     </div>
 
-                    {/* Col 2: Category Pills (Action, Adventure, +2) */}
-                    <div className="flex items-center gap-1.5 flex-wrap">
+                    {/* Col 2: Category Pills (Hidden on mobile) */}
+                    <div className="hidden sm:flex items-center gap-1.5 flex-wrap">
                       {game.categories.slice(0, 2).map((cat, catIdx) => (
                         <Pill
                           key={`${game.id}-${cat}-${catIdx}`}
@@ -367,7 +367,7 @@ export function AdminAddGameToSectionModal({
                     </div>
 
                     {/* Col 3: Price */}
-                    <div className="text-label-xs sm:text-sm font-semibold text-gray-50 text-right sm:text-left sm:pl-8">
+                    <div className="text-label-xs sm:text-sm font-semibold text-gray-50 text-right sm:text-left sm:pl-8 shrink-0">
                       Rp {(game.price || 480000).toLocaleString("id-ID")}
                     </div>
                   </div>

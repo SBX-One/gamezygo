@@ -285,7 +285,7 @@ export default function AdminAddBlogPage() {
   );
 
   const headerRight = (
-    <div className="flex items-center gap-3 select-none">
+    <div className="hidden md:flex items-center gap-3 select-none">
       <Button
         variant="inactive"
         size="sm"
@@ -321,6 +321,31 @@ export default function AdminAddBlogPage() {
         activeNavId="artikel"
         headerRight={headerRight}
       >
+        {/* Mobile/Tablet Action Buttons: placed cleanly above edit area */}
+        <div className="flex md:hidden items-center justify-end gap-2.5 w-full mb-4">
+          <Button
+            type="button"
+            variant="inactive"
+            size="sm"
+            disabled={createMutation.isPending}
+            onClick={() => submitArticle("draft")}
+            className="flex-1 sm:flex-initial justify-center"
+          >
+            {createMutation.isPending ? "Menyimpan..." : "Save Draft"}
+          </Button>
+
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            disabled={createMutation.isPending}
+            onClick={() => submitArticle("published")}
+            className="flex-1 sm:flex-initial justify-center"
+          >
+            {createMutation.isPending ? "Memproses..." : "Publish"}
+          </Button>
+        </div>
+
         <div className="w-full rounded-lg bg-deep-blue-900 border border-white/10 overflow-hidden shadow-none pb-16">
           {/* 1. Top Formatting Toolbar */}
           <AdminArticleEditorToolbar
@@ -373,8 +398,8 @@ export default function AdminAddBlogPage() {
             />
 
             {/* Category Metadata Bar */}
-            <div className="flex flex-wrap items-center justify-between gap-4 py-3 px-4 rounded-lg bg-white/3 border border-white/10">
-              <div className="flex items-center gap-3">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-3.5 px-4 rounded-lg bg-white/3 border border-white/10">
+              <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 w-full sm:w-auto">
                 <label
                   htmlFor="blog-category-select"
                   className="text-label-xs font-semibold text-gray-300 uppercase tracking-wider shrink-0"
@@ -389,7 +414,7 @@ export default function AdminAddBlogPage() {
                       e.target.value ? Number(e.target.value) : ""
                     )
                   }
-                  className="h-9 px-3 rounded-lg bg-deep-blue-900 border border-white/10 text-label-xs text-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
+                  className="w-full sm:w-auto h-9 px-3 rounded-lg bg-deep-blue-900 border border-white/10 text-label-xs text-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
                 >
                   <option value="">-- Pilih Kategori --</option>
                   {categories.map((cat) => (

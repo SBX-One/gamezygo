@@ -343,28 +343,37 @@ export function AdminRevenueDateRangePicker({
         aria-haspopup="dialog"
         aria-expanded={isOpen}
         className={cn(
-          "inline-flex items-center gap-2.5 px-3.5 h-10 rounded-lg bg-deep-blue-900/60 hover:bg-deep-blue-900 border border-deep-blue-700/80 text-sm font-semibold text-white transition-all shadow-sm cursor-pointer select-none",
+          "inline-flex items-center gap-2 px-3 h-10 rounded-lg bg-deep-blue-900/60 hover:bg-deep-blue-900 border border-deep-blue-700/80 text-sm font-semibold text-white transition-all shadow-sm cursor-pointer select-none whitespace-nowrap shrink-0 max-w-full",
           isOpen && "ring-1 ring-deep-blue-600 bg-deep-blue-900",
           hasRangeSelected ? "text-white" : "text-gray-200"
         )}
       >
         <FluentCalendarIcon className="w-4 h-4 text-gray-300 shrink-0" />
-        <span className="font-semibold tracking-wide">{displayLabel}</span>
+        <span
+          className="font-semibold tracking-wide whitespace-nowrap overflow-x-auto no-scrollbar max-w-[125px] xs:max-w-[170px] sm:max-w-none inline-block align-middle cursor-pointer"
+          title={displayLabel}
+        >
+          {displayLabel}
+        </span>
 
         {/* Clear 'X' icon if range is actively selected (Gambar 1) */}
         {hasRangeSelected && (
           <span
             role="button"
             tabIndex={0}
-            onClick={handleClear}
+            onClick={(e) => {
+              e.stopPropagation();
+              handleClear(e);
+            }}
             onKeyDown={(e) => {
               if (e.key === "Enter" || e.key === " ") {
+                e.stopPropagation();
                 handleClear();
               }
             }}
             title="Hapus tanggal"
             aria-label="Hapus rentang tanggal"
-            className="ml-1 p-0.5 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer"
+            className="ml-1 p-0.5 rounded-full hover:bg-white/10 text-gray-400 hover:text-white transition-colors cursor-pointer shrink-0"
           >
             <DismissIcon className="w-3.5 h-3.5" />
           </span>

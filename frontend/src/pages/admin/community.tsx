@@ -2,6 +2,7 @@ import * as React from "react";
 import Head from "next/head";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Button } from "@/components/ui/Button";
+import { Pagination } from "@/components/ui/Pagination";
 import {
   AdminCommunityTopBar,
   AdminCommunityCard,
@@ -68,6 +69,8 @@ export default function AdminCommunityPage() {
   const [searchQuery, setSearchQuery] = React.useState("");
   const [selectedTag, setSelectedTag] =
     React.useState<CommunityPlatformTag>("All");
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const ITEMS_PER_PAGE = 10;
   const [optimisticOrderIds, setOptimisticOrderIds] = React.useState<
     string[] | null
   >(null);
@@ -148,6 +151,25 @@ export default function AdminCommunityPage() {
     });
   }, [orderedCommunities, searchQuery, selectedTag]);
 
+  // Reset currentPage to 1 when search or tag filter changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchQuery, selectedTag]);
+
+  const totalPages = Math.max(1, Math.ceil(filteredCommunities.length / ITEMS_PER_PAGE));
+
+  // Ensure currentPage is not out of bounds when items count decreases
+  React.useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(totalPages);
+    }
+  }, [currentPage, totalPages]);
+
+  const paginatedCommunities = React.useMemo(() => {
+    const start = (currentPage - 1) * ITEMS_PER_PAGE;
+    return filteredCommunities.slice(start, start + ITEMS_PER_PAGE);
+  }, [filteredCommunities, currentPage]);
+
   // Drag and drop handlers
   const handleDragStart = (index: number, e: React.DragEvent) => {
     setDraggedIdx(index);
@@ -189,8 +211,8 @@ export default function AdminCommunityPage() {
       return;
     }
 
-    const sourceItem = filteredCommunities[draggedIdx];
-    const targetItem = filteredCommunities[targetIdx];
+    const sourceItem = paginatedCommunities[draggedIdx];
+    const targetItem = paginatedCommunities[targetIdx];
     if (!sourceItem || !targetItem) return;
 
     const next = [...orderedCommunities];
@@ -323,7 +345,12 @@ export default function AdminCommunityPage() {
         />
       </Head>
 
-      <AdminLayout title="Komunitas" activeNavId="komunitas">
+      <AdminLayout
+        title="Komunitas"
+        activeNavId="komunitas"
+        isError={isError && !isEndpointMissing}
+        onReload={() => refetch()}
+      >
         <div className="w-full pb-16 flex flex-col gap-6 select-none font-sans">
           <div className="w-full flex flex-col gap-5">
             <AdminCommunityTopBar
@@ -385,7 +412,7 @@ export default function AdminCommunityPage() {
               />
             ) : (
               <div className="flex flex-col gap-3 sm:gap-3.5 w-full">
-                {filteredCommunities.map((item, index) => (
+                {paginatedCommunities.map((item, index) => (
                   <AdminCommunityCard
                     key={item.id}
                     item={item}
@@ -411,6 +438,17 @@ export default function AdminCommunityPage() {
                     onDragEnd={handleDragEnd}
                   />
                 ))}
+              </div>
+            )}
+
+            {/* Pagination Component */}
+            {!isLoading && totalPages > 1 && (
+              <div className="flex justify-center pt-2 pb-4">
+                <Pagination
+                  currentPage={currentPage}
+                  totalPages={totalPages}
+                  onPageChange={setCurrentPage}
+                />
               </div>
             )}
           </div>

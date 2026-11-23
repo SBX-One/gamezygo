@@ -5,26 +5,47 @@ import type { GameRequestTab } from "../../types/admin-game-request.types";
 export interface AdminGameRequestTabsProps {
   activeTab: GameRequestTab;
   onChangeTab: (tab: GameRequestTab) => void;
+  counts?: { requested?: number; accepted?: number; declined?: number };
   className?: string;
 }
-
-const GAME_REQUEST_TABS: TabItem[] = [
-  { id: "requested", label: "Requested Game" },
-  { id: "accepted", label: "Accepted" },
-  { id: "declined", label: "Declined" },
-];
 
 export function AdminGameRequestTabs({
   activeTab,
   onChangeTab,
+  counts,
   className,
 }: AdminGameRequestTabsProps) {
+  const tabs: TabItem[] = [
+    {
+      id: "requested",
+      label:
+        counts?.requested !== undefined && counts.requested > 0
+          ? `Requested Game (${counts.requested})`
+          : "Requested Game",
+    },
+    {
+      id: "accepted",
+      label:
+        counts?.accepted !== undefined && counts.accepted > 0
+          ? `Accepted (${counts.accepted})`
+          : "Accepted",
+    },
+    {
+      id: "declined",
+      label:
+        counts?.declined !== undefined && counts.declined > 0
+          ? `Declined (${counts.declined})`
+          : "Declined",
+    },
+  ];
+
   return (
     <Tabs
-      items={GAME_REQUEST_TABS}
+      items={tabs}
       activeId={activeTab}
       onChange={(id) => onChangeTab(id as GameRequestTab)}
       className={className}
+      orientation="responsive"
     />
   );
 }

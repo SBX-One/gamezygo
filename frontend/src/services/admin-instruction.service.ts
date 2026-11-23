@@ -62,6 +62,7 @@ function mapInstructionRow(row: BackendInstructionRow): InstructionTemplate {
     createdAt: formatDateLabel(row.created_at),
     lastEdit: row.last_edit ? `Last edit ${formatDateLabel(row.last_edit)}` : "Baru saja",
     steps: row.content ? parseInstructionContentToSteps(row.content, row.title) : [],
+    content: row.content ?? undefined,
   };
 }
 

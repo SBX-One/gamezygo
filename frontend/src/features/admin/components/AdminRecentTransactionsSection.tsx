@@ -48,7 +48,7 @@ export function AdminRecentTransactionsSection({
 }: AdminRecentTransactionsSectionProps) {
   const activeTransactions = isEmpty
     ? []
-    : transactions || MOCK_ADMIN_TRANSACTIONS;
+    : (transactions || MOCK_ADMIN_TRANSACTIONS).slice(0, 5);
 
   const headerRight = (
     <Link
@@ -134,7 +134,6 @@ export function AdminRecentTransactionsSection({
             ))
           )}
         </AdminTableBody>
-
       </AdminTable>
     </AdminCard>
   );

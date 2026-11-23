@@ -396,10 +396,10 @@ export default function AdminPreOrderEditProductPage() {
     </div>
   );
 
-  // Header Right Actions: Save and List, Cancel Edit
+  // Header Right Actions: Save and List, Cancel Edit (Desktop only on md+)
   const isFormLocked = isSaving || (isFetchingProduct && !serverProduct);
   const headerRight = (
-    <div className="flex items-center gap-3 select-none">
+    <div className="hidden md:flex items-center gap-3 select-none">
       <Button
         type="button"
         variant="primary"
@@ -449,6 +449,37 @@ export default function AdminPreOrderEditProductPage() {
           <AdminEditProductSkeleton showPreOrder={true} />
         ) : (
           <div className="space-y-6 pb-16">
+            {/* Mobile-Only Action Buttons (Simpan Perubahan / Save and List + Cancel Edit) placed above the form */}
+            <div className="flex flex-col gap-3 w-full md:hidden">
+              <Button
+                type="button"
+                variant="primary"
+                size="md"
+                fullWidth
+                disabled={isFormLocked}
+                onClick={handleSaveAndList}
+                className="cursor-pointer"
+              >
+                {isSaving
+                  ? "Menyimpan..."
+                  : isContinueToList
+                  ? "Save and List"
+                  : "Simpan Perubahan"}
+              </Button>
+
+              <Button
+                type="button"
+                variant="inactive"
+                size="md"
+                fullWidth
+                disabled={isFormLocked}
+                onClick={handleCancelEdit}
+                className="cursor-pointer"
+              >
+                Cancel Edit
+              </Button>
+            </div>
+
             {/* Main Container Card */}
             <div className="w-full rounded-2xl bg-deep-blue-950 border border-deep-blue-700 p-6 sm:p-8 space-y-8 select-none">
               {/* Section 1: Basic Information */}

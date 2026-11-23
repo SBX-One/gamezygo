@@ -125,7 +125,12 @@ export default function AdminFaqPage() {
         />
       </Head>
 
-      <AdminLayout title="FAQ" activeNavId="faq">
+      <AdminLayout
+        title="FAQ"
+        activeNavId="faq"
+        isError={!isLoading && isError}
+        onReload={() => refetch()}
+      >
         <div className="w-full pb-16 select-none font-sans">
           {/* Main Card Container (Matching Gambar 2, 3, 4) */}
           <div className="w-full rounded-lg bg-deep-blue-950 border border-deep-blue-700/80 p-6 sm:p-8 flex flex-col gap-6 shadow-none">
@@ -146,21 +151,7 @@ export default function AdminFaqPage() {
                 </div>
               )}
 
-              {!isLoading && isError && (
-                <div className="rounded-lg bg-red-500/10 border border-red-500/30 p-6 text-center text-red-300 text-label-xs sm:text-sm space-y-3">
-                  <p>Gagal memuat daftar FAQ dari database.</p>
-                  <button
-                    type="button"
-                    onClick={() => refetch()}
-                    className="px-4 py-1.5 rounded-md bg-red-500/20 hover:bg-red-500/30 text-white text-xs font-medium cursor-pointer"
-                  >
-                    Coba Lagi
-                  </button>
-                </div>
-              )}
-
               {!isLoading &&
-                !isError &&
                 filteredFaqs.map((faq) => (
                   <AdminFaqCard
                     key={faq.id}

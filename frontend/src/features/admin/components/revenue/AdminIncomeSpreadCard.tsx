@@ -117,7 +117,29 @@ export function AdminIncomeSpreadCard({
   let cumulativeAngle = -90; // Start at 12 o'clock (-90 degrees)
 
   const pieSlices = currentSegments.map((seg, idx) => {
-    const angle = totalPercentage > 0 ? (seg.percentage / totalPercentage) * 360 : 0;
+    // If percentage is 0 or less, or no total percentage, nothing to render
+    if (seg.percentage <= 0 || totalPercentage <= 0) {
+      return {
+        ...seg,
+        path: "",
+        idx,
+      };
+    }
+
+    const angle = (seg.percentage / totalPercentage) * 360;
+
+    // When a single slice takes 100% (or nearly 100%), an SVG arc from (x,y) to (x,y) collapses to 0.
+    // In SVG spec, an arc with start == end renders nothing.
+    // We must draw a full 360-degree circle using two 180-degree arcs:
+    if (angle >= 359.99) {
+      const path = `M ${cx} ${cy - radius} A ${radius} ${radius} 0 1 1 ${cx} ${cy + radius} A ${radius} ${radius} 0 1 1 ${cx} ${cy - radius} Z`;
+      return {
+        ...seg,
+        path,
+        idx,
+      };
+    }
+
     const startAngle = cumulativeAngle;
     const endAngle = cumulativeAngle + angle;
     cumulativeAngle = endAngle;
@@ -180,40 +202,50 @@ export function AdminIncomeSpreadCard({
               className="w-44 h-44 sm:w-48 sm:h-48 drop-shadow-[0_4px_16px_rgba(0,0,0,0.5)] overflow-visible"
             >
               {/* Perfectly Formed Circular Slices */}
-              {pieSlices.map((slice) => {
-                const isActive = activeIdx === slice.idx;
+              {totalPercentage <= 0 ? (
+                <circle
+                  cx={cx}
+                  cy={cy}
+                  r={radius}
+                  className="fill-deep-blue-900 stroke-deep-blue-700/60 stroke-2"
+                />
+              ) : (
+                pieSlices.map((slice) => {
+                  if (!slice.path) return null;
+                  const isActive = activeIdx === slice.idx;
 
-                return (
-                  <path
-                    key={slice.id}
-                    d={slice.path}
-                    fill={slice.color}
-                    role="button"
-                    tabIndex={0}
-                    aria-label={`${slice.label}: ${slice.percentage}%`}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedIdx((prev) => (prev === slice.idx ? null : slice.idx));
-                    }}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
+                  return (
+                    <path
+                      key={slice.id}
+                      d={slice.path}
+                      fill={slice.color}
+                      role="button"
+                      tabIndex={0}
+                      aria-label={`${slice.label}: ${slice.percentage}%`}
+                      onClick={(e) => {
+                        e.stopPropagation();
                         setSelectedIdx((prev) => (prev === slice.idx ? null : slice.idx));
-                      }
-                    }}
-                    onMouseEnter={() => setHoveredIdx(slice.idx)}
-                    onMouseLeave={() => setHoveredIdx(null)}
-                    className={cn(
-                      "transition-all duration-200 cursor-pointer outline-none",
-                      isActive
-                        ? "brightness-125 stroke-white/50 stroke-1.5 filter drop-shadow-[0_0_12px_rgba(255,83,100,0.6)]"
-                        : activeIdx !== null
-                        ? "opacity-60 hover:opacity-95"
-                        : "hover:brightness-110"
-                    )}
-                  />
-                );
-              })}
+                      }}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter" || e.key === " ") {
+                          e.preventDefault();
+                          setSelectedIdx((prev) => (prev === slice.idx ? null : slice.idx));
+                        }
+                      }}
+                      onMouseEnter={() => setHoveredIdx(slice.idx)}
+                      onMouseLeave={() => setHoveredIdx(null)}
+                      className={cn(
+                        "transition-all duration-200 cursor-pointer outline-none",
+                        isActive
+                          ? "brightness-125 stroke-white/50 stroke-1.5 filter drop-shadow-[0_0_12px_rgba(255,83,100,0.6)]"
+                          : activeIdx !== null
+                          ? "opacity-60 hover:opacity-95"
+                          : "hover:brightness-110"
+                      )}
+                    />
+                  );
+                })
+              )}
             </svg>
           </div>
         </div>

@@ -5,6 +5,8 @@ import { AdminSidebar } from "./AdminSidebar";
 import { AdminHeader } from "./AdminHeader";
 import { useUiStore } from "@/stores/use-ui-store";
 import { useAuthStore } from "@/stores/use-auth-store";
+import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
+import { Error500View } from "@/components/shared/Error500View";
 import type { AdminLayoutProps } from "./AdminLayout.types";
 
 export function AdminLayout({
@@ -14,11 +16,18 @@ export function AdminLayout({
   headerRight,
   className,
   headerClassName,
+  isError = false,
+  hasError = false,
+  onReload,
+  errorTitle,
+  errorDescription,
 }: AdminLayoutProps) {
   const router = useRouter();
   const { token, role, user } = useAuthStore();
   const { isAdminSidebarCollapsed, toggleAdminSidebar } = useUiStore();
   const [isMobileOpen, setIsMobileOpen] = React.useState(false);
+
+  const effectiveIsError = Boolean(isError || hasError);
 
   // Hydration-safe mounting flag (Server and initial Client render both return false)
   const isMounted = React.useSyncExternalStore(
@@ -123,19 +132,35 @@ export function AdminLayout({
       {/* 4. Main Admin View Area - Fixed scroll container with min-h-0 */}
       <div className="flex-1 h-full min-w-0 min-h-0 flex flex-col overflow-y-auto py-2.5 px-3">
         {/* Main Panel Container with 16px Rounded Corners (Figma Image 1, 2, 3) */}
-        <div className="w-full bg-deep-blue-950 border border-deep-blue-700 rounded-lg flex flex-col mb-4 shrink-0 overflow-hidden">
+        <div className="w-full bg-deep-blue-950 rounded-lg flex flex-col mb-4 shrink-0 overflow-hidden">
           {/* Top Navbar Header (Figma Image 2, 3, 4) */}
           <AdminHeader
             title={title}
             onToggleSidebar={handleToggleSidebar}
             isSidebarCollapsed={isAdminSidebarCollapsed}
-            headerRight={headerRight}
+            headerRight={effectiveIsError ? null : headerRight}
             className={cn("sticky top-0 z-40 bg-deep-blue-950/95 backdrop-blur-sm", headerClassName)}
           />
 
           {/* Main Content Area: 32px gap from Navbar (Figma Image 1 auto-layout gap 32), 24px bottom padding */}
           <main className={cn("p-6 pt-8 pb-6 space-y-8 w-full", className)}>
-            {children}
+            <ErrorBoundary
+              showBackButton={false}
+              onReset={onReload}
+              errorTitle={errorTitle}
+              errorDescription={errorDescription}
+            >
+              {effectiveIsError ? (
+                <Error500View
+                  title={errorTitle}
+                  description={errorDescription}
+                  showBackButton={false}
+                  onReload={onReload}
+                />
+              ) : (
+                children
+              )}
+            </ErrorBoundary>
           </main>
         </div>
       </div>

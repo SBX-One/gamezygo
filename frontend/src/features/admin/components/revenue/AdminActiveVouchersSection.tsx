@@ -172,12 +172,12 @@ export function AdminActiveVouchersSection({
       className={className}
       bodyClassName="p-0"
     >
-      <AdminTable>
+      <AdminTable className="min-w-[550px]">
         <AdminTableHeader>
           <tr>
-            <AdminTableHead className="pl-6">Voucher Name</AdminTableHead>
-            <AdminTableHead>Total Use</AdminTableHead>
-            <AdminTableHead>Minus Revenue</AdminTableHead>
+            <AdminTableHead className="pl-6 min-w-[180px]">Voucher Name</AdminTableHead>
+            <AdminTableHead className="min-w-[110px]">Total Use</AdminTableHead>
+            <AdminTableHead className="min-w-[130px]">Minus Revenue</AdminTableHead>
             {!isEmpty && (
               <AdminTableHead className="pr-6 w-12 text-center" aria-label="Aksi" />
             )}

@@ -47,7 +47,7 @@ export default function AdminUsersPage() {
   }, [filters, currentPage]);
 
   // Live queries & mutations
-  const { data: serverResponse, isLoading } = useAdminUsers(queryParams);
+  const { data: serverResponse, isLoading, isError, refetch } = useAdminUsers(queryParams);
   const updateStatusMutation = useUpdateUserStatus();
 
   const users: AdminUserItem[] = React.useMemo(() => {
@@ -94,6 +94,8 @@ export default function AdminUsersPage() {
       <AdminLayout
         title="Pengguna"
         activeNavId="pengguna"
+        isError={isError}
+        onReload={() => refetch()}
         headerRight={
           <AdminUsersHeaderSearch
             value={filters.searchQuery}
@@ -114,10 +116,36 @@ export default function AdminUsersPage() {
               setFilters(INITIAL_USER_FILTER_STATE);
               setCurrentPage(1);
             }}
+            className="hidden sm:flex"
           />
         }
       >
         <div className="w-full space-y-6 pb-12 select-none">
+          {/* Mobile Search & Filter: placed cleanly above table to prevent header truncation on < sm */}
+          <div className="block sm:hidden">
+            <AdminUsersHeaderSearch
+              value={filters.searchQuery}
+              onChange={(query) => {
+                setFilters((prev) => ({ ...prev, searchQuery: query }));
+                setCurrentPage(1);
+              }}
+              onClear={() => {
+                setFilters((prev) => ({ ...prev, searchQuery: "" }));
+                setCurrentPage(1);
+              }}
+              filters={filters}
+              onApplyFilters={(updated) => {
+                setFilters(updated);
+                setCurrentPage(1);
+              }}
+              onResetFilters={() => {
+                setFilters(INITIAL_USER_FILTER_STATE);
+                setCurrentPage(1);
+              }}
+              className="w-full"
+            />
+          </div>
+
           {/* Main User Table Component */}
           <AdminUsersTable
             users={users}

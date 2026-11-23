@@ -11,6 +11,7 @@ import {
 } from "@/components/ui";
 import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
 import { StoreLayout } from "@/components/layout";
+import { Error500View } from "@/components/shared/Error500View";
 
 // Icon for 500 Server Error
 const WifiOffIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -352,35 +353,12 @@ export default function BlogsPage() {
               CASE A: 500 SERVER ERROR
              ====================================================== */}
           {previewState === "error-500" ? (
-            <div className="flex flex-col items-center justify-center min-h-[60vh] text-center select-none px-4 py-16 my-auto">
-              <div className="w-14 h-14 rounded-lg bg-white/5 border border-gradient-secondary flex items-center justify-center text-white mb-6">
-                <WifiOffIcon className="w-7 h-7 text-white" />
-              </div>
-              <h2 className="text-h4 sm:text-h3 font-bold text-white mb-2">
-                500: Internal Server Error
-              </h2>
-              <p className="text-gray-400 text-body-sm mx-auto mb-8 font-normal leading-relaxed">
-                This page you&apos;re looking for doesn&apos;t exist or has been
-                moved. Please check the URL or return to the homepage.
-              </p>
-              <div className="flex items-center justify-center gap-3">
-                <Button
-                  variant="secondary"
-                  size="md"
-                  leftIcon={<ArrowLeftIcon className="w-4 h-4" />}
-                  onClick={() => setPreviewState("default")}
-                >
-                  Kembali
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="md"
-                  leftIcon={<ReloadIcon className="w-4 h-4" />}
-                  onClick={() => setPreviewState("default")}
-                >
-                  Reload
-                </Button>
-              </div>
+            <div className="py-24 flex items-center justify-center">
+              <Error500View
+                showBackButton={true}
+                onBack={() => setPreviewState("default")}
+                onReload={() => setPreviewState("default")}
+              />
             </div>
           ) : (
             /* ======================================================

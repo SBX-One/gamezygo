@@ -45,7 +45,7 @@ export function AdminCard({
       {hasHeader && (
         <div
           className={cn(
-            "rounded-t-xl bg-deep-blue-900 border-b border-deep-blue-700 shrink-0 relative px-6",
+            "rounded-t-xl bg-deep-blue-900 border-b border-deep-blue-700 shrink-0 relative px-4 sm:px-6",
             headerResponsive
               ? "flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 h-auto min-h-18 py-3.5 sm:py-4"
               : "flex items-center justify-between min-h-18 h-18 py-4",

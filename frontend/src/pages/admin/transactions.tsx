@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import { AdminLayout } from "@/components/layout/AdminLayout";
 import { Button } from "@/components/ui/Button";
+import { Pagination } from "@/components/ui/Pagination";
 import {
   AdminTransactionMetricsSection,
   AdminTransactionsTableSection,
@@ -26,15 +27,8 @@ const ChevronRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-const emptySubscribe = () => () => {};
-
 export default function AdminTransactionsPage() {
   const router = useRouter();
-  const [isMounted, setIsMounted] = React.useState(false);
-  React.useEffect(() => {
-    setIsMounted(true);
-  }, []);
-  const [isEmptyManual, setIsEmptyManual] = React.useState<boolean | null>(null);
 
   const {
     metricsData,
@@ -44,12 +38,24 @@ export default function AdminTransactionsPage() {
     refetch,
   } = useAdminRecentTransactions(50);
 
-  const isEmptyState =
-    isEmptyManual !== null
-      ? isEmptyManual
-      : isMounted && router.isReady
-      ? router.query.empty === "true"
-      : false;
+  const isEmptyState = router.isReady ? router.query.empty === "true" : false;
+
+  const [currentPage, setCurrentPage] = React.useState(1);
+  const itemsPerPage = 10;
+  const activeTransactions = transactions || [];
+  const totalPages = Math.max(1, Math.ceil(activeTransactions.length / itemsPerPage));
+
+  React.useEffect(() => {
+    if (currentPage > totalPages) {
+      setCurrentPage(1);
+    }
+  }, [totalPages, currentPage]);
+
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const paginatedTransactions = activeTransactions.slice(
+    startIndex,
+    startIndex + itemsPerPage
+  );
 
   // Breadcrumbs matching Gambar 4: Main Dashboard > Recent Transactions
   const breadcrumbs = (
@@ -70,28 +76,6 @@ export default function AdminTransactionsPage() {
     </nav>
   );
 
-  // Switcher toggle in headerRight for previewing both Filled State (Gambar 1) and Empty State (Gambar 2-3)
-  const headerRight = (
-    <div className="flex items-center gap-1.5 p-1 rounded-lg bg-deep-blue-900 border border-deep-blue-700/60 text-label-xs">
-      <Button
-        variant={!isEmptyState ? "active" : "inactive"}
-        size="xs"
-        onClick={() => setIsEmptyManual(false)}
-        className="px-3 py-2"
-      >
-        Data Terisi
-      </Button>
-      <Button
-        variant={isEmptyState ? "active" : "inactive"}
-        size="xs"
-        onClick={() => setIsEmptyManual(true)}
-        className="px-3 py-2"
-      >
-        Empty State
-      </Button>
-    </div>
-  );
-
   return (
     <>
       <Head>
@@ -105,19 +89,10 @@ export default function AdminTransactionsPage() {
       <AdminLayout
         title={breadcrumbs}
         activeNavId="dashboard"
-        headerRight={headerRight}
+        isError={isError}
+        onReload={() => refetch()}
       >
         <div className="space-y-8 pb-10">
-          {isError && (
-            <div className="w-full py-10 rounded-lg bg-deep-blue-900 border border-rose-500/30 flex flex-col items-center justify-center text-center gap-3 px-4">
-              <p className="text-sm text-rose-300 font-medium">
-                Gagal memuat data transaksi dari database. Pastikan Anda sudah login sebagai Admin.
-              </p>
-              <Button variant="secondary" size="sm" onClick={() => refetch()}>
-                Muat Ulang
-              </Button>
-            </div>
-          )}
 
           {/* 1. Top 3 Transaction Metric Cards (Gambar 1, 2, 5) */}
           <div className="relative z-20">
@@ -133,9 +108,20 @@ export default function AdminTransactionsPage() {
             <AdminTransactionsTableSection
               isEmpty={isEmptyState}
               isLoading={isLoading}
-              transactions={transactions}
+              transactions={paginatedTransactions}
             />
           </div>
+
+          {/* 3. Separated Centered Pagination Component (seperti di katalog) */}
+          {!isLoading && !isEmptyState && activeTransactions.length > itemsPerPage && (
+            <div className="flex justify-center pt-2 pb-8">
+              <Pagination
+                currentPage={currentPage}
+                totalPages={totalPages}
+                onPageChange={(page) => setCurrentPage(page)}
+              />
+            </div>
+          )}
         </div>
       </AdminLayout>
     </>

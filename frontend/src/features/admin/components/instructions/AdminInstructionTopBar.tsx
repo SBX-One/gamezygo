@@ -93,14 +93,14 @@ export function AdminInstructionTopBar({
   return (
     <div
       className={cn(
-        "flex items-center justify-between gap-4 w-full select-none font-sans",
+        "flex items-center justify-between gap-2 sm:gap-4 w-full select-none font-sans",
         className
       )}
     >
       {/* Left: Search Bar with Clear X and Filter Button (Matching Catalog Design) */}
-      <div className="flex items-center gap-3 sm:gap-4">
+      <div className="flex items-center gap-2 sm:gap-4 flex-1 sm:flex-initial min-w-0">
         {/* Search Input Box */}
-        <div className="relative w-48 sm:w-64 flex items-center">
+        <div className="relative flex-1 sm:w-64 min-w-0 max-w-[240px] sm:max-w-none flex items-center">
           <div className="absolute left-3 text-gray-400 pointer-events-none flex items-center">
             <SearchIcon className="w-4 h-4" />
           </div>
@@ -136,16 +136,17 @@ export function AdminInstructionTopBar({
         </div>
       </div>
 
-      {/* Right: + Add New Button (Matching Image 1: Button, Type: Primary, Size: sm) */}
+      {/* Right: + Add New Button (Icon only on mobile, with text on desktop) */}
       <Button
         type="button"
         variant="primary"
         size="sm"
         leftIcon={<PlusIcon className="w-4 h-4 text-white" />}
         onClick={onAddNew}
-        className="shrink-0"
+        className="shrink-0 w-10 h-10 p-0 sm:w-auto sm:px-3.75 sm:py-2.5 gap-0 sm:gap-4 [&_.button-main-text]:hidden sm:[&_.button-main-text]:inline-flex"
+        aria-label="Tambah Instruksi Baru"
       >
-        Add New
+        <span>Add New</span>
       </Button>
     </div>
   );

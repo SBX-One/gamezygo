@@ -80,6 +80,21 @@ class Product extends Model
         return $this->hasOne(ProductGameAccount::class);
     }
 
+    public function gameCredentials(): HasMany
+    {
+        return $this->hasMany(GameCredential::class);
+    }
+
+    public function getTitleAttribute(): string
+    {
+        return $this->name;
+    }
+
+    public function getCoverImageUrlAttribute(): ?string
+    {
+        return $this->thumbnail;
+    }
+
     public function userOwnedGames(): BelongsToMany
     {
         return $this->belongsToMany(User::class, 'user_owned_games');

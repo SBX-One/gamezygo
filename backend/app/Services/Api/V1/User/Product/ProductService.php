@@ -72,7 +72,7 @@ class ProductService
      * @throws ModelNotFoundException
      * @throws AuthorizationException
      */
-    public function getProductCredentials(User $user, string $slug): ProductGameAccount
+    public function getProductCredentials(User $user, string $slug): object
     {
         $product = $this->productRepository->findBySlug($slug);
 
@@ -82,6 +82,16 @@ class ProductService
 
         if (!$this->productRepository->isUserOwnedProduct($user, $product)) {
             throw new AuthorizationException('You do not own this game');
+        }
+
+        // Data Isolation Shield: First check GameCredential allocated specifically to this user
+        $credential = \App\Models\GameCredential::where('product_id', $product->id)
+            ->where('assigned_to_user_id', $user->id)
+            ->where('status', \App\Models\GameCredential::STATUS_SOLD)
+            ->first();
+
+        if ($credential) {
+            return $credential;
         }
 
         $gameAccount = $this->productRepository->getGameAccount($product);

@@ -60,6 +60,7 @@ class PaymentWebhookController extends Controller
       $status = ($transactionStatus === 'expire') ? 'expired' : 'failed';
       $payment->update(['status' => $status]);
       $payment->order->update(['status' => $status]);
+      app(\App\Services\Credential\CredentialAllocationService::class)->releaseReservation($payment->order);
     }
 
     return response()->json([

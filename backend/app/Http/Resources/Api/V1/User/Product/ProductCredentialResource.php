@@ -26,10 +26,19 @@ class ProductCredentialResource extends JsonResource
     } catch (\Throwable) {
     }
 
+    $accessToken = $this->access_token ?? null;
+    if ($accessToken) {
+      try {
+        $accessToken = decrypt($accessToken);
+      } catch (\Throwable) {
+      }
+    }
+
     return [
-      'id'       => $this->id,
-      'username' => $username,
-      'password' => $password,
+      'id'           => $this->id,
+      'username'     => $username,
+      'password'     => $password,
+      'access_token' => $accessToken,
     ];
   }
 }

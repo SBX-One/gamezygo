@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Events\OrderFulfilledEvent;
+use App\Listeners\SendOrderDeliveryEmailListener;
 use App\Models\Announcement;
 use App\Models\Blog;
 use App\Models\Community;
@@ -21,6 +23,9 @@ use App\Observers\ReviewObserver;
 use App\Observers\SubscriptionPlanObserver;
 use App\Observers\UserObserver;
 use App\Services\Cache\RedisCacheService;
+use App\Services\Mail\EmailDispatcherService;
+use App\Services\Storage\S3StorageService;
+use Illuminate\Support\Facades\Event;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider
@@ -33,6 +38,14 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton(RedisCacheService::class, function () {
             return new RedisCacheService();
         });
+
+        $this->app->singleton(S3StorageService::class, function () {
+            return new S3StorageService();
+        });
+
+        $this->app->singleton(EmailDispatcherService::class, function () {
+            return new EmailDispatcherService();
+        });
     }
 
     /**
@@ -40,6 +53,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Event::listen(OrderFulfilledEvent::class, SendOrderDeliveryEmailListener::class);
+
         Product::observe(ProductObserver::class);
         CustomSection::observe(CustomSectionObserver::class);
         SubscriptionPlan::observe(SubscriptionPlanObserver::class);

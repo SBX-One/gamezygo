@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 
 #[Fillable([
@@ -27,5 +28,10 @@ class OrderItem extends Model
     public function purchasable(): MorphTo
     {
         return $this->morphTo();
+    }
+
+    public function gameCredential(): HasOne
+    {
+        return $this->hasOne(GameCredential::class, 'assigned_to_order_item_id');
     }
 }

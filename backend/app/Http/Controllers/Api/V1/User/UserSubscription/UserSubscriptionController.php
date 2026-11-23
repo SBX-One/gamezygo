@@ -12,53 +12,46 @@ use Illuminate\Http\Request;
 
 class UserSubscriptionController extends Controller
 {
-  public function __construct(
-    protected UserSubscriptionService $subscriptionService
-  ) {
-  }
+    public function __construct(
+        protected UserSubscriptionService $subscriptionService
+    ) {}
 
-  /**
-   * Display the authenticated user's current active subscription.
-   *
-   * @param Request $request
-   * @return JsonResponse
-   */
-  public function show(Request $request): JsonResponse
-  {
-    $user = $request->user() ?? auth('api')->user();
+    /**
+     * Display the authenticated user's current active subscription.
+     */
+    public function show(Request $request): JsonResponse
+    {
+        $user = $request->user() ?? auth('api')->user();
 
-    $subscription = $this->subscriptionService->getUserSubscription($user);
+        $subscription = $this->subscriptionService->getUserSubscription($user);
 
-    if (!$subscription) {
-      return response()->json([
-        'success' => false,
-        'message' => 'No active subscription found',
-        'data'    => null,
-      ], 404);
+        if (! $subscription) {
+            return response()->json([
+                'success' => false,
+                'message' => 'No active subscription found',
+                'data' => null,
+            ], 404);
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Subscription retrieved successfully',
+            'data' => (new UserSubscriptionResource($subscription))->resolve(),
+        ], 200);
     }
 
-    return response()->json([
-      'success' => true,
-      'message' => 'Subscription retrieved successfully',
-      'data'    => (new UserSubscriptionResource($subscription))->resolve(),
-    ], 200);
-  }
+    /**
+     * List products included in subscription catalog with filters.
+     */
+    public function products(GetSubscriptionProductsRequest $request): SubscriptionProductCollection
+    {
+        $filters = $request->validated();
+        if (empty($filters)) {
+            $filters = $request->only(['search', 'genre_categories', 'page', 'per_page']);
+        }
 
-  /**
-   * List products included in subscription catalog with filters.
-   *
-   * @param GetSubscriptionProductsRequest $request
-   * @return SubscriptionProductCollection
-   */
-  public function products(GetSubscriptionProductsRequest $request): SubscriptionProductCollection
-  {
-    $filters = $request->validated();
-    if (empty($filters)) {
-      $filters = $request->only(['search', 'genre_categories', 'page', 'per_page']);
+        $products = $this->subscriptionService->getSubscriptionProducts($filters);
+
+        return new SubscriptionProductCollection($products);
     }
-
-    $products = $this->subscriptionService->getSubscriptionProducts($filters);
-
-    return new SubscriptionProductCollection($products);
-  }
 }

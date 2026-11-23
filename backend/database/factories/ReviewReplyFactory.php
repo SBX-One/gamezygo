@@ -21,8 +21,8 @@ class ReviewReplyFactory extends Factory
     {
         return [
             'review_id' => Review::inRandomOrder()->first()?->id ?? Review::factory(),
-            'user_id'   => User::inRandomOrder()->first()?->id ?? User::factory(),
-            'message'   => fake()->sentence(),
+            'user_id' => User::inRandomOrder()->first()?->id ?? User::factory(),
+            'message' => fake()->sentence(),
         ];
     }
 }

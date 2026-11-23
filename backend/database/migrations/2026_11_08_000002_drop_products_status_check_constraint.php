@@ -5,22 +5,21 @@ use Illuminate\Support\Facades\DB;
 
 return new class extends Migration
 {
-  /**
-   * Run the migrations.
-   */
-  public function up(): void
-  {
-    if (DB::getDriverName() === 'pgsql') {
-      DB::statement('ALTER TABLE products DROP CONSTRAINT IF EXISTS products_status_check');
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        if (DB::getDriverName() === 'pgsql') {
+            DB::statement('ALTER TABLE products DROP CONSTRAINT IF EXISTS products_status_check');
+        }
     }
-  }
 
-  /**
-   * Reverse the migrations.
-   */
-  public function down(): void
-  {
-    //
-  }
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        //
+    }
 };
-

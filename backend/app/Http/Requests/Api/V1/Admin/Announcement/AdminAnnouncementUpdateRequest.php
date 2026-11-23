@@ -6,19 +6,18 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class AdminAnnouncementUpdateRequest extends FormRequest
 {
-  public function authorize(): bool
-  {
-    return true;
-  }
+    public function authorize(): bool
+    {
+        return true;
+    }
 
-  public function rules(): array
-  {
-    return [
-      'banner_file' => ['nullable'],
-      'link'        => ['nullable', 'string', 'max:500'],
-      'is_publish'  => ['nullable', 'boolean'],
-      'sort'        => ['nullable', 'integer', 'min:0'],
-    ];
-  }
+    public function rules(): array
+    {
+        return [
+            'banner_file' => ['nullable'],
+            'link' => ['nullable', 'string', 'max:500'],
+            'is_publish' => ['nullable', 'boolean'],
+            'sort' => ['nullable', 'integer', 'min:0'],
+        ];
+    }
 }
-

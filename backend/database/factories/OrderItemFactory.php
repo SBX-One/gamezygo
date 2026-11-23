@@ -29,10 +29,10 @@ class OrderItemFactory extends Factory
         $orderId = $orders->isNotEmpty() ? $orders->random()->id : Order::factory();
 
         return [
-            'order_id'         => $orderId,
+            'order_id' => $orderId,
             'purchasable_type' => Product::class,
-            'purchasable_id'   => $product?->id ?? Product::factory(),
-            'price'            => $product?->price ?? fake()->numberBetween(10000, 100000),
+            'purchasable_id' => $product?->id ?? Product::factory(),
+            'price' => $product?->price ?? fake()->numberBetween(10000, 100000),
         ];
     }
 }

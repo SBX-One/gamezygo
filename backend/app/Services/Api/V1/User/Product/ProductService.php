@@ -2,6 +2,7 @@
 
 namespace App\Services\Api\V1\User\Product;
 
+use App\Models\GameCredential;
 use App\Models\Product;
 use App\Models\ProductGameAccount;
 use App\Models\User;
@@ -16,19 +17,17 @@ class ProductService
     public function __construct(
         protected ProductRepositoryInterface $productRepository,
         protected RedisCacheService $cacheService
-    ) {
-    }
+    ) {}
 
     /**
      * Fetch products for guest view with filters and pagination.
      *
-     * @param array<string, mixed> $filters
-     * @return LengthAwarePaginator
+     * @param  array<string, mixed>  $filters
      */
     public function getGuestProducts(array $filters): LengthAwarePaginator
     {
         $page = request()->get('page', 1);
-        $cacheKey = 'products:guest:list:' . md5(json_encode($filters) . ":page:{$page}");
+        $cacheKey = 'products:guest:list:'.md5(json_encode($filters).":page:{$page}");
 
         return $this->cacheService->remember(
             $cacheKey,
@@ -41,8 +40,6 @@ class ProductService
     /**
      * Fetch product detail by slug.
      *
-     * @param string $slug
-     * @return Product
      * @throws ModelNotFoundException
      */
     public function getProductDetail(string $slug): Product
@@ -56,7 +53,7 @@ class ProductService
             [RedisCacheService::TAG_PRODUCTS]
         );
 
-        if (!$product) {
+        if (! $product) {
             throw new ModelNotFoundException('Product not found');
         }
 
@@ -66,9 +63,8 @@ class ProductService
     /**
      * Fetch game credentials for a product owned by user.
      *
-     * @param User $user
-     * @param string $slug
      * @return ProductGameAccount
+     *
      * @throws ModelNotFoundException
      * @throws AuthorizationException
      */
@@ -76,18 +72,18 @@ class ProductService
     {
         $product = $this->productRepository->findBySlug($slug);
 
-        if (!$product) {
+        if (! $product) {
             throw new ModelNotFoundException('Product not found');
         }
 
-        if (!$this->productRepository->isUserOwnedProduct($user, $product)) {
+        if (! $this->productRepository->isUserOwnedProduct($user, $product)) {
             throw new AuthorizationException('You do not own this game');
         }
 
         // Data Isolation Shield: First check GameCredential allocated specifically to this user
-        $credential = \App\Models\GameCredential::where('product_id', $product->id)
+        $credential = GameCredential::where('product_id', $product->id)
             ->where('assigned_to_user_id', $user->id)
-            ->where('status', \App\Models\GameCredential::STATUS_SOLD)
+            ->where('status', GameCredential::STATUS_SOLD)
             ->first();
 
         if ($credential) {
@@ -96,7 +92,7 @@ class ProductService
 
         $gameAccount = $this->productRepository->getGameAccount($product);
 
-        if (!$gameAccount) {
+        if (! $gameAccount) {
             throw new ModelNotFoundException('Game credentials not available for this product');
         }
 

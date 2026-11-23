@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\BlogFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -24,7 +25,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 ])]
 class Blog extends Model
 {
-    /** @use HasFactory<\Database\Factories\BlogFactory> */
+    /** @use HasFactory<BlogFactory> */
     use HasFactory;
 
     protected function casts(): array
@@ -58,7 +59,7 @@ class Blog extends Model
     {
         if ($this->relationLoaded('author') && $this->author) {
             return [
-                'id'   => $this->author->id,
+                'id' => $this->author->id,
                 'name' => $this->author->name,
             ];
         }
@@ -76,7 +77,7 @@ class Blog extends Model
         }
 
         return [
-            'id'   => 1,
+            'id' => 1,
             'name' => 'Gamerygo Admin',
         ];
     }

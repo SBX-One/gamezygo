@@ -22,11 +22,11 @@ class CustomSectionSeeder extends Seeder
         $manualSection = CustomSection::updateOrCreate(
             ['slug' => 'tawaran-khusus'],
             [
-                'title'        => 'Tawaran Khusus!',
+                'title' => 'Tawaran Khusus!',
                 'display_type' => 'manual',
-                'auto_rule'    => null,
+                'auto_rule' => null,
                 'order_number' => 1,
-                'is_active'    => true,
+                'is_active' => true,
             ]
         );
 
@@ -41,33 +41,33 @@ class CustomSectionSeeder extends Seeder
         CustomSection::updateOrCreate(
             ['slug' => 'game-terlaris-dan-populer'],
             [
-                'title'        => 'Game Terlaris & Populer',
+                'title' => 'Game Terlaris & Populer',
                 'display_type' => 'auto',
-                'auto_rule'    => 'best_seller',
+                'auto_rule' => 'best_seller',
                 'order_number' => 2,
-                'is_active'    => true,
+                'is_active' => true,
             ]
         );
 
         CustomSection::updateOrCreate(
             ['slug' => 'rilis-terbaru'],
             [
-                'title'        => 'Rilis Terbaru',
+                'title' => 'Rilis Terbaru',
                 'display_type' => 'auto',
-                'auto_rule'    => 'newest',
+                'auto_rule' => 'newest',
                 'order_number' => 3,
-                'is_active'    => true,
+                'is_active' => true,
             ]
         );
 
         CustomSection::updateOrCreate(
             ['slug' => 'diskon-spesial-minggu-ini'],
             [
-                'title'        => 'Diskon Spesial Minggu Ini',
+                'title' => 'Diskon Spesial Minggu Ini',
                 'display_type' => 'auto',
-                'auto_rule'    => 'discounted',
+                'auto_rule' => 'discounted',
                 'order_number' => 4,
-                'is_active'    => true,
+                'is_active' => true,
             ]
         );
     }

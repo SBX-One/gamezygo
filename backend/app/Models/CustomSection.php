@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\CustomSectionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -17,7 +18,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 ])]
 class CustomSection extends Model
 {
-    /** @use HasFactory<\Database\Factories\CustomSectionFactory> */
+    /** @use HasFactory<CustomSectionFactory> */
     use HasFactory;
 
     protected function casts(): array

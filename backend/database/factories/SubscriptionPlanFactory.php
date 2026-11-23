@@ -19,11 +19,11 @@ class SubscriptionPlanFactory extends Factory
     public function definition(): array
     {
         return [
-            'name'                  => fake()->name(),
-            'price'                 => fake()->numberBetween(10000, 100000),
-            'duration_days'         => fake()->numberBetween(1, 30),
+            'name' => fake()->name(),
+            'price' => fake()->numberBetween(10000, 100000),
+            'duration_days' => fake()->numberBetween(1, 30),
             'max_concurrent_access' => fake()->numberBetween(1, 4),
-            'is_active'             => fake()->boolean,
+            'is_active' => fake()->boolean,
         ];
     }
 
@@ -33,7 +33,7 @@ class SubscriptionPlanFactory extends Factory
             for ($i = 1; $i <= 10; $i++) {
                 SubscriptionPlanFeature::factory()->create([
                     'subscription_plan_id' => $subscriptionPlan->id,
-                    'sort_number'          => $i,
+                    'sort_number' => $i,
                 ]);
             }
         });

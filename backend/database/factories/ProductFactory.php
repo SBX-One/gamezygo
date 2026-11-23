@@ -22,19 +22,19 @@ class ProductFactory extends Factory
     public function definition(): array
     {
         $name = fake()->unique()->words(3, true);
-        $slug = str()->slug($name) . '-' . fake()->unique()->numberBetween(100, 9999);
+        $slug = str()->slug($name).'-'.fake()->unique()->numberBetween(100, 9999);
 
         return [
-            'name'                         => ucfirst($name),
-            'slug'                         => $slug,
-            'description'                  => fake()->text(),
-            'price'                        => fake()->numberBetween(50000, 800000),
-            'discount_price'               => fake()->numberBetween(0, 400000),
+            'name' => ucfirst($name),
+            'slug' => $slug,
+            'description' => fake()->text(),
+            'price' => fake()->numberBetween(50000, 800000),
+            'discount_price' => fake()->numberBetween(0, 400000),
             'product_launcher_category_id' => ProductLauncherCategory::first()?->id ?? ProductLauncherCategory::factory(),
-            'product_instruction_id'       => ProductInstruction::first()?->id ?? ProductInstruction::factory(),
-            'steam_url'                    => fake()->url(),
-            'status'                       => fake()->randomElement(['listing', 'pre-order', 'archive']),
-            'is_subscription_supported'    => fake()->boolean(70),
+            'product_instruction_id' => ProductInstruction::first()?->id ?? ProductInstruction::factory(),
+            'steam_url' => fake()->url(),
+            'status' => fake()->randomElement(['listing', 'pre-order', 'archive']),
+            'is_subscription_supported' => fake()->boolean(70),
         ];
     }
 

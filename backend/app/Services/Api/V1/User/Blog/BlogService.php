@@ -13,20 +13,17 @@ class BlogService
     public function __construct(
         protected BlogRepositoryInterface $blogRepository,
         protected RedisCacheService $cacheService
-    ) {
-    }
+    ) {}
 
     /**
      * Fetch paginated published blogs with category and optional filters.
      *
-     * @param array<string, mixed> $filters
-     * @param int $perPage
-     * @return LengthAwarePaginator
+     * @param  array<string, mixed>  $filters
      */
     public function getPublishedBlogs(array $filters = [], int $perPage = 10): LengthAwarePaginator
     {
         $page = request()->get('page', 1);
-        $cacheKey = 'blogs:published:list:' . md5(json_encode($filters) . ":per_page:{$perPage}:page:{$page}");
+        $cacheKey = 'blogs:published:list:'.md5(json_encode($filters).":per_page:{$perPage}:page:{$page}");
 
         return $this->cacheService->remember(
             $cacheKey,
@@ -39,8 +36,6 @@ class BlogService
     /**
      * Fetch published blog detail by slug.
      *
-     * @param string $slug
-     * @return Blog
      * @throws ModelNotFoundException
      */
     public function getBlogDetail(string $slug): Blog
@@ -54,7 +49,7 @@ class BlogService
             [RedisCacheService::TAG_BLOGS]
         );
 
-        if (!$blog) {
+        if (! $blog) {
             throw new ModelNotFoundException('Blog not found');
         }
 

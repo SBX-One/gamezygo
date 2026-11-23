@@ -18,7 +18,7 @@ class FileFactory extends Factory
     public function definition(): array
     {
         return [
-            'file_name' => fake()->word() . '.jpg',
+            'file_name' => fake()->word().'.jpg',
             'file_type' => 'image/jpeg',
             'file_path' => 'reviews/test.jpg',
             'file_size' => 1024,

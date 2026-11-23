@@ -17,7 +17,7 @@ class ReviewCollection extends ResourceCollection
         return [
             'success' => true,
             'message' => 'Reviews retrieved successfully',
-            'data'    => ReviewResource::collection($this->collection),
+            'data' => ReviewResource::collection($this->collection),
         ];
     }
 }

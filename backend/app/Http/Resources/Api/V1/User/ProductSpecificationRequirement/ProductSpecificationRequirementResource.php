@@ -15,10 +15,10 @@ class ProductSpecificationRequirementResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'          => $this->id,
-            'label'       => $this->label,
+            'id' => $this->id,
+            'label' => $this->label,
             'requirement' => $this->requirement,
-            'type'        => $this->type,
+            'type' => $this->type,
         ];
     }
 }

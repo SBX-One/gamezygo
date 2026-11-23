@@ -6,16 +6,15 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class AdminReviewReplyRequest extends FormRequest
 {
-  public function authorize(): bool
-  {
-    return true;
-  }
+    public function authorize(): bool
+    {
+        return true;
+    }
 
-  public function rules(): array
-  {
-    return [
-      'message' => ['required', 'string', 'max:5000'],
-    ];
-  }
+    public function rules(): array
+    {
+        return [
+            'message' => ['required', 'string', 'max:5000'],
+        ];
+    }
 }
-

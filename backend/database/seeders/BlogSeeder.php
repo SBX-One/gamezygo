@@ -18,7 +18,7 @@ class BlogSeeder extends Seeder
         }
 
         Blog::factory()->count(20)->create([
-            'status'       => 'published',
+            'status' => 'published',
             'published_at' => now(),
         ]);
     }

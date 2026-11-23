@@ -6,23 +6,23 @@ use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
-  /**
-   * Run the migrations.
-   */
-  public function up(): void
-  {
-    Schema::table('orders', function (Blueprint $table) {
-      $table->timestamp('paid_at')->nullable()->change();
-    });
-  }
+    /**
+     * Run the migrations.
+     */
+    public function up(): void
+    {
+        Schema::table('orders', function (Blueprint $table) {
+            $table->timestamp('paid_at')->nullable()->change();
+        });
+    }
 
-  /**
-   * Reverse the migrations.
-   */
-  public function down(): void
-  {
-    Schema::table('orders', function (Blueprint $table) {
-      $table->timestamp('paid_at')->nullable(false)->change();
-    });
-  }
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('orders', function (Blueprint $table) {
+            $table->timestamp('paid_at')->nullable(false)->change();
+        });
+    }
 };

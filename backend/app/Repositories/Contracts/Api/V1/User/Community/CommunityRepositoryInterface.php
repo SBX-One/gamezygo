@@ -8,26 +8,20 @@ use Illuminate\Database\Eloquent\Collection;
 
 interface CommunityRepositoryInterface
 {
-  /**
-   * Get active communities with optional filters and pagination.
-   *
-   * @param array<string, mixed> $filters
-   * @return LengthAwarePaginator|Collection
-   */
-  public function getActiveCommunities(array $filters = []): LengthAwarePaginator|Collection;
+    /**
+     * Get active communities with optional filters and pagination.
+     *
+     * @param  array<string, mixed>  $filters
+     */
+    public function getActiveCommunities(array $filters = []): LengthAwarePaginator|Collection;
 
-  /**
-   * Get single active community by ID.
-   *
-   * @param int $id
-   * @return Community|null
-   */
-  public function getActiveCommunityById(int $id): ?Community;
+    /**
+     * Get single active community by ID.
+     */
+    public function getActiveCommunityById(int $id): ?Community;
 
-  /**
-   * Get available community tags.
-   *
-   * @return Collection
-   */
-  public function getActiveTags(): Collection;
+    /**
+     * Get available community tags.
+     */
+    public function getActiveTags(): Collection;
 }

@@ -16,12 +16,12 @@ class SubscriptionPlanResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'                         => $this->id,
-            'name'                       => $this->name,
-            'price'                      => (int) $this->price,
-            'duration_days'              => (int) $this->duration_days,
-            'max_concurrent_access'      => (int) ($this->max_concurrent_access ?? 1),
-            'is_active'                  => (bool) $this->is_active,
+            'id' => $this->id,
+            'name' => $this->name,
+            'price' => (int) $this->price,
+            'duration_days' => (int) $this->duration_days,
+            'max_concurrent_access' => (int) ($this->max_concurrent_access ?? 1),
+            'is_active' => (bool) $this->is_active,
             'subscription_plan_features' => SubscriptionPlanFeatureResource::collection(
                 $this->relationLoaded('features')
                     ? $this->features

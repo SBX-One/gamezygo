@@ -13,8 +13,7 @@ class BlogController extends Controller
 {
     public function __construct(
         protected BlogService $blogService
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): BlogCollection
     {

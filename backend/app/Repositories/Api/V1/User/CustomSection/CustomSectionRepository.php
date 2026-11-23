@@ -11,8 +11,6 @@ class CustomSectionRepository implements CustomSectionRepositoryInterface
 {
     /**
      * Get active custom sections ordered by order_number with loaded products.
-     *
-     * @return Collection
      */
     public function getActiveSections(): Collection
     {
@@ -28,9 +26,9 @@ class CustomSectionRepository implements CustomSectionRepositoryInterface
 
                 match ($section->auto_rule) {
                     'best_seller' => $query->withCount('orderItems')->orderByDesc('order_items_count'),
-                    'newest'      => $query->orderByDesc('created_at'),
-                    'discounted'  => $query->whereNotNull('discount_price')->where('discount_price', '>', 0),
-                    default       => null,
+                    'newest' => $query->orderByDesc('created_at'),
+                    'discounted' => $query->whereNotNull('discount_price')->where('discount_price', '>', 0),
+                    default => null,
                 };
 
                 $section->setRelation('products', $query->take(8)->get());

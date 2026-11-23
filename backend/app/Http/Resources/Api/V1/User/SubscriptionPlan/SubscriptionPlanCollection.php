@@ -17,7 +17,7 @@ class SubscriptionPlanCollection extends ResourceCollection
         return [
             'success' => true,
             'message' => 'Subscription plans retrieved successfully',
-            'data'    => SubscriptionPlanResource::collection($this->collection),
+            'data' => SubscriptionPlanResource::collection($this->collection),
         ];
     }
 }

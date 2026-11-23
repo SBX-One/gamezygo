@@ -17,7 +17,7 @@ class CustomSectionCollection extends ResourceCollection
         return [
             'success' => true,
             'message' => 'Custom sections retrieved successfully',
-            'data'    => CustomSectionResource::collection($this->collection),
+            'data' => CustomSectionResource::collection($this->collection),
         ];
     }
 }

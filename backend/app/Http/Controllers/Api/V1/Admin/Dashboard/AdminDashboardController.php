@@ -12,45 +12,37 @@ use Illuminate\Http\JsonResponse;
 
 class AdminDashboardController extends Controller
 {
-  public function __construct(
-    protected AdminDashboardService $adminDashboardService
-  ) {
-  }
+    public function __construct(
+        protected AdminDashboardService $adminDashboardService
+    ) {}
 
-  /**
-   * Retrieve aggregated admin dashboard analytics.
-   *
-   * @param AdminDashboardRequest $request
-   * @return JsonResponse
-   */
-  public function index(AdminDashboardRequest $request): JsonResponse
-  {
-    $period = (string) $request->input('period', 'today');
-    $data = $this->adminDashboardService->getDashboardData($period);
+    /**
+     * Retrieve aggregated admin dashboard analytics.
+     */
+    public function index(AdminDashboardRequest $request): JsonResponse
+    {
+        $period = (string) $request->input('period', 'today');
+        $data = $this->adminDashboardService->getDashboardData($period);
 
-    return response()->json([
-      'success' => true,
-      'message' => 'Dashboard data retrieved successfully',
-      'data'    => (new AdminDashboardResource($data))->resolve(),
-    ]);
-  }
+        return response()->json([
+            'success' => true,
+            'message' => 'Dashboard data retrieved successfully',
+            'data' => (new AdminDashboardResource($data))->resolve(),
+        ]);
+    }
 
-  /**
-   * Retrieve revenue dashboard recent transactions and metrics.
-   *
-   * @param AdminRecentTransactionsRequest $request
-   * @return JsonResponse
-   */
-  public function recentTransactions(AdminRecentTransactionsRequest $request): JsonResponse
-  {
-    $limit = (int) $request->input('limit', 10);
-    $data = $this->adminDashboardService->getRevenueTransactionsData($limit);
+    /**
+     * Retrieve revenue dashboard recent transactions and metrics.
+     */
+    public function recentTransactions(AdminRecentTransactionsRequest $request): JsonResponse
+    {
+        $limit = (int) $request->input('limit', 10);
+        $data = $this->adminDashboardService->getRevenueTransactionsData($limit);
 
-    return response()->json([
-      'success' => true,
-      'message' => 'Revenue dashboard data retrieved successfully',
-      'data'    => (new AdminRecentTransactionsResource($data))->resolve(),
-    ]);
-  }
+        return response()->json([
+            'success' => true,
+            'message' => 'Revenue dashboard data retrieved successfully',
+            'data' => (new AdminRecentTransactionsResource($data))->resolve(),
+        ]);
+    }
 }
-

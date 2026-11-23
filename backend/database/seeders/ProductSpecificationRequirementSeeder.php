@@ -2,8 +2,6 @@
 
 namespace Database\Seeders;
 
-use App\Models\ProductSpecificationRequirement;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 
 class ProductSpecificationRequirementSeeder extends Seeder

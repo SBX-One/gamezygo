@@ -7,19 +7,18 @@ use Illuminate\Http\Resources\Json\JsonResource;
 
 class AdminCustomSectionUpdatedResource extends JsonResource
 {
-  /**
-   * Transform the resource into an array.
-   *
-   * @return array<string, mixed>
-   */
-  public function toArray(Request $request): array
-  {
-    return [
-      'id'             => $this->id,
-      'name'           => $this->title,
-      'sort_order'     => (int) $this->order_number,
-      'total_products' => (int) ($this->products_count ?? $this->products()->count()),
-    ];
-  }
+    /**
+     * Transform the resource into an array.
+     *
+     * @return array<string, mixed>
+     */
+    public function toArray(Request $request): array
+    {
+        return [
+            'id' => $this->id,
+            'name' => $this->title,
+            'sort_order' => (int) $this->order_number,
+            'total_products' => (int) ($this->products_count ?? $this->products()->count()),
+        ];
+    }
 }
-

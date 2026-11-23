@@ -11,13 +11,10 @@ class SubscriptionPlanService
     public function __construct(
         protected SubscriptionPlanRepositoryInterface $subscriptionPlanRepository,
         protected RedisCacheService $cacheService
-    ) {
-    }
+    ) {}
 
     /**
      * Fetch active subscription plans with features.
-     *
-     * @return Collection
      */
     public function getActivePlans(): Collection
     {

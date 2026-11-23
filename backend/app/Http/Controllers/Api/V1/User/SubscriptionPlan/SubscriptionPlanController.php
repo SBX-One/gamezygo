@@ -11,8 +11,7 @@ class SubscriptionPlanController extends Controller
 {
     public function __construct(
         protected SubscriptionPlanService $subscriptionPlanService
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): SubscriptionPlanCollection
     {

@@ -2,15 +2,16 @@
 
 namespace App\Models;
 
+use Database\Factories\ProductFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 #[Fillable([
     'name',
@@ -27,13 +28,13 @@ use Illuminate\Database\Eloquent\Relations\MorphMany;
 ])]
 class Product extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProductFactory> */
+    /** @use HasFactory<ProductFactory> */
     use HasFactory, SoftDeletes;
 
     protected function casts(): array
     {
         return [
-            'archived_at'               => 'datetime',
+            'archived_at' => 'datetime',
             'is_subscription_supported' => 'boolean',
         ];
     }
@@ -142,6 +143,7 @@ class Product extends Model
         if ($this->price > 0 && $this->discount_price > 0 && $this->discount_price < $this->price) {
             return (int) round((($this->price - $this->discount_price) / $this->price) * 100);
         }
+
         return 0;
     }
 
@@ -152,6 +154,7 @@ class Product extends Model
         }
 
         $file = $this->relationLoaded('files') ? $this->files->first() : $this->files()->first();
+
         return $file ? $file->file_path : null;
     }
 }

@@ -10,10 +10,6 @@ class LeaderboardRepository implements LeaderboardRepositoryInterface
 {
     /**
      * Get paginated leaderboard based on period filter (monthly, weekly, lifetime).
-     *
-     * @param string $period
-     * @param int $perPage
-     * @return LengthAwarePaginator
      */
     public function getLeaderboard(string $period = 'monthly', int $perPage = 10): LengthAwarePaginator
     {
@@ -27,9 +23,9 @@ class LeaderboardRepository implements LeaderboardRepositoryInterface
 
         $items = collect($paginator->items())->map(function ($user, $index) use ($startRank) {
             return [
-                'rank'  => $startRank + $index,
-                'id'    => $user->id,
-                'name'  => $user->name,
+                'rank' => $startRank + $index,
+                'id' => $user->id,
+                'name' => $user->name,
                 'point' => (int) $user->total_points,
             ];
         });

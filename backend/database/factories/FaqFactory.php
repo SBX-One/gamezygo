@@ -18,10 +18,10 @@ class FaqFactory extends Factory
     public function definition(): array
     {
         return [
-            'question'     => fake()->sentence() . '?',
-            'answer'       => fake()->paragraph(),
+            'question' => fake()->sentence().'?',
+            'answer' => fake()->paragraph(),
             'order_number' => fake()->numberBetween(1, 100),
-            'is_active'    => fake()->boolean(80),
+            'is_active' => fake()->boolean(80),
         ];
     }
 }

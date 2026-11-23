@@ -14,81 +14,73 @@ use Illuminate\Http\Request;
 
 class PaymentController extends Controller
 {
-  public function __construct(
-    protected PaymentService $paymentService
-  ) {}
+    public function __construct(
+        protected PaymentService $paymentService
+    ) {}
 
-  /**
-   * Process payment for an order.
-   *
-   * @param PayOrderRequest $request
-   * @param int|string $orderId
-   * @return JsonResponse
-   */
-  public function pay(PayOrderRequest $request, int|string $orderId): JsonResponse
-  {
-    $user = $request->user();
-    $paymentMethod = $request->validated('payment_method');
+    /**
+     * Process payment for an order.
+     */
+    public function pay(PayOrderRequest $request, int|string $orderId): JsonResponse
+    {
+        $user = $request->user();
+        $paymentMethod = $request->validated('payment_method');
 
-    try {
-      $result = $this->paymentService->processPayment($user, $orderId, $paymentMethod);
-      $payment = $result['payment'];
-      $gateway = $result['gateway'];
+        try {
+            $result = $this->paymentService->processPayment($user, $orderId, $paymentMethod);
+            $payment = $result['payment'];
+            $gateway = $result['gateway'];
 
-      return response()->json([
-        'success' => true,
-        'message' => 'Payment created successfully',
-        'data'    => (new PaymentResource($payment, $gateway))->resolve(),
-      ], 200);
-    } catch (ModelNotFoundException) {
-      return response()->json([
-        'success' => false,
-        'message' => 'Order not found',
-        'data'    => null,
-      ], 404);
-    } catch (DomainException $e) {
-      return response()->json([
-        'success' => false,
-        'message' => $e->getMessage(),
-        'data'    => null,
-      ], 422);
-    }
-  }
-
-  /**
-   * Check payment status by payment reference or order code.
-   *
-   * @param Request $request
-   * @param string|null $reference
-   * @return JsonResponse
-   */
-  public function status(Request $request, ?string $reference = null): JsonResponse
-  {
-    $user = $request->user();
-    $targetReference = $reference ?? $request->query('references') ?? $request->query('reference');
-
-    if (!$targetReference) {
-      return response()->json([
-        'success' => false,
-        'message' => 'Payment reference is required',
-        'data'    => null,
-      ], 422);
+            return response()->json([
+                'success' => true,
+                'message' => 'Payment created successfully',
+                'data' => (new PaymentResource($payment, $gateway))->resolve(),
+            ], 200);
+        } catch (ModelNotFoundException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order not found',
+                'data' => null,
+            ], 404);
+        } catch (DomainException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'data' => null,
+            ], 422);
+        }
     }
 
-    try {
-      $order = $this->paymentService->getPaymentStatus($user, $targetReference);
+    /**
+     * Check payment status by payment reference or order code.
+     */
+    public function status(Request $request, ?string $reference = null): JsonResponse
+    {
+        $user = $request->user();
+        $targetReference = $reference ?? $request->query('references') ?? $request->query('reference');
 
-      return response()->json([
-        'success' => true,
-        'message' => 'Order retrieved successfully',
-        'data'    => (new OrderDetailResource($order))->resolve(),
-      ], 200);
-    } catch (ModelNotFoundException) {
-      return response()->json([
-        'success' => false,
-        'message' => 'Order not found',
-        'data'    => null,
-      ], 404);
+        if (! $targetReference) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Payment reference is required',
+                'data' => null,
+            ], 422);
+        }
+
+        try {
+            $order = $this->paymentService->getPaymentStatus($user, $targetReference);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Order retrieved successfully',
+                'data' => (new OrderDetailResource($order))->resolve(),
+            ], 200);
+        } catch (ModelNotFoundException) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Order not found',
+                'data' => null,
+            ], 404);
+        }
     }
-  }
 }

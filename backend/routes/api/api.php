@@ -1,18 +1,31 @@
 <?php
 
+use App\Http\Controllers\Api\V1\Admin\Announcement\AdminAnnouncementController;
+use App\Http\Controllers\Api\V1\Admin\Category\AdminBlogCategoryController;
+use App\Http\Controllers\Api\V1\Admin\Category\AdminBlogSubCategoryController;
+use App\Http\Controllers\Api\V1\Admin\Category\AdminProductCategoryController;
+use App\Http\Controllers\Api\V1\Admin\Category\AdminProductSubCategoryController;
+use App\Http\Controllers\Api\V1\Admin\Community\AdminCommunityController;
+use App\Http\Controllers\Api\V1\Admin\Faq\AdminFaqController;
+use App\Http\Controllers\Api\V1\Admin\GameRequest\AdminGameRequestController;
+use App\Http\Controllers\Api\V1\Admin\Instruction\AdminInstructionController;
+use App\Http\Controllers\Api\V1\Admin\Review\AdminReviewController;
+use App\Http\Controllers\Api\V1\Admin\User\AdminUserController;
+use App\Http\Controllers\Api\V1\Admin\Voucher\AdminVoucherController;
+use App\Http\Controllers\Api\V1\User\Community\CommunityController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1/')
     ->name('v1.')
-    ->group(function() {
-        require __DIR__ . "/v1/v1.php";
+    ->group(function () {
+        require __DIR__.'/v1/v1.php';
     });
 
 // Direct alias without v1 prefix for /api/admin/game-requests
 Route::middleware(['auth:admin', 'admin.only'])
     ->prefix('admin')
     ->group(function () {
-        Route::controller(\App\Http\Controllers\Api\V1\Admin\GameRequest\AdminGameRequestController::class)
+        Route::controller(AdminGameRequestController::class)
             ->prefix('game-requests')
             ->group(function () {
                 Route::get('/', 'index');
@@ -21,7 +34,7 @@ Route::middleware(['auth:admin', 'admin.only'])
                 Route::match(['post', 'put', 'patch'], '/{gameRequestId}/pin', 'togglePin')->whereNumber('gameRequestId');
             });
 
-        Route::controller(\App\Http\Controllers\Api\V1\Admin\Voucher\AdminVoucherController::class)
+        Route::controller(AdminVoucherController::class)
             ->prefix('vouchers')
             ->group(function () {
                 Route::get('/', 'index');
@@ -42,7 +55,7 @@ Route::middleware(['auth:admin', 'admin.only'])
                 Route::delete('/{voucherId}/users', 'removeUsers')->whereNumber('voucherId');
             });
 
-        Route::controller(\App\Http\Controllers\Api\V1\Admin\Instruction\AdminInstructionController::class)
+        Route::controller(AdminInstructionController::class)
             ->prefix('instructions')
             ->group(function () {
                 Route::get('/', 'index');
@@ -52,7 +65,7 @@ Route::middleware(['auth:admin', 'admin.only'])
                 Route::delete('/{instructionId}', 'destroy')->whereNumber('instructionId');
             });
 
-        Route::controller(\App\Http\Controllers\Api\V1\Admin\Faq\AdminFaqController::class)
+        Route::controller(AdminFaqController::class)
             ->prefix('faqs')
             ->group(function () {
                 Route::get('/', 'index');
@@ -66,7 +79,7 @@ Route::middleware(['auth:admin', 'admin.only'])
                 Route::delete('/{faqId}', 'destroy')->whereNumber('faqId');
             });
 
-        Route::controller(\App\Http\Controllers\Api\V1\Admin\Announcement\AdminAnnouncementController::class)
+        Route::controller(AdminAnnouncementController::class)
             ->prefix('announcements')
             ->group(function () {
                 Route::get('/', 'index');
@@ -78,7 +91,7 @@ Route::middleware(['auth:admin', 'admin.only'])
                 Route::delete('/{announcementId}', 'destroy')->whereNumber('announcementId');
             });
 
-        Route::controller(\App\Http\Controllers\Api\V1\Admin\Community\AdminCommunityController::class)
+        Route::controller(AdminCommunityController::class)
             ->prefix('communities')
             ->group(function () {
                 Route::get('/', 'index');
@@ -92,7 +105,7 @@ Route::middleware(['auth:admin', 'admin.only'])
             });
 
         // Product Categories & Sub-Categories
-        Route::controller(\App\Http\Controllers\Api\V1\Admin\Category\AdminProductCategoryController::class)
+        Route::controller(AdminProductCategoryController::class)
             ->prefix('product-categories')
             ->group(function () {
                 Route::get('/', 'index');
@@ -104,7 +117,7 @@ Route::middleware(['auth:admin', 'admin.only'])
                 Route::post('/{categoryId}/sub-categories', 'storeSubCategory')->whereNumber('categoryId');
             });
 
-        Route::controller(\App\Http\Controllers\Api\V1\Admin\Category\AdminProductSubCategoryController::class)
+        Route::controller(AdminProductSubCategoryController::class)
             ->prefix('product-sub-categories')
             ->group(function () {
                 Route::get('/', 'index');
@@ -114,7 +127,7 @@ Route::middleware(['auth:admin', 'admin.only'])
                 Route::delete('/{id}', 'destroy')->whereNumber('id');
             });
 
-        Route::controller(\App\Http\Controllers\Api\V1\Admin\Category\AdminProductSubCategoryController::class)
+        Route::controller(AdminProductSubCategoryController::class)
             ->prefix('product-tags')
             ->group(function () {
                 Route::get('/', 'index');
@@ -125,7 +138,7 @@ Route::middleware(['auth:admin', 'admin.only'])
             });
 
         // Blog Categories & Sub-Categories
-        Route::controller(\App\Http\Controllers\Api\V1\Admin\Category\AdminBlogCategoryController::class)
+        Route::controller(AdminBlogCategoryController::class)
             ->prefix('blog-categories')
             ->group(function () {
                 Route::get('/', 'index');
@@ -137,7 +150,7 @@ Route::middleware(['auth:admin', 'admin.only'])
                 Route::post('/{categoryId}/sub-categories', 'storeSubCategory')->whereNumber('categoryId');
             });
 
-        Route::controller(\App\Http\Controllers\Api\V1\Admin\Category\AdminBlogSubCategoryController::class)
+        Route::controller(AdminBlogSubCategoryController::class)
             ->prefix('blog-sub-categories')
             ->group(function () {
                 Route::get('/', 'index');
@@ -147,7 +160,7 @@ Route::middleware(['auth:admin', 'admin.only'])
                 Route::delete('/{id}', 'destroy')->whereNumber('id');
             });
 
-        Route::controller(\App\Http\Controllers\Api\V1\Admin\Category\AdminBlogSubCategoryController::class)
+        Route::controller(AdminBlogSubCategoryController::class)
             ->prefix('blog-tags')
             ->group(function () {
                 Route::get('/', 'index');
@@ -157,7 +170,7 @@ Route::middleware(['auth:admin', 'admin.only'])
                 Route::delete('/{id}', 'destroy')->whereNumber('id');
             });
 
-        Route::controller(\App\Http\Controllers\Api\V1\Admin\Review\AdminReviewController::class)
+        Route::controller(AdminReviewController::class)
             ->prefix('reviews')
             ->group(function () {
                 Route::get('/', 'index');
@@ -168,7 +181,7 @@ Route::middleware(['auth:admin', 'admin.only'])
                 Route::delete('/{id}', 'destroy')->whereNumber('id');
             });
 
-        Route::controller(\App\Http\Controllers\Api\V1\Admin\User\AdminUserController::class)
+        Route::controller(AdminUserController::class)
             ->prefix('users')
             ->group(function () {
                 Route::get('/', 'index');
@@ -186,7 +199,7 @@ Route::middleware(['auth:admin', 'admin.only'])
     });
 
 // Direct public alias without v1 prefix for /api/communities & /api/user/communities
-Route::controller(\App\Http\Controllers\Api\V1\User\Community\CommunityController::class)
+Route::controller(CommunityController::class)
     ->prefix('communities')
     ->group(function () {
         Route::get('/', 'index');
@@ -194,7 +207,7 @@ Route::controller(\App\Http\Controllers\Api\V1\User\Community\CommunityControlle
         Route::get('/{id}', 'show')->whereNumber('id');
     });
 
-Route::controller(\App\Http\Controllers\Api\V1\User\Community\CommunityController::class)
+Route::controller(CommunityController::class)
     ->prefix('user/communities')
     ->group(function () {
         Route::get('/', 'index');

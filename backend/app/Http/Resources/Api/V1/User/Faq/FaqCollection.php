@@ -17,7 +17,7 @@ class FaqCollection extends ResourceCollection
         return [
             'success' => true,
             'message' => 'FAQs retrieved successfully',
-            'data'    => FaqResource::collection($this->collection),
+            'data' => FaqResource::collection($this->collection),
         ];
     }
 }

@@ -11,13 +11,10 @@ class CustomSectionService
     public function __construct(
         protected CustomSectionRepositoryInterface $customSectionRepository,
         protected RedisCacheService $cacheService
-    ) {
-    }
+    ) {}
 
     /**
      * Fetch active custom sections with products.
-     *
-     * @return Collection
      */
     public function getActiveSections(): Collection
     {

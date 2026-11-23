@@ -13,130 +13,105 @@ use Illuminate\Http\JsonResponse;
 
 class AdminBlogCategoryController extends Controller
 {
-  public function __construct(
-    protected AdminBlogCategoryRepositoryInterface $categoryRepository
-  ) {}
+    public function __construct(
+        protected AdminBlogCategoryRepositoryInterface $categoryRepository
+    ) {}
 
-  /**
-   * List all blog categories with their sub-categories.
-   *
-   * @param AdminBlogCategoryIndexRequest $request
-   * @return JsonResponse
-   */
-  public function index(AdminBlogCategoryIndexRequest $request): JsonResponse
-  {
-    $data = $this->categoryRepository->getCategories($request->validated());
+    /**
+     * List all blog categories with their sub-categories.
+     */
+    public function index(AdminBlogCategoryIndexRequest $request): JsonResponse
+    {
+        $data = $this->categoryRepository->getCategories($request->validated());
 
-    return response()->json([
-      'success' => true,
-      'message' => 'Blog categories retrieved successfully',
-      'data'    => $data,
-    ]);
-  }
+        return response()->json([
+            'success' => true,
+            'message' => 'Blog categories retrieved successfully',
+            'data' => $data,
+        ]);
+    }
 
-  /**
-   * Get single blog category details with its sub-categories.
-   *
-   * @param int $id
-   * @return JsonResponse
-   */
-  public function show(int $id): JsonResponse
-  {
-    $data = $this->categoryRepository->getCategoryById($id);
+    /**
+     * Get single blog category details with its sub-categories.
+     */
+    public function show(int $id): JsonResponse
+    {
+        $data = $this->categoryRepository->getCategoryById($id);
 
-    return response()->json([
-      'success' => true,
-      'message' => 'Blog category retrieved successfully',
-      'data'    => $data,
-    ]);
-  }
+        return response()->json([
+            'success' => true,
+            'message' => 'Blog category retrieved successfully',
+            'data' => $data,
+        ]);
+    }
 
-  /**
-   * Create a new blog root category.
-   *
-   * @param AdminBlogCategoryStoreRequest $request
-   * @return JsonResponse
-   */
-  public function store(AdminBlogCategoryStoreRequest $request): JsonResponse
-  {
-    $data = $this->categoryRepository->createCategory($request->validated());
+    /**
+     * Create a new blog root category.
+     */
+    public function store(AdminBlogCategoryStoreRequest $request): JsonResponse
+    {
+        $data = $this->categoryRepository->createCategory($request->validated());
 
-    return response()->json([
-      'success' => true,
-      'message' => 'Blog category created successfully',
-      'data'    => $data,
-    ], 201);
-  }
+        return response()->json([
+            'success' => true,
+            'message' => 'Blog category created successfully',
+            'data' => $data,
+        ], 201);
+    }
 
-  /**
-   * Update an existing blog root category.
-   *
-   * @param AdminBlogCategoryUpdateRequest $request
-   * @param int $id
-   * @return JsonResponse
-   */
-  public function update(AdminBlogCategoryUpdateRequest $request, int $id): JsonResponse
-  {
-    $data = $this->categoryRepository->updateCategory($id, $request->validated());
+    /**
+     * Update an existing blog root category.
+     */
+    public function update(AdminBlogCategoryUpdateRequest $request, int $id): JsonResponse
+    {
+        $data = $this->categoryRepository->updateCategory($id, $request->validated());
 
-    return response()->json([
-      'success' => true,
-      'message' => 'Blog category updated successfully',
-      'data'    => $data,
-    ]);
-  }
+        return response()->json([
+            'success' => true,
+            'message' => 'Blog category updated successfully',
+            'data' => $data,
+        ]);
+    }
 
-  /**
-   * Delete a blog category.
-   *
-   * @param int $id
-   * @return JsonResponse
-   */
-  public function destroy(int $id): JsonResponse
-  {
-    $this->categoryRepository->deleteCategory($id);
+    /**
+     * Delete a blog category.
+     */
+    public function destroy(int $id): JsonResponse
+    {
+        $this->categoryRepository->deleteCategory($id);
 
-    return response()->json([
-      'success' => true,
-      'message' => 'Blog category deleted successfully',
-      'data'    => null,
-    ]);
-  }
+        return response()->json([
+            'success' => true,
+            'message' => 'Blog category deleted successfully',
+            'data' => null,
+        ]);
+    }
 
-  /**
-   * Get sub-categories for a specific blog category.
-   *
-   * @param AdminBlogSubCategoryIndexRequest $request
-   * @param int $categoryId
-   * @return JsonResponse
-   */
-  public function subCategories(AdminBlogSubCategoryIndexRequest $request, int $categoryId): JsonResponse
-  {
-    $data = $this->categoryRepository->getSubCategories($request->validated(), $categoryId);
+    /**
+     * Get sub-categories for a specific blog category.
+     */
+    public function subCategories(AdminBlogSubCategoryIndexRequest $request, int $categoryId): JsonResponse
+    {
+        $data = $this->categoryRepository->getSubCategories($request->validated(), $categoryId);
 
-    return response()->json([
-      'success' => true,
-      'message' => 'Blog sub-categories retrieved successfully',
-      'data'    => $data,
-    ]);
-  }
+        return response()->json([
+            'success' => true,
+            'message' => 'Blog sub-categories retrieved successfully',
+            'data' => $data,
+        ]);
+    }
 
-  /**
-   * Create a sub-category directly under a category.
-   *
-   * @param AdminBlogSubCategoryStoreRequest $request
-   * @param int $categoryId
-   * @return JsonResponse
-   */
-  public function storeSubCategory(AdminBlogSubCategoryStoreRequest $request, int $categoryId): JsonResponse
-  {
-    $data = $this->categoryRepository->createSubCategory($request->validated(), $categoryId);
+    /**
+     * Create a sub-category directly under a category.
+     */
+    public function storeSubCategory(AdminBlogSubCategoryStoreRequest $request, int $categoryId): JsonResponse
+    {
+        $data = $this->categoryRepository->createSubCategory($request->validated(), $categoryId);
 
-    return response()->json([
-      'success' => true,
-      'message' => 'Blog sub-category created successfully',
-      'data'    => $data,
-    ], 201);
-  }
+        return response()->json([
+            'success' => true,
+            'message' => 'Blog sub-category created successfully',
+            'data' => $data,
+        ], 201);
+    }
 }
-

@@ -11,8 +11,7 @@ class FaqController extends Controller
 {
     public function __construct(
         protected FaqService $faqService
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): FaqCollection
     {

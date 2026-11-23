@@ -1,0 +1,267 @@
+name: Gamezygo CI
+
+on:
+  push:
+    branches:
+      - main
+      - development
+      - frontend/dev
+      - backend/dev
+      - "dfft/**"
+      - "dfc/**"
+      - "dbft/**"
+      - "dbc/**"
+      - "ci/**"
+  pull_request:
+    branches:
+      - main
+      - development
+      - frontend/dev
+      - backend/dev
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+permissions:
+  contents: read
+  pull-requests: read
+
+jobs:
+  # Detect which subprojects were touched in this commit/PR
+  changes:
+    name: Detect Changed Subprojects
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+      docker: ${{ steps.filter.outputs.docker }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Check Changed Files
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: ${{ github.base_ref || github.ref_name }}
+          filters: |
+            frontend:
+              - 'frontend/**'
+              - '.github/workflows/ci.yml'
+            backend:
+              - 'backend/**'
+              - '.github/workflows/ci.yml'
+            docker:
+              - 'docker/**'
+              - 'docker-compose*.yml'
+              - '.github/workflows/ci.yml'
+
+  # ==========================================
+  # Frontend CI: Next.js 16 + React 19 + TypeScript + ESLint
+  # ==========================================
+  frontend-ci:
+    name: Frontend Quality & Build
+    needs: changes
+    # Run if frontend files changed, or if pushing directly to integration/release branches
+    if: |
+      needs.changes.outputs.frontend == 'true' ||
+      github.ref == 'refs/heads/development' ||
+      github.ref == 'refs/heads/main' ||
+      startsWith(github.ref, 'refs/heads/dfft/') ||
+      startsWith(github.ref, 'refs/heads/dfc/')
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Install pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 9
+
+      - name: Setup Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: 'pnpm'
+          cache-dependency-path: frontend/pnpm-lock.yaml
+
+      - name: Install Frontend Dependencies
+        run: |
+          if [ -f pnpm-lock.yaml ]; then
+            pnpm install --frozen-lockfile --prod=false || pnpm install --prod=false
+          else
+            npm install
+          fi
+
+      - name: TypeScript Static Typecheck
+        run: |
+          if [ -f tsconfig.json ]; then
+            pnpm exec tsc --noEmit
+          fi
+
+      - name: Run ESLint
+        run: |
+          if [ -f eslint.config.mjs ] || [ -f .eslintrc.json ]; then
+            pnpm run lint
+          fi
+
+      - name: Build Next.js Application
+        env:
+          NEXT_PUBLIC_API_URL: http://localhost:8000/api/v1
+          NODE_ENV: production
+        run: |
+          pnpm run build
+
+  # ==========================================
+  # Backend CI: Laravel 13 + PHP 8.4 + Postgres + Redis + PHPUnit
+  # ==========================================
+  backend-ci:
+    name: Backend Quality & Tests
+    needs: changes
+    # Run if backend files changed, or if pushing directly to integration/release branches
+    if: |
+      needs.changes.outputs.backend == 'true' ||
+      github.ref == 'refs/heads/development' ||
+      github.ref == 'refs/heads/main' ||
+      startsWith(github.ref, 'refs/heads/dbft/') ||
+      startsWith(github.ref, 'refs/heads/dbc/')
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_DB: gamezygo_testing
+          POSTGRES_USER: dev_admin
+          POSTGRES_PASSWORD: SecretPGDBPassword
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+      redis:
+        image: redis:7-alpine
+        ports:
+          - 6379:6379
+        options: >-
+          --health-cmd "redis-cli ping"
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup PHP & Extensions
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.4'
+          extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_pgsql, pgsql, sqlite, pdo_sqlite, redis, gd, zip, bcmath
+          coverage: none
+
+      - name: Validate Composer Configuration
+        run: composer validate --strict
+
+      - name: Cache Composer Dependencies
+        uses: actions/cache@v4
+        with:
+          path: backend/vendor
+          key: ${{ runner.os }}-composer-${{ hashFiles('backend/composer.lock', 'backend/composer.json') }}
+          restore-keys: ${{ runner.os }}-composer-
+
+      - name: Install Composer Dependencies
+        run: composer install --prefer-dist --no-progress --no-interaction
+
+      - name: Setup Laravel Environment
+        run: |
+          if [ ! -f .env ]; then
+            cp .env.example .env
+          fi
+          php artisan key:generate
+
+      - name: Configure JWT Secret (if jwt-auth package is installed)
+        run: |
+          if grep -q "jwt-auth" composer.json; then
+            echo "Generating JWT Secret..."
+            php artisan jwt:secret --force || true
+          fi
+
+      - name: Run Laravel Pint Code Style Check
+        run: |
+          if [ -f vendor/bin/pint ]; then
+            ./vendor/bin/pint --test
+          fi
+
+      - name: Run Database Migrations
+        env:
+          DB_CONNECTION: pgsql
+          DB_HOST: 127.0.0.1
+          DB_PORT: 5432
+          DB_DATABASE: gamezygo_testing
+          DB_USERNAME: dev_admin
+          DB_PASSWORD: SecretPGDBPassword
+        run: |
+          php artisan migrate --force
+
+      - name: Run PHPUnit Test Suite
+        env:
+          APP_ENV: testing
+          DB_CONNECTION: sqlite
+          DB_DATABASE: ":memory:"
+          CACHE_STORE: array
+          QUEUE_CONNECTION: sync
+          SESSION_DRIVER: array
+        run: |
+          php artisan test
+
+  # ==========================================
+  # Docker CI: Validate Compose configurations
+  # ==========================================
+  docker-validate:
+    name: Docker Configuration Validation
+    needs: changes
+    if: |
+      needs.changes.outputs.docker == 'true' ||
+      github.ref == 'refs/heads/development' ||
+      github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Validate Local docker-compose.yml
+        run: docker compose -f docker-compose.yml config
+
+      - name: Validate Production docker-compose.prod.yml
+        run: |
+          if [ -f docker-compose.prod.yml ]; then
+            if [ ! -f backend/.env ]; then
+              if [ -f backend/.env.example ]; then
+                cp backend/.env.example backend/.env
+              else
+                mkdir -p backend && touch backend/.env
+              fi
+            fi
+            docker compose -f docker-compose.prod.yml config
+          fi

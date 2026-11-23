@@ -1,0 +1,56 @@
+<?php
+
+namespace App\Http\Requests\Api\V1\User\Order;
+
+use Illuminate\Contracts\Validation\ValidationRule;
+use Illuminate\Contracts\Validation\Validator;
+use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Http\Exceptions\HttpResponseException;
+
+class ApplyVoucherRequest extends FormRequest
+{
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
+    /**
+     * Get the validation rules that apply to the request.
+     *
+     * @return array<string, ValidationRule|array<mixed>|string>
+     */
+    public function rules(): array
+    {
+        return [
+            'voucher_code' => ['required', 'string'],
+        ];
+    }
+
+    /**
+     * Custom validation messages.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'voucher_code.required' => 'Kode voucher wajib diisi.',
+            'voucher_code.string' => 'Kode voucher harus berupa teks.',
+        ];
+    }
+
+    /**
+     * Handle failed validation response.
+     */
+    protected function failedValidation(Validator $validator): void
+    {
+        throw new HttpResponseException(response()->json([
+            'success' => false,
+            'message' => 'Validation error',
+            'errors' => $validator->errors(),
+        ], 422));
+    }
+}

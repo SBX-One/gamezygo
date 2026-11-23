@@ -66,7 +66,6 @@ jobs:
       startsWith(github.ref, 'refs/heads/dfft/') ||
       startsWith(github.ref, 'refs/heads/dfc/')
     runs-on: ubuntu-latest
-
     defaults:
       run:
         working-directory: frontend
@@ -84,7 +83,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: 'pnpm'
+          cache: "pnpm"
           cache-dependency-path: frontend/pnpm-lock.yaml
 
       - name: Install Frontend Dependencies
@@ -128,7 +127,6 @@ jobs:
       startsWith(github.ref, 'refs/heads/dbft/') ||
       startsWith(github.ref, 'refs/heads/dbc/')
     runs-on: ubuntu-latest
-
     services:
       postgres:
         image: postgres:16-alpine
@@ -165,7 +163,7 @@ jobs:
       - name: Setup PHP & Extensions
         uses: shivammathur/setup-php@v2
         with:
-          php-version: '8.4'
+          php-version: "8.4"
           extensions: mbstring, xml, ctype, iconv, intl, pdo, pdo_pgsql, pgsql, sqlite, pdo_sqlite, redis, gd, zip, bcmath
           coverage: none
 

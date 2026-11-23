@@ -1,0 +1,160 @@
+<?php
+
+namespace App\Models;
+
+use Database\Factories\ProductFactory;
+use Illuminate\Database\Eloquent\Attributes\Fillable;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
+
+#[Fillable([
+    'name',
+    'slug',
+    'description',
+    'price',
+    'discount_price',
+    'product_launcher_category_id',
+    'product_instruction_id',
+    'steam_url',
+    'status',
+    'archived_at',
+    'is_subscription_supported',
+])]
+class Product extends Model
+{
+    /** @use HasFactory<ProductFactory> */
+    use HasFactory, SoftDeletes;
+
+    protected function casts(): array
+    {
+        return [
+            'archived_at' => 'datetime',
+            'is_subscription_supported' => 'boolean',
+        ];
+    }
+
+    public function genreCategories(): BelongsToMany
+    {
+        return $this->belongsToMany(GenreCategory::class, 'product_genre_categories');
+    }
+
+    public function categories(): BelongsToMany
+    {
+        return $this->belongsToMany(GenreCategory::class, 'product_genre_categories')
+            ->whereNull('genre_categories.parent_id');
+    }
+
+    public function subCategories(): BelongsToMany
+    {
+        return $this->belongsToMany(GenreCategory::class, 'product_genre_categories')
+            ->whereNotNull('genre_categories.parent_id');
+    }
+
+    public function productLauncherCategory(): BelongsTo
+    {
+        return $this->belongsTo(ProductLauncherCategory::class, 'product_launcher_category_id');
+    }
+
+    public function productInstruction(): BelongsTo
+    {
+        return $this->belongsTo(ProductInstruction::class, 'product_instruction_id');
+    }
+
+    public function specificationRequirements(): HasMany
+    {
+        return $this->hasMany(ProductSpecificationRequirement::class);
+    }
+
+    public function gameAccounts(): HasOne
+    {
+        return $this->hasOne(ProductGameAccount::class);
+    }
+
+    public function gameAccount(): HasOne
+    {
+        return $this->hasOne(ProductGameAccount::class);
+    }
+
+    public function gameCredentials(): HasMany
+    {
+        return $this->hasMany(GameCredential::class);
+    }
+
+    public function getTitleAttribute(): string
+    {
+        return $this->name;
+    }
+
+    public function getCoverImageUrlAttribute(): ?string
+    {
+        return $this->thumbnail;
+    }
+
+    public function userOwnedGames(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_owned_games');
+    }
+
+    public function vouchers(): BelongsToMany
+    {
+        return $this->belongsToMany(Voucher::class, 'voucher_products');
+    }
+
+    public function usersCart(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_cart_items');
+    }
+
+    public function usersWishlists(): BelongsToMany
+    {
+        return $this->belongsToMany(User::class, 'user_wishlists');
+    }
+
+    public function orderItems(): MorphMany
+    {
+        return $this->morphMany(OrderItem::class, 'purchasable');
+    }
+
+    public function reviews(): HasMany
+    {
+        return $this->hasMany(Review::class);
+    }
+
+    public function customSections(): BelongsToMany
+    {
+        return $this->belongsToMany(CustomSection::class, 'custom_section_products')
+            ->withPivot('order_number')
+            ->withTimestamps();
+    }
+
+    public function files(): MorphMany
+    {
+        return $this->morphMany(File::class, 'related');
+    }
+
+    public function getDiscountAttribute(): int
+    {
+        if ($this->price > 0 && $this->discount_price > 0 && $this->discount_price < $this->price) {
+            return (int) round((($this->price - $this->discount_price) / $this->price) * 100);
+        }
+
+        return 0;
+    }
+
+    public function getThumbnailAttribute(): ?string
+    {
+        if (array_key_exists('thumbnail', $this->attributes) && $this->attributes['thumbnail'] !== null) {
+            return $this->attributes['thumbnail'];
+        }
+
+        $file = $this->relationLoaded('files') ? $this->files->first() : $this->files()->first();
+
+        return $file ? $file->file_path : null;
+    }
+}

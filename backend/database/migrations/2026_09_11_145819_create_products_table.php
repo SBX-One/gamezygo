@@ -20,7 +20,7 @@ return new class extends Migration
             $table->integer('discount_price')->nullable()->default(0);
             $table->foreignId('product_launcher_category_id')->constrained()->cascadeOnDelete();
             $table->foreignId('product_instruction_id')->constrained()->cascadeOnDelete();
-            $table->text('steam_url'); 
+            $table->text('steam_url');
             $table->string('status')->default('draft');
             $table->boolean('is_subscription_supported')->default(false);
             $table->softDeletes();

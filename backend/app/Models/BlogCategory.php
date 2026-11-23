@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\BlogCategoryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -16,7 +17,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 ])]
 class BlogCategory extends Model
 {
-    /** @use HasFactory<\Database\Factories\BlogCategoryFactory> */
+    /** @use HasFactory<BlogCategoryFactory> */
     use HasFactory;
 
     public function parent(): BelongsTo

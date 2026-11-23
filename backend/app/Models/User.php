@@ -49,15 +49,15 @@ class User extends Authenticatable implements JWTSubject
     {
         return [
             'email_verified_at' => 'datetime',
-            'suspended_at'      => 'datetime',
-            'suspended_until'   => 'datetime',
-            'password'          => 'hashed',
+            'suspended_at' => 'datetime',
+            'suspended_until' => 'datetime',
+            'password' => 'hashed',
         ];
     }
 
     public function getCustomerIdAttribute(): string
     {
-        if (!empty($this->attributes['customer_id'])) {
+        if (! empty($this->attributes['customer_id'])) {
             return $this->attributes['customer_id'];
         }
 
@@ -71,7 +71,7 @@ class User extends Authenticatable implements JWTSubject
 
     public function getLoginTypeAttribute(): string
     {
-        return !empty($this->google_id) ? 'google' : 'email';
+        return ! empty($this->google_id) ? 'google' : 'email';
     }
 
     public function getPointsAttribute(): int
@@ -166,8 +166,6 @@ class User extends Authenticatable implements JWTSubject
 
     /**
      * Get the identifier that will be stored in the subject claim of the JWT.
-     *
-     * @return mixed
      */
     public function getJWTIdentifier(): mixed
     {
@@ -176,13 +174,11 @@ class User extends Authenticatable implements JWTSubject
 
     /**
      * Return a key value array, containing any custom claims to be added to the JWT.
-     *
-     * @return array
      */
     public function getJWTCustomClaims(): array
     {
         return [
-            'email'  => $this->email,
+            'email' => $this->email,
             'status' => $this->status,
         ];
     }

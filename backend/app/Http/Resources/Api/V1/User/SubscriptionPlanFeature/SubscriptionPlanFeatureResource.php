@@ -15,8 +15,8 @@ class SubscriptionPlanFeatureResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'           => $this->id,
-            'feature'      => $this->feature,
+            'id' => $this->id,
+            'feature' => $this->feature,
             'order_number' => $this->sort_number,
         ];
     }

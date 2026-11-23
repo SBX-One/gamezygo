@@ -11,8 +11,7 @@ class AnnouncementController extends Controller
 {
     public function __construct(
         protected AnnouncementService $announcementService
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): AnnouncementCollection
     {

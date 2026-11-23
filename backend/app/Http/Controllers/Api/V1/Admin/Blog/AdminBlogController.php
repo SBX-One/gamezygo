@@ -15,126 +15,104 @@ use Illuminate\Http\JsonResponse;
 
 class AdminBlogController extends Controller
 {
-  public function __construct(
-    protected AdminBlogRepositoryInterface $blogRepository
-  ) {}
+    public function __construct(
+        protected AdminBlogRepositoryInterface $blogRepository
+    ) {}
 
-  /**
-   * List blogs with search, status filter, and pagination.
-   *
-   * @param AdminBlogIndexRequest $request
-   * @return JsonResponse
-   */
-  public function index(AdminBlogIndexRequest $request): JsonResponse
-  {
-    $data = $this->blogRepository->getBlogs($request->validated());
+    /**
+     * List blogs with search, status filter, and pagination.
+     */
+    public function index(AdminBlogIndexRequest $request): JsonResponse
+    {
+        $data = $this->blogRepository->getBlogs($request->validated());
 
-    return response()->json([
-      'success' => true,
-      'message' => 'Blogs retrieved successfully',
-      'data'    => $data,
-    ]);
-  }
-
-  /**
-   * Create a new blog post.
-   *
-   * @param AdminBlogStoreRequest $request
-   * @return JsonResponse
-   */
-  public function store(AdminBlogStoreRequest $request): JsonResponse
-  {
-    $authorId = $request->user()?->id;
-    $blog = $this->blogRepository->createBlog($request->validated(), $authorId);
-
-    return response()->json([
-      'success' => true,
-      'message' => 'Blog created successfully',
-      'data'    => (new AdminBlogCreatedResource($blog))->resolve($request),
-    ], 201);
-  }
-
-  /**
-   * Show blog preview / details.
-   *
-   * @param int $blogId
-   * @return JsonResponse
-   */
-  public function show(int $blogId): JsonResponse
-  {
-    $blog = $this->blogRepository->getBlogById($blogId);
-
-    return response()->json([
-      'success' => true,
-      'message' => 'Blog preview retrieved successfully',
-      'data'    => (new AdminBlogDetailResource($blog))->resolve(request()),
-    ]);
-  }
-
-  /**
-   * Update an existing blog post.
-   *
-   * @param AdminBlogUpdateRequest $request
-   * @param int $blogId
-   * @return JsonResponse
-   */
-  public function update(AdminBlogUpdateRequest $request, int $blogId): JsonResponse
-  {
-    $blog = $this->blogRepository->updateBlog($blogId, $request->validated());
-
-    return response()->json([
-      'success' => true,
-      'message' => 'Blog updated successfully',
-      'data'    => (new AdminBlogUpdatedResource($blog))->resolve($request),
-    ]);
-  }
-
-  /**
-   * Delete blogs (bulk or single).
-   *
-   * @param AdminBlogBulkActionRequest $request
-   * @param int|null $blogId
-   * @return JsonResponse
-   */
-  public function destroy(AdminBlogBulkActionRequest $request, ?int $blogId = null): JsonResponse
-  {
-    $ids = $request->validated('ids') ?? [];
-    if ($blogId) {
-      $ids[] = $blogId;
+        return response()->json([
+            'success' => true,
+            'message' => 'Blogs retrieved successfully',
+            'data' => $data,
+        ]);
     }
-    $ids = array_values(array_unique(array_filter($ids)));
 
-    $data = $this->blogRepository->deleteBlogs($ids);
+    /**
+     * Create a new blog post.
+     */
+    public function store(AdminBlogStoreRequest $request): JsonResponse
+    {
+        $authorId = $request->user()?->id;
+        $blog = $this->blogRepository->createBlog($request->validated(), $authorId);
 
-    return response()->json([
-      'success' => true,
-      'message' => 'Blogs deleted successfully.',
-      'data'    => $data,
-    ]);
-  }
-
-  /**
-   * Publish blogs (bulk or single).
-   *
-   * @param AdminBlogBulkActionRequest $request
-   * @param int|null $blogId
-   * @return JsonResponse
-   */
-  public function publish(AdminBlogBulkActionRequest $request, ?int $blogId = null): JsonResponse
-  {
-    $ids = $request->validated('ids') ?? [];
-    if ($blogId) {
-      $ids[] = $blogId;
+        return response()->json([
+            'success' => true,
+            'message' => 'Blog created successfully',
+            'data' => (new AdminBlogCreatedResource($blog))->resolve($request),
+        ], 201);
     }
-    $ids = array_values(array_unique(array_filter($ids)));
 
-    $data = $this->blogRepository->publishBlogs($ids);
+    /**
+     * Show blog preview / details.
+     */
+    public function show(int $blogId): JsonResponse
+    {
+        $blog = $this->blogRepository->getBlogById($blogId);
 
-    return response()->json([
-      'success' => true,
-      'message' => 'Blogs published successfully.',
-      'data'    => $data,
-    ]);
-  }
+        return response()->json([
+            'success' => true,
+            'message' => 'Blog preview retrieved successfully',
+            'data' => (new AdminBlogDetailResource($blog))->resolve(request()),
+        ]);
+    }
+
+    /**
+     * Update an existing blog post.
+     */
+    public function update(AdminBlogUpdateRequest $request, int $blogId): JsonResponse
+    {
+        $blog = $this->blogRepository->updateBlog($blogId, $request->validated());
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Blog updated successfully',
+            'data' => (new AdminBlogUpdatedResource($blog))->resolve($request),
+        ]);
+    }
+
+    /**
+     * Delete blogs (bulk or single).
+     */
+    public function destroy(AdminBlogBulkActionRequest $request, ?int $blogId = null): JsonResponse
+    {
+        $ids = $request->validated('ids') ?? [];
+        if ($blogId) {
+            $ids[] = $blogId;
+        }
+        $ids = array_values(array_unique(array_filter($ids)));
+
+        $data = $this->blogRepository->deleteBlogs($ids);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Blogs deleted successfully.',
+            'data' => $data,
+        ]);
+    }
+
+    /**
+     * Publish blogs (bulk or single).
+     */
+    public function publish(AdminBlogBulkActionRequest $request, ?int $blogId = null): JsonResponse
+    {
+        $ids = $request->validated('ids') ?? [];
+        if ($blogId) {
+            $ids[] = $blogId;
+        }
+        $ids = array_values(array_unique(array_filter($ids)));
+
+        $data = $this->blogRepository->publishBlogs($ids);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Blogs published successfully.',
+            'data' => $data,
+        ]);
+    }
 }
-

@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\SubscriptionPlan;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -30,13 +29,13 @@ class UserSubscriptionSeeder extends Seeder
             $expiredAt = (clone $startedAt)->addDays($plan->duration_days);
 
             $data[] = [
-                'user_id'              => $user->id,
+                'user_id' => $user->id,
                 'subscription_plan_id' => $plan->id,
-                'started_at'           => $startedAt,
-                'expired_at'           => $expiredAt,
-                'status'               => $expiredAt->isFuture() ? 'active' : 'expired',
-                'created_at'           => now(),
-                'updated_at'           => now(),
+                'started_at' => $startedAt,
+                'expired_at' => $expiredAt,
+                'status' => $expiredAt->isFuture() ? 'active' : 'expired',
+                'created_at' => now(),
+                'updated_at' => now(),
             ];
         }
 

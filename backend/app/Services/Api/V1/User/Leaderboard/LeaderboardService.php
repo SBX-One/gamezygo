@@ -11,15 +11,10 @@ class LeaderboardService
     public function __construct(
         protected LeaderboardRepositoryInterface $leaderboardRepository,
         protected RedisCacheService $cacheService
-    ) {
-    }
+    ) {}
 
     /**
      * Fetch paginated leaderboard by period (monthly, weekly, lifetime).
-     *
-     * @param string $period
-     * @param int $perPage
-     * @return LengthAwarePaginator
      */
     public function getLeaderboard(string $period = 'monthly', int $perPage = 10): LengthAwarePaginator
     {

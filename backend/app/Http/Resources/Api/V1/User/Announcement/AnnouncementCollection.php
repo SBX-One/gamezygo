@@ -17,7 +17,7 @@ class AnnouncementCollection extends ResourceCollection
         return [
             'success' => true,
             'message' => 'Announcements retrieved successfully',
-            'data'    => AnnouncementResource::collection($this->collection),
+            'data' => AnnouncementResource::collection($this->collection),
         ];
     }
 }

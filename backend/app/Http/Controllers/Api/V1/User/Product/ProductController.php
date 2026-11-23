@@ -19,10 +19,8 @@ class ProductController extends Controller
 {
     public function __construct(
         protected ProductService $productService
-    ) {
-    }
+    ) {}
 
-    
     public function index(Request $request): ProductCollection
     {
         $filters = $request->only([
@@ -41,8 +39,6 @@ class ProductController extends Controller
 
     /**
      * Display a listing of available product filters.
-     *
-     * @return JsonResponse
      */
     public function filters(): JsonResponse
     {
@@ -51,7 +47,7 @@ class ProductController extends Controller
         return response()->json([
             'success' => true,
             'message' => 'Product filters retrieved successfully',
-            'data'    => (new ProductFilterResource($filters))->resolve(),
+            'data' => (new ProductFilterResource($filters))->resolve(),
         ], 200);
     }
 
@@ -64,10 +60,6 @@ class ProductController extends Controller
 
     /**
      * Retrieve game credentials for a product owned by authenticated user.
-     *
-     * @param Request $request
-     * @param string $slug
-     * @return JsonResponse
      */
     public function credentials(Request $request, string $slug): JsonResponse
     {
@@ -79,25 +71,25 @@ class ProductController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Game credentials retrieved successfully',
-                'data'    => (new ProductCredentialResource($account))->resolve(),
+                'data' => (new ProductCredentialResource($account))->resolve(),
             ], 200);
         } catch (AuthorizationException $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage() ?: 'You do not own this game',
-                'data'    => null,
+                'data' => null,
             ], 403);
         } catch (ModelNotFoundException $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage() ?: 'Product not found',
-                'data'    => null,
+                'data' => null,
             ], 404);
         } catch (Throwable $e) {
             return response()->json([
                 'success' => false,
                 'message' => $e->getMessage(),
-                'data'    => null,
+                'data' => null,
             ], 400);
         }
     }

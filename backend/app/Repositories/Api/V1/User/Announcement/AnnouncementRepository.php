@@ -10,8 +10,6 @@ class AnnouncementRepository implements AnnouncementRepositoryInterface
 {
     /**
      * Get published announcement banners ordered by sort_order.
-     *
-     * @return Collection
      */
     public function getPublishedAnnouncements(): Collection
     {

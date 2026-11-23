@@ -11,13 +11,10 @@ class AnnouncementService
     public function __construct(
         protected AnnouncementRepositoryInterface $announcementRepository,
         protected RedisCacheService $cacheService
-    ) {
-    }
+    ) {}
 
     /**
      * Fetch published announcements.
-     *
-     * @return Collection
      */
     public function getPublishedAnnouncements(): Collection
     {

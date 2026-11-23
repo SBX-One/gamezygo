@@ -8,9 +8,6 @@ interface FaqRepositoryInterface
 {
     /**
      * Get active FAQs ordered by order_number.
-     *
-     * @param string|null $page
-     * @return Collection
      */
     public function getActiveFaqs(?string $page = null): Collection;
 }

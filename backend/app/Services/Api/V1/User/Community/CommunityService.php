@@ -10,60 +10,54 @@ use Illuminate\Database\Eloquent\Collection;
 
 class CommunityService
 {
-  public function __construct(
-    protected CommunityRepositoryInterface $communityRepository,
-    protected RedisCacheService $cacheService
-  ) {}
+    public function __construct(
+        protected CommunityRepositoryInterface $communityRepository,
+        protected RedisCacheService $cacheService
+    ) {}
 
-  /**
-   * Get active communities.
-   *
-   * @param array<string, mixed> $filters
-   * @return LengthAwarePaginator|Collection
-   */
-  public function getActiveCommunities(array $filters = []): LengthAwarePaginator|Collection
-  {
-    $page = request()->get('page', 1);
-    $cacheKey = 'communities:active:list:' . md5(json_encode($filters) . ":page:{$page}");
+    /**
+     * Get active communities.
+     *
+     * @param  array<string, mixed>  $filters
+     */
+    public function getActiveCommunities(array $filters = []): LengthAwarePaginator|Collection
+    {
+        $page = request()->get('page', 1);
+        $cacheKey = 'communities:active:list:'.md5(json_encode($filters).":page:{$page}");
 
-    return $this->cacheService->remember(
-      $cacheKey,
-      RedisCacheService::TTL_LONG,
-      fn () => $this->communityRepository->getActiveCommunities($filters),
-      [RedisCacheService::TAG_COMMUNITIES]
-    );
-  }
+        return $this->cacheService->remember(
+            $cacheKey,
+            RedisCacheService::TTL_LONG,
+            fn () => $this->communityRepository->getActiveCommunities($filters),
+            [RedisCacheService::TAG_COMMUNITIES]
+        );
+    }
 
-  /**
-   * Get single active community by ID.
-   *
-   * @param int $id
-   * @return Community|null
-   */
-  public function getActiveCommunityById(int $id): ?Community
-  {
-    $cacheKey = "communities:detail:{$id}";
+    /**
+     * Get single active community by ID.
+     */
+    public function getActiveCommunityById(int $id): ?Community
+    {
+        $cacheKey = "communities:detail:{$id}";
 
-    return $this->cacheService->remember(
-      $cacheKey,
-      RedisCacheService::TTL_LONG,
-      fn () => $this->communityRepository->getActiveCommunityById($id),
-      [RedisCacheService::TAG_COMMUNITIES]
-    );
-  }
+        return $this->cacheService->remember(
+            $cacheKey,
+            RedisCacheService::TTL_LONG,
+            fn () => $this->communityRepository->getActiveCommunityById($id),
+            [RedisCacheService::TAG_COMMUNITIES]
+        );
+    }
 
-  /**
-   * Get active community tags.
-   *
-   * @return Collection
-   */
-  public function getCommunityTags(): Collection
-  {
-    return $this->cacheService->remember(
-      'communities:tags',
-      RedisCacheService::TTL_EXTENDED,
-      fn () => $this->communityRepository->getActiveTags(),
-      [RedisCacheService::TAG_COMMUNITIES]
-    );
-  }
+    /**
+     * Get active community tags.
+     */
+    public function getCommunityTags(): Collection
+    {
+        return $this->cacheService->remember(
+            'communities:tags',
+            RedisCacheService::TTL_EXTENDED,
+            fn () => $this->communityRepository->getActiveTags(),
+            [RedisCacheService::TAG_COMMUNITIES]
+        );
+    }
 }

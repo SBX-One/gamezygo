@@ -6,16 +6,15 @@ use Illuminate\Foundation\Http\FormRequest;
 
 class AdminReviewStatusRequest extends FormRequest
 {
-  public function authorize(): bool
-  {
-    return true;
-  }
+    public function authorize(): bool
+    {
+        return true;
+    }
 
-  public function rules(): array
-  {
-    return [
-      'status' => ['required', 'string', 'in:pending,approved,rejected,archived'],
-    ];
-  }
+    public function rules(): array
+    {
+        return [
+            'status' => ['required', 'string', 'in:pending,approved,rejected,archived'],
+        ];
+    }
 }
-

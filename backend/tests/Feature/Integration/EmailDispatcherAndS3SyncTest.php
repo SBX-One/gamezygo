@@ -4,14 +4,13 @@ namespace Tests\Feature\Integration;
 
 use App\Events\OrderFulfilledEvent;
 use App\Mail\OrderDeliveryMail;
-use App\Models\GameCredential;
 use App\Models\Order;
-use App\Models\OrderItem;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Models\ProductInstruction;
 use App\Models\ProductLauncherCategory;
 use App\Models\User;
+use App\Repositories\Contracts\Api\V1\User\Payment\PaymentRepositoryInterface;
 use App\Services\Mail\EmailDispatcherService;
 use App\Services\Storage\S3StorageService;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -24,189 +23,190 @@ use Tests\TestCase;
 
 class EmailDispatcherAndS3SyncTest extends TestCase
 {
-  use RefreshDatabase;
+    use RefreshDatabase;
 
-  protected User $user;
-  protected Product $product;
+    protected User $user;
 
-  protected function setUp(): void
-  {
-    parent::setUp();
+    protected Product $product;
 
-    Mail::fake();
+    protected function setUp(): void
+    {
+        parent::setUp();
 
-    $this->user = User::factory()->create([
-      'name'   => 'John Gamer',
-      'email'  => 'gamer@example.com',
-      'status' => 'active',
-    ]);
+        Mail::fake();
 
-    $launcher = ProductLauncherCategory::create([
-      'name' => 'Steam',
-      'slug' => 'steam',
-    ]);
+        $this->user = User::factory()->create([
+            'name' => 'John Gamer',
+            'email' => 'gamer@example.com',
+            'status' => 'active',
+        ]);
 
-    $instruction = ProductInstruction::create([
-      'title'   => 'Steam Setup',
-      'content' => 'Follow activation steps',
-    ]);
+        $launcher = ProductLauncherCategory::create([
+            'name' => 'Steam',
+            'slug' => 'steam',
+        ]);
 
-    $this->product = Product::create([
-      'name'                         => 'Black Myth: Wukong',
-      'slug'                         => 'black-myth-wukong',
-      'description'                  => 'Mythology Action RPG',
-      'price'                        => 699000,
-      'steam_url'                    => 'https://store.steampowered.com/app/2358720',
-      'product_launcher_category_id' => $launcher->id,
-      'product_instruction_id'       => $instruction->id,
-      'status'                       => 'published',
-    ]);
-  }
+        $instruction = ProductInstruction::create([
+            'title' => 'Steam Setup',
+            'content' => 'Follow activation steps',
+        ]);
 
-  public function test_email_dispatcher_dispatches_order_fulfilled_event(): void
-  {
-    Event::fake([OrderFulfilledEvent::class]);
+        $this->product = Product::create([
+            'name' => 'Black Myth: Wukong',
+            'slug' => 'black-myth-wukong',
+            'description' => 'Mythology Action RPG',
+            'price' => 699000,
+            'steam_url' => 'https://store.steampowered.com/app/2358720',
+            'product_launcher_category_id' => $launcher->id,
+            'product_instruction_id' => $instruction->id,
+            'status' => 'published',
+        ]);
+    }
 
-    $order = Order::create([
-      'user_id'         => $this->user->id,
-      'order_code'      => 'ORD-MAIL-001',
-      'subtotal_price'  => 699000,
-      'discount_amount' => 0,
-      'total_price'     => 699000,
-      'status'          => 'paid',
-      'expired_at'      => now()->addHours(24),
-      'paid_at'         => now(),
-    ]);
+    public function test_email_dispatcher_dispatches_order_fulfilled_event(): void
+    {
+        Event::fake([OrderFulfilledEvent::class]);
 
-    $dispatcher = app(EmailDispatcherService::class);
-    $result = $dispatcher->dispatchOrderDelivery($order);
+        $order = Order::create([
+            'user_id' => $this->user->id,
+            'order_code' => 'ORD-MAIL-001',
+            'subtotal_price' => 699000,
+            'discount_amount' => 0,
+            'total_price' => 699000,
+            'status' => 'paid',
+            'expired_at' => now()->addHours(24),
+            'paid_at' => now(),
+        ]);
 
-    $this->assertTrue($result);
-    Event::assertDispatched(OrderFulfilledEvent::class, function ($event) use ($order) {
-      return $event->order->id === $order->id;
-    });
-  }
+        $dispatcher = app(EmailDispatcherService::class);
+        $result = $dispatcher->dispatchOrderDelivery($order);
 
-  public function test_payment_fulfillment_triggers_order_fulfilled_event(): void
-  {
-    Event::fake([OrderFulfilledEvent::class]);
+        $this->assertTrue($result);
+        Event::assertDispatched(OrderFulfilledEvent::class, function ($event) use ($order) {
+            return $event->order->id === $order->id;
+        });
+    }
 
-    $order = Order::create([
-      'user_id'         => $this->user->id,
-      'order_code'      => 'ORD-PAY-002',
-      'subtotal_price'  => 699000,
-      'discount_amount' => 0,
-      'total_price'     => 699000,
-      'status'          => 'pending',
-      'expired_at'      => now()->addHours(24),
-    ]);
+    public function test_payment_fulfillment_triggers_order_fulfilled_event(): void
+    {
+        Event::fake([OrderFulfilledEvent::class]);
 
-    $orderItem = $order->items()->create([
-      'purchasable_type' => Product::class,
-      'purchasable_id'   => $this->product->id,
-      'price'            => 699000,
-    ]);
+        $order = Order::create([
+            'user_id' => $this->user->id,
+            'order_code' => 'ORD-PAY-002',
+            'subtotal_price' => 699000,
+            'discount_amount' => 0,
+            'total_price' => 699000,
+            'status' => 'pending',
+            'expired_at' => now()->addHours(24),
+        ]);
 
-    $payment = Payment::create([
-      'order_id'          => $order->id,
-      'payment_method'    => 'qris',
-      'gateway_reference' => 'MIDTRANS-MAIL-002',
-      'amount'            => 699000,
-      'status'            => 'pending',
-      'expired_at'        => now()->addHours(24),
-    ]);
+        $orderItem = $order->items()->create([
+            'purchasable_type' => Product::class,
+            'purchasable_id' => $this->product->id,
+            'price' => 699000,
+        ]);
 
-    $paymentRepo = app(\App\Repositories\Contracts\Api\V1\User\Payment\PaymentRepositoryInterface::class);
-    $paymentRepo->fulfillOrder($payment);
+        $payment = Payment::create([
+            'order_id' => $order->id,
+            'payment_method' => 'qris',
+            'gateway_reference' => 'MIDTRANS-MAIL-002',
+            'amount' => 699000,
+            'status' => 'pending',
+            'expired_at' => now()->addHours(24),
+        ]);
 
-    Event::assertDispatched(OrderFulfilledEvent::class, function ($event) use ($order) {
-      return $event->order->id === $order->id;
-    });
-  }
+        $paymentRepo = app(PaymentRepositoryInterface::class);
+        $paymentRepo->fulfillOrder($payment);
 
-  public function test_order_delivery_mail_renders_with_order_and_credentials(): void
-  {
-    $order = Order::create([
-      'user_id'         => $this->user->id,
-      'order_code'      => 'ORD-RENDER-003',
-      'subtotal_price'  => 699000,
-      'discount_amount' => 0,
-      'total_price'     => 699000,
-      'status'          => 'paid',
-      'expired_at'      => now()->addHours(24),
-      'paid_at'         => now(),
-    ]);
+        Event::assertDispatched(OrderFulfilledEvent::class, function ($event) use ($order) {
+            return $event->order->id === $order->id;
+        });
+    }
 
-    $credentials = [
-      [
-        'game_title'   => 'Black Myth: Wukong',
-        'username'     => 'wukong_user_88',
-        'password'     => 'super_secret_pw',
-        'access_token' => 'STEAM-GUARD-77',
-      ],
-    ];
+    public function test_order_delivery_mail_renders_with_order_and_credentials(): void
+    {
+        $order = Order::create([
+            'user_id' => $this->user->id,
+            'order_code' => 'ORD-RENDER-003',
+            'subtotal_price' => 699000,
+            'discount_amount' => 0,
+            'total_price' => 699000,
+            'status' => 'paid',
+            'expired_at' => now()->addHours(24),
+            'paid_at' => now(),
+        ]);
 
-    $mailable = new OrderDeliveryMail($order, $credentials);
+        $credentials = [
+            [
+                'game_title' => 'Black Myth: Wukong',
+                'username' => 'wukong_user_88',
+                'password' => 'super_secret_pw',
+                'access_token' => 'STEAM-GUARD-77',
+            ],
+        ];
 
-    $html = $mailable->render();
+        $mailable = new OrderDeliveryMail($order, $credentials);
 
-    $this->assertStringContainsString('ORD-RENDER-003', $html);
-    $this->assertStringContainsString('Black Myth: Wukong', $html);
-    $this->assertStringContainsString('wukong_user_88', $html);
-    $this->assertStringContainsString('super_secret_pw', $html);
-    $this->assertStringContainsString('STEAM-GUARD-77', $html);
-    $this->assertStringContainsString('Game Library', $html);
-  }
+        $html = $mailable->render();
 
-  public function test_s3_storage_service_uploads_and_deletes_files(): void
-  {
-    Storage::fake('public');
+        $this->assertStringContainsString('ORD-RENDER-003', $html);
+        $this->assertStringContainsString('Black Myth: Wukong', $html);
+        $this->assertStringContainsString('wukong_user_88', $html);
+        $this->assertStringContainsString('super_secret_pw', $html);
+        $this->assertStringContainsString('STEAM-GUARD-77', $html);
+        $this->assertStringContainsString('Game Library', $html);
+    }
 
-    $storageService = app(S3StorageService::class);
+    public function test_s3_storage_service_uploads_and_deletes_files(): void
+    {
+        Storage::fake('public');
 
-    $file = UploadedFile::fake()->image('cover_art.jpg', 600, 600);
-    $url = $storageService->upload($file, 'products');
+        $storageService = app(S3StorageService::class);
 
-    $this->assertNotEmpty($url);
-    $relativePath = $storageService->extractRelativePath($url);
-    $this->assertNotNull($relativePath);
+        $file = UploadedFile::fake()->image('cover_art.jpg', 600, 600);
+        $url = $storageService->upload($file, 'products');
 
-    $deleted = $storageService->delete($url);
-    $this->assertTrue($deleted);
-  }
+        $this->assertNotEmpty($url);
+        $relativePath = $storageService->extractRelativePath($url);
+        $this->assertNotNull($relativePath);
 
-  public function test_s3_sync_command_executes_successfully(): void
-  {
-    Storage::fake('public');
+        $deleted = $storageService->delete($url);
+        $this->assertTrue($deleted);
+    }
 
-    // Create fake local files
-    Storage::disk('public')->put('products/game1.jpg', 'fake-image-content-1');
-    Storage::disk('public')->put('products/game2.jpg', 'fake-image-content-2');
+    public function test_s3_sync_command_executes_successfully(): void
+    {
+        Storage::fake('public');
 
-    $exitCode = Artisan::call('gamezygo:s3-sync', [
-      '--directory' => 'products',
-      '--dry-run'   => true,
-    ]);
+        // Create fake local files
+        Storage::disk('public')->put('products/game1.jpg', 'fake-image-content-1');
+        Storage::disk('public')->put('products/game2.jpg', 'fake-image-content-2');
 
-    $this->assertEquals(0, $exitCode);
+        $exitCode = Artisan::call('gamezygo:s3-sync', [
+            '--directory' => 'products',
+            '--dry-run' => true,
+        ]);
 
-    $output = Artisan::output();
-    $this->assertStringContainsString('DRY-RUN', $output);
-    $this->assertStringContainsString('Summary:', $output);
-  }
+        $this->assertEquals(0, $exitCode);
 
-  public function test_s3_sync_command_with_db_update(): void
-  {
-    Storage::fake('public');
+        $output = Artisan::output();
+        $this->assertStringContainsString('DRY-RUN', $output);
+        $this->assertStringContainsString('Summary:', $output);
+    }
 
-    $exitCode = Artisan::call('gamezygo:s3-sync', [
-      '--all'         => true,
-      '--db-update'   => true,
-    ]);
+    public function test_s3_sync_command_with_db_update(): void
+    {
+        Storage::fake('public');
 
-    $this->assertEquals(0, $exitCode);
+        $exitCode = Artisan::call('gamezygo:s3-sync', [
+            '--all' => true,
+            '--db-update' => true,
+        ]);
 
-    $output = Artisan::output();
-    $this->assertStringContainsString('Updating database image URLs', $output);
-  }
+        $this->assertEquals(0, $exitCode);
+
+        $output = Artisan::output();
+        $this->assertStringContainsString('Updating database image URLs', $output);
+    }
 }

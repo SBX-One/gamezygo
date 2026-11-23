@@ -16,11 +16,11 @@ class CustomSectionResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'                      => $this->id,
-            'title'                   => $this->title,
-            'slug'                    => $this->slug,
-            'auto_rule'               => $this->auto_rule,
-            'order_number'            => $this->order_number,
+            'id' => $this->id,
+            'title' => $this->title,
+            'slug' => $this->slug,
+            'auto_rule' => $this->auto_rule,
+            'order_number' => $this->order_number,
             'custom_section_products' => ProductResource::collection(
                 $this->whenLoaded('products')
             ),

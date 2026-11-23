@@ -16,23 +16,21 @@ class ProductRepository implements ProductRepositoryInterface
     /**
      * Get paginated list of guest products based on filters.
      *
-     * @param array<string, mixed> $filters
-     * @param int $perPage
-     * @return LengthAwarePaginator
+     * @param  array<string, mixed>  $filters
      */
     public function getGuestProducts(array $filters, int $perPage = 16): LengthAwarePaginator
     {
-        $search     = $filters['search'] ?? null;
-        $category   = $filters['category'] ?? null;
-        $launcher   = $filters['launcher'] ?? null;
+        $search = $filters['search'] ?? null;
+        $category = $filters['category'] ?? null;
+        $launcher = $filters['launcher'] ?? null;
         $priceRange = $filters['price_range'] ?? null;
-        $filter     = $filters['filter'] ?? null;
-        $sortBy     = $filters['sort_by'] ?? null;
+        $filter = $filters['filter'] ?? null;
+        $sortBy = $filters['sort_by'] ?? null;
 
         return Product::query()
             ->with(['genreCategories', 'productLauncherCategory'])
             ->when($search, function ($query) use ($search) {
-                $query->where('name', 'like', '%' . $search . '%');
+                $query->where('name', 'like', '%'.$search.'%');
             })
             ->when($category, function ($query) use ($category) {
                 $query->whereHas('genreCategories', function ($query) use ($category) {
@@ -42,7 +40,7 @@ class ProductRepository implements ProductRepositoryInterface
             ->when($launcher, function ($query) use ($launcher) {
                 $query->whereHas('productLauncherCategory', function ($query) use ($launcher) {
                     $query->where('slug', Str::slug($launcher))
-                        ->orWhere('name', 'like', '%' . $launcher . '%');
+                        ->orWhere('name', 'like', '%'.$launcher.'%');
                 });
             })
             ->when($priceRange, function ($query) use ($priceRange) {
@@ -73,13 +71,13 @@ class ProductRepository implements ProductRepositoryInterface
             })
             ->when($sortBy, function ($query) use ($sortBy) {
                 match ($sortBy) {
-                    'price_asc'        => $query->orderBy('price'),
-                    'price_desc'       => $query->orderByDesc('price'),
+                    'price_asc' => $query->orderBy('price'),
+                    'price_desc' => $query->orderByDesc('price'),
                     'newest', 'latest' => $query->orderByDesc('created_at'),
-                    'oldest'           => $query->orderBy('created_at'),
-                    'a_z'              => $query->orderBy('name', 'asc'),
-                    'z_a'              => $query->orderBy('name', 'desc'),
-                    default            => $query->latest(),
+                    'oldest' => $query->orderBy('created_at'),
+                    'a_z' => $query->orderBy('name', 'asc'),
+                    'z_a' => $query->orderBy('name', 'desc'),
+                    default => $query->latest(),
                 };
             }, function ($query) {
                 $query->latest();
@@ -89,9 +87,6 @@ class ProductRepository implements ProductRepositoryInterface
 
     /**
      * Find a product by its slug with all detailed relations.
-     *
-     * @param string $slug
-     * @return Product|null
      */
     public function findBySlug(string $slug): ?Product
     {
@@ -111,10 +106,6 @@ class ProductRepository implements ProductRepositoryInterface
 
     /**
      * Check if a user owns a given product directly or via active subscription.
-     *
-     * @param User $user
-     * @param Product $product
-     * @return bool
      */
     public function isUserOwnedProduct(User $user, Product $product): bool
     {
@@ -135,9 +126,6 @@ class ProductRepository implements ProductRepositoryInterface
 
     /**
      * Get game account credentials for a product.
-     *
-     * @param Product $product
-     * @return ProductGameAccount|null
      */
     public function getGameAccount(Product $product): ?ProductGameAccount
     {
@@ -152,13 +140,13 @@ class ProductRepository implements ProductRepositoryInterface
     public function getProductFilters(): array
     {
         $categories = GenreCategory::query()->orderBy('id')->get();
-        $launchers  = ProductLauncherCategory::query()->orderBy('id')->get();
-        $maxPrice   = Product::max('price');
+        $launchers = ProductLauncherCategory::query()->orderBy('id')->get();
+        $maxPrice = Product::max('price');
 
         return [
-            'categories'   => $categories,
-            'launcher'     => $launchers,
-            'statuses'     => [
+            'categories' => $categories,
+            'launcher' => $launchers,
+            'statuses' => [
                 [
                     'label' => 'Active',
                     'value' => true,
@@ -168,7 +156,7 @@ class ProductRepository implements ProductRepositoryInterface
                     'value' => false,
                 ],
             ],
-            'price_range'  => [
+            'price_range' => [
                 'min' => 0,
                 'max' => ($maxPrice && $maxPrice > 1500000) ? (int) $maxPrice : 1500000,
             ],

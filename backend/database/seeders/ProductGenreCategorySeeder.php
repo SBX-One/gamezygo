@@ -18,10 +18,10 @@ class ProductGenreCategorySeeder extends Seeder
 
         for ($i = 0; $i < 100; $i++) {
             $data[] = [
-                'product_id'        => $productIds->random(),
+                'product_id' => $productIds->random(),
                 'genre_category_id' => $genreCategoryIds->random(),
-                'created_at'        => now(),
-                'updated_at'        => now(),
+                'created_at' => now(),
+                'updated_at' => now(),
             ];
         }
 

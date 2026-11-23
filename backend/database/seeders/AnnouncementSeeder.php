@@ -15,15 +15,15 @@ class AnnouncementSeeder extends Seeder
         $announcements = [
             [
                 'banner_file_url' => 'https://example.com/announcements/banner-1.jpg',
-                'link'            => 'https://example.com/promo/summer-sale',
-                'is_published'    => true,
-                'sort_order'      => 1,
+                'link' => 'https://example.com/promo/summer-sale',
+                'is_published' => true,
+                'sort_order' => 1,
             ],
             [
                 'banner_file_url' => 'https://example.com/announcements/banner-2.jpg',
-                'link'            => 'https://example.com/games',
-                'is_published'    => true,
-                'sort_order'      => 2,
+                'link' => 'https://example.com/games',
+                'is_published' => true,
+                'sort_order' => 2,
             ],
         ];
 

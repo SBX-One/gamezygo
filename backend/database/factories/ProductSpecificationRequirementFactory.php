@@ -2,7 +2,6 @@
 
 namespace Database\Factories;
 
-use App\Models\Product;
 use App\Models\ProductSpecificationRequirement;
 use Illuminate\Database\Eloquent\Factories\Factory;
 
@@ -19,9 +18,9 @@ class ProductSpecificationRequirementFactory extends Factory
     public function definition(): array
     {
         return [
-            'label'       => fake()->name(),
+            'label' => fake()->name(),
             'requirement' => fake()->text(),
-            'type'        => fake()->randomElement(['minimum', 'recommended']),
+            'type' => fake()->randomElement(['minimum', 'recommended']),
         ];
     }
 }

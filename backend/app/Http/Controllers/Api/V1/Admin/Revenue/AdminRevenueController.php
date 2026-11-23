@@ -11,42 +11,35 @@ use Illuminate\Http\JsonResponse;
 
 class AdminRevenueController extends Controller
 {
-  public function __construct(
-    protected AdminRevenueRepositoryInterface $revenueRepository
-  ) {}
+    public function __construct(
+        protected AdminRevenueRepositoryInterface $revenueRepository
+    ) {}
 
-  /**
-   * Get revenue dashboard analytics.
-   *
-   * @param AdminRevenueIndexRequest $request
-   * @return JsonResponse
-   */
-  public function index(AdminRevenueIndexRequest $request): JsonResponse
-  {
-    $data = $this->revenueRepository->getRevenueDashboard($request->validated());
+    /**
+     * Get revenue dashboard analytics.
+     */
+    public function index(AdminRevenueIndexRequest $request): JsonResponse
+    {
+        $data = $this->revenueRepository->getRevenueDashboard($request->validated());
 
-    return response()->json([
-      'success' => true,
-      'message' => 'Revenue dashboard data retrieved successfully',
-      'data'    => (new AdminRevenueResource($data))->resolve($request),
-    ]);
-  }
+        return response()->json([
+            'success' => true,
+            'message' => 'Revenue dashboard data retrieved successfully',
+            'data' => (new AdminRevenueResource($data))->resolve($request),
+        ]);
+    }
 
-  /**
-   * Get revenue metrics for a specific product.
-   *
-   * @param int $id
-   * @return JsonResponse
-   */
-  public function productRevenue(int $id): JsonResponse
-  {
-    $data = $this->revenueRepository->getProductRevenue($id);
+    /**
+     * Get revenue metrics for a specific product.
+     */
+    public function productRevenue(int $id): JsonResponse
+    {
+        $data = $this->revenueRepository->getProductRevenue($id);
 
-    return response()->json([
-      'success' => true,
-      'message' => 'Revenue dashboard data retrieved successfully',
-      'data'    => (new AdminRevenueProductResource($data))->resolve(request()),
-    ]);
-  }
+        return response()->json([
+            'success' => true,
+            'message' => 'Revenue dashboard data retrieved successfully',
+            'data' => (new AdminRevenueProductResource($data))->resolve(request()),
+        ]);
+    }
 }
-

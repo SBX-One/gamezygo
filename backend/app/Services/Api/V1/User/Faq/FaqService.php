@@ -11,18 +11,14 @@ class FaqService
     public function __construct(
         protected FaqRepositoryInterface $faqRepository,
         protected RedisCacheService $cacheService
-    ) {
-    }
+    ) {}
 
     /**
      * Fetch active FAQs.
-     *
-     * @param string|null $page
-     * @return Collection
      */
     public function getActiveFaqs(?string $page = null): Collection
     {
-        $cacheKey = 'faqs:active:' . ($page ?? 'all');
+        $cacheKey = 'faqs:active:'.($page ?? 'all');
 
         return $this->cacheService->remember(
             $cacheKey,

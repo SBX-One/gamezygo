@@ -20,11 +20,11 @@ class ReviewFactory extends Factory
     public function definition(): array
     {
         return [
-            'user_id'    => User::inRandomOrder()->first()?->id ?? User::factory(),
+            'user_id' => User::inRandomOrder()->first()?->id ?? User::factory(),
             'product_id' => Product::inRandomOrder()->first()?->id ?? Product::factory(),
-            'review'     => fake()->paragraph(),
-            'rating'     => fake()->numberBetween(1, 5),
-            'status'     => fake()->randomElement(['pending', 'approved', 'rejected', 'archived']),
+            'review' => fake()->paragraph(),
+            'rating' => fake()->numberBetween(1, 5),
+            'status' => fake()->randomElement(['pending', 'approved', 'rejected', 'archived']),
         ];
     }
 }

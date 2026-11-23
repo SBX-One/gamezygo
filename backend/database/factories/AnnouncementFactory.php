@@ -19,9 +19,9 @@ class AnnouncementFactory extends Factory
     {
         return [
             'banner_file_url' => fake()->imageUrl(1200, 400, 'gaming'),
-            'link'            => fake()->url(),
-            'sort_order'      => fake()->numberBetween(1, 20),
-            'is_published'    => fake()->boolean(80),
+            'link' => fake()->url(),
+            'sort_order' => fake()->numberBetween(1, 20),
+            'is_published' => fake()->boolean(80),
         ];
     }
 }

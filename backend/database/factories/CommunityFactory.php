@@ -19,11 +19,11 @@ class CommunityFactory extends Factory
     public function definition(): array
     {
         return [
-            'name'            => fake()->company() . ' Community',
+            'name' => fake()->company().' Community',
             'banner_file_url' => fake()->imageUrl(800, 400, 'community'),
-            'link'            => fake()->url(),
-            'order_number'    => fake()->numberBetween(1, 50),
-            'is_active'       => fake()->boolean(90),
+            'link' => fake()->url(),
+            'order_number' => fake()->numberBetween(1, 50),
+            'is_active' => fake()->boolean(90),
         ];
     }
 

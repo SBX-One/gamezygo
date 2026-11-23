@@ -36,15 +36,15 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->singleton(RedisCacheService::class, function () {
-            return new RedisCacheService();
+            return new RedisCacheService;
         });
 
         $this->app->singleton(S3StorageService::class, function () {
-            return new S3StorageService();
+            return new S3StorageService;
         });
 
         $this->app->singleton(EmailDispatcherService::class, function () {
-            return new EmailDispatcherService();
+            return new EmailDispatcherService;
         });
     }
 

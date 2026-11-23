@@ -22,12 +22,12 @@ class CustomSectionFactory extends Factory
         $displayType = fake()->randomElement(['manual', 'auto']);
 
         return [
-            'title'        => ucfirst($title),
-            'slug'         => str()->slug($title),
+            'title' => ucfirst($title),
+            'slug' => str()->slug($title),
             'display_type' => $displayType,
-            'auto_rule'    => $displayType === 'auto' ? fake()->randomElement(['best_seller', 'newest', 'discounted']) : null,
+            'auto_rule' => $displayType === 'auto' ? fake()->randomElement(['best_seller', 'newest', 'discounted']) : null,
             'order_number' => fake()->numberBetween(1, 10),
-            'is_active'    => fake()->boolean(90),
+            'is_active' => fake()->boolean(90),
         ];
     }
 

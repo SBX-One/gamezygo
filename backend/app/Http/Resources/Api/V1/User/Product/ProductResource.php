@@ -16,16 +16,16 @@ class ProductResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'             => $this->id,
-            'name'           => $this->name,
-            'slug'           => $this->slug,
-            'thumbnail'      => $this->thumbnail,
-            'price'          => $this->price,
+            'id' => $this->id,
+            'name' => $this->name,
+            'slug' => $this->slug,
+            'thumbnail' => $this->thumbnail,
+            'price' => $this->price,
             'discount_price' => $this->discount_price,
-            'discount'       => $this->discount,
-            'categories'     => GenreCategoryResource::collection(
+            'discount' => $this->discount,
+            'categories' => GenreCategoryResource::collection(
                 $this->whenLoaded('genreCategories')
-            )
+            ),
         ];
     }
 }

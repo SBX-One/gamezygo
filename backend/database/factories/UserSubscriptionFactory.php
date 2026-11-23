@@ -26,11 +26,11 @@ class UserSubscriptionFactory extends Factory
         $isActive = $expiredAt > now();
 
         return [
-            'user_id'              => User::inRandomOrder()->first()?->id ?? User::factory(),
+            'user_id' => User::inRandomOrder()->first()?->id ?? User::factory(),
             'subscription_plan_id' => $plan?->id ?? SubscriptionPlan::factory(),
-            'started_at'           => $startedAt,
-            'expired_at'           => $expiredAt,
-            'status'               => $isActive ? 'active' : 'expired',
+            'started_at' => $startedAt,
+            'expired_at' => $expiredAt,
+            'status' => $isActive ? 'active' : 'expired',
         ];
     }
 }

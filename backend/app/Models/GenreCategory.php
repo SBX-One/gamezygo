@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\GenreCategoryFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 ])]
 class GenreCategory extends Model
 {
-    /** @use HasFactory<\Database\Factories\GenreCategoryFactory> */
+    /** @use HasFactory<GenreCategoryFactory> */
     use HasFactory, SoftDeletes;
 
     public function parent(): BelongsTo

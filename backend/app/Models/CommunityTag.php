@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\CommunityTagFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -13,7 +14,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 ])]
 class CommunityTag extends Model
 {
-    /** @use HasFactory<\Database\Factories\CommunityTagFactory> */
+    /** @use HasFactory<CommunityTagFactory> */
     use HasFactory;
 
     public function communities(): BelongsToMany

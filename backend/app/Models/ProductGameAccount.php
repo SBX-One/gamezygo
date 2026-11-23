@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\ProductGameAccountFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -14,7 +15,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 ])]
 class ProductGameAccount extends Model
 {
-    /** @use HasFactory<\Database\Factories\ProductGameAccountFactory> */
+    /** @use HasFactory<ProductGameAccountFactory> */
     use HasFactory;
 
     public function product(): BelongsTo
@@ -22,4 +23,3 @@ class ProductGameAccount extends Model
         return $this->belongsTo(Product::class);
     }
 }
-

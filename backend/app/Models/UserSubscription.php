@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\UserSubscriptionFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 ])]
 class UserSubscription extends Model
 {
-    /** @use HasFactory<\Database\Factories\UserSubscriptionFactory> */
+    /** @use HasFactory<UserSubscriptionFactory> */
     use HasFactory;
 
     protected function casts(): array

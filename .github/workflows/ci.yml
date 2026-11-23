@@ -28,54 +28,11 @@ permissions:
   pull-requests: read
 
 jobs:
-  # Detect which subprojects were touched in this commit/PR
-  changes:
-    name: Detect Changed Subprojects
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: read
-    outputs:
-      frontend: ${{ steps.filter.outputs.frontend }}
-      backend: ${{ steps.filter.outputs.backend }}
-      docker: ${{ steps.filter.outputs.docker }}
-    steps:
-      - name: Checkout Repository
-        uses: actions/checkout@v4
-        with:
-          fetch-depth: 0
-
-      - name: Check Changed Files
-        id: filter
-        uses: dorny/paths-filter@v3
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          base: ${{ github.base_ref || github.ref_name }}
-          filters: |
-            frontend:
-              - 'frontend/**'
-              - '.github/workflows/ci.yml'
-            backend:
-              - 'backend/**'
-              - '.github/workflows/ci.yml'
-            docker:
-              - 'docker/**'
-              - 'docker-compose*.yml'
-              - '.github/workflows/ci.yml'
-
   # ==========================================
   # Frontend CI: Next.js 16 + React 19 + TypeScript + ESLint
   # ==========================================
   frontend-ci:
     name: Frontend Quality & Build
-    needs: changes
-    # Run if frontend files changed, or if pushing directly to integration/release branches
-    if: |
-      needs.changes.outputs.frontend == 'true' ||
-      github.ref == 'refs/heads/development' ||
-      github.ref == 'refs/heads/main' ||
-      startsWith(github.ref, 'refs/heads/dfft/') ||
-      startsWith(github.ref, 'refs/heads/dfc/')
     runs-on: ubuntu-latest
 
     defaults:
@@ -130,14 +87,6 @@ jobs:
   # ==========================================
   backend-ci:
     name: Backend Quality & Tests
-    needs: changes
-    # Run if backend files changed, or if pushing directly to integration/release branches
-    if: |
-      needs.changes.outputs.backend == 'true' ||
-      github.ref == 'refs/heads/development' ||
-      github.ref == 'refs/heads/main' ||
-      startsWith(github.ref, 'refs/heads/dbft/') ||
-      startsWith(github.ref, 'refs/heads/dbc/')
     runs-on: ubuntu-latest
 
     services:
@@ -240,11 +189,6 @@ jobs:
   # ==========================================
   docker-validate:
     name: Docker Configuration Validation
-    needs: changes
-    if: |
-      needs.changes.outputs.docker == 'true' ||
-      github.ref == 'refs/heads/development' ||
-      github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code

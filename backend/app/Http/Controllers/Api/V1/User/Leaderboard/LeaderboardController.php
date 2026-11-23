@@ -11,12 +11,11 @@ class LeaderboardController extends Controller
 {
     public function __construct(
         protected LeaderboardService $leaderboardService
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): LeaderboardCollection
     {
-        $period  = $request->get('period', 'monthly');
+        $period = $request->get('period', 'monthly');
         $perPage = (int) $request->get('per_page', 10);
 
         $leaderboard = $this->leaderboardService->getLeaderboard($period, $perPage);

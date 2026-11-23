@@ -11,7 +11,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('users', function(Blueprint $table) {
+        Schema::table('users', function (Blueprint $table) {
             $table->string('phone')->after('email')->nullable();
             $table->enum('status', ['active', 'suspend', 'banned'])
                 ->default('active')
@@ -27,12 +27,12 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('users', function(Blueprint $table) {
+        Schema::table('users', function (Blueprint $table) {
             $table->dropColumn([
-                'phone', 
-                'status', 
-                'total_points', 
-                'total_transaction'
+                'phone',
+                'status',
+                'total_points',
+                'total_transaction',
             ]);
         });
     }

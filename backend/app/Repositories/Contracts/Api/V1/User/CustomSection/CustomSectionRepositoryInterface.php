@@ -8,8 +8,6 @@ interface CustomSectionRepositoryInterface
 {
     /**
      * Get active custom sections ordered by order_number with loaded products.
-     *
-     * @return Collection
      */
     public function getActiveSections(): Collection;
 }

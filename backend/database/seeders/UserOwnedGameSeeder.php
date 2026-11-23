@@ -4,7 +4,6 @@ namespace Database\Seeders;
 
 use App\Models\Product;
 use App\Models\User;
-use Illuminate\Database\Console\Seeds\WithoutModelEvents;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -22,7 +21,7 @@ class UserOwnedGameSeeder extends Seeder
 
         for ($i = 0; $i < 1000; $i++) {
             $data[] = [
-                'user_id'    => $userIds->random(),
+                'user_id' => $userIds->random(),
                 'product_id' => $productIds->random(),
                 'created_at' => now(),
                 'updated_at' => now(),

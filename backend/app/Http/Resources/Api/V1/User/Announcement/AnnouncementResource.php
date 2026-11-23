@@ -15,11 +15,11 @@ class AnnouncementResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'id'              => $this->id,
+            'id' => $this->id,
             'banner_file_url' => $this->banner_file_url,
-            'link'            => $this->link,
-            'is_publish'      => (bool) $this->is_published,
-            'order_number'    => (int) $this->sort_order,
+            'link' => $this->link,
+            'is_publish' => (bool) $this->is_published,
+            'order_number' => (int) $this->sort_order,
         ];
     }
 }

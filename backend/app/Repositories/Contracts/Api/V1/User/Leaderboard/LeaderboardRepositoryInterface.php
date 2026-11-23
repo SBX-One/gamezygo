@@ -8,10 +8,6 @@ interface LeaderboardRepositoryInterface
 {
     /**
      * Get paginated leaderboard based on period filter (monthly, weekly, lifetime).
-     *
-     * @param string $period
-     * @param int $perPage
-     * @return LengthAwarePaginator
      */
     public function getLeaderboard(string $period = 'monthly', int $perPage = 10): LengthAwarePaginator;
 }

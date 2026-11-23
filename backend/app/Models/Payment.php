@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use Database\Factories\PaymentFactory;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
@@ -18,7 +19,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 ])]
 class Payment extends Model
 {
-    /** @use HasFactory<\Database\Factories\PaymentFactory> */
+    /** @use HasFactory<PaymentFactory> */
     use HasFactory;
 
     public function order(): BelongsTo
@@ -29,8 +30,8 @@ class Payment extends Model
     protected function casts(): array
     {
         return [
-            'amount'     => 'integer',
-            'paid_at'    => 'datetime',
+            'amount' => 'integer',
+            'paid_at' => 'datetime',
             'expired_at' => 'datetime',
         ];
     }

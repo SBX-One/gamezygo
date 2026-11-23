@@ -11,8 +11,7 @@ class CustomSectionController extends Controller
 {
     public function __construct(
         protected CustomSectionService $customSectionService
-    ) {
-    }
+    ) {}
 
     public function index(Request $request): CustomSectionCollection
     {

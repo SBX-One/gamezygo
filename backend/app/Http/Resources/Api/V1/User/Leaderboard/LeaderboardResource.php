@@ -15,9 +15,9 @@ class LeaderboardResource extends JsonResource
     public function toArray(Request $request): array
     {
         return [
-            'rank'  => $this->resource['rank'] ?? 0,
-            'id'    => $this->resource['id'],
-            'name'  => $this->resource['name'],
+            'rank' => $this->resource['rank'] ?? 0,
+            'id' => $this->resource['id'],
+            'name' => $this->resource['name'],
             'point' => (int) ($this->resource['point'] ?? 0),
         ];
     }

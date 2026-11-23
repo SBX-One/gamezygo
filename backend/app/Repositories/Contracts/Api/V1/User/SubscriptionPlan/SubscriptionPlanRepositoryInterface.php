@@ -8,8 +8,6 @@ interface SubscriptionPlanRepositoryInterface
 {
     /**
      * Get active subscription plans with features.
-     *
-     * @return Collection
      */
     public function getActivePlans(): Collection;
 }

@@ -1,0 +1,57 @@
+import { apiGet, apiPut, apiPost, apiPatch } from "@/lib/api-client";
+import type {
+  ApiResponse,
+  UserProfileResponse,
+  ChangePasswordPayload,
+} from "@/types";
+
+/**
+ * Fetch current user profile
+ * Endpoint: GET /api/v1/user/profile/
+ */
+export async function fetchUserProfile(): Promise<
+  ApiResponse<UserProfileResponse>
+> {
+  return apiGet<ApiResponse<UserProfileResponse>>("/user/profile");
+}
+
+/**
+ * Update user profile
+ * Primary Endpoint: POST /api/v1/user/profile (for FormData with file upload) or PATCH /api/v1/user/profile
+ */
+export async function updateUserProfile(
+  payload: Partial<UserProfileResponse> | FormData
+): Promise<ApiResponse<UserProfileResponse>> {
+  if (typeof FormData !== "undefined" && payload instanceof FormData) {
+    return apiPost<ApiResponse<UserProfileResponse>, FormData>(
+      "/user/profile",
+      payload,
+      {
+        headers: {
+          "Content-Type": "multipart/form-data",
+        },
+      }
+    );
+  }
+
+  const jsonPayload = payload as Partial<UserProfileResponse>;
+
+  return apiPut<
+    ApiResponse<UserProfileResponse>,
+    Partial<UserProfileResponse>
+  >("/user/profile", jsonPayload);
+}
+
+/**
+ * Change user password
+ * Endpoint (Postman user > profile > change password):
+ *   PATCH /api/v1/user/profile/change-password
+ */
+export async function changeUserPassword(
+  payload: ChangePasswordPayload
+): Promise<ApiResponse<null>> {
+  return apiPatch<ApiResponse<null>, ChangePasswordPayload>(
+    "/user/profile/change-password",
+    payload
+  );
+}

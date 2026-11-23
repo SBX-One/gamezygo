@@ -23,6 +23,14 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+<<<<<<< HEAD
+=======
+# Berikan izin membaca contents dan pull-requests untuk paths-filter
+permissions:
+  contents: read
+  pull-requests: read
+
+>>>>>>> frontend/dev
 jobs:
   # Detect which subprojects were touched in this commit/PR
   changes:
@@ -35,6 +43,11 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+<<<<<<< HEAD
+=======
+        with:
+          fetch-depth: 0 # Ambil riwayat git lengkap agar paths-filter bisa diff secara lokal tanpa token API
+>>>>>>> frontend/dev
 
       - name: Check Changed Files
         id: filter
@@ -58,13 +71,6 @@ jobs:
   frontend-ci:
     name: Frontend Quality & Build
     needs: changes
-    # Run if frontend files changed, or if pushing directly to integration/release branches
-    if: |
-      needs.changes.outputs.frontend == 'true' ||
-      github.ref == 'refs/heads/development' ||
-      github.ref == 'refs/heads/main' ||
-      startsWith(github.ref, 'refs/heads/dfft/') ||
-      startsWith(github.ref, 'refs/heads/dfc/')
     runs-on: ubuntu-latest
     defaults:
       run:
@@ -89,7 +95,7 @@ jobs:
       - name: Install Frontend Dependencies
         run: |
           if [ -f pnpm-lock.yaml ]; then
-            pnpm install --frozen-lockfile --prod=false || pnpm install --prod=false
+            pnpm install --frozen-lockfile --prod=false || pnpm install --prod=false || npm install
           else
             npm install
           fi
@@ -119,13 +125,6 @@ jobs:
   backend-ci:
     name: Backend Quality & Tests
     needs: changes
-    # Run if backend files changed, or if pushing directly to integration/release branches
-    if: |
-      needs.changes.outputs.backend == 'true' ||
-      github.ref == 'refs/heads/development' ||
-      github.ref == 'refs/heads/main' ||
-      startsWith(github.ref, 'refs/heads/dbft/') ||
-      startsWith(github.ref, 'refs/heads/dbc/')
     runs-on: ubuntu-latest
     services:
       postgres:
@@ -228,10 +227,6 @@ jobs:
   docker-validate:
     name: Docker Configuration Validation
     needs: changes
-    if: |
-      needs.changes.outputs.docker == 'true' ||
-      github.ref == 'refs/heads/development' ||
-      github.ref == 'refs/heads/main'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code

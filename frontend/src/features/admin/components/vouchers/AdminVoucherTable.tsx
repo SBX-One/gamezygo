@@ -1,0 +1,580 @@
+import * as React from "react";
+import Link from "next/link";
+import { cn } from "@/lib/utils";
+import {
+  AdminTable,
+  AdminTableHeader,
+  AdminTableBody,
+  AdminTableRow,
+  AdminTableHead,
+  AdminTableCell,
+} from "@/components/admin/AdminTable";
+import { AdminSwitch } from "@/components/admin/AdminSwitch";
+import { AdminCheckbox } from "@/components/admin/AdminCheckbox";
+import { Button } from "@/components/ui/Button";
+import type { AdminVoucherItem } from "../../types/admin-voucher.types";
+
+export interface AdminVoucherTableProps {
+  items: AdminVoucherItem[];
+  totalVouchersCount?: number;
+  selectedIds: string[];
+  isDraftViewActive?: boolean;
+  onToggleSelectAll: () => void;
+  onToggleSelectItem: (id: string) => void;
+  onToggleStatus: (id: string, active: boolean) => void;
+  onAddNew?: () => void;
+  onToggleDraftView?: () => void;
+  onBackFromDraft?: () => void;
+  onDeleteSelected?: () => void;
+  onEditItem?: (item: AdminVoucherItem) => void;
+  onDeleteItem?: (id: string) => void;
+  className?: string;
+  isLoading?: boolean;
+}
+
+// Back Chevron Icon for Draft View (Matching Image 3)
+const ChevronLeftIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <polyline points="15 18 9 12 15 6" />
+  </svg>
+);
+
+// Storage/Draft Box Icon (Matching Image 2)
+const DraftBoxIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <rect x="3" y="4" width="18" height="4" rx="1.5" />
+    <path d="M5 8v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8" />
+    <line x1="10" y1="13" x2="14" y2="13" />
+  </svg>
+);
+
+// Plus Icon (Matching Image 2 & Image 3)
+const PlusIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="15"
+    height="15"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+);
+
+// Vertical 3-dots Menu Icon
+const MoreVerticalIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="currentColor"
+    {...props}
+  >
+    <circle cx="12" cy="5" r="2" />
+    <circle cx="12" cy="12" r="2" />
+    <circle cx="12" cy="19" r="2" />
+  </svg>
+);
+
+const EditIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+    <path d="m15 5 4 4" />
+  </svg>
+);
+
+const TrashIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <path d="M4 6h16" />
+    <path d="M5 6v13a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V6" />
+    <path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2" />
+    <line x1="9.5" y1="11" x2="9.5" y2="16.5" />
+    <line x1="12" y1="11" x2="12" y2="16.5" />
+    <line x1="14.5" y1="11" x2="14.5" y2="16.5" />
+  </svg>
+);
+
+const ArrowRightThinIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <line x1="5" y1="12" x2="19" y2="12" />
+    <polyline points="12 5 19 12 12 19" />
+  </svg>
+);
+
+// Gamepad Icon for Empty State (Matching Image 2)
+const GamepadIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="32"
+    height="32"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <rect x="2" y="6" width="20" height="12" rx="4" />
+    <path d="M6 12h4m-2-2v4" />
+    <circle cx="15.5" cy="10.5" r="1" fill="currentColor" />
+    <circle cx="18" cy="13" r="1" fill="currentColor" />
+  </svg>
+);
+
+function formatCurrency(amount: number): string {
+  return `Rp ${amount.toLocaleString("id-ID")}`;
+}
+
+const AnalyticsIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="14"
+    height="14"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <line x1="18" y1="20" x2="18" y2="10" />
+    <line x1="12" y1="20" x2="12" y2="4" />
+    <line x1="6" y1="20" x2="6" y2="14" />
+  </svg>
+);
+
+export function AdminVoucherTable({
+  items,
+  totalVouchersCount = 105,
+  selectedIds,
+  isDraftViewActive = false,
+  onToggleSelectAll,
+  onToggleSelectItem,
+  onToggleStatus,
+  onAddNew,
+  onToggleDraftView,
+  onBackFromDraft,
+  onDeleteSelected,
+  onEditItem,
+  onDeleteItem,
+  className,
+  isLoading = false,
+}: AdminVoucherTableProps) {
+  const [activeMenuId, setActiveMenuId] = React.useState<string | null>(null);
+  const menuRef = React.useRef<HTMLDivElement>(null);
+
+  // Close dropdown menu when clicking outside
+  React.useEffect(() => {
+    function handleClickOutside(event: MouseEvent) {
+      if (
+        menuRef.current &&
+        !menuRef.current.contains(event.target as Node)
+      ) {
+        setActiveMenuId(null);
+      }
+    }
+    if (activeMenuId) {
+      document.addEventListener("mousedown", handleClickOutside);
+    }
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, [activeMenuId]);
+
+  const allSelected =
+    items.length > 0 && items.every((item) => selectedIds.includes(item.id));
+  const hasSelected = selectedIds.length > 0;
+  const colSpanCount = isDraftViewActive ? 5 : 7;
+
+  return (
+    <div
+      className={cn(
+        "w-full rounded-lg bg-deep-blue-950 border border-deep-blue-700 shadow-sm select-none font-sans min-h-[300px]",
+        className
+      )}
+    >
+      {/* 1. Card Header */}
+      {/* If Draft View (Image 3): [ < Back ] + TOTAL PRODUCT : 105 Vouchers ... [ + Add New ] */}
+      {/* If Normal View (Image 2): TOTAL PRODUCT : 105 Vouchers ... [ Draft ] [ + Add New ] */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-6 py-3.5 sm:py-4.5 border-b border-deep-blue-700 bg-deep-blue-900">
+        {/* Left Side Header */}
+        <div className="flex items-center gap-3 shrink-0 whitespace-nowrap">
+          {/* Back button shown in Draft View (Matching Image 3) */}
+          {isDraftViewActive && (
+            <Button
+              type="button"
+              variant="outline"
+              size="xs"
+              onClick={onBackFromDraft}
+              leftIcon={<ChevronLeftIcon className="w-4 h-4 text-white shrink-0" />}
+              className="px-3 py-2"
+            >
+              <span>Back</span>
+            </Button>
+          )}
+
+          {/* TOTAL PRODUCT : 105 Vouchers */}
+          <div className="flex items-center gap-2 select-none shrink-0 whitespace-nowrap">
+            <span className="text-label-xs font-semibold tracking-wider text-gray-400 uppercase whitespace-nowrap">
+              TOTAL PRODUCT :
+            </span>
+            <span className="text-sm font-bold text-white whitespace-nowrap">
+              {totalVouchersCount} Vouchers
+            </span>
+          </div>
+        </div>
+
+        {/* Right Side Header */}
+        <div className="flex items-center gap-3 shrink-0 flex-wrap">
+          {/* Delete Batch Button (Shown when items are selected) */}
+          {hasSelected && (
+            <Button
+              type="button"
+              variant="inactive"
+              size="xs"
+              onClick={onDeleteSelected}
+              leftIcon={<TrashIcon className="w-3.5 h-3.5" />}
+              className="bg-rose-500/15 border-rose-500/30 text-rose-300 hover:bg-rose-500/25 px-3 py-2"
+            >
+              <span>Hapus ({selectedIds.length})</span>
+            </Button>
+          )}
+
+          {/* Draft Button (Only shown in Normal View, omitted in Draft View per Image 3) */}
+          {!isDraftViewActive && (
+            <Button
+              type="button"
+              variant="outline"
+              size="xs"
+              onClick={onToggleDraftView}
+              leftIcon={<DraftBoxIcon className="w-4 h-4 text-white shrink-0" />}
+              className="px-3 py-2"
+            >
+              <span>Draft</span>
+            </Button>
+          )}
+
+          {/* Add New Button (Matching Image 2 & Image 3) */}
+          <Button
+            type="button"
+            variant="outline"
+            size="xs"
+            onClick={onAddNew}
+            leftIcon={<PlusIcon className="w-4 h-4 text-white shrink-0" />}
+            className="px-3 py-2"
+          >
+            <span>Add New</span>
+          </Button>
+        </div>
+      </div>
+
+      {/* 2. Table Section */}
+      <AdminTable>
+        <AdminTableHeader>
+          <tr>
+            {/* Column 0: Switch Spacer */}
+            <AdminTableHead className="w-14 pl-6" />
+
+            {/* Column 1: Checkbox + Voucher Code */}
+            <AdminTableHead className="min-w-56">
+              <div className="flex items-center gap-3">
+                <AdminCheckbox
+                  checked={allSelected}
+                  onChange={onToggleSelectAll}
+                  ariaLabel="Pilih Semua Voucher"
+                />
+                <span>Voucher Code</span>
+              </div>
+            </AdminTableHead>
+
+            {/* In Normal View: Usage & Reward Status are displayed (Image 2) */}
+            {/* In Draft View: Usage & Reward Status are OMITTED (Image 3) */}
+            {!isDraftViewActive && (
+              <AdminTableHead className="min-w-28">Usage</AdminTableHead>
+            )}
+
+            {/* Value Column */}
+            <AdminTableHead className="min-w-36">Value</AdminTableHead>
+
+            {/* Reward Status (Omitted in Draft View) */}
+            {!isDraftViewActive && (
+              <AdminTableHead className="min-w-36">Reward Status</AdminTableHead>
+            )}
+
+            {/* Validity Period Column */}
+            <AdminTableHead className="min-w-36">Validity Period</AdminTableHead>
+
+            {/* Column Action 3-dots Header */}
+            <AdminTableHead className="w-12 pr-6 text-right" aria-label="Aksi" />
+          </tr>
+        </AdminTableHeader>
+
+        <AdminTableBody>
+          {isLoading ? (
+            Array.from({ length: 5 }).map((_, idx) => (
+              <AdminTableRow key={`voucher-skel-${idx}`}>
+                <AdminTableCell className="pl-6 w-14">
+                  <div className="w-9 h-5 rounded-full bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell>
+                  <div className="flex items-center gap-3">
+                    <div className="w-4 h-4 rounded bg-white/10 animate-pulse" />
+                    <div className="w-32 h-4 rounded bg-white/10 animate-pulse" />
+                  </div>
+                </AdminTableCell>
+                {!isDraftViewActive && (
+                  <AdminTableCell>
+                    <div className="w-12 h-4 rounded bg-white/10 animate-pulse" />
+                  </AdminTableCell>
+                )}
+                <AdminTableCell>
+                  <div className="w-24 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                {!isDraftViewActive && (
+                  <AdminTableCell>
+                    <div className="w-16 h-6 rounded-full bg-white/10 animate-pulse" />
+                  </AdminTableCell>
+                )}
+                <AdminTableCell>
+                  <div className="w-24 h-4 rounded bg-white/10 animate-pulse" />
+                </AdminTableCell>
+                <AdminTableCell className="pr-6 text-right">
+                  <div className="w-6 h-6 rounded bg-white/10 animate-pulse ml-auto" />
+                </AdminTableCell>
+              </AdminTableRow>
+            ))
+          ) : items.length > 0 ? (
+            items.map((item, idx) => {
+              const isSelected = selectedIds.includes(item.id);
+              const isMenuOpen = activeMenuId === item.id;
+              const isNearBottom = items.length > 3 ? idx >= items.length - 3 : idx > 0;
+
+              return (
+                <AdminTableRow
+                  key={item.id}
+                  className={cn(isSelected && "bg-white/3", isMenuOpen && "relative z-30")}
+                >
+                  {/* Column 0: Switch Active/Inactive */}
+                  <AdminTableCell className="pl-6 w-14">
+                    <AdminSwitch
+                      checked={item.isActive}
+                      onChange={(checked) => onToggleStatus(item.id, checked)}
+                      ariaLabel={`Ubah status voucher ${item.code}`}
+                    />
+                  </AdminTableCell>
+
+                  {/* Column 1: Checkbox + Voucher Code */}
+                  <AdminTableCell>
+                    <div className="flex items-center gap-3">
+                      <AdminCheckbox
+                        checked={isSelected}
+                        onChange={() => onToggleSelectItem(item.id)}
+                        ariaLabel={`Pilih voucher ${item.code}`}
+                      />
+                      <span className="font-semibold text-white text-sm tracking-wide">
+                        {item.code}
+                      </span>
+                    </div>
+                  </AdminTableCell>
+
+                  {/* Column 2: Usage (Only in Normal View) */}
+                  {!isDraftViewActive && (
+                    <AdminTableCell className="text-sm font-medium text-gray-300">
+                      {item.usageCount}x
+                    </AdminTableCell>
+                  )}
+
+                  {/* Column 3: Value */}
+                  <AdminTableCell className="text-sm font-bold text-white">
+                    {formatCurrency(item.discountAmount)}
+                  </AdminTableCell>
+
+                  {/* Column 4: Reward Status Badge (Only in Normal View) */}
+                  {!isDraftViewActive && (
+                    <AdminTableCell>
+                      {item.status === "active" ? (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-label-xs font-medium bg-[#132B20] text-[#22C55E] border border-[#22C55E]/20">
+                          Active
+                        </span>
+                      ) : item.status === "draft" ? (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-label-xs font-medium bg-amber-950/40 text-amber-400 border border-amber-800/30">
+                          Draft
+                        </span>
+                      ) : item.status === "expired" ? (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-label-xs font-medium bg-rose-950/40 text-rose-400 border border-rose-800/30">
+                          Expired
+                        </span>
+                      ) : (
+                        <span className="inline-flex items-center px-3 py-1 rounded-full text-label-xs font-medium bg-gray-800/50 text-gray-400 border border-gray-700/40">
+                          Inactive
+                        </span>
+                      )}
+                    </AdminTableCell>
+                  )}
+
+                  {/* Validity Period */}
+                  <AdminTableCell className="text-sm text-gray-400 font-normal">
+                    {item.validityPeriod}
+                  </AdminTableCell>
+
+                  {/* Column Action 3-dots Menu */}
+                  <AdminTableCell className="pr-6 text-right">
+                    <div
+                      className="relative inline-block text-left"
+                      ref={isMenuOpen ? menuRef : undefined}
+                    >
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setActiveMenuId(isMenuOpen ? null : item.id)
+                        }
+                        aria-label={`Menu opsi untuk voucher ${item.code}`}
+                        className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
+                      >
+                        <MoreVerticalIcon />
+                      </button>
+
+                      {/* Dropdown Menu Popover (Matching Pre-Order design in Image 1: 3 items - Analytics, Edit, Delete) */}
+                      {isMenuOpen && (
+                        <div
+                          className={cn(
+                            "absolute right-0 z-50 w-52 rounded-lg bg-deep-blue-950 border border-deep-blue-700 shadow-2xl p-2 text-left animate-in fade-in zoom-in-95 duration-100 space-y-1.5 select-none",
+                            isNearBottom ? "bottom-full mb-1.5" : "top-full mt-1.5"
+                          )}
+                        >
+                          {/* 1. Lihat Analytics (Top prominent button box with arrow) */}
+                          <Link
+                            href={`/admin/vouchers/${item.id}/analytics?code=${item.code}`}
+                            onClick={() => setActiveMenuId(null)}
+                            className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-lg bg-white/6 hover:bg-white/10 border border-white/10 text-white font-semibold text-label-xs sm:text-sm transition-colors cursor-pointer group"
+                          >
+                            <span>Lihat Analytics</span>
+                            <ArrowRightThinIcon className="w-4 h-4 text-white/90 group-hover:translate-x-0.5 transition-transform" />
+                          </Link>
+
+                          {/* 2. Edit */}
+                          <Link
+                            href={`/admin/vouchers/add?id=${item.id}`}
+                            onClick={() => {
+                              setActiveMenuId(null);
+                              onEditItem?.(item);
+                            }}
+                            className="w-full flex items-center gap-3 px-3.5 py-2 rounded-lg hover:bg-white/5 text-gray-200 hover:text-white text-label-xs sm:text-sm font-medium transition-colors cursor-pointer"
+                          >
+                            <EditIcon className="w-4 h-4 text-gray-300" />
+                            <span>Edit</span>
+                          </Link>
+
+                          {/* 3. Delete */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setActiveMenuId(null);
+                              onDeleteItem?.(item.id);
+                            }}
+                            className="w-full flex items-center gap-3 px-3.5 py-2 rounded-lg hover:bg-white/5 text-gray-200 hover:text-white text-label-xs sm:text-sm font-medium transition-colors cursor-pointer"
+                          >
+                            <TrashIcon className="w-4 h-4 text-gray-300" />
+                            <span>Delete</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+                  </AdminTableCell>
+                </AdminTableRow>
+              );
+            })
+          ) : (
+            /* Empty State Row (Matching Image 2) */
+            <tr>
+              <td colSpan={colSpanCount} className="py-24 px-6 text-center">
+                <div className="flex flex-col items-center justify-center">
+                  {/* Gamepad Icon Box (Matching Image 2) */}
+                  <div className="w-16 h-16 rounded-lg bg-[#161822] border border-white/5 flex items-center justify-center text-gray-300 mb-5 shadow-inner">
+                    <GamepadIcon className="w-8 h-8 text-gray-200" />
+                  </div>
+
+                  {/* Title (Matching Image 2: Belum Ada Data Voucher) */}
+                  <h3 className="text-xl font-bold text-white tracking-tight mb-2">
+                    Belum Ada Data Voucher
+                  </h3>
+
+                  {/* Description (Matching Image 2: Katalog voucher Anda saat ini masih kosong.) */}
+                  <p className="text-label-xs sm:text-sm text-gray-400 mb-6">
+                    Katalog voucher Anda saat ini masih kosong.
+                  </p>
+
+                  {/* Button (Matching Image 2: + Tambah Voucher) */}
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={onAddNew}
+                    leftIcon={<PlusIcon className="w-4 h-4 text-gray-300" />}
+                  >
+                    <span>Tambah Voucher</span>
+                  </Button>
+                </div>
+              </td>
+            </tr>
+          )}
+        </AdminTableBody>
+      </AdminTable>
+    </div>
+  );
+}

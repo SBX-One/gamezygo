@@ -1,0 +1,123 @@
+import { apiGet, apiPost, apiDelete } from "@/lib/api-client";
+import type {
+  ApiResponse,
+  ApiPaginatedResponse,
+  GameRequestItem,
+} from "@/types";
+
+export interface GameRequestQueryParams {
+  scope?: "mine" | "all" | "added";
+  search?: string;
+  status?: string;
+  page?: number;
+  per_page?: number;
+}
+
+export interface CreateGameRequestPayload {
+  steam_url: string;
+  name?: string;
+  note?: string;
+}
+
+/**
+ * Fetch game requests list
+ * Endpoint: GET /api/v1/user/game-requests/?scope=mine|all|added&search=&status=&page=&per_page=
+ */
+export async function fetchGameRequests(
+  params?: GameRequestQueryParams
+): Promise<ApiPaginatedResponse<GameRequestItem>> {
+  const queryParts: string[] = [];
+
+  if (params?.search) {
+    queryParts.push(`search=${encodeURIComponent(params.search)}`);
+  }
+
+  if (params?.status) {
+    queryParts.push(`status=${encodeURIComponent(params.status)}`);
+  }
+
+  if (params?.page) {
+    queryParts.push(`page=${params.page}`);
+  }
+
+  if (params?.per_page) {
+    queryParts.push(`per_page=${params.per_page}`);
+  }
+
+  let endpoint = "/game-requests";
+
+  if (params?.scope === "mine") {
+    endpoint = "/user/game-requests/mine";
+  } else if (params?.scope === "added") {
+    queryParts.push("scope=added");
+    endpoint = "/game-requests";
+  } else if (params?.scope === "all") {
+    endpoint = "/game-requests";
+  }
+
+  const queryString = queryParts.length > 0 ? `?${queryParts.join("&")}` : "";
+
+  try {
+    return await apiGet<ApiPaginatedResponse<GameRequestItem>>(
+      `${endpoint}${queryString}`
+    );
+  } catch (error) {
+    console.warn("fetchGameRequests fallback:", error);
+    return {
+      success: true,
+      message: "No requests found",
+      data: [],
+      meta: {
+        current_page: 1,
+        from: 0,
+        last_page: 1,
+        per_page: 15,
+        to: 0,
+        total: 0,
+      },
+    };
+  }
+}
+
+/**
+ * Submit a new game request
+ * Endpoint: POST /api/v1/user/game-requests
+ */
+export async function createGameRequest(
+  payload: CreateGameRequestPayload
+): Promise<ApiResponse<GameRequestItem>> {
+  return apiPost<ApiResponse<GameRequestItem>, CreateGameRequestPayload>(
+    "/user/game-requests",
+    payload
+  );
+}
+
+/**
+ * Delete a user game request
+ * Endpoint: DELETE /api/v1/user/game-requests/:id
+ */
+export async function deleteGameRequest(
+  requestId: number
+): Promise<ApiResponse<null>> {
+  return apiDelete<ApiResponse<null>>(`/user/game-requests/${requestId}`);
+}
+
+/**
+ * Upvote a game request
+ * Endpoint: POST /api/v1/user/game-requests/:id/vote
+ */
+export async function voteGameRequest(
+  requestId: number
+): Promise<ApiResponse<null>> {
+  return apiPost<ApiResponse<null>>(`/user/game-requests/${requestId}/vote`);
+}
+
+/**
+ * Cancel upvote / Unvote a game request
+ * Endpoint: DELETE /api/v1/user/game-requests/:id/vote
+ */
+export async function unvoteGameRequest(
+  requestId: number
+): Promise<ApiResponse<null>> {
+  return apiDelete<ApiResponse<null>>(`/user/game-requests/${requestId}/vote`);
+}

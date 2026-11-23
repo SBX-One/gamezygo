@@ -242,6 +242,10 @@ export default nextConfig;
    - Standard Glassmorphic Class Structure:
      `backdrop-blur-md bg-white/5 border border-white/10 shadow-xl`
    - Primary accents: Indigo (`text-indigo-400`, `bg-indigo-600`) and Violet gradients (`bg-gradient-to-r from-violet-500 to-rose-500`).
+3. **Avoid Restrictive `max-w-*` Spacing Tokens (Tailwind CSS v4 Collision)**:
+   - Due to `@theme inline` `--spacing-*` tokens, utilities like `max-w-xs`, `max-w-sm`, `max-w-md`, `max-w-lg`, `max-w-xl`, and `max-w-6xl` resolve to tiny values (8px to 40px), squishing dialogs and text blocks into unreadable vertical columns.
+   - Do not wrap main content, form wrappers, or empty state messages in restrictive `max-w-*` classes. Allow them to expand naturally (`w-full`, natural text flow).
+   - For modals, use explicit pixel dimensions with responsive max bounds (e.g. `w-[480px] max-w-[95vw]` or `w-[560px] max-w-[95vw]`).
 
 ---
 

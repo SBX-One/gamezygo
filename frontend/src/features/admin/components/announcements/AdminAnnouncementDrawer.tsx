@@ -1,0 +1,338 @@
+import * as React from "react";
+import Image from "next/image";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
+import type { AdminAnnouncementItem } from "../../types/admin-announcement.types";
+
+export interface AdminAnnouncementDrawerSaveData {
+  pageLink: string;
+  imageUrl: string;
+  imageFile: File | null;
+  isPublished: boolean;
+}
+
+export interface AdminAnnouncementDrawerProps {
+  isOpen: boolean;
+  isSubmitting?: boolean;
+  item?: AdminAnnouncementItem | null;
+  onClose: () => void;
+  onSave: (data: AdminAnnouncementDrawerSaveData) => void | Promise<void>;
+  className?: string;
+}
+
+const CloseIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+
+const PlusIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="20"
+    height="20"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <line x1="12" y1="5" x2="12" y2="19" />
+    <line x1="5" y1="12" x2="19" y2="12" />
+  </svg>
+);
+
+interface AdminAnnouncementFormProps {
+  item?: AdminAnnouncementItem | null;
+  isSubmitting?: boolean;
+  onClose: () => void;
+  onSave: (data: AdminAnnouncementDrawerSaveData) => void | Promise<void>;
+}
+
+function AdminAnnouncementForm({
+  item,
+  isSubmitting = false,
+  onClose,
+  onSave,
+}: AdminAnnouncementFormProps) {
+  const [pageLink, setPageLink] = React.useState(item?.pageLink ?? "");
+  const [imageUrl, setImageUrl] = React.useState(item?.imageUrl ?? "");
+  const [imageFile, setImageFile] = React.useState<File | null>(null);
+  const [isPublished, setIsPublished] = React.useState(
+    item ? item.isPublished : true
+  );
+  const [errorMessage, setErrorMessage] = React.useState<string | null>(null);
+  const fileInputRef = React.useRef<HTMLInputElement>(null);
+
+  const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setImageFile(file);
+    setErrorMessage(null);
+
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const dataUrl = event.target?.result as string;
+      if (dataUrl) {
+        setImageUrl(dataUrl);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (isSubmitting) return;
+
+    if (!imageFile && !imageUrl.trim()) {
+      setErrorMessage("Silakan unggah gambar banner atau masukkan URL gambar.");
+      return;
+    }
+
+    await onSave({
+      pageLink: pageLink.trim(),
+      imageUrl: imageFile ? "" : imageUrl.trim(),
+      imageFile,
+      isPublished,
+    });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="flex flex-col gap-6 p-6 sm:p-8">
+      {/* PAGE LINK */}
+      <div>
+        <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider mb-2.5">
+          PAGE LINK
+        </label>
+        <input
+          type="text"
+          value={pageLink}
+          onChange={(e) => setPageLink(e.target.value)}
+          placeholder="https://gamezygo.com/promo/... atau /store"
+          disabled={isSubmitting}
+          className="w-full h-11 px-4 bg-deep-blue-900 border border-white/10 rounded-lg text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
+        />
+      </div>
+
+      {/* BANNER IMAGE UPLOAD & URL */}
+      <div className="space-y-3">
+        <div className="flex items-center justify-between">
+          <label className="block text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
+            BANNER IMAGE <span className="text-rose-400">*</span>
+          </label>
+          {imageUrl && (
+            <button
+              type="button"
+              disabled={isSubmitting}
+              onClick={() => {
+                setImageFile(null);
+                setImageUrl("");
+              }}
+              className="text-label-xs text-rose-400 hover:text-rose-300 cursor-pointer"
+            >
+              Hapus Gambar
+            </button>
+          )}
+        </div>
+
+        <input
+          type="file"
+          ref={fileInputRef}
+          onChange={handleImageFileChange}
+          accept="image/*"
+          className="hidden"
+        />
+
+        <div
+          onClick={() => {
+            if (!isSubmitting) fileInputRef.current?.click();
+          }}
+          className="w-full min-h-[160px] rounded-lg border border-dashed border-white/15 bg-deep-blue-900/40 hover:bg-deep-blue-900/70 hover:border-white/30 p-4 flex flex-col items-center justify-center gap-2 cursor-pointer transition-all group overflow-hidden relative"
+        >
+          {imageUrl ? (
+            <div className="relative w-full h-36 rounded-lg overflow-hidden border border-white/10 group-hover:opacity-90 transition-opacity">
+              <Image
+                src={imageUrl}
+                alt="Preview banner pengumuman"
+                fill
+                unoptimized
+                className="object-cover object-center"
+              />
+              <div className="absolute inset-0 bg-black/40 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
+                <span className="px-3 py-1.5 rounded-lg bg-black/70 text-label-xs font-medium text-white border border-white/20">
+                  Ganti Gambar
+                </span>
+              </div>
+            </div>
+          ) : (
+            <>
+              <PlusIcon className="w-6 h-6 text-gray-400 group-hover:text-white transition-colors" />
+              <span className="text-label-xs font-semibold text-gray-400 group-hover:text-white uppercase tracking-wider transition-colors">
+                ADD IMAGE
+              </span>
+            </>
+          )}
+        </div>
+
+        {/* Optional Image URL Input */}
+        <input
+          type="url"
+          value={imageFile ? "" : imageUrl}
+          onChange={(e) => {
+            setImageFile(null);
+            setImageUrl(e.target.value);
+            setErrorMessage(null);
+          }}
+          disabled={isSubmitting}
+          placeholder={
+            imageFile
+              ? `File dipilih: ${imageFile.name}`
+              : "Atau tempel URL gambar banner (https://...)"
+          }
+          className="w-full h-10 px-3.5 bg-deep-blue-900 border border-white/10 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-white/25 transition-colors"
+        />
+
+        {errorMessage && (
+          <p className="text-label-xs text-rose-400">{errorMessage}</p>
+        )}
+      </div>
+
+      {/* PUBLISH TOGGLE */}
+      <div
+        onClick={() => {
+          if (!isSubmitting) setIsPublished(!isPublished);
+        }}
+        className="flex items-center gap-2.5 cursor-pointer select-none self-start"
+        role="switch"
+        aria-checked={isPublished}
+        tabIndex={0}
+        onKeyDown={(e) => {
+          if (!isSubmitting && (e.key === "Enter" || e.key === " ")) {
+            e.preventDefault();
+            setIsPublished(!isPublished);
+          }
+        }}
+      >
+        <div className="relative inline-flex h-5 w-9 shrink-0 items-center rounded-full border border-white/10 bg-deep-blue-900 p-0.5 transition-colors">
+          <span
+            className={cn(
+              "pointer-events-none inline-block h-3.5 w-3.5 transform rounded-full transition-transform shadow-xs",
+              isPublished
+                ? "translate-x-4 bg-[#DF3848]"
+                : "translate-x-0 bg-gray-500"
+            )}
+          />
+        </div>
+        <span className="text-label-xs sm:text-sm font-medium text-white">
+          Publish
+        </span>
+      </div>
+
+      {/* Action Buttons: [ Batalkan ] & [ Simpan ] */}
+      <div className="flex items-center justify-end gap-3 mt-4">
+        <Button
+          type="button"
+          variant="inactive"
+          size="sm"
+          disabled={isSubmitting}
+          onClick={onClose}
+        >
+          Batalkan
+        </Button>
+        <Button
+          type="submit"
+          variant="primary"
+          size="sm"
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? "Menyimpan..." : "Simpan"}
+        </Button>
+      </div>
+    </form>
+  );
+}
+
+export function AdminAnnouncementDrawer({
+  isOpen,
+  isSubmitting = false,
+  item,
+  onClose,
+  onSave,
+  className,
+}: AdminAnnouncementDrawerProps) {
+  React.useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape" && isOpen && !isSubmitting) {
+        onClose();
+      }
+    }
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, isSubmitting, onClose]);
+
+  if (!isOpen) return null;
+
+  const isEditing = Boolean(item);
+  const formKey = `${item?.id || "new"}-open`;
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="announcement-drawer-title"
+      className="fixed inset-0 z-50 overflow-hidden select-none font-sans"
+    >
+      <div
+        className="fixed inset-0 bg-black/60 backdrop-blur-xs transition-opacity animate-in fade-in duration-200"
+        onClick={() => {
+          if (!isSubmitting) onClose();
+        }}
+      />
+
+      <div
+        className={cn(
+          "fixed inset-y-0 right-0 z-10 w-[500px] max-w-[95vw] h-full bg-deep-blue-950 border-l border-deep-blue-700 shadow-2xl flex flex-col justify-start animate-in slide-in-from-right duration-200 overflow-y-auto",
+          className
+        )}
+      >
+        <div className="flex items-center justify-between px-6 sm:px-8 py-5 border-b border-deep-blue-700">
+          <h3
+            id="announcement-drawer-title"
+            className="text-lg sm:text-xl font-bold text-white tracking-tight"
+          >
+            {isEditing ? "Edit Announcement" : "New Announcement"}
+          </h3>
+          <button
+            type="button"
+            disabled={isSubmitting}
+            onClick={onClose}
+            className="p-1.5 text-gray-400 hover:text-white rounded-lg transition-colors cursor-pointer"
+            aria-label="Tutup"
+          >
+            <CloseIcon className="w-5 h-5" />
+          </button>
+        </div>
+
+        <AdminAnnouncementForm
+          key={formKey}
+          item={item}
+          isSubmitting={isSubmitting}
+          onClose={onClose}
+          onSave={onSave}
+        />
+      </div>
+    </div>
+  );
+}

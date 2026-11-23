@@ -1,0 +1,327 @@
+import * as React from "react";
+import { cn } from "@/lib/utils";
+import { Button } from "@/components/ui/Button";
+import { useEligibleVoucherUsers } from "@/hooks/use-admin-vouchers";
+import type { VoucherTargetUser } from "../../../types/admin-voucher.types";
+
+export interface AdminAddVoucherUserModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+  selectedUsers: VoucherTargetUser[];
+  onSaveUsers: (users: VoucherTargetUser[]) => void;
+  className?: string;
+}
+
+const CloseIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <line x1="18" y1="6" x2="6" y2="18" />
+    <line x1="6" y1="6" x2="18" y2="18" />
+  </svg>
+);
+
+const SearchIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <circle cx="11" cy="11" r="8" />
+    <line x1="21" y1="21" x2="16.65" y2="16.65" />
+  </svg>
+);
+
+const FilterFunnelIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="16"
+    height="16"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="2"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <polygon points="22 3 2 3 10 12.46 10 19 14 21 14 12.46 22 3" />
+  </svg>
+);
+
+const CheckIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="12"
+    height="12"
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="3.5"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    {...props}
+  >
+    <polyline points="20 6 9 17 4 12" />
+  </svg>
+);
+
+export function AdminAddVoucherUserModal({
+  isOpen,
+  onClose,
+  selectedUsers,
+  onSaveUsers,
+  className,
+}: AdminAddVoucherUserModalProps) {
+  const [search, setSearch] = React.useState("");
+  const [selectedIds, setSelectedIds] = React.useState<Set<string>>(
+    () => new Set(selectedUsers.map((u) => u.id))
+  );
+  const [prevIsOpen, setPrevIsOpen] = React.useState(isOpen);
+
+  if (isOpen !== prevIsOpen) {
+    setPrevIsOpen(isOpen);
+    if (isOpen) {
+      setSelectedIds(new Set(selectedUsers.map((u) => u.id)));
+      setSearch("");
+    }
+  }
+
+  const { data: eligibleRes, isLoading } = useEligibleVoucherUsers(
+    { search: search.trim() || undefined, per_page: 50 },
+    isOpen
+  );
+
+  const availableUsers = React.useMemo(() => {
+    const rows = eligibleRes?.users ?? [];
+    return rows.map((u) => ({
+      id: u.id,
+      email: u.email,
+      points: `${u.total_points}pts`,
+    }));
+  }, [eligibleRes]);
+
+  // Handle ESC key
+  React.useEffect(() => {
+    function handleKeyDown(e: KeyboardEvent) {
+      if (e.key === "Escape") onClose();
+    }
+    if (isOpen) window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [isOpen, onClose]);
+
+  if (!isOpen) return null;
+
+  const filteredUsers = availableUsers.filter((u) =>
+    u.email.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const isAllSelected =
+    filteredUsers.length > 0 &&
+    filteredUsers.every((u) => selectedIds.has(u.id));
+
+  const handleToggleSelectAll = () => {
+    const next = new Set(selectedIds);
+    if (isAllSelected) {
+      filteredUsers.forEach((u) => next.delete(u.id));
+    } else {
+      filteredUsers.forEach((u) => next.add(u.id));
+    }
+    setSelectedIds(next);
+  };
+
+  const handleToggleUser = (id: string) => {
+    const next = new Set(selectedIds);
+    if (next.has(id)) {
+      next.delete(id);
+    } else {
+      next.add(id);
+    }
+    setSelectedIds(next);
+  };
+
+  const handleSave = () => {
+    const selectedById = new Map(selectedUsers.map((u) => [u.id, u]));
+    const availableById = new Map(availableUsers.map((u) => [u.id, u]));
+    const selectedList: VoucherTargetUser[] = Array.from(selectedIds)
+      .map((id) => availableById.get(id) ?? selectedById.get(id) ?? null)
+      .filter((item): item is VoucherTargetUser => item !== null);
+    onSaveUsers(selectedList);
+    onClose();
+  };
+
+  return (
+    <div
+      role="dialog"
+      aria-modal="true"
+      className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-in fade-in duration-150 select-none font-sans"
+      onClick={(e) => {
+        if (e.target === e.currentTarget) onClose();
+      }}
+    >
+      <div
+        className={cn(
+          "w-[760px] max-w-[95vw] rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-6 shadow-2xl space-y-4 text-left",
+          className
+        )}
+      >
+        {/* Header: Title + Close Icon (Matching Image 2) */}
+        <div className="flex items-center justify-between">
+          <h3 className="text-lg font-bold text-white tracking-tight">
+            Add User
+          </h3>
+          <button
+            type="button"
+            onClick={onClose}
+            aria-label="Tutup modal"
+            className="w-8 h-8 rounded-lg text-gray-400 hover:text-white flex items-center justify-center text-sm transition-colors cursor-pointer"
+          >
+            <CloseIcon />
+          </button>
+        </div>
+
+        {/* Search Input Bar + Filter Button (Matching Image 2) */}
+        <div className="flex items-center gap-3">
+          <div className="flex-1 relative flex items-center">
+            <div className="absolute left-3.5 text-gray-400 pointer-events-none">
+              <SearchIcon className="w-4 h-4" />
+            </div>
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Cari di toko"
+              className="w-full h-11 pl-10 pr-10 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-gray-400 transition-colors"
+            />
+            {search && (
+              <button
+                type="button"
+                onClick={() => setSearch("")}
+                aria-label="Hapus pencarian"
+                className="absolute right-3.5 text-gray-400 hover:text-white transition-colors cursor-pointer"
+              >
+                <CloseIcon className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Filter Funnel Button (Matching Image 2) */}
+          <button
+            type="button"
+            aria-label="Filter user"
+            className="w-11 h-11 rounded-lg bg-deep-blue-900 border border-deep-blue-700 flex items-center justify-center text-gray-400 hover:text-white transition-colors cursor-pointer shrink-0"
+          >
+            <FilterFunnelIcon className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Users Table Card (Matching Image 2) */}
+        <div className="rounded-lg border border-white/10 bg-[#0B0D14] overflow-hidden">
+          {/* Table Header: Checkbox + Customer Email | Points */}
+          <div className="h-11 px-4 border-b border-white/10 flex items-center justify-between text-label-xs font-semibold text-gray-400 select-none bg-[#0E101A]">
+            <div className="flex items-center gap-3 min-w-0">
+              <button
+                type="button"
+                onClick={handleToggleSelectAll}
+                className={cn(
+                  "w-4.5 h-4.5 rounded border flex items-center justify-center transition-colors cursor-pointer shrink-0",
+                  isAllSelected
+                    ? "bg-[#181A24] border-white/40 text-white"
+                    : "border-gray-600 bg-transparent hover:border-gray-400"
+                )}
+                aria-label="Pilih semua user"
+              >
+                {isAllSelected && <CheckIcon />}
+              </button>
+              <span>Customer Email</span>
+            </div>
+
+            <div className="text-right">
+              <span>Points</span>
+            </div>
+          </div>
+
+          {/* Table Rows (Scrollable) */}
+          <div className="max-h-[340px] overflow-y-auto divide-y divide-white/5">
+            {isLoading ? (
+              <div className="py-12 text-center text-label-xs text-gray-400">
+                Memuat daftar user...
+              </div>
+            ) : filteredUsers.length > 0 ? (
+              filteredUsers.map((user) => {
+                const isSelected = selectedIds.has(user.id);
+                return (
+                  <div
+                    key={user.id}
+                    onClick={() => handleToggleUser(user.id)}
+                    className="px-4 py-3 flex items-center justify-between hover:bg-white/5 transition-colors cursor-pointer"
+                  >
+                    {/* Left: Checkbox + Email */}
+                    <div className="flex items-center gap-3 min-w-0">
+                      <div
+                        className={cn(
+                          "w-4.5 h-4.5 rounded border flex items-center justify-center transition-colors shrink-0",
+                          isSelected
+                            ? "bg-[#181A24] border-white/40 text-white"
+                            : "border-gray-600 bg-transparent"
+                        )}
+                      >
+                        {isSelected && <CheckIcon />}
+                      </div>
+                      <span className="text-label-xs sm:text-sm font-medium text-gray-200 truncate">
+                        {user.email}
+                      </span>
+                    </div>
+
+                    {/* Right: Points */}
+                    <div className="text-right shrink-0">
+                      <span className="text-label-xs sm:text-sm font-semibold text-gray-200">
+                        {user.points}
+                      </span>
+                    </div>
+                  </div>
+                );
+              })
+            ) : (
+              <div className="py-12 text-center text-label-xs text-gray-400">
+                Tidak ada user yang sesuai pencarian &quot;{search}&quot;
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Footer: Batalkan + Simpan (Matching Image 2) */}
+        <div className="flex items-center justify-end gap-3 pt-2">
+          <Button
+            type="button"
+            variant="secondary"
+            size="sm"
+            onClick={onClose}
+          >
+            Batalkan
+          </Button>
+          <Button
+            type="button"
+            variant="primary"
+            size="sm"
+            onClick={handleSave}
+          >
+            Simpan
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}

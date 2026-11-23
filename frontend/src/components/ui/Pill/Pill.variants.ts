@@ -1,0 +1,1 @@
+export { pillVariants } from "./Pill";

@@ -23,11 +23,18 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+permissions:
+  contents: read
+  pull-requests: read
+
 jobs:
   # Detect which subprojects were touched in this commit/PR
   changes:
     name: Detect Changed Subprojects
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: read
     outputs:
       frontend: ${{ steps.filter.outputs.frontend }}
       backend: ${{ steps.filter.outputs.backend }}
@@ -35,11 +42,15 @@ jobs:
     steps:
       - name: Checkout Repository
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Check Changed Files
         id: filter
         uses: dorny/paths-filter@v3
         with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          base: ${{ github.base_ref || github.ref_name }}
           filters: |
             frontend:
               - 'frontend/**'

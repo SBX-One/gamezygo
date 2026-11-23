@@ -23,16 +23,48 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+# Berikan izin membaca contents dan pull-requests untuk paths-filter
 permissions:
   contents: read
   pull-requests: read
 
 jobs:
+  # Detect which subprojects were touched in this commit/PR
+  changes:
+    name: Detect Changed Subprojects
+    runs-on: ubuntu-latest
+    outputs:
+      frontend: ${{ steps.filter.outputs.frontend }}
+      backend: ${{ steps.filter.outputs.backend }}
+      docker: ${{ steps.filter.outputs.docker }}
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Ambil riwayat git lengkap agar paths-filter bisa diff secara lokal tanpa token API
+
+      - name: Check Changed Files
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          filters: |
+            frontend:
+              - 'frontend/**'
+              - '.github/workflows/ci.yml'
+            backend:
+              - 'backend/**'
+              - '.github/workflows/ci.yml'
+            docker:
+              - 'docker/**'
+              - 'docker-compose*.yml'
+              - '.github/workflows/ci.yml'
+
   # ==========================================
   # Frontend CI: Next.js 16 + React 19 + TypeScript + ESLint
   # ==========================================
   frontend-ci:
     name: Frontend Quality & Build
+    needs: changes
     runs-on: ubuntu-latest
 
     defaults:
@@ -87,6 +119,7 @@ jobs:
   # ==========================================
   backend-ci:
     name: Backend Quality & Tests
+    needs: changes
     runs-on: ubuntu-latest
 
     services:
@@ -189,6 +222,7 @@ jobs:
   # ==========================================
   docker-validate:
     name: Docker Configuration Validation
+    needs: changes
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code

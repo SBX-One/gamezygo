@@ -148,16 +148,16 @@ class AdminRevenueRepository implements AdminRevenueRepositoryInterface
                 'total' => $totalRevenue,
                 'percentage' => $revenueGrowthPercentage,
                 'description' => "KEUNTUNGAN IDR {$formattedTotalRevenue}",
-        ],
+            ],
             'rank' => [
                 'total' => $rankNumber,
                 'description' => "KEUNTUNGAN IDR {$formattedTotalRevenue}",
-        ],
+            ],
             'last_sold' => [
                 'total' => $recentSold,
                 'percentage' => $soldGrowthPercentage,
                 'description' => "KEUNTUNGAN IDR {$formattedTotalRevenue}",
-        ],
+            ],
         ];
     }
 

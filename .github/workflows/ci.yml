@@ -101,7 +101,7 @@ jobs:
       - name: Install Frontend Dependencies
         run: |
           if [ -f pnpm-lock.yaml ]; then
-            pnpm install --frozen-lockfile --prod=false || pnpm install --prod=false
+            pnpm install --frozen-lockfile --prod=false || pnpm install --prod=false || npm install
           else
             npm install
           fi

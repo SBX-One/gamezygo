@@ -53,7 +53,7 @@ export function AdminInstructionDeleteModal({
         </h3>
 
         <p className="text-label-xs sm:text-sm text-gray-400 font-normal mt-2 leading-relaxed">
-          If you delete this file you can't recover it.
+          If you delete this file you cannot recover it.
         </p>
 
         {/* Action Buttons: [ Batal ] & [ Delete ] */}

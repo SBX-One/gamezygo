@@ -79,7 +79,10 @@ export function AdminBarChart({
     };
   }, []);
 
-  const handleItemClick = (idx: number, e: React.MouseEvent | React.TouchEvent) => {
+  const handleItemClick = (
+    idx: number,
+    e: React.MouseEvent | React.TouchEvent | React.KeyboardEvent
+  ) => {
     e.stopPropagation();
     setSelectedIdx((prev) => (prev === idx ? null : idx));
   };
@@ -175,7 +178,7 @@ export function AdminBarChart({
                       onKeyDown={(e) => {
                         if (e.key === "Enter" || e.key === " ") {
                           e.preventDefault();
-                          handleItemClick(idx, e as any);
+                          handleItemClick(idx, e);
                         }
                       }}
                       onMouseEnter={() => setHoveredIdx(idx)}

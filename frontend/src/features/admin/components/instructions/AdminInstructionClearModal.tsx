@@ -52,7 +52,7 @@ export function AdminInstructionClearModal({
         </h3>
 
         <p className="text-label-xs sm:text-sm text-gray-400 font-normal mt-2 leading-relaxed">
-          If you clear this file you can't recover it.
+          If you clear this file you cannot recover it.
         </p>
 
         {/* Action Buttons: [ Batal ] & [ Clear ] */}

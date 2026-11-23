@@ -105,7 +105,7 @@ export default async function handler(
     const data: any = await midtransRes.json().catch(() => ({}));
 
     if (!midtransRes.ok) {
-      let errorMsg =
+      const errorMsg =
         data.error_messages?.[0] ||
         data.message ||
         (data.error === "Unauthorized"

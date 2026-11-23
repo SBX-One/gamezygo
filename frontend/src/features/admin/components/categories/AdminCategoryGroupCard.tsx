@@ -128,7 +128,7 @@ export function AdminCategoryGroupCard({
       {/* 2. Sub-categories List: Background deep-blue-950 ("sisanya 950") */}
       {category.subCategories.length === 0 ? (
         <div className="px-5 py-6 text-center text-label-xs text-gray-500 bg-deep-blue-950">
-          Belum ada sub-kategori. Klik "+ Add" untuk menambahkan.
+          Belum ada sub-kategori. Klik &quot;+ Add&quot; untuk menambahkan.
         </div>
       ) : (
         <div className="divide-y divide-deep-blue-700 bg-deep-blue-950">

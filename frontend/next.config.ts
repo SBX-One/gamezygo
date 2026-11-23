@@ -54,6 +54,14 @@ const nextConfig: NextConfig = {
         protocol: "https",
         hostname: "picsum.photos",
       },
+      {
+        protocol: "https",
+        hostname: "gamezygoapi.sbxonestudio.com",
+      },
+      {
+        protocol: "https",
+        hostname: "**.sbxonestudio.com",
+      },
     ],
   },
   async rewrites() {

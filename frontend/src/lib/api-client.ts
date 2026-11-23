@@ -8,9 +8,13 @@ import { useAuthStore } from "@/stores/use-auth-store";
 import { MOCK_TOKEN } from "@/lib/mock/data";
 
 export const getBaseUrl = (): string => {
-  const envUrl =
+  const envUrl = (
     process.env.NEXT_PUBLIC_API_BASE_URL ||
-    process.env.NEXT_PUBLIC_API_URL;
+    process.env.NEXT_PUBLIC_API_URL ||
+    ""
+  )
+    .trim()
+    .replace(/\/+$/, "");
 
   // Di browser (client-side): jika tidak diset atau mengarah ke localhost/relatif, gunakan /api/v1
   if (typeof window !== "undefined") {
@@ -21,9 +25,11 @@ export const getBaseUrl = (): string => {
   }
 
   // Di server (SSR Node.js): gunakan URL backend internal absolut
-  const serverBackendUrl =
+  const rawServer =
     process.env.BACKEND_INTERNAL_URL ||
     (envUrl && !envUrl.startsWith("/") ? envUrl : "http://localhost:8000");
+
+  const serverBackendUrl = rawServer.trim().replace(/\/+$/, "");
 
   return serverBackendUrl.endsWith("/api/v1")
     ? serverBackendUrl

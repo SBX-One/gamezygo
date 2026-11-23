@@ -53,10 +53,19 @@ class RedisCacheService
   {
     try {
       if (!empty($tags) && Cache::supportsTags()) {
-        return Cache::tags($tags)->remember($key, $ttl, $callback);
+        $value = Cache::tags($tags)->remember($key, $ttl, $callback);
+      } else {
+        $value = Cache::remember($key, $ttl, $callback);
       }
 
-      return Cache::remember($key, $ttl, $callback);
+      // Safeguard against deserialization mismatch / __PHP_Incomplete_Class
+      if ($value instanceof \__PHP_Incomplete_Class) {
+        $this->forget($key, $tags);
+        $value = $callback();
+        $this->put($key, $value, $ttl, $tags);
+      }
+
+      return $value;
     } catch (Throwable $e) {
       Log::warning("RedisCacheService::remember failed for key [{$key}]: " . $e->getMessage());
 
@@ -76,10 +85,18 @@ class RedisCacheService
   {
     try {
       if (!empty($tags) && Cache::supportsTags()) {
-        return Cache::tags($tags)->get($key, $default);
+        $value = Cache::tags($tags)->get($key, $default);
+      } else {
+        $value = Cache::get($key, $default);
       }
 
-      return Cache::get($key, $default);
+      // Safeguard against deserialization mismatch / __PHP_Incomplete_Class
+      if ($value instanceof \__PHP_Incomplete_Class) {
+        $this->forget($key, $tags);
+        return value($default);
+      }
+
+      return $value;
     } catch (Throwable $e) {
       Log::warning("RedisCacheService::get failed for key [{$key}]: " . $e->getMessage());
 

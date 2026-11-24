@@ -86,17 +86,6 @@ export default function AdminArchivedProductPage() {
           return false;
         }
 
-        // 3. Price Range Filter
-        if (
-          filters.priceRange[1] < 200000 &&
-          item.price > filters.priceRange[1]
-        ) {
-          return false;
-        }
-        if (filters.priceRange[0] > 0 && item.price < filters.priceRange[0]) {
-          return false;
-        }
-
         return true;
       })
       .sort((a, b) => {

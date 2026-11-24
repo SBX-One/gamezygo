@@ -790,8 +790,6 @@ export default function RequestGamePage() {
         activeSidebarId="request"
       >
         <div className="flex flex-col gap-8 sm:gap-16 w-full select-none">
-          {/* TOP PREVIEW TOGGLE BAR (Memudahkan pengujian Screenshot 1 - 4) */}
-     
           {/* SECTION HEADER (Mirip Bundle Header dengan red accent bar) */}
           <section className="flex flex-col gap-2 py-3 border-l-gradient-primary pl-6 sm:pl-8">
             <h1 className="text-h2 font-semibold leading-[120%] text-gradient-heading w-fit">

@@ -261,14 +261,7 @@ export default function AdminReviewsPage() {
       result = result.filter((r) => r.rating === filters.star);
     }
 
-    // 5. Price range
-    const [minPrice, maxPrice] = filters.priceRange;
-    result = result.filter((r) => {
-      const p = r.price ?? 50000;
-      return p >= minPrice && p <= maxPrice;
-    });
-
-    // 6. Sort
+    // 5. Sort
     if (filters.sortBy === "name_asc") {
       result.sort((a, b) => a.userEmail.localeCompare(b.userEmail));
     } else {

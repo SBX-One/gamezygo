@@ -1232,33 +1232,6 @@ export default function BundlePage() {
         activeSidebarId="paket"
       >
         <div className="flex flex-col w-full">
-          {/* TOP VIEW-MODE SWITCHER */}
-          <div className="flex items-center justify-between p-2 rounded-lg bg-deep-blue-900/60 border border-white/5 backdrop-blur-sm">
-            <span className="text-body-xs text-gray-400 font-medium pl-2 hidden sm:inline">
-              Mode Pratinjau Halaman Paket:
-            </span>
-            <div className="flex items-center gap-1.5 w-full sm:w-auto">
-              <Button
-                type="button"
-                variant={viewMode === "subscribed" ? "primary" : "secondary"}
-                size="sm"
-                onClick={() => setViewMode("subscribed")}
-                className="flex-1 sm:flex-initial text-label-xs cursor-pointer"
-              >
-                Sudah Berlangganan (Screenshot 3)
-              </Button>
-              <Button
-                type="button"
-                variant={viewMode === "unsubscribed" ? "primary" : "secondary"}
-                size="sm"
-                onClick={() => setViewMode("unsubscribed")}
-                className="flex-1 sm:flex-initial text-label-xs cursor-pointer"
-              >
-                Pilihan Paket (Screenshot 2)
-              </Button>
-            </div>
-          </div>
-
           {viewMode === "unsubscribed" ? (
             /* MODE A: BELUM BERLANGGANAN / PLAN SELECTION (Screenshot 2) */
             <div className="flex flex-col gap-32  ">

@@ -107,14 +107,6 @@ export default function AdminCatalogPage() {
           return false;
         }
 
-        // 5. Price Range
-        if (filters.priceRange[1] < 200000 && item.price > filters.priceRange[1]) {
-          return false;
-        }
-        if (filters.priceRange[0] > 0 && item.price < filters.priceRange[0]) {
-          return false;
-        }
-
         return true;
       })
       .sort((a, b) => {
@@ -130,9 +122,7 @@ export default function AdminCatalogPage() {
     Boolean(filters.isDraft) ||
     Boolean(filters.isUnlisted) ||
     filters.categories.length > 0 ||
-    filters.statusActive !== null ||
-    filters.priceRange[0] > 0 ||
-    filters.priceRange[1] < 200000;
+    filters.statusActive !== null;
 
   const displayTotalGames =
     filteredItems.length === 0

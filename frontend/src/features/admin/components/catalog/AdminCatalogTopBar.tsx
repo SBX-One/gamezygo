@@ -95,8 +95,6 @@ export function AdminCatalogTopBar({
   const hasActiveFilters =
     filters.categories.length > 0 ||
     filters.statusActive !== null ||
-    filters.priceRange[0] > 0 ||
-    filters.priceRange[1] < 200000 ||
     filters.sortBy !== "terbaru";
 
   return (
@@ -211,16 +209,7 @@ export function AdminCatalogTopBar({
                 statusActive: checked ? true : null,
               }),
           }}
-          minPrice={0}
-          maxPrice={200000}
-          priceRange={
-            filters.priceRange[1] <= 200000
-              ? filters.priceRange
-              : [0, 200000]
-          }
-          onPriceRangeChange={(range) =>
-            onFilterChange({ ...filters, priceRange: range })
-          }
+          showPriceRange={false}
           sortOptions={["Terbaru", "Nama (A - Z)"]}
           selectedSort={
             filters.sortBy === "name_asc" ? "Nama (A - Z)" : "Terbaru"

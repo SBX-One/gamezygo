@@ -84,11 +84,18 @@ export function AdminAnnouncementCard({
   // Local link draft state kept synced with incoming server value without useEffect
   const [prevServerLink, setPrevServerLink] = React.useState(item.pageLink);
   const [draftLink, setDraftLink] = React.useState(item.pageLink);
+  const [prevServerImageUrl, setPrevServerImageUrl] = React.useState(item.imageUrl);
+  const [localPreviewUrl, setLocalPreviewUrl] = React.useState<string | null>(null);
   const [hasImageError, setHasImageError] = React.useState(false);
 
   if (prevServerLink !== item.pageLink) {
     setPrevServerLink(item.pageLink);
     setDraftLink(item.pageLink);
+  }
+
+  if (prevServerImageUrl !== item.imageUrl) {
+    setPrevServerImageUrl(item.imageUrl);
+    setHasImageError(false);
   }
 
   const isLinkDirty = draftLink.trim() !== item.pageLink.trim();
@@ -108,12 +115,21 @@ export function AdminAnnouncementCard({
   const handleImageFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    try {
+      const objectUrl = URL.createObjectURL(file);
+      setLocalPreviewUrl(objectUrl);
+    } catch {
+      // fallback if createObjectURL is not available
+    }
     setHasImageError(false);
     void onUploadImage(item.id, file);
     e.target.value = "";
   };
 
-  const displaySrc = hasImageError ? "/assets/png/Banner.png" : item.imageUrl;
+  // Keep local preview if server image fails (e.g. 403 Forbidden on Hostinger storage)
+  const displaySrc =
+    localPreviewUrl ||
+    (hasImageError ? "/assets/png/Banner.png" : item.imageUrl || "/assets/png/Banner.png");
 
   return (
     <div
@@ -271,11 +287,16 @@ export function AdminAnnouncementCard({
         {/* Banner image container */}
         <div className="relative flex-1 h-44 sm:h-56 md:h-64 rounded-lg overflow-hidden border border-white/10 bg-black/40 group shadow-lg">
           <Image
+            key={displaySrc}
             src={displaySrc}
             alt={`Announcement Banner #${item.orderNumber || index + 1}`}
             fill
             unoptimized
-            onError={() => setHasImageError(true)}
+            onError={() => {
+              if (!localPreviewUrl) {
+                setHasImageError(true);
+              }
+            }}
             className="object-cover object-center rounded-lg"
           />
 
@@ -286,6 +307,15 @@ export function AdminAnnouncementCard({
             accept="image/*"
             className="hidden"
           />
+
+          {hasImageError && item.imageUrl && (
+            <div
+              className="absolute top-3.5 left-3.5 px-2.5 py-1 rounded-md bg-amber-500/80 backdrop-blur-xs text-white text-label-xs font-medium flex items-center gap-1.5 shadow-md"
+              title={`Server storage mengembalikan 403 Forbidden untuk URL:\n${item.imageUrl}`}
+            >
+              <span>⚠️ Gambar server diblokir (403)</span>
+            </div>
+          )}
 
           <button
             type="button"

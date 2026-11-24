@@ -180,8 +180,6 @@ export function AdminReviewsHeaderSearch({
   const hasActiveFilters =
     filters.star !== null ||
     filters.statuses.length > 0 ||
-    filters.priceRange[0] > 0 ||
-    filters.priceRange[1] < 200000 ||
     filters.sortBy !== "terbaru";
 
   return (

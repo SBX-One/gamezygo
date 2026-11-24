@@ -52,8 +52,6 @@ export function AdminArticlesFilterPopover({
   const [isPublished, setIsPublished] = React.useState(filters.isPublished);
   const [isUnpublished, setIsUnpublished] = React.useState(filters.isUnpublished);
   const [isDraft, setIsDraft] = React.useState(filters.isDraft);
-  const [priceMin, setPriceMin] = React.useState(filters.priceRange?.[0] ?? 0);
-  const [priceMax, setPriceMax] = React.useState(filters.priceRange?.[1] ?? 200000);
   const [sortBy, setSortBy] = React.useState<"terbaru" | "name_asc">(
     filters.sortBy || "terbaru"
   );
@@ -67,8 +65,6 @@ export function AdminArticlesFilterPopover({
       setIsPublished(filters.isPublished);
       setIsUnpublished(filters.isUnpublished);
       setIsDraft(filters.isDraft);
-      setPriceMin(filters.priceRange?.[0] ?? 0);
-      setPriceMax(filters.priceRange?.[1] ?? 200000);
       setSortBy(filters.sortBy || "terbaru");
     }
   }, [isOpen, filters]);
@@ -113,19 +109,6 @@ export function AdminArticlesFilterPopover({
     tag.toLowerCase().includes(searchTag.toLowerCase())
   );
 
-  const handleMinChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Math.min(Number(e.target.value), priceMax - 10000);
-    setPriceMin(value);
-  };
-
-  const handleMaxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const value = Math.max(Number(e.target.value), priceMin + 10000);
-    setPriceMax(value);
-  };
-
-  const minPercent = Math.min(100, Math.max(0, (priceMin / 200000) * 100));
-  const maxPercent = Math.min(100, Math.max(0, (priceMax / 200000) * 100));
-
   const handleApplyClick = () => {
     onApply({
       ...filters,
@@ -133,7 +116,6 @@ export function AdminArticlesFilterPopover({
       isPublished,
       isUnpublished,
       isDraft,
-      priceRange: [priceMin, priceMax],
       sortBy,
     });
     onClose();
@@ -145,8 +127,6 @@ export function AdminArticlesFilterPopover({
     setIsPublished(false);
     setIsUnpublished(false);
     setIsDraft(false);
-    setPriceMin(0);
-    setPriceMax(200000);
     setSortBy("terbaru");
     onReset();
     onClose();
@@ -235,87 +215,7 @@ export function AdminArticlesFilterPopover({
           </div>
         </div>
 
-        {/* 4. PRICE RANGE Section (Matching Image 3 - Dual Slider Track) */}
-        <div className="space-y-2.5 pt-1">
-          <label className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider block">
-            PRICE RANGE
-          </label>
-          <div className="flex items-center justify-between text-label-xs font-semibold text-white">
-            <span>RP {priceMin.toLocaleString("id-ID")}</span>
-            <span>RP {priceMax.toLocaleString("id-ID")}</span>
-          </div>
-
-          {/* Dual Slider Interactive Component */}
-          <div className="relative h-6 flex items-center select-none pt-1">
-            {/* Dark background track */}
-            <div className="absolute inset-x-0 h-1 bg-[#232634] rounded-full pointer-events-none" />
-
-            {/* Red active track connecting the two thumbs */}
-            <div
-              className="absolute h-1 bg-[#DF3848] rounded-full pointer-events-none"
-              style={{
-                left: `${minPercent}%`,
-                width: `${Math.max(0, maxPercent - minPercent)}%`,
-              }}
-            />
-
-            {/* Min Price Slider Input */}
-            <input
-              type="range"
-              min={0}
-              max={200000}
-              step={5000}
-              value={priceMin}
-              onChange={handleMinChange}
-              aria-label="Harga Minimum"
-              className="absolute inset-x-0 w-full h-1 appearance-none bg-transparent pointer-events-none z-10 cursor-pointer
-                [&::-webkit-slider-thumb]:pointer-events-auto
-                [&::-webkit-slider-thumb]:appearance-none
-                [&::-webkit-slider-thumb]:w-4
-                [&::-webkit-slider-thumb]:h-4
-                [&::-webkit-slider-thumb]:rounded-full
-                [&::-webkit-slider-thumb]:bg-[#DF3848]
-                [&::-webkit-slider-thumb]:border-none
-                [&::-webkit-slider-thumb]:cursor-pointer
-                [&::-moz-range-thumb]:pointer-events-auto
-                [&::-moz-range-thumb]:w-4
-                [&::-moz-range-thumb]:h-4
-                [&::-moz-range-thumb]:rounded-full
-                [&::-moz-range-thumb]:bg-[#DF3848]
-                [&::-moz-range-thumb]:border-none
-                [&::-moz-range-thumb]:cursor-pointer"
-            />
-
-            {/* Max Price Slider Input */}
-            <input
-              type="range"
-              min={0}
-              max={200000}
-              step={5000}
-              value={priceMax}
-              onChange={handleMaxChange}
-              aria-label="Harga Maksimum"
-              className="absolute inset-x-0 w-full h-1 appearance-none bg-transparent pointer-events-none z-20 cursor-pointer
-                [&::-webkit-slider-thumb]:pointer-events-auto
-                [&::-webkit-slider-thumb]:appearance-none
-                [&::-webkit-slider-thumb]:w-4
-                [&::-webkit-slider-thumb]:h-4
-                [&::-webkit-slider-thumb]:rounded-full
-                [&::-webkit-slider-thumb]:bg-[#DF3848]
-                [&::-webkit-slider-thumb]:border-none
-                [&::-webkit-slider-thumb]:cursor-pointer
-                [&::-moz-range-thumb]:pointer-events-auto
-                [&::-moz-range-thumb]:w-4
-                [&::-moz-range-thumb]:h-4
-                [&::-moz-range-thumb]:rounded-full
-                [&::-moz-range-thumb]:bg-[#DF3848]
-                [&::-moz-range-thumb]:border-none
-                [&::-moz-range-thumb]:cursor-pointer"
-            />
-          </div>
-        </div>
-
-        {/* 5. SORT BY Section (Matching Image 3) */}
+        {/* 4. SORT BY Section (Matching Image 3) */}
         <div className="space-y-2.5 pt-1">
           <label className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider block">
             SORT BY

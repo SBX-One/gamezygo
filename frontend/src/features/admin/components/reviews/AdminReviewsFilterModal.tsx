@@ -11,9 +11,6 @@ export interface AdminReviewsFilterModalProps {
   filters: AdminReviewFilterState;
   onApply: (newFilters: AdminReviewFilterState) => void;
   onReset: () => void;
-  minPrice?: number;
-  maxPrice?: number;
-  priceStep?: number;
   className?: string;
 }
 
@@ -84,20 +81,12 @@ const CloseIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-function formatRupiah(amount: number): string {
-  if (amount <= 0) return "RP 0";
-  return `RP ${amount.toLocaleString("id-ID")}`;
-}
-
 export function AdminReviewsFilterModal({
   isOpen,
   onClose,
   filters,
   onApply,
   onReset,
-  minPrice = 0,
-  maxPrice = 200000,
-  priceStep = 5000,
   className,
 }: AdminReviewsFilterModalProps) {
   const [selectedStar, setSelectedStar] = React.useState<number | null>(
@@ -107,8 +96,6 @@ export function AdminReviewsFilterModal({
   const [selectedStatuses, setSelectedStatuses] = React.useState<ReviewStatus[]>(
     filters.statuses
   );
-  const [priceMin, setPriceMin] = React.useState(filters.priceRange[0]);
-  const [priceMax, setPriceMax] = React.useState(filters.priceRange[1]);
   const [sortBy, setSortBy] = React.useState<"terbaru" | "name_asc">(
     filters.sortBy
   );
@@ -117,14 +104,11 @@ export function AdminReviewsFilterModal({
     if (isOpen) {
       setSelectedStar(filters.star);
       setSelectedStatuses(filters.statuses);
-      setPriceMin(filters.priceRange[0]);
-      setPriceMax(filters.priceRange[1]);
       setSortBy(filters.sortBy);
     }
   }, [isOpen, filters]);
 
   const popoverRef = React.useRef<HTMLDivElement>(null);
-  const trackRef = React.useRef<HTMLDivElement>(null);
 
   // Close on outside click or Escape key
   React.useEffect(() => {
@@ -166,93 +150,9 @@ export function AdminReviewsFilterModal({
     );
   };
 
-  // Dual Slider drag handlers
-  const handleMinPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const target = e.currentTarget;
-    target.setPointerCapture(e.pointerId);
-    const track = trackRef.current;
-
-    const onPointerMove = (moveEvent: PointerEvent) => {
-      if (!track) return;
-      const rect = track.getBoundingClientRect();
-      const ratio = Math.max(
-        0,
-        Math.min(1, (moveEvent.clientX - rect.left) / rect.width)
-      );
-      const rawVal = minPrice + ratio * (maxPrice - minPrice);
-      const steppedVal = Math.round(rawVal / priceStep) * priceStep;
-      const clampedVal = Math.max(
-        minPrice,
-        Math.min(steppedVal, priceMax - priceStep)
-      );
-      setPriceMin(clampedVal);
-    };
-
-    const onPointerUp = (upEvent: PointerEvent) => {
-      try {
-        target.releasePointerCapture(upEvent.pointerId);
-      } catch {}
-      window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerup", onPointerUp);
-    };
-
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerup", onPointerUp);
-  };
-
-  const handleMaxPointerDown = (e: React.PointerEvent<HTMLDivElement>) => {
-    e.preventDefault();
-    const target = e.currentTarget;
-    target.setPointerCapture(e.pointerId);
-    const track = trackRef.current;
-
-    const onPointerMove = (moveEvent: PointerEvent) => {
-      if (!track) return;
-      const rect = track.getBoundingClientRect();
-      const ratio = Math.max(
-        0,
-        Math.min(1, (moveEvent.clientX - rect.left) / rect.width)
-      );
-      const rawVal = minPrice + ratio * (maxPrice - minPrice);
-      const steppedVal = Math.round(rawVal / priceStep) * priceStep;
-      const clampedVal = Math.min(
-        maxPrice,
-        Math.max(steppedVal, priceMin + priceStep)
-      );
-      setPriceMax(clampedVal);
-    };
-
-    const onPointerUp = (upEvent: PointerEvent) => {
-      try {
-        target.releasePointerCapture(upEvent.pointerId);
-      } catch {}
-      window.removeEventListener("pointermove", onPointerMove);
-      window.removeEventListener("pointerup", onPointerUp);
-    };
-
-    window.addEventListener("pointermove", onPointerMove);
-    window.addEventListener("pointerup", onPointerUp);
-  };
-
-  const leftPercent = Math.max(
-    0,
-    Math.min(100, ((priceMin - minPrice) / (maxPrice - minPrice)) * 100)
-  );
-  const rightPercent = Math.max(
-    0,
-    Math.min(100, ((maxPrice - priceMax) / (maxPrice - minPrice)) * 100)
-  );
-  const rightThumbPosPercent = Math.max(
-    0,
-    Math.min(100, ((priceMax - minPrice) / (maxPrice - minPrice)) * 100)
-  );
-
   const handleResetClick = () => {
     setSelectedStar(null);
     setSelectedStatuses([]);
-    setPriceMin(minPrice);
-    setPriceMax(maxPrice);
     setSortBy("terbaru");
     onReset();
     onClose();
@@ -263,7 +163,6 @@ export function AdminReviewsFilterModal({
       ...filters,
       star: selectedStar,
       statuses: selectedStatuses,
-      priceRange: [priceMin, priceMax],
       sortBy,
     });
     onClose();
@@ -361,67 +260,7 @@ export function AdminReviewsFilterModal({
         </div>
       </div>
 
-      {/* 4. PRICE RANGE Section (Dual Slider matching Image 1) */}
-      <div className="flex flex-col gap-2.5">
-        <label className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider block">
-          PRICE RANGE
-        </label>
-        <div className="flex items-center gap-3 w-full">
-          {/* Min Price indicator */}
-          <span className="text-body-sm font-semibold text-white shrink-0 min-w-12 text-left">
-            {formatRupiah(priceMin)}
-          </span>
-
-          {/* Dual Slider Track */}
-          <div
-            ref={trackRef}
-            className="relative flex-1 flex items-center h-6 cursor-pointer touch-none mx-2"
-          >
-            {/* Background Rail */}
-            <div className="w-full h-1.5 rounded-full bg-deep-blue-900 border border-deep-blue-700/60" />
-
-            {/* Red Active Range Bar */}
-            <div
-              className="absolute h-1.5 rounded-full bg-linear-to-r from-[#DF3848] to-[#BA343C] pointer-events-none"
-              style={{
-                left: `${leftPercent}%`,
-                right: `${rightPercent}%`,
-              }}
-            />
-
-            {/* Left Thumb Handle (Min Price) */}
-            <div
-              onPointerDown={handleMinPointerDown}
-              className="absolute -translate-x-1/2 w-4.5 h-4.5 rounded-full bg-linear-to-r from-[#DF3848] to-[#BA343C] border-2 border-deep-blue-950 cursor-grab active:cursor-grabbing hover:scale-110 transition-transform shadow-md"
-              style={{ left: `${leftPercent}%` }}
-              role="slider"
-              aria-valuemin={minPrice}
-              aria-valuemax={priceMax}
-              aria-valuenow={priceMin}
-              aria-label="Harga Minimum"
-            />
-
-            {/* Right Thumb Handle (Max Price) */}
-            <div
-              onPointerDown={handleMaxPointerDown}
-              className="absolute -translate-x-1/2 w-4.5 h-4.5 rounded-full bg-linear-to-r from-[#DF3848] to-[#BA343C] border-2 border-deep-blue-950 cursor-grab active:cursor-grabbing hover:scale-110 transition-transform shadow-md"
-              style={{ left: `${rightThumbPosPercent}%` }}
-              role="slider"
-              aria-valuemin={priceMin}
-              aria-valuemax={maxPrice}
-              aria-valuenow={priceMax}
-              aria-label="Harga Maksimum"
-            />
-          </div>
-
-          {/* Max Price indicator */}
-          <span className="text-body-sm font-semibold text-white shrink-0 min-w-20 text-right">
-            {formatRupiah(priceMax)}
-          </span>
-        </div>
-      </div>
-
-      {/* 5. SORT BY Section (Matching Image 1) */}
+      {/* 4. SORT BY Section (Matching Image 1) */}
       <div className="flex flex-col gap-2.5">
         <label className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider block">
           SORT BY

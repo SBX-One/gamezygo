@@ -59,9 +59,6 @@ export function AdminCatalogFilterPopover({
   const [localStatusActive, setLocalStatusActive] = React.useState<boolean | null>(
     filters.statusActive
   );
-  const [localMaxPrice, setLocalMaxPrice] = React.useState<number>(
-    filters.priceRange[1]
-  );
   const [localSortBy, setLocalSortBy] = React.useState<"terbaru" | "name_asc">(
     filters.sortBy
   );
@@ -70,7 +67,6 @@ export function AdminCatalogFilterPopover({
   React.useEffect(() => {
     setLocalCategories(filters.categories);
     setLocalStatusActive(filters.statusActive);
-    setLocalMaxPrice(filters.priceRange[1]);
     setLocalSortBy(filters.sortBy);
   }, [filters, isOpen]);
 
@@ -117,7 +113,6 @@ export function AdminCatalogFilterPopover({
       ...filters,
       categories: localCategories,
       statusActive: localStatusActive,
-      priceRange: [0, localMaxPrice],
       sortBy: localSortBy,
     });
     onClose();
@@ -126,7 +121,6 @@ export function AdminCatalogFilterPopover({
   const handleResetClick = () => {
     setLocalCategories([]);
     setLocalStatusActive(null);
-    setLocalMaxPrice(1000000);
     setLocalSortBy("terbaru");
     onReset();
     onClose();
@@ -211,33 +205,7 @@ export function AdminCatalogFilterPopover({
           </div>
         </div>
 
-        {/* 4. PRICE RANGE Section */}
-        <div className="space-y-3">
-          <label className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
-            PRICE RANGE
-          </label>
-          <div className="flex items-center justify-between text-label-xs font-medium text-gray-200 mb-2">
-            <span>RP 0</span>
-            <span className="text-white font-semibold">
-              RP {localMaxPrice.toLocaleString("id-ID")}
-            </span>
-          </div>
-
-          {/* Range Slider Track */}
-          <div className="relative py-2">
-            <input
-              type="range"
-              min="0"
-              max="1000000"
-              step="10000"
-              value={localMaxPrice}
-              onChange={(e) => setLocalMaxPrice(Number(e.target.value))}
-              className="w-full h-1.5 bg-[#1E202B] rounded-lg appearance-none cursor-pointer accent-[#FF5364]"
-            />
-          </div>
-        </div>
-
-        {/* 5. SORT BY Section */}
+        {/* 4. SORT BY Section */}
         <div className="space-y-3">
           <label className="text-label-xs font-semibold text-gray-400 uppercase tracking-wider">
             SORT BY

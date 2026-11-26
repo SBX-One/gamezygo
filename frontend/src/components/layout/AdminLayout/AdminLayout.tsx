@@ -6,7 +6,9 @@ import { AdminHeader } from "./AdminHeader";
 import { useUiStore } from "@/stores/use-ui-store";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
-import { Error500View } from "@/components/shared/Error500View";
+import { FluentWifiFilledIcon } from "@/components/shared/Error500View";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { StoreLayout } from "@/components/layout/StoreLayout";
 import type { AdminLayoutProps } from "./AdminLayout.types";
 
 export function AdminLayout({
@@ -122,54 +124,52 @@ export function AdminLayout({
 
   if (isCustomerForbidden) {
     return (
-      <div className="min-h-screen w-full bg-deep-blue-950 text-gray-100 flex flex-col items-center justify-center px-6 py-12">
-        <div className="w-[520px] max-w-[95vw] rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md p-8 sm:p-10 flex flex-col items-center text-center gap-5 shadow-2xl">
-          <div className="w-16 h-16 rounded-full bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-400">
-            <svg
-              width="32"
-              height="32"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            >
-              <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
-              <path d="M7 11V7a5 5 0 0 1 10 0v4" />
-            </svg>
-          </div>
-          <span className="px-3 py-1 rounded-full bg-rose-500/15 border border-rose-500/30 text-rose-400 text-xs font-semibold uppercase tracking-wider">
-            403 Forbidden
-          </span>
-          <div className="flex flex-col gap-2">
-            <h1 className="text-2xl font-bold text-white">
-              Akses Halaman Ditolak
-            </h1>
-            <p className="text-sm text-gray-400 leading-relaxed">
-              Anda masuk sebagai pengguna customer dan tidak memiliki izin
-              Administrator untuk mengakses halaman ini. Sesi akun Anda tetap
-              aman.
-            </p>
-          </div>
-          <div className="flex flex-col sm:flex-row items-center gap-3 w-full pt-2">
-            <button
-              type="button"
-              onClick={() => router.push("/")}
-              className="w-full sm:flex-1 px-5 py-3 rounded-xl bg-indigo-500 hover:bg-indigo-600 text-white text-sm font-semibold transition-colors cursor-pointer"
-            >
-              Kembali ke Beranda
-            </button>
-            <button
-              type="button"
-              onClick={() => router.push("/store")}
-              className="w-full sm:flex-1 px-5 py-3 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-200 text-sm font-semibold transition-colors cursor-pointer"
-            >
-              Jelajahi Toko
-            </button>
-          </div>
+      <StoreLayout
+        navbarVariant="login"
+        hideSidebar={true}
+        user={
+          user
+            ? {
+                name: user.name,
+                email: user.email,
+                avatarUrl: user.avatarUrl,
+              }
+            : undefined
+        }
+      >
+        <div className="py-16 sm:py-24 flex items-center justify-center w-full">
+          <EmptyState
+            icon={
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-7 h-7 text-gray-50"
+              >
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            }
+            title="403: Akses Ditolak"
+            description="Anda tidak memiliki izin Administrator untuk mengakses halaman ini. Silakan kembali ke halaman sebelumnya atau menuju beranda."
+            backLabel="Kembali"
+            searchLabel="Beranda"
+            onBack={() => {
+              if (typeof window !== "undefined" && window.history.length > 1) {
+                window.history.back();
+              } else {
+                router.push("/");
+              }
+            }}
+            onSearch={() => router.push("/")}
+          />
         </div>
-      </div>
+      </StoreLayout>
     );
   }
 
@@ -237,12 +237,21 @@ export function AdminLayout({
               errorDescription={errorDescription}
             >
               {effectiveIsError ? (
-                <Error500View
-                  title={errorTitle}
-                  description={errorDescription}
-                  showBackButton={false}
-                  onReload={onReload}
-                />
+                <div className="py-16 sm:py-24 flex items-center justify-center w-full">
+                  <EmptyState
+                    icon={<FluentWifiFilledIcon className="w-8 h-8 text-gray-50" />}
+                    title={errorTitle || "500: Terjadi Gangguan Server"}
+                    description={
+                      errorDescription ||
+                      "Layanan admin sedang tidak dapat dijangkau. Silakan coba beberapa saat lagi."
+                    }
+                    backLabel=""
+                    searchLabel="Muat Ulang"
+                    onSearch={() =>
+                      onReload ? onReload() : window.location.reload()
+                    }
+                  />
+                </div>
               ) : (
                 children
               )}

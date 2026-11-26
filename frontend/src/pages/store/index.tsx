@@ -18,7 +18,7 @@ import {
   type ProductCardRowItem,
 } from "@/components/ui";
 import { StoreLayout } from "@/components/layout";
-import { Error500View } from "@/components/shared/Error500View";
+import { FluentWifiFilledIcon } from "@/components/shared/Error500View";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useCartStore } from "@/stores/use-cart-store";
 import { formatDiscount } from "@/utils/formatters";
@@ -778,11 +778,15 @@ export default function StorePage() {
             CASE A: STATE 500 SERVER ERROR (Screenshot 2: Empty)
            ====================================================== */}
         {previewState === "error-500" ? (
-          <div className="py-24 flex items-center justify-center">
-            <Error500View
-              showBackButton={true}
+          <div className="py-16 sm:py-24 flex items-center justify-center w-full">
+            <EmptyState
+              icon={<FluentWifiFilledIcon className="w-8 h-8 text-gray-50" />}
+              title="500: Terjadi Gangguan Server"
+              description="Layanan toko sedang tidak dapat dijangkau. Silakan coba beberapa saat lagi."
+              backLabel="Kembali"
+              searchLabel="Muat Ulang"
               onBack={() => setExactState("default")}
-              onReload={() => setExactState("default")}
+              onSearch={() => setExactState("default")}
             />
           </div>
         ) : isSearchActive || isFilterActive ? (

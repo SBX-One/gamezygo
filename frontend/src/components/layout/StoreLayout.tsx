@@ -10,7 +10,8 @@ import { useUiStore } from "@/stores/use-ui-store";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useProductFilters } from "@/hooks/use-products";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
-import { Error500View } from "@/components/shared/Error500View";
+import { FluentWifiFilledIcon } from "@/components/shared/Error500View";
+import { EmptyState } from "@/components/ui/EmptyState";
 import type { SidebarItem } from "@/components/ui/Sidebar/Sidebar.types";
 import type { StoreLayoutProps } from "./StoreLayout.types";
 
@@ -387,12 +388,20 @@ export function StoreLayout({
             errorDescription={errorDescription}
           >
             {effectiveIsError ? (
-              <div className="py-20 flex items-center justify-center w-full">
-                <Error500View
-                  title={errorTitle}
-                  description={errorDescription}
-                  showBackButton={true}
-                  onReload={onReload}
+              <div className="py-16 sm:py-24 flex items-center justify-center w-full">
+                <EmptyState
+                  icon={<FluentWifiFilledIcon className="w-8 h-8 text-gray-50" />}
+                  title={errorTitle || "500: Terjadi Gangguan Server"}
+                  description={
+                    errorDescription ||
+                    "Halaman sedang tidak dapat dijangkau. Silakan coba beberapa saat lagi."
+                  }
+                  backLabel="Kembali"
+                  searchLabel="Muat Ulang"
+                  onBack={() => window.history.back()}
+                  onSearch={() =>
+                    onReload ? onReload() : window.location.reload()
+                  }
                 />
               </div>
             ) : (

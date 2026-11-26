@@ -70,6 +70,9 @@ export function useUpdateUser() {
       queryClient.invalidateQueries({
         queryKey: ADMIN_USER_KEYS.detail(variables.id),
       });
+      queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+      queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
+      queryClient.invalidateQueries({ queryKey: ["user-leaderboard-rank"] });
     },
   });
 }

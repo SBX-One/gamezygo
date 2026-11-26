@@ -15,10 +15,9 @@ export type LeaderboardPeriod = "all-time" | "monthly" | "weekly";
 export async function fetchLeaderboard(
   period: LeaderboardPeriod = "all-time"
 ): Promise<ApiResponse<LeaderboardItem[]>> {
-  const periodParam = period === "all-time" ? "monthly" : period;
   try {
     return await apiGet<ApiResponse<LeaderboardItem[]>>(
-      `/leaderboards?period=${periodParam}`
+      `/leaderboards?period=${period}`
     );
   } catch {
     return {
@@ -31,7 +30,7 @@ export async function fetchLeaderboard(
 
 /**
  * Fetch current user rank and points
- * Fetches from user profile if authenticated; returns fallback for guest.
+ * Queries both /user/profile/leaderboard and /user/profile so DB points & rankings stay in sync.
  */
 export async function fetchUserLeaderboardRank(): Promise<
   ApiResponse<UserLeaderboardRank>
@@ -49,26 +48,59 @@ export async function fetchUserLeaderboardRank(): Promise<
   }
 
   try {
-    const res = await apiGet<{
-      data?: {
-        name?: string;
-        avatar_url?: string;
-        total_points?: number;
-        rankings?: {
-          monthly?: number;
-          weekly?: number;
-          all_time?: number;
+    const [lbResult, profileResult] = await Promise.allSettled([
+      apiGet<{
+        data?: {
+          rank?: number;
+          point?: number;
+          points?: number;
+          total_points?: number;
         };
-      };
-    }>("/user/profile");
+      }>("/user/profile/leaderboard"),
+      apiGet<{
+        data?: {
+          name?: string;
+          avatar_url?: string;
+          points?: number;
+          total_points?: number;
+          rankings?: {
+            monthly?: number;
+            weekly?: number;
+            all_time?: number;
+          };
+        };
+      }>("/user/profile"),
+    ]);
 
-    const profileData = res.data;
+    const lbData =
+      lbResult.status === "fulfilled" ? lbResult.value?.data : undefined;
+    const profileData =
+      profileResult.status === "fulfilled"
+        ? profileResult.value?.data
+        : undefined;
+
+    const resolvedPoints = Number(
+      profileData?.total_points ??
+        profileData?.points ??
+        lbData?.point ??
+        lbData?.points ??
+        lbData?.total_points ??
+        0
+    );
+
+    const resolvedRank = Number(
+      lbData?.rank ??
+        profileData?.rankings?.monthly ??
+        profileData?.rankings?.all_time ??
+        0
+    );
+
     return {
       success: true,
       message: "User rank retrieved",
       data: {
-        rank: profileData?.rankings?.monthly || 1,
-        point: profileData?.total_points || 0,
+        rank: resolvedRank,
+        point: resolvedPoints,
         rankings: profileData?.rankings,
       },
     };

@@ -320,8 +320,16 @@ export default function ProfilePage() {
     }
   }, [authUser?.phone]);
 
-  // User points and rankings from authenticated API
-  const userPoints = userRankRes?.data?.point ?? profileApiRes?.data?.total_points ?? 0;
+  // User points and rankings from authenticated API (prioritize real DB profile points)
+  const profilePointsRaw =
+    profileApiRes?.data?.total_points ??
+    (profileApiRes?.data as { points?: number } | undefined)?.points;
+  const rankPointsRaw = userRankRes?.data?.point;
+  const userPoints = Number(
+    profilePointsRaw !== undefined && profilePointsRaw !== null
+      ? profilePointsRaw
+      : rankPointsRaw ?? 0
+  );
   const userRankings = profileApiRes?.data?.rankings || userRankRes?.data?.rankings;
   const weeklyRank = userRankings?.weekly;
   const monthlyRank = userRankings?.monthly ?? (userRankRes?.data?.rank ? userRankRes.data.rank : undefined);

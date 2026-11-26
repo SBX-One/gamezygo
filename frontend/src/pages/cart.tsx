@@ -78,6 +78,7 @@ export default function CartPage() {
   const storeCartItems = useCartStore((s) => s.cartItems);
   const removeItemFromStore = useCartStore((s) => s.removeItem);
   const clearCartStore = useCartStore((s) => s.clearCart);
+  const clearOrderDetails = useCartStore((s) => s.clearOrderDetails);
 
   // Server-side Cart API Hook
   const { data: cartApiRes, isLoading: isCartApiLoading } = useCart();
@@ -213,6 +214,14 @@ export default function CartPage() {
   // Clear all items (switches to Empty State)
   const handleClearAll = () => {
     clearCartStore();
+    clearOrderDetails();
+    try {
+      if (typeof window !== "undefined") {
+        sessionStorage.removeItem("gamezygo_checkout_items");
+      }
+    } catch {
+      // ignore storage error
+    }
     if (isAuthenticated && cartApiRes?.data) {
       clearCartMutation.mutate();
     }
@@ -221,6 +230,7 @@ export default function CartPage() {
 
   // Buy Now on Single Item
   const handleBuyNow = (item: CartItemData) => {
+    clearOrderDetails();
     try {
       if (typeof window !== "undefined") {
         sessionStorage.setItem("gamezygo_checkout_items", JSON.stringify([item]));
@@ -232,14 +242,14 @@ export default function CartPage() {
     if (!isAuthenticated) {
       showToast("error", "Login Diperlukan", "Silakan login terlebih dahulu untuk melanjutkan checkout.");
       setTimeout(() => {
-        router.push("/login?redirect=/checkout");
+        router.push(`/login?redirect=${encodeURIComponent("/checkout?mode=direct")}`);
       }, 500);
       return;
     }
 
     showToast("success", "Membeli Sekarang", `Melanjutkan pembelian langsung untuk ${item.title}...`);
     setTimeout(() => {
-      router.push("/checkout");
+      router.push("/checkout?mode=direct");
     }, 400);
   };
 
@@ -249,9 +259,10 @@ export default function CartPage() {
       showToast("error", "Keranjang Kosong", "Tambahkan game ke keranjang terlebih dahulu.");
       return;
     }
+    clearOrderDetails();
     try {
       if (typeof window !== "undefined") {
-        sessionStorage.setItem("gamezygo_checkout_items", JSON.stringify(cartItems));
+        sessionStorage.removeItem("gamezygo_checkout_items");
       }
     } catch {
       // ignore storage error

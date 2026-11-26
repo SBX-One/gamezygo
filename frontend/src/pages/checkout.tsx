@@ -297,7 +297,7 @@ export default function CheckoutPage() {
       : Math.round(subtotal * (discountPercent / 100));
   const totalBelanja = Math.max(0, subtotal - discountAmount);
 
-  // Apply Voucher
+  // Apply Voucher (Always validates via Backend API: POST /api/v1/user/orders/{orderId}/voucher)
   const handleApplyVoucher = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setVoucherError(null);
@@ -308,59 +308,102 @@ export default function CheckoutPage() {
       return;
     }
 
-    // If activeOrderId exists, apply via API
-    if (activeOrderId) {
+    if (!isAuthenticated) {
+      const msg = "Silakan login terlebih dahulu untuk menggunakan voucher.";
+      setVoucherError(msg);
+      showToast("error", "Login Diperlukan", msg);
+      return;
+    }
+
+    if (checkoutItems.length === 0) {
+      const msg = "Tidak ada item checkout untuk menerapkan voucher.";
+      setVoucherError(msg);
+      showToast("error", "Checkout Kosong", msg);
+      return;
+    }
+
+    let targetOrderId = activeOrderId;
+
+    // Ensure an order exists in backend before validating voucher
+    if (!targetOrderId) {
+      const firstItem = checkoutItems[0];
+      const isSubscription = String(firstItem.id).startsWith("sub-");
+      const numericId = Number(firstItem.productId || firstItem.id);
+
       try {
-        const res = await applyVoucherMutation.mutateAsync({
-          orderId: activeOrderId,
-          voucherCode: cleanCode,
-        });
-        if (res?.data) {
-          setAppliedVoucher(cleanCode);
-          setApiDiscountAmount(res.data.discount_amount);
-          showToast(
-            "success",
-            "Voucher Berhasil Digunakan!",
-            `Diskon ${formatRupiah(res.data.discount_amount)} berhasil diterapkan.`
-          );
-          return;
+        const orderRes = await createOrderMutation.mutateAsync(
+          isSubscription
+            ? {
+                item_type: "subscription",
+                subscription_plan_id:
+                  !isNaN(numericId) && numericId > 0 ? numericId : 1,
+              }
+            : {
+                item_type: "product",
+                product_id: !isNaN(numericId) && numericId > 0 ? numericId : 1,
+              }
+        );
+
+        if (orderRes?.data?.id) {
+          targetOrderId = String(orderRes.data.id);
+          setOrderDetails(orderRes.data.order_number, targetOrderId);
         }
-      } catch (err: unknown) {
-        if (axios.isAxiosError(err)) {
-          const msg =
-            err.response?.data?.message ||
-            "Subtotal belum memenuhi syarat minimal penggunaan voucher.";
-          setVoucherError(msg);
-          showToast("error", "Voucher Gagal", msg);
-          return;
+      } catch (orderErr: unknown) {
+        let msg = "Gagal menyiapkan pesanan untuk validasi voucher.";
+        if (axios.isAxiosError(orderErr)) {
+          msg = orderErr.response?.data?.message || msg;
         }
+        setVoucherError(msg);
+        showToast("error", "Voucher Gagal", msg);
+        return;
       }
     }
 
-    // Fallback client-side voucher validation
-    if (cleanCode === "DISCOUNT50" || cleanCode === "FLASH50") {
-      setAppliedVoucher(cleanCode);
-      setDiscountPercent(50);
+    if (!targetOrderId) {
+      const msg = "Gagal membuat pesanan untuk memvalidasi voucher.";
+      setVoucherError(msg);
+      showToast("error", "Voucher Gagal", msg);
+      return;
+    }
+
+    try {
+      const res = await applyVoucherMutation.mutateAsync({
+        orderId: targetOrderId,
+        voucherCode: cleanCode,
+      });
+
+      if (res?.data) {
+        const discountVal = Number(res.data.discount_amount ?? 0);
+        setAppliedVoucher(cleanCode);
+        setDiscountPercent(0);
+        setApiDiscountAmount(discountVal);
+        showToast(
+          "success",
+          "Voucher Berhasil Digunakan!",
+          `Diskon ${formatRupiah(discountVal)} berhasil diterapkan.`
+        );
+        return;
+      }
+
+      const fallbackMsg = "Kode voucher tidak valid atau telah kedaluwarsa.";
+      setVoucherError(fallbackMsg);
+      showToast("error", "Voucher Gagal", fallbackMsg);
+    } catch (err: unknown) {
+      let msg = "Kode voucher tidak valid atau telah kedaluwarsa.";
+      if (axios.isAxiosError(err)) {
+        const errors = err.response?.data?.errors as
+          | Record<string, string[]>
+          | undefined;
+        const firstFieldErr = errors
+          ? Object.values(errors)[0]?.[0]
+          : undefined;
+        msg = firstFieldErr || err.response?.data?.message || msg;
+      }
+      setAppliedVoucher(null);
+      setDiscountPercent(0);
       setApiDiscountAmount(null);
-      showToast("success", "Voucher Berhasil Digunakan!", "Diskon 50% berhasil diterapkan pada total belanja.");
-    } else if (cleanCode === "WELCOME2026") {
-      setAppliedVoucher(cleanCode);
-      setDiscountPercent(25);
-      setApiDiscountAmount(null);
-      showToast("success", "Voucher Berhasil Digunakan!", "Diskon 25% promo pengguna baru berhasil diterapkan.");
-    } else if (
-      cleanCode === "DISCOUNT10" ||
-      cleanCode === "GAMEZYGO10" ||
-      cleanCode === "SUMMER26" ||
-      cleanCode === "WINTER26"
-    ) {
-      setAppliedVoucher(cleanCode);
-      setDiscountPercent(10);
-      setApiDiscountAmount(null);
-      showToast("success", "Voucher Berhasil Digunakan!", "Diskon 10% berhasil diterapkan pada total belanja.");
-    } else {
-      setVoucherError("Kode voucher tidak valid atau telah kedaluwarsa.");
-      showToast("error", "Voucher Gagal", "Kode voucher tidak valid atau tidak ditemukan.");
+      setVoucherError(msg);
+      showToast("error", "Voucher Gagal", msg);
     }
   };
 
@@ -1018,9 +1061,15 @@ export default function CheckoutPage() {
                     type="submit"
                     variant="primary"
                     size="sm"
-                    disabled={applyVoucherMutation.isPending}
+                    disabled={
+                      applyVoucherMutation.isPending ||
+                      createOrderMutation.isPending
+                    }
                   >
-                    {applyVoucherMutation.isPending ? "Memeriksa..." : "Gunakan"}
+                    {applyVoucherMutation.isPending ||
+                    createOrderMutation.isPending
+                      ? "Memeriksa..."
+                      : "Gunakan"}
                   </Button>
                 </form>
 

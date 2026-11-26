@@ -335,9 +335,26 @@ export default function ProfilePage() {
   const monthlyRank = userRankings?.monthly ?? (userRankRes?.data?.rank ? userRankRes.data.rank : undefined);
   const allTimeRank = userRankings?.all_time;
 
-  // State Reward Voucher: hasReward is true if router.query.reward === "true" or userPoints >= 100
-  const hasReward = Boolean(router.query.reward === "true" || userPoints >= 100);
-  const [rewardVoucherCode] = React.useState("H3718H-67");
+  // Resolve real auto-generated reward voucher from backend API (never fake hardcoded code)
+  const profileRaw = profileApiRes?.data as
+    | (Record<string, unknown> & {
+        reward_voucher?: { code?: string } | null;
+        auto_voucher?: { code?: string } | null;
+        voucher_code?: string | null;
+        vouchers?: Array<{ code?: string }>;
+      })
+    | undefined;
+  const rewardVoucherCode =
+    profileRaw?.reward_voucher?.code ||
+    profileRaw?.auto_voucher?.code ||
+    profileRaw?.voucher_code ||
+    profileRaw?.vouchers?.[0]?.code ||
+    null;
+
+  // State Reward Voucher: threshold reached when userPoints >= 100 or real voucher exists
+  const hasReward = Boolean(
+    rewardVoucherCode || router.query.reward === "true" || userPoints >= 100
+  );
 
   // Handler simpan nomor telepon
   const handleSavePhone = async () => {
@@ -659,8 +676,8 @@ export default function ProfilePage() {
                       </Button>
                     </div>
                   </div>
-                ) : (
-                  /* Variant: Sudah bisa mendapatkan reward (Sesuai Gambar 2) */
+                ) : rewardVoucherCode ? (
+                  /* Variant: Voucher otomatis tersedia dari backend */
                   <div className="flex items-center gap-3 w-full">
                     <span className="text-white text-h4 sm:text-2xl font-bold tracking-tight">
                       {rewardVoucherCode}
@@ -671,8 +688,8 @@ export default function ProfilePage() {
                       size="sm"
                       onClick={() => handleCopy(rewardVoucherCode)}
                       className="w-10 h-10 min-w-10 min-h-10 p-0! rounded-lg flex items-center justify-center shrink-0 cursor-pointer text-gray-300 hover:text-white"
-                      title="Salin ID Games"
-                      aria-label="Salin ID Games"
+                      title="Salin Kode Voucher"
+                      aria-label="Salin Kode Voucher"
                     >
                       <Image
                         src="/assets/svg/fluent_copy-24-regular.svg"
@@ -682,6 +699,16 @@ export default function ProfilePage() {
                         className="w-4.5 h-4.5 filter-[brightness(0)_invert(0.8)]"
                       />
                     </Button>
+                  </div>
+                ) : (
+                  /* Variant: Threshold 100 poin tercapai, menunggu sinkronisasi voucher dari backend */
+                  <div className="flex flex-col gap-1 w-full">
+                    <span className="text-amber-400 text-body-md font-semibold">
+                      Target 100 Poin Tercapai
+                    </span>
+                    <span className="text-body-xs text-gray-400">
+                      Menunggu voucher diskon otomatis dari server.
+                    </span>
                   </div>
                 )
               }

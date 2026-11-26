@@ -83,6 +83,8 @@ const CopyIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export interface CheckoutItem {
   id: string;
   productId?: number;
+  subscriptionPlanId?: number;
+  itemType?: "product" | "subscription";
   title: string;
   imageSrc: string;
   price: number;
@@ -176,6 +178,14 @@ export default function CheckoutPage() {
             loadedItems = parsed.map((item: Record<string, unknown>, idx: number) => ({
               id: String(item.id || item.productId || `item-${idx}`),
               productId: Number(item.productId || item.id) || idx + 1,
+              subscriptionPlanId: item.subscriptionPlanId
+                ? Number(item.subscriptionPlanId)
+                : undefined,
+              itemType:
+                item.itemType === "subscription" ||
+                String(item.id || "").startsWith("sub-")
+                  ? "subscription"
+                  : "product",
               title: String(item.title || item.name || "Game"),
               imageSrc: String(
                 item.imageSrc || item.cover_image_url || item.thumbnail || ""
@@ -553,16 +563,29 @@ export default function CheckoutPage() {
         grossAmount: totalBelanja,
       });
     } else {
-      // Loop through each game in checkoutItems to create real database orders
+      // Loop through each item in checkoutItems to create real database orders
       for (const item of checkoutItems) {
-        const rawProdId = Number(item.productId || item.id);
-        const prodId = !isNaN(rawProdId) && rawProdId > 0 ? rawProdId : 2;
+        const isSubscription =
+          item.itemType === "subscription" || String(item.id).startsWith("sub-");
+        const rawProdId = Number(
+          isSubscription
+            ? item.subscriptionPlanId || item.productId || String(item.id).replace(/\D/g, "")
+            : item.productId || item.id
+        );
+        const prodId = !isNaN(rawProdId) && rawProdId > 0 ? rawProdId : 1;
 
         try {
-          const orderRes = await createOrderMutation.mutateAsync({
-            item_type: "product",
-            product_id: prodId,
-          });
+          const orderRes = await createOrderMutation.mutateAsync(
+            isSubscription
+              ? {
+                  item_type: "subscription",
+                  subscription_plan_id: prodId,
+                }
+              : {
+                  item_type: "product",
+                  product_id: prodId,
+                }
+          );
 
           if (orderRes?.data) {
             const oId = String(orderRes.data.id);

@@ -119,6 +119,12 @@ apiClient.interceptors.response.use(
         Boolean(originalRequest?.url?.includes("/admin/")) &&
         !originalRequest?.url?.includes("/admin/login");
 
+      // If a logged-in non-admin (customer) triggers an admin API request,
+      // reject without clearing the customer session or redirecting to /login (BUG-005)
+      if (isAdminRequest && role !== "admin") {
+        return Promise.reject(error);
+      }
+
       // -----------------------------------------------------------------
       // Admin Token Refresh Flow
       // -----------------------------------------------------------------

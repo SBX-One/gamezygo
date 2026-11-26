@@ -36,6 +36,7 @@ export interface CartActions {
   setVoucherCode: (code: string | null) => Promise<void>;
   toggleCart: (isOpen?: boolean) => void;
   setOrderDetails: (orderNumber: string, orderId?: string) => void;
+  clearOrderDetails: () => void;
   setGatewayReference: (reference: string | null) => void;
   checkout: () => Promise<{ orderId: string; snapToken: string; grandTotal: number }>;
   clearError: () => void;
@@ -62,6 +63,15 @@ export const useCartStore = create<CartStore>()(
           set({
             orderNumber,
             ...(orderId ? { orderId } : {}),
+          });
+        },
+
+        clearOrderDetails: () => {
+          set({
+            orderId: null,
+            orderNumber: null,
+            gatewayReference: null,
+            snapToken: null,
           });
         },
 

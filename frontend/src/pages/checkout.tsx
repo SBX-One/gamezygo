@@ -106,64 +106,16 @@ export default function CheckoutPage() {
   const activeOrderNumber = useCartStore((s: CartStore) => s.orderNumber);
   const activeOrderId = useCartStore((s: CartStore) => s.orderId);
   const setOrderDetails = useCartStore((s: CartStore) => s.setOrderDetails);
+  const clearOrderDetails = useCartStore((s: CartStore) => s.clearOrderDetails);
   const setGatewayReference = useCartStore((s: CartStore) => s.setGatewayReference);
   const storeCartItems = useCartStore((s: CartStore) => s.cartItems);
 
   // TanStack Query Cart data
   const { data: cartApiRes, isLoading: isCartLoading } = useCart();
 
-  // Initial session checkout items (if any, e.g. Buy Now direct flow)
-  const [sessionItems] = React.useState<CheckoutItem[]>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = sessionStorage.getItem("gamezygo_checkout_items");
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed.map((item: Record<string, unknown>, idx: number) => ({
-              id: String(item.id || item.productId || `item-${idx}`),
-              productId: Number(item.productId || item.id) || (idx + 1),
-              title: String(item.title || item.name || "Game"),
-              imageSrc: String(item.imageSrc || item.cover_image_url || item.thumbnail || ""),
-              price: Number(item.price) || 0,
-            }));
-          }
-        }
-      } catch {
-        // ignore parsing error
-      }
-    }
-    return [];
-  });
-
-  // Checkout items state (derived dynamically from sessionStorage, API, or Zustand store)
-  const checkoutItems: CheckoutItem[] = React.useMemo(() => {
-    if (sessionItems.length > 0) {
-      return sessionItems;
-    }
-    if (isAuthenticated) {
-      if (cartApiRes?.data?.items && cartApiRes.data.items.length > 0) {
-        return cartApiRes.data.items.map((item: CartProductItem) => ({
-          id: String(item.id),
-          productId: item.id,
-          title: item.name,
-          imageSrc: item.thumbnail || "",
-          price: item.discount_price > 0 ? item.discount_price : item.price,
-        }));
-      }
-      return [];
-    }
-    if (storeCartItems && storeCartItems.length > 0) {
-      return storeCartItems.map((item, idx) => ({
-        id: String(item.productId || `item-${idx}`),
-        productId: Number(item.productId) || (idx + 1),
-        title: item.product?.title || "Game",
-        imageSrc: item.product?.imageSrc || item.product?.cover_image_url || "",
-        price: Number(item.product?.price) || 0,
-      }));
-    }
-    return [];
-  }, [sessionItems, isAuthenticated, cartApiRes, storeCartItems]);
+  // Direct purchase session checkout items (strictly scoped to ?mode=direct)
+  const [sessionItems, setSessionItems] = React.useState<CheckoutItem[]>([]);
+  const isDirectMode = router.query.mode === "direct";
 
   // Midtrans Snap SDK hook
   const { openSnap } = useMidtransSnap();
@@ -194,6 +146,122 @@ export default function CheckoutPage() {
 
   // Active gateway reference for polling
   const [activeReference, setActiveReference] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!router.isReady || typeof window === "undefined") return;
+
+    // Reset any stale order/payment state from previous transactions on entry
+    clearOrderDetails();
+    setQrisModalData(null);
+    setActiveReference(null);
+    setAppliedVoucher(null);
+    setApiDiscountAmount(null);
+    setDiscountPercent(0);
+    setVoucherInput("");
+    setVoucherError(null);
+
+    if (isDirectMode) {
+      try {
+        const stored = sessionStorage.getItem("gamezygo_checkout_items");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setSessionItems(
+              parsed.map((item: Record<string, unknown>, idx: number) => ({
+                id: String(item.id || item.productId || `item-${idx}`),
+                productId: Number(item.productId || item.id) || idx + 1,
+                title: String(item.title || item.name || "Game"),
+                imageSrc: String(
+                  item.imageSrc || item.cover_image_url || item.thumbnail || ""
+                ),
+                price: Number(item.price) || 0,
+              }))
+            );
+            return;
+          }
+        }
+      } catch {
+        // ignore parsing error
+      }
+      setSessionItems([]);
+    } else {
+      // Direct URL visit to /checkout must NOT reuse stale sessionStorage items
+      try {
+        sessionStorage.removeItem("gamezygo_checkout_items");
+      } catch {
+        // ignore
+      }
+      setSessionItems([]);
+    }
+  }, [router.isReady, router.asPath, isDirectMode, clearOrderDetails]);
+
+  // Clean up checkout state when navigating away from /checkout
+  React.useEffect(() => {
+    const handleRouteChange = (nextUrl: string) => {
+      if (nextUrl.startsWith("/checkout") || nextUrl.startsWith("/login")) {
+        return;
+      }
+      clearOrderDetails();
+      try {
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem("gamezygo_checkout_items");
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    router.events.on("routeChangeStart", handleRouteChange);
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChange);
+    };
+  }, [router.events, clearOrderDetails]);
+
+  // Checkout items state (derived dynamically from direct sessionStorage, API, or Zustand store)
+  const checkoutItems: CheckoutItem[] = React.useMemo(() => {
+    if (isDirectMode && sessionItems.length > 0) {
+      return sessionItems;
+    }
+    if (isAuthenticated) {
+      if (cartApiRes?.data?.items && cartApiRes.data.items.length > 0) {
+        return cartApiRes.data.items.map((item: CartProductItem) => ({
+          id: String(item.id),
+          productId: item.id,
+          title: item.name,
+          imageSrc: item.thumbnail || "",
+          price: item.discount_price > 0 ? item.discount_price : item.price,
+        }));
+      }
+      return [];
+    }
+    if (storeCartItems && storeCartItems.length > 0) {
+      return storeCartItems.map((item, idx) => ({
+        id: String(item.productId || `item-${idx}`),
+        productId: Number(item.productId) || (idx + 1),
+        title: item.product?.title || "Game",
+        imageSrc: item.product?.imageSrc || item.product?.cover_image_url || "",
+        price: Number(item.product?.price) || 0,
+      }));
+    }
+    return [];
+  }, [isDirectMode, sessionItems, isAuthenticated, cartApiRes, storeCartItems]);
+
+  // Ensure empty checkout never retains stale order or payment modal state
+  React.useEffect(() => {
+    if (!isCartLoading && checkoutItems.length === 0) {
+      if (activeOrderId || activeOrderNumber) {
+        clearOrderDetails();
+      }
+      setQrisModalData(null);
+      setActiveReference(null);
+    }
+  }, [
+    isCartLoading,
+    checkoutItems.length,
+    activeOrderId,
+    activeOrderNumber,
+    clearOrderDetails,
+  ]);
 
   // Polling payment status
   const { data: paymentStatusRes, refetch: refetchPaymentStatus } = usePaymentStatus(
@@ -770,6 +838,7 @@ export default function CheckoutPage() {
                 console.warn("Failed payment webhook sync error:", syncErr);
               }
 
+              clearOrderDetails();
               queryClient.invalidateQueries({ queryKey: ["orders"] });
               queryClient.invalidateQueries({ queryKey: ["user-orders"] });
               showToast(
@@ -779,6 +848,7 @@ export default function CheckoutPage() {
               );
             },
             onClose: () => {
+              clearOrderDetails();
               showToast(
                 "error",
                 "Pembayaran Ditutup",
@@ -972,7 +1042,7 @@ export default function CheckoutPage() {
               <span className="text-body-sm text-gray-400">
                 Total: {checkoutItems.length} Items
               </span>
-              {activeOrderNumber && (
+              {activeOrderNumber && checkoutItems.length > 0 && (
                 <span className="text-label-xs text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-full border border-indigo-500/20">
                   Order #{activeOrderNumber}
                 </span>

@@ -248,7 +248,7 @@ export default function GameStoreDetailPage() {
   const apiProduct = productApiRes?.data;
 
   // Cart store integration
-  const { addItem, toggleCart, isInCart } = useCartStore();
+  const { addItem, toggleCart, isInCart, clearOrderDetails } = useCartStore();
   const { isGameOwned } = useOwnedGames();
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const authUser = useAuthStore((s) => s.user);
@@ -590,6 +590,9 @@ export default function GameStoreDetailPage() {
       }
     }
 
+    // Reset any stale previous order state before starting direct purchase
+    clearOrderDetails();
+
     try {
       if (typeof window !== "undefined") {
         sessionStorage.setItem(
@@ -612,12 +615,12 @@ export default function GameStoreDetailPage() {
     if (!isAuthenticated) {
       showToast("Silakan login terlebih dahulu untuk checkout.", "warning");
       setTimeout(() => {
-        router.push("/login?redirect=/checkout");
+        router.push(`/login?redirect=${encodeURIComponent("/checkout?mode=direct")}`);
       }, 500);
       return;
     }
 
-    router.push("/checkout");
+    router.push("/checkout?mode=direct");
   };
 
   // Wishlist Handler

@@ -292,6 +292,8 @@ export function AdminAnnouncementCard({
             alt={`Announcement Banner #${item.orderNumber || index + 1}`}
             fill
             unoptimized
+            priority={index === 0}
+            loading={index === 0 ? "eager" : "lazy"}
             onError={() => {
               if (!localPreviewUrl) {
                 setHasImageError(true);

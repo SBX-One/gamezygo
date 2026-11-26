@@ -633,7 +633,10 @@ export default function CheckoutPage() {
                       targetOrderNumber || targetOrderId || result.order_id,
                     gateway_reference: gatewayRef || primaryGatewayRef,
                     gross_amount: totalBelanja,
-                    status_code: "200",
+                    status_code: result.status_code || "200",
+                    transaction_status: result.transaction_status || "settlement",
+                    fraud_status: result.fraud_status || "accept",
+                    payment_type: result.payment_type || "credit_card",
                   }),
                 });
               } catch (fulfillErr) {
@@ -671,6 +674,7 @@ export default function CheckoutPage() {
               }, 800);
             },
             onPending: (result) => {
+              queryClient.invalidateQueries({ queryKey: ["orders"] });
               queryClient.invalidateQueries({ queryKey: ["user-orders"] });
               showToast(
                 "success",
@@ -678,7 +682,52 @@ export default function CheckoutPage() {
                 `Transaksi pending [${result.order_id}]. Silakan selesaikan pembayaran di simulator.`
               );
             },
-            onError: (result) => {
+            onError: async (result) => {
+              const failedOrdersPayload =
+                createdOrdersList.length > 0
+                  ? createdOrdersList.map((o) => ({
+                      order_id: o.orderNumber || o.orderId,
+                      gateway_reference: o.gatewayRef,
+                      gross_amount: o.grossAmount,
+                    }))
+                  : [
+                      {
+                        order_id:
+                          targetOrderNumber || targetOrderId || result.order_id,
+                        gateway_reference: gatewayRef || primaryGatewayRef,
+                        gross_amount: totalBelanja,
+                      },
+                    ];
+
+              const rawTxStatus = (result.transaction_status || "").toLowerCase();
+              const failedTxStatus =
+                rawTxStatus === "expire"
+                  ? "expire"
+                  : rawTxStatus === "cancel"
+                  ? "cancel"
+                  : "deny";
+
+              try {
+                await fetch("/api/midtrans/fulfill", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    orders: failedOrdersPayload,
+                    order_id:
+                      targetOrderNumber || targetOrderId || result.order_id,
+                    gateway_reference: gatewayRef || primaryGatewayRef,
+                    gross_amount: totalBelanja,
+                    status_code: result.status_code || "202",
+                    transaction_status: failedTxStatus,
+                    fraud_status: result.fraud_status || "deny",
+                    payment_type: result.payment_type || "credit_card",
+                  }),
+                });
+              } catch (syncErr) {
+                console.warn("Failed payment webhook sync error:", syncErr);
+              }
+
+              queryClient.invalidateQueries({ queryKey: ["orders"] });
               queryClient.invalidateQueries({ queryKey: ["user-orders"] });
               showToast(
                 "error",

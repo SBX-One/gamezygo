@@ -3,6 +3,7 @@ import {
   createOrder,
   fetchOrderDetail,
   fetchUserOrders,
+  fetchUserVouchers,
   applyVoucher,
   removeVoucher,
   createPayment,
@@ -10,6 +11,21 @@ import {
   type CreateOrderPayload,
   type UserOrderQueryParams,
 } from "@/services/orders.service";
+
+export const USER_VOUCHERS_KEY = ["user-vouchers"] as const;
+
+/**
+ * Hook to fetch available vouchers for the authenticated user
+ */
+export function useUserVouchers(options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: USER_VOUCHERS_KEY,
+    queryFn: fetchUserVouchers,
+    enabled: options?.enabled ?? true,
+    staleTime: 30 * 1000,
+    retry: 1,
+  });
+}
 
 export const ORDER_KEYS = {
   all: ["orders"] as const,

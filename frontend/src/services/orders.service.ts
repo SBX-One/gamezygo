@@ -70,6 +70,29 @@ export async function fetchOrderDetail(
   return apiGet<ApiResponse<OrderDetailResponse>>(`/user/orders/${orderId}`);
 }
 
+export interface UserVoucherItem {
+  id: number;
+  name: string;
+  code: string;
+  discount_type: string;
+  discount_value: number;
+  discount_label: string;
+  max_discount: number;
+  min_purchase: number;
+  expired_at: string | null;
+  is_active: boolean;
+}
+
+/**
+ * Fetch available vouchers for authenticated user (including auto-generated loyalty reward vouchers)
+ * Endpoint: GET /api/v1/user/vouchers
+ */
+export async function fetchUserVouchers(): Promise<
+  ApiResponse<UserVoucherItem[]>
+> {
+  return apiGet<ApiResponse<UserVoucherItem[]>>("/user/vouchers");
+}
+
 /**
  * Apply a voucher to an existing order
  * Endpoint: POST /api/v1/user/orders/:orderId/voucher

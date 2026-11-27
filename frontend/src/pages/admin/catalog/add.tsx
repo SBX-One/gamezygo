@@ -117,6 +117,8 @@ export default function AdminAddProductPage() {
     const isDbId = rawTemplateId && /^\d+$/.test(String(rawTemplateId));
     const instructionId = isDbId ? Number(rawTemplateId) : undefined;
 
+    const isPreOrderProduct = formData.isPreOrder || status === "pre-order";
+
     if (formData.imageFile) {
       const payload = new FormData();
       payload.append("name", formData.name.trim());
@@ -125,11 +127,13 @@ export default function AdminAddProductPage() {
       payload.append("is_preorder", String(formData.isPreOrder));
       payload.append("status", status);
       payload.append("steam_url", formData.storeUrl || "");
-      if (formData.accountUsername) {
-        payload.append("game_account[username]", formData.accountUsername);
-      }
-      if (formData.accountPassword) {
-        payload.append("game_account[password]", formData.accountPassword);
+      if (!isPreOrderProduct) {
+        if (formData.accountUsername) {
+          payload.append("game_account[username]", formData.accountUsername);
+        }
+        if (formData.accountPassword) {
+          payload.append("game_account[password]", formData.accountPassword);
+        }
       }
       payload.append("thumbnail", formData.imageFile);
       formData.genres.forEach((genre) => {
@@ -171,10 +175,14 @@ export default function AdminAddProductPage() {
       launcher_ids: launcherId ? [launcherId] : undefined,
       promotion_section_id: promoSectionId,
       instruction_template_id: instructionId,
-      game_account: {
-        username: formData.accountUsername,
-        password: formData.accountPassword,
-      },
+      ...(isPreOrderProduct
+        ? {}
+        : {
+            game_account: {
+              username: formData.accountUsername,
+              password: formData.accountPassword,
+            },
+          }),
       specifications: {
         minimum: formData.minimumSpecs.map((s) => ({ type: s.label, value: s.value })),
         recommended: formData.recommendationSpecs.map((s) => ({ type: s.label, value: s.value })),
@@ -338,11 +346,13 @@ export default function AdminAddProductPage() {
             onChange={handleFormChange}
           />
 
-          {/* Section 3: Shared Account Credentials */}
-          <AdminAddProductAccountInfo
-            formData={formData}
-            onChange={handleFormChange}
-          />
+          {/* Section 3: Shared Account Credentials (Hidden for Pre-Order products, FR-25 / BUG-016) */}
+          {!formData.isPreOrder && (
+            <AdminAddProductAccountInfo
+              formData={formData}
+              onChange={handleFormChange}
+            />
+          )}
 
           {/* Section 4: Minimum & Recommendation Hardware Specs */}
           <AdminAddProductSpecs

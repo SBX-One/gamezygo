@@ -231,20 +231,16 @@ export function AdminPreOrderTable({
                             onChange={() => onToggleSelectItem(item.id)}
                             ariaLabel={`Pilih ${item.title}`}
                           />
-                          <button
-                            type="button"
-                            onClick={() => onEditItem?.(item)}
-                            className="flex items-center gap-3 text-left group cursor-pointer focus:outline-none"
-                          >
+                          <div className="flex items-center gap-3 text-left">
                             <CatalogProductThumbnail
                               src={item.imageSrc}
                               alt={item.title}
                               size="sm"
                             />
-                            <span className="font-semibold text-gray-100 group-hover:text-white group-hover:underline text-label-xs sm:text-sm whitespace-nowrap transition-colors">
+                            <span className="font-semibold text-gray-100 text-label-xs sm:text-sm whitespace-nowrap">
                               {item.title}
                             </span>
-                          </button>
+                          </div>
                         </div>
                       </td>
 

@@ -180,9 +180,20 @@ export const adminCatalogService = {
   },
 
   /**
-   * Toggle product archive / listing status.
-   * If isActive === true, status becomes 'listing' (appears in user store catalog).
-   * If isActive === false, status becomes 'archive' (hidden from user store catalog).
+   * Toggle product De-list / Re-list status (separate from Draft and Archive, FR-26).
+   * - isListed === true  -> status 'listing'  (visible & purchasable in public storefront)
+   * - isListed === false -> status 'unlisted' (temporarily hidden from storefront for maintenance; owners keep Library access)
+   */
+  async toggleListingStatus(productId: number | string, isListed: boolean): Promise<unknown> {
+    const response = await apiClient.post(`/admin/catalog/${productId}`, {
+      status: isListed ? "listing" : "unlisted",
+    });
+    return response.data;
+  },
+
+  /**
+   * Toggle product archive / unarchive status.
+   * Strictly for moving products to/from /admin/catalog/archived.
    */
   async toggleArchiveStatus(productId: number | string, isActive: boolean): Promise<unknown> {
     const response = await apiClient.patch(`/admin/catalog/archive/${productId}`, {

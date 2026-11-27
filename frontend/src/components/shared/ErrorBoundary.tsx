@@ -1,5 +1,6 @@
 import * as React from "react";
-import { Error500View } from "./Error500View";
+import { FluentWifiFilledIcon } from "./Error500View";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -53,13 +54,21 @@ export class ErrorBoundary extends React.Component<
       }
 
       return (
-        <Error500View
-          title={this.props.errorTitle}
-          description={this.props.errorDescription}
-          showBackButton={this.props.showBackButton}
-          onReload={this.resetError}
-          className={this.props.className}
-        />
+        <div className="py-16 sm:py-24 flex items-center justify-center w-full">
+          <EmptyState
+            icon={<FluentWifiFilledIcon className="w-8 h-8 text-gray-50" />}
+            title={this.props.errorTitle || "500: Terjadi Gangguan Server"}
+            description={
+              this.props.errorDescription ||
+              "Terjadi kesalahan tak terduga. Silakan muat ulang halaman."
+            }
+            backLabel={this.props.showBackButton ? "Kembali" : ""}
+            searchLabel="Muat Ulang"
+            onBack={() => window.history.back()}
+            onSearch={this.resetError}
+            className={this.props.className}
+          />
+        </div>
       );
     }
 

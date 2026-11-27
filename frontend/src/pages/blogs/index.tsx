@@ -11,7 +11,7 @@ import {
 } from "@/components/ui";
 import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
 import { StoreLayout } from "@/components/layout";
-import { Error500View } from "@/components/shared/Error500View";
+import { FluentWifiFilledIcon } from "@/components/shared/Error500View";
 
 // Icon for 500 Server Error
 const WifiOffIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -353,11 +353,15 @@ export default function BlogsPage() {
               CASE A: 500 SERVER ERROR
              ====================================================== */}
           {previewState === "error-500" ? (
-            <div className="py-24 flex items-center justify-center">
-              <Error500View
-                showBackButton={true}
+            <div className="py-16 sm:py-24 flex items-center justify-center w-full">
+              <EmptyState
+                icon={<FluentWifiFilledIcon className="w-8 h-8 text-gray-50" />}
+                title="500: Terjadi Gangguan Server"
+                description="Layanan artikel sedang tidak dapat dijangkau. Silakan coba beberapa saat lagi."
+                backLabel="Kembali"
+                searchLabel="Muat Ulang"
                 onBack={() => setPreviewState("default")}
-                onReload={() => setPreviewState("default")}
+                onSearch={() => setPreviewState("default")}
               />
             </div>
           ) : (

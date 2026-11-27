@@ -9,7 +9,40 @@ export async function fetchReviews(
   params?: { page?: number }
 ): Promise<ApiPaginatedResponse<ReviewItem>> {
   const qs = params?.page ? `?page=${params.page}` : "";
-  return apiGet<ApiPaginatedResponse<ReviewItem>>(`/reviews${qs}`);
+  const raw = await apiGet<unknown>(`/reviews${qs}`);
+  const r = raw as {
+    success?: boolean;
+    message?: string;
+    data?: ReviewItem[] | { data?: ReviewItem[]; reviews?: ReviewItem[]; meta?: ApiPaginatedResponse<ReviewItem>["meta"] };
+    meta?: ApiPaginatedResponse<ReviewItem>["meta"];
+  };
+
+  let items: ReviewItem[] = [];
+  let meta = r?.meta;
+  if (Array.isArray(r?.data)) {
+    items = r.data;
+  } else if (r?.data && typeof r.data === "object") {
+    if (Array.isArray(r.data.data)) {
+      items = r.data.data;
+    } else if (Array.isArray(r.data.reviews)) {
+      items = r.data.reviews;
+    }
+    meta = meta || r.data.meta;
+  }
+
+  return {
+    success: r?.success ?? true,
+    message: r?.message ?? "",
+    data: items,
+    meta: meta ?? {
+      current_page: 1,
+      last_page: 1,
+      per_page: items.length || 10,
+      total: items.length,
+      from: items.length > 0 ? 1 : 0,
+      to: items.length,
+    },
+  };
 }
 
 /**
@@ -29,7 +62,7 @@ export async function createReview(
   formData: FormData
 ): Promise<ApiResponse<ReviewItem>> {
   return apiPost<ApiResponse<ReviewItem>, FormData>("/user/reviews", formData, {
-    headers: { "Content-Type": "multipart/form-data" },
+    headers: { "Content-Type": undefined },
   });
 }
 
@@ -45,7 +78,7 @@ export async function updateReview(
     `/user/reviews/${reviewId}`,
     formData,
     {
-      headers: { "Content-Type": "multipart/form-data" },
+      headers: { "Content-Type": undefined },
     }
   );
 }

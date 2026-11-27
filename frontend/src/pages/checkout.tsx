@@ -22,6 +22,7 @@ import { useCartStore, type CartStore } from "@/stores/use-cart-store";
 import type { CartProductItem } from "@/types/api";
 import { useMidtransSnap, createSnapToken } from "@/features/checkout";
 import { useAuthStore } from "@/stores/use-auth-store";
+import { toast } from "@/stores/use-toast-store";
 
 /**
  * Arrow Right Icon for Checkout button
@@ -82,6 +83,8 @@ const CopyIcon = (props: React.SVGProps<SVGSVGElement>) => (
 export interface CheckoutItem {
   id: string;
   productId?: number;
+  subscriptionPlanId?: number;
+  itemType?: "product" | "subscription";
   title: string;
   imageSrc: string;
   price: number;
@@ -106,64 +109,19 @@ export default function CheckoutPage() {
   const activeOrderNumber = useCartStore((s: CartStore) => s.orderNumber);
   const activeOrderId = useCartStore((s: CartStore) => s.orderId);
   const setOrderDetails = useCartStore((s: CartStore) => s.setOrderDetails);
+  const clearOrderDetails = useCartStore((s: CartStore) => s.clearOrderDetails);
   const setGatewayReference = useCartStore((s: CartStore) => s.setGatewayReference);
   const storeCartItems = useCartStore((s: CartStore) => s.cartItems);
 
   // TanStack Query Cart data
   const { data: cartApiRes, isLoading: isCartLoading } = useCart();
 
-  // Initial session checkout items (if any, e.g. Buy Now direct flow)
-  const [sessionItems] = React.useState<CheckoutItem[]>(() => {
-    if (typeof window !== "undefined") {
-      try {
-        const stored = sessionStorage.getItem("gamezygo_checkout_items");
-        if (stored) {
-          const parsed = JSON.parse(stored);
-          if (Array.isArray(parsed) && parsed.length > 0) {
-            return parsed.map((item: Record<string, unknown>, idx: number) => ({
-              id: String(item.id || item.productId || `item-${idx}`),
-              productId: Number(item.productId || item.id) || (idx + 1),
-              title: String(item.title || item.name || "Game"),
-              imageSrc: String(item.imageSrc || item.cover_image_url || item.thumbnail || ""),
-              price: Number(item.price) || 0,
-            }));
-          }
-        }
-      } catch {
-        // ignore parsing error
-      }
-    }
-    return [];
-  });
-
-  // Checkout items state (derived dynamically from sessionStorage, API, or Zustand store)
-  const checkoutItems: CheckoutItem[] = React.useMemo(() => {
-    if (sessionItems.length > 0) {
-      return sessionItems;
-    }
-    if (isAuthenticated) {
-      if (cartApiRes?.data?.items && cartApiRes.data.items.length > 0) {
-        return cartApiRes.data.items.map((item: CartProductItem) => ({
-          id: String(item.id),
-          productId: item.id,
-          title: item.name,
-          imageSrc: item.thumbnail || "",
-          price: item.discount_price > 0 ? item.discount_price : item.price,
-        }));
-      }
-      return [];
-    }
-    if (storeCartItems && storeCartItems.length > 0) {
-      return storeCartItems.map((item, idx) => ({
-        id: String(item.productId || `item-${idx}`),
-        productId: Number(item.productId) || (idx + 1),
-        title: item.product?.title || "Game",
-        imageSrc: item.product?.imageSrc || item.product?.cover_image_url || "",
-        price: Number(item.product?.price) || 0,
-      }));
-    }
-    return [];
-  }, [sessionItems, isAuthenticated, cartApiRes, storeCartItems]);
+  // Direct purchase session checkout items (strictly scoped to ?mode=direct)
+  const [sessionItems, setSessionItems] = React.useState<CheckoutItem[]>([]);
+  const [hasInitializedCheckout, setHasInitializedCheckout] = React.useState(false);
+  const isRedirectingAfterSuccessRef = React.useRef(false);
+  const hasRedirectedEmptyRef = React.useRef(false);
+  const isDirectMode = router.query.mode === "direct";
 
   // Midtrans Snap SDK hook
   const { openSnap } = useMidtransSnap();
@@ -194,6 +152,154 @@ export default function CheckoutPage() {
 
   // Active gateway reference for polling
   const [activeReference, setActiveReference] = React.useState<string | null>(null);
+
+  React.useEffect(() => {
+    if (!router.isReady || typeof window === "undefined") return;
+
+    hasRedirectedEmptyRef.current = false;
+
+    // Reset any stale order/payment state from previous transactions on entry
+    clearOrderDetails();
+    setQrisModalData(null);
+    setActiveReference(null);
+    setAppliedVoucher(null);
+    setApiDiscountAmount(null);
+    setDiscountPercent(0);
+    setVoucherInput("");
+    setVoucherError(null);
+
+    if (isDirectMode) {
+      let loadedItems: CheckoutItem[] = [];
+      try {
+        const stored = sessionStorage.getItem("gamezygo_checkout_items");
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            loadedItems = parsed.map((item: Record<string, unknown>, idx: number) => ({
+              id: String(item.id || item.productId || `item-${idx}`),
+              productId: Number(item.productId || item.id) || idx + 1,
+              subscriptionPlanId: item.subscriptionPlanId
+                ? Number(item.subscriptionPlanId)
+                : undefined,
+              itemType:
+                item.itemType === "subscription" ||
+                String(item.id || "").startsWith("sub-")
+                  ? "subscription"
+                  : "product",
+              title: String(item.title || item.name || "Game"),
+              imageSrc: String(
+                item.imageSrc || item.cover_image_url || item.thumbnail || ""
+              ),
+              price: Number(item.price) || 0,
+            }));
+          }
+        }
+      } catch {
+        // ignore parsing error
+      }
+      setSessionItems(loadedItems);
+    } else {
+      // Direct URL visit to /checkout must NOT reuse stale sessionStorage items
+      try {
+        sessionStorage.removeItem("gamezygo_checkout_items");
+      } catch {
+        // ignore
+      }
+      setSessionItems([]);
+    }
+
+    setHasInitializedCheckout(true);
+  }, [router.isReady, router.asPath, isDirectMode, clearOrderDetails]);
+
+  // Clean up checkout state when navigating away from /checkout
+  React.useEffect(() => {
+    const handleRouteChange = (nextUrl: string) => {
+      if (nextUrl.startsWith("/checkout") || nextUrl.startsWith("/login")) {
+        return;
+      }
+      clearOrderDetails();
+      try {
+        if (typeof window !== "undefined") {
+          sessionStorage.removeItem("gamezygo_checkout_items");
+        }
+      } catch {
+        // ignore
+      }
+    };
+
+    router.events.on("routeChangeStart", handleRouteChange);
+    return () => {
+      router.events.off("routeChangeStart", handleRouteChange);
+    };
+  }, [router.events, clearOrderDetails]);
+
+  // Checkout items state (derived dynamically from direct sessionStorage, API, or Zustand store)
+  const checkoutItems: CheckoutItem[] = React.useMemo(() => {
+    if (isDirectMode && sessionItems.length > 0) {
+      return sessionItems;
+    }
+    if (isAuthenticated) {
+      if (cartApiRes?.data?.items && cartApiRes.data.items.length > 0) {
+        return cartApiRes.data.items.map((item: CartProductItem) => ({
+          id: String(item.id),
+          productId: item.id,
+          title: item.name,
+          imageSrc: item.thumbnail || "",
+          price: item.discount_price > 0 ? item.discount_price : item.price,
+        }));
+      }
+      return [];
+    }
+    if (storeCartItems && storeCartItems.length > 0) {
+      return storeCartItems.map((item, idx) => ({
+        id: String(item.productId || `item-${idx}`),
+        productId: Number(item.productId) || (idx + 1),
+        title: item.product?.title || "Game",
+        imageSrc: item.product?.imageSrc || item.product?.cover_image_url || "",
+        price: Number(item.product?.price) || 0,
+      }));
+    }
+    return [];
+  }, [isDirectMode, sessionItems, isAuthenticated, cartApiRes, storeCartItems]);
+
+  // Ensure empty checkout never retains stale order state & redirects back to /cart
+  React.useEffect(() => {
+    if (
+      !router.isReady ||
+      !isAuthenticated ||
+      !hasInitializedCheckout ||
+      isCartLoading ||
+      isRedirectingAfterSuccessRef.current
+    ) {
+      return;
+    }
+
+    if (checkoutItems.length === 0) {
+      if (activeOrderId || activeOrderNumber) {
+        clearOrderDetails();
+      }
+      setQrisModalData(null);
+      setActiveReference(null);
+
+      if (!hasRedirectedEmptyRef.current) {
+        hasRedirectedEmptyRef.current = true;
+        toast.warning(
+          "Harap masukkan item terlebih dahulu sebelum checkout.",
+          "Keranjang Kosong"
+        );
+        router.replace("/cart");
+      }
+    }
+  }, [
+    router,
+    isAuthenticated,
+    hasInitializedCheckout,
+    isCartLoading,
+    checkoutItems.length,
+    activeOrderId,
+    activeOrderNumber,
+    clearOrderDetails,
+  ]);
 
   // Polling payment status
   const { data: paymentStatusRes, refetch: refetchPaymentStatus } = usePaymentStatus(
@@ -244,6 +350,7 @@ export default function CheckoutPage() {
   // Watch payment status updates via Realtime SSE & Polling Fallback
   React.useEffect(() => {
     const handleSuccess = async () => {
+      isRedirectingAfterSuccessRef.current = true;
       setQrisModalData(null);
       setActiveReference(null);
       clearCart();
@@ -297,7 +404,7 @@ export default function CheckoutPage() {
       : Math.round(subtotal * (discountPercent / 100));
   const totalBelanja = Math.max(0, subtotal - discountAmount);
 
-  // Apply Voucher
+  // Apply Voucher (Always validates via Backend API: POST /api/v1/user/orders/{orderId}/voucher)
   const handleApplyVoucher = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
     setVoucherError(null);
@@ -308,59 +415,102 @@ export default function CheckoutPage() {
       return;
     }
 
-    // If activeOrderId exists, apply via API
-    if (activeOrderId) {
+    if (!isAuthenticated) {
+      const msg = "Silakan login terlebih dahulu untuk menggunakan voucher.";
+      setVoucherError(msg);
+      showToast("error", "Login Diperlukan", msg);
+      return;
+    }
+
+    if (checkoutItems.length === 0) {
+      const msg = "Tidak ada item checkout untuk menerapkan voucher.";
+      setVoucherError(msg);
+      showToast("error", "Checkout Kosong", msg);
+      return;
+    }
+
+    let targetOrderId = activeOrderId;
+
+    // Ensure an order exists in backend before validating voucher
+    if (!targetOrderId) {
+      const firstItem = checkoutItems[0];
+      const isSubscription = String(firstItem.id).startsWith("sub-");
+      const numericId = Number(firstItem.productId || firstItem.id);
+
       try {
-        const res = await applyVoucherMutation.mutateAsync({
-          orderId: activeOrderId,
-          voucherCode: cleanCode,
-        });
-        if (res?.data) {
-          setAppliedVoucher(cleanCode);
-          setApiDiscountAmount(res.data.discount_amount);
-          showToast(
-            "success",
-            "Voucher Berhasil Digunakan!",
-            `Diskon ${formatRupiah(res.data.discount_amount)} berhasil diterapkan.`
-          );
-          return;
+        const orderRes = await createOrderMutation.mutateAsync(
+          isSubscription
+            ? {
+                item_type: "subscription",
+                subscription_plan_id:
+                  !isNaN(numericId) && numericId > 0 ? numericId : 1,
+              }
+            : {
+                item_type: "product",
+                product_id: !isNaN(numericId) && numericId > 0 ? numericId : 1,
+              }
+        );
+
+        if (orderRes?.data?.id) {
+          targetOrderId = String(orderRes.data.id);
+          setOrderDetails(orderRes.data.order_number, targetOrderId);
         }
-      } catch (err: unknown) {
-        if (axios.isAxiosError(err)) {
-          const msg =
-            err.response?.data?.message ||
-            "Subtotal belum memenuhi syarat minimal penggunaan voucher.";
-          setVoucherError(msg);
-          showToast("error", "Voucher Gagal", msg);
-          return;
+      } catch (orderErr: unknown) {
+        let msg = "Gagal menyiapkan pesanan untuk validasi voucher.";
+        if (axios.isAxiosError(orderErr)) {
+          msg = orderErr.response?.data?.message || msg;
         }
+        setVoucherError(msg);
+        showToast("error", "Voucher Gagal", msg);
+        return;
       }
     }
 
-    // Fallback client-side voucher validation
-    if (cleanCode === "DISCOUNT50" || cleanCode === "FLASH50") {
-      setAppliedVoucher(cleanCode);
-      setDiscountPercent(50);
+    if (!targetOrderId) {
+      const msg = "Gagal membuat pesanan untuk memvalidasi voucher.";
+      setVoucherError(msg);
+      showToast("error", "Voucher Gagal", msg);
+      return;
+    }
+
+    try {
+      const res = await applyVoucherMutation.mutateAsync({
+        orderId: targetOrderId,
+        voucherCode: cleanCode,
+      });
+
+      if (res?.data) {
+        const discountVal = Number(res.data.discount_amount ?? 0);
+        setAppliedVoucher(cleanCode);
+        setDiscountPercent(0);
+        setApiDiscountAmount(discountVal);
+        showToast(
+          "success",
+          "Voucher Berhasil Digunakan!",
+          `Diskon ${formatRupiah(discountVal)} berhasil diterapkan.`
+        );
+        return;
+      }
+
+      const fallbackMsg = "Kode voucher tidak valid atau telah kedaluwarsa.";
+      setVoucherError(fallbackMsg);
+      showToast("error", "Voucher Gagal", fallbackMsg);
+    } catch (err: unknown) {
+      let msg = "Kode voucher tidak valid atau telah kedaluwarsa.";
+      if (axios.isAxiosError(err)) {
+        const errors = err.response?.data?.errors as
+          | Record<string, string[]>
+          | undefined;
+        const firstFieldErr = errors
+          ? Object.values(errors)[0]?.[0]
+          : undefined;
+        msg = firstFieldErr || err.response?.data?.message || msg;
+      }
+      setAppliedVoucher(null);
+      setDiscountPercent(0);
       setApiDiscountAmount(null);
-      showToast("success", "Voucher Berhasil Digunakan!", "Diskon 50% berhasil diterapkan pada total belanja.");
-    } else if (cleanCode === "WELCOME2026") {
-      setAppliedVoucher(cleanCode);
-      setDiscountPercent(25);
-      setApiDiscountAmount(null);
-      showToast("success", "Voucher Berhasil Digunakan!", "Diskon 25% promo pengguna baru berhasil diterapkan.");
-    } else if (
-      cleanCode === "DISCOUNT10" ||
-      cleanCode === "GAMEZYGO10" ||
-      cleanCode === "SUMMER26" ||
-      cleanCode === "WINTER26"
-    ) {
-      setAppliedVoucher(cleanCode);
-      setDiscountPercent(10);
-      setApiDiscountAmount(null);
-      showToast("success", "Voucher Berhasil Digunakan!", "Diskon 10% berhasil diterapkan pada total belanja.");
-    } else {
-      setVoucherError("Kode voucher tidak valid atau telah kedaluwarsa.");
-      showToast("error", "Voucher Gagal", "Kode voucher tidak valid atau tidak ditemukan.");
+      setVoucherError(msg);
+      showToast("error", "Voucher Gagal", msg);
     }
   };
 
@@ -413,16 +563,29 @@ export default function CheckoutPage() {
         grossAmount: totalBelanja,
       });
     } else {
-      // Loop through each game in checkoutItems to create real database orders
+      // Loop through each item in checkoutItems to create real database orders
       for (const item of checkoutItems) {
-        const rawProdId = Number(item.productId || item.id);
-        const prodId = !isNaN(rawProdId) && rawProdId > 0 ? rawProdId : 2;
+        const isSubscription =
+          item.itemType === "subscription" || String(item.id).startsWith("sub-");
+        const rawProdId = Number(
+          isSubscription
+            ? item.subscriptionPlanId || item.productId || String(item.id).replace(/\D/g, "")
+            : item.productId || item.id
+        );
+        const prodId = !isNaN(rawProdId) && rawProdId > 0 ? rawProdId : 1;
 
         try {
-          const orderRes = await createOrderMutation.mutateAsync({
-            item_type: "product",
-            product_id: prodId,
-          });
+          const orderRes = await createOrderMutation.mutateAsync(
+            isSubscription
+              ? {
+                  item_type: "subscription",
+                  subscription_plan_id: prodId,
+                }
+              : {
+                  item_type: "product",
+                  product_id: prodId,
+                }
+          );
 
           if (orderRes?.data) {
             const oId = String(orderRes.data.id);
@@ -555,6 +718,7 @@ export default function CheckoutPage() {
         if (snapToken) {
           openSnap(snapToken, {
             onSuccess: async (result) => {
+              isRedirectingAfterSuccessRef.current = true;
               clearCart();
               await clearCartApi().catch(() => null);
               try {
@@ -633,7 +797,10 @@ export default function CheckoutPage() {
                       targetOrderNumber || targetOrderId || result.order_id,
                     gateway_reference: gatewayRef || primaryGatewayRef,
                     gross_amount: totalBelanja,
-                    status_code: "200",
+                    status_code: result.status_code || "200",
+                    transaction_status: result.transaction_status || "settlement",
+                    fraud_status: result.fraud_status || "accept",
+                    payment_type: result.payment_type || "credit_card",
                   }),
                 });
               } catch (fulfillErr) {
@@ -671,6 +838,7 @@ export default function CheckoutPage() {
               }, 800);
             },
             onPending: (result) => {
+              queryClient.invalidateQueries({ queryKey: ["orders"] });
               queryClient.invalidateQueries({ queryKey: ["user-orders"] });
               showToast(
                 "success",
@@ -678,7 +846,53 @@ export default function CheckoutPage() {
                 `Transaksi pending [${result.order_id}]. Silakan selesaikan pembayaran di simulator.`
               );
             },
-            onError: (result) => {
+            onError: async (result) => {
+              const failedOrdersPayload =
+                createdOrdersList.length > 0
+                  ? createdOrdersList.map((o) => ({
+                      order_id: o.orderNumber || o.orderId,
+                      gateway_reference: o.gatewayRef,
+                      gross_amount: o.grossAmount,
+                    }))
+                  : [
+                      {
+                        order_id:
+                          targetOrderNumber || targetOrderId || result.order_id,
+                        gateway_reference: gatewayRef || primaryGatewayRef,
+                        gross_amount: totalBelanja,
+                      },
+                    ];
+
+              const rawTxStatus = (result.transaction_status || "").toLowerCase();
+              const failedTxStatus =
+                rawTxStatus === "expire"
+                  ? "expire"
+                  : rawTxStatus === "cancel"
+                  ? "cancel"
+                  : "deny";
+
+              try {
+                await fetch("/api/midtrans/fulfill", {
+                  method: "POST",
+                  headers: { "Content-Type": "application/json" },
+                  body: JSON.stringify({
+                    orders: failedOrdersPayload,
+                    order_id:
+                      targetOrderNumber || targetOrderId || result.order_id,
+                    gateway_reference: gatewayRef || primaryGatewayRef,
+                    gross_amount: totalBelanja,
+                    status_code: result.status_code || "202",
+                    transaction_status: failedTxStatus,
+                    fraud_status: result.fraud_status || "deny",
+                    payment_type: result.payment_type || "credit_card",
+                  }),
+                });
+              } catch (syncErr) {
+                console.warn("Failed payment webhook sync error:", syncErr);
+              }
+
+              clearOrderDetails();
+              queryClient.invalidateQueries({ queryKey: ["orders"] });
               queryClient.invalidateQueries({ queryKey: ["user-orders"] });
               showToast(
                 "error",
@@ -687,6 +901,7 @@ export default function CheckoutPage() {
               );
             },
             onClose: () => {
+              clearOrderDetails();
               showToast(
                 "error",
                 "Pembayaran Ditutup",
@@ -779,6 +994,7 @@ export default function CheckoutPage() {
 
   // Simulate instant payment success
   const handleSimulateSuccess = async () => {
+    isRedirectingAfterSuccessRef.current = true;
     setQrisModalData(null);
     setActiveReference(null);
     clearCart();
@@ -804,8 +1020,12 @@ export default function CheckoutPage() {
     }, 400);
   };
 
-  // Prevent flash of checkout content while verifying authentication
-  if (!isAuthenticated) {
+  // Prevent flash of checkout content while verifying authentication or redirecting empty checkout
+  if (
+    !isAuthenticated ||
+    !hasInitializedCheckout ||
+    (!isCartLoading && checkoutItems.length === 0)
+  ) {
     return (
       <StoreLayout activeNavId="toko" hideNavbar={true} hideSidebar={true}>
         <Head>
@@ -880,7 +1100,7 @@ export default function CheckoutPage() {
               <span className="text-body-sm text-gray-400">
                 Total: {checkoutItems.length} Items
               </span>
-              {activeOrderNumber && (
+              {activeOrderNumber && checkoutItems.length > 0 && (
                 <span className="text-label-xs text-indigo-400 bg-indigo-500/10 px-2.5 py-1 rounded-full border border-indigo-500/20">
                   Order #{activeOrderNumber}
                 </span>
@@ -969,9 +1189,15 @@ export default function CheckoutPage() {
                     type="submit"
                     variant="primary"
                     size="sm"
-                    disabled={applyVoucherMutation.isPending}
+                    disabled={
+                      applyVoucherMutation.isPending ||
+                      createOrderMutation.isPending
+                    }
                   >
-                    {applyVoucherMutation.isPending ? "Memeriksa..." : "Gunakan"}
+                    {applyVoucherMutation.isPending ||
+                    createOrderMutation.isPending
+                      ? "Memeriksa..."
+                      : "Gunakan"}
                   </Button>
                 </form>
 

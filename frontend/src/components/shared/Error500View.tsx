@@ -1,7 +1,9 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
+import { EmptyState } from "@/components/ui/EmptyState";
 
 export interface Error500ViewProps {
+  icon?: React.ReactNode;
   title?: string;
   description?: string;
   showBackButton?: boolean;
@@ -32,48 +34,13 @@ export const FluentWifiFilledIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
-const ArrowLeftIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <line x1="19" y1="12" x2="5" y2="12" />
-    <polyline points="12 19 5 12 12 5" />
-  </svg>
-);
-
-const ReloadIcon = (props: React.SVGProps<SVGSVGElement>) => (
-  <svg
-    width="16"
-    height="16"
-    viewBox="0 0 24 24"
-    fill="none"
-    stroke="currentColor"
-    strokeWidth="2.2"
-    strokeLinecap="round"
-    strokeLinejoin="round"
-    {...props}
-  >
-    <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8" />
-    <path d="M3 3v5h5" />
-    <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16" />
-    <path d="M16 21h5v-5" />
-  </svg>
-);
-
 export function Error500View({
+  icon,
   title = "500: Internal Server Error",
   description = "This page you're looking for doesn't exist or has been moved. Please check the URL or return to the homepage.",
   showBackButton = false,
   backLabel = "Kembali",
-  reloadLabel = "Reload",
+  reloadLabel = "Muat Ulang",
   onBack,
   onReload,
   className,
@@ -95,49 +62,15 @@ export function Error500View({
   };
 
   return (
-    <div
-      className={cn(
-        "flex flex-col items-center justify-center text-center p-6 sm:p-10 select-none mx-auto min-h-[460px] w-full",
-        className
-      )}
-    >
-      {/* 1. Icon Container with 16px border-radius and subtle dark frame */}
-      <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-2xl bg-white/5 border border-white/10 flex items-center justify-center text-white mb-6 shadow-inner">
-        <FluentWifiFilledIcon className="w-7 h-7 sm:w-8 sm:h-8 text-white" />
-      </div>
-
-      {/* 2. Bold Title */}
-      <h2 className="text-2xl sm:text-3xl font-bold text-white mb-2.5 tracking-tight">
-        {title}
-      </h2>
-
-      {/* 3. Description */}
-      <p className="text-gray-400 text-sm max-w-md text-center leading-relaxed mb-8 font-normal">
-        {description}
-      </p>
-
-      {/* 4. Action Buttons (Customer has Kembali + Reload, Admin has Reload only) */}
-      <div className="flex items-center justify-center gap-3">
-        {showBackButton && (
-          <button
-            type="button"
-            onClick={handleBack}
-            className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-medium text-gray-200 hover:text-white transition-all cursor-pointer shadow-sm active:scale-98"
-          >
-            <ArrowLeftIcon className="w-4 h-4 text-gray-300" />
-            <span>{backLabel}</span>
-          </button>
-        )}
-
-        <button
-          type="button"
-          onClick={handleReload}
-          className="inline-flex items-center gap-2 px-4 py-2.5 rounded-lg bg-white/5 hover:bg-white/10 border border-white/10 text-sm font-medium text-gray-200 hover:text-white transition-all cursor-pointer shadow-sm active:scale-98"
-        >
-          <ReloadIcon className="w-4 h-4 text-gray-300" />
-          <span>{reloadLabel}</span>
-        </button>
-      </div>
-    </div>
+    <EmptyState
+      icon={icon ?? <FluentWifiFilledIcon className="w-8 h-8 text-gray-50" />}
+      title={title}
+      description={description}
+      backLabel={showBackButton ? backLabel : ""}
+      searchLabel={reloadLabel}
+      onBack={handleBack}
+      onSearch={handleReload}
+      className={cn("min-h-[460px] w-full", className)}
+    />
   );
 }

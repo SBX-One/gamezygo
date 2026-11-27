@@ -67,8 +67,10 @@ export default function AdminPreOrderEditProductPage() {
           initialPrice: String(
             serverProduct.original_price || serverProduct.price
           ),
-          // If "Continue to List", toggle Pre-order to false so it is prepared for immediate storefront listing
-          isPreOrder: isContinueToList ? false : Boolean(serverProduct.is_preorder),
+          // Preserve pre-order status unless explicitly triggered via "Continue to List" (?action=list)
+          isPreOrder: isContinueToList
+            ? false
+            : Boolean(serverProduct.is_preorder || serverProduct.status === "pre-order" || true),
           genres: serverProduct.categories
             ? Array.from(
                 new Set(
@@ -268,8 +270,8 @@ export default function AdminPreOrderEditProductPage() {
     const cleanPrice =
       parseInt(formData.finalPrice.replace(/\D/g, ""), 10) || 0;
 
-    // Status is 'listing' if continue to list or pre-order switch is toggled off, otherwise 'pre-order'
-    const targetStatus = isContinueToList || !formData.isPreOrder ? "listing" : "pre-order";
+    // Pre-order products ONLY transition to 'listing' via explicit "Continue to List" flow (BUG-017)
+    const targetStatus = isContinueToList ? "listing" : "pre-order";
 
     const specifications = {
       minimum: (formData.minimumSpecs || []).map((s) => ({
@@ -302,12 +304,14 @@ export default function AdminPreOrderEditProductPage() {
         payload.append("price", String(cleanPrice));
         payload.append("steam_url", formData.storeUrl || "");
         payload.append("status", targetStatus);
-        payload.append("is_preorder", formData.isPreOrder ? "1" : "0");
-        if (formData.accountUsername) {
-          payload.append("game_account[username]", formData.accountUsername);
-        }
-        if (formData.accountPassword) {
-          payload.append("game_account[password]", formData.accountPassword);
+        payload.append("is_preorder", targetStatus === "pre-order" ? "1" : "0");
+        if (isContinueToList) {
+          if (formData.accountUsername) {
+            payload.append("game_account[username]", formData.accountUsername);
+          }
+          if (formData.accountPassword) {
+            payload.append("game_account[password]", formData.accountPassword);
+          }
         }
         payload.append("thumbnail", formData.imageFile);
 
@@ -336,13 +340,17 @@ export default function AdminPreOrderEditProductPage() {
             price: cleanPrice,
             steam_url: formData.storeUrl,
             status: targetStatus,
-            is_preorder: formData.isPreOrder,
+            is_preorder: targetStatus === "pre-order",
             image_url: formData.imageSrc,
             genres: formData.genres,
-            game_account: {
-              username: formData.accountUsername,
-              password: formData.accountPassword,
-            },
+            ...(isContinueToList
+              ? {
+                  game_account: {
+                    username: formData.accountUsername,
+                    password: formData.accountPassword,
+                  },
+                }
+              : {}),
             specifications,
             promotion_section: promoSection,
             instruction_template_id: instructionId,
@@ -486,7 +494,7 @@ export default function AdminPreOrderEditProductPage() {
               <AdminAddProductBasicInfo
                 formData={formData}
                 onChange={handleFormChange}
-                showPreOrder={true}
+                showPreOrder={false}
               />
 
               <hr className="border-deep-blue-700/60" />
@@ -497,13 +505,16 @@ export default function AdminPreOrderEditProductPage() {
                 onChange={handleFormChange}
               />
 
-              <hr className="border-deep-blue-700/60" />
-
-              {/* Section 3: Informasi Akun Game */}
-              <AdminAddProductAccountInfo
-                formData={formData}
-                onChange={handleFormChange}
-              />
+              {/* Section 3: Informasi Akun Game (Only visible during "Continue to List" flow, BUG-017) */}
+              {isContinueToList && (
+                <>
+                  <hr className="border-deep-blue-700/60" />
+                  <AdminAddProductAccountInfo
+                    formData={formData}
+                    onChange={handleFormChange}
+                  />
+                </>
+              )}
 
               <hr className="border-deep-blue-700/60" />
 

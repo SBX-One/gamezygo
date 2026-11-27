@@ -98,6 +98,37 @@ const SendIcon = (props: React.SVGProps<SVGSVGElement>) => (
   </svg>
 );
 
+const LockIcon = (props: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="24"
+    height="24"
+    viewBox="0 0 24 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    {...props}
+  >
+    <rect
+      x="3"
+      y="11"
+      width="18"
+      height="11"
+      rx="2"
+      ry="2"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+    <path
+      d="M7 11V7a5 5 0 0110 0v4"
+      stroke="currentColor"
+      strokeWidth="2"
+      strokeLinecap="round"
+      strokeLinejoin="round"
+    />
+  </svg>
+);
+
 // ============================================================================
 // MOCK TESTIMONIAL DATA
 // ============================================================================
@@ -201,7 +232,7 @@ export default function GameCredentialPage() {
   const productSlug = typeof id === "string" ? id : "";
 
   // 1. Fetch user's purchased games in library
-  const { data: libraryRes } = useUserLibrary();
+  const { data: libraryRes, isLoading: isLibraryLoading } = useUserLibrary();
   const libraryGame = React.useMemo(() => {
     if (!id || !libraryRes?.data) return null;
     const target = String(id).toLowerCase();
@@ -479,21 +510,31 @@ export default function GameCredentialPage() {
   }, [apiProduct, libraryGame, effectiveSteamData]);
 
   // Fetch real credentials from API (GET /api/v1/user/products/:slug/credentials)
-  const { data: credentialsRes, isLoading: isCredsLoading } = useGameCredentials(productSlug);
+  const {
+    data: credentialsRes,
+    isLoading: isCredsLoading,
+    isError: isCredsError,
+    error: credsError,
+  } = useGameCredentials(productSlug);
 
-  // Account Credentials: Real database credentials or graceful fallback
-  const cleanTitleCode = (gameTitle || productSlug || "game")
-    .toLowerCase()
-    .replace(/[^a-z0-9]/g, "")
-    .slice(0, 10);
+  // Strict ownership verification to protect against IDOR (BUG-002)
+  const isOwnershipVerified = Boolean(
+    libraryGame || (credentialsRes?.data && credentialsRes.data.username)
+  );
 
-  const fallbackUsername = `shared_${cleanTitleCode}_01`;
-  const fallbackPassword = `Gamezygo_${cleanTitleCode.slice(0, 4)}2026!`;
+  const credsStatus = (credsError as { response?: { status?: number } } | null)?.response?.status;
+  const isAccessDenied =
+    !isCredsLoading &&
+    !isLibraryLoading &&
+    (credsStatus === 403 || credsStatus === 401 || credsStatus === 404 || isCredsError || !isOwnershipVerified);
 
-  const accountUsername =
-    credentialsRes?.data?.username || fallbackUsername;
-  const accountPassword =
-    credentialsRes?.data?.password || fallbackPassword;
+  // Strictly only expose credentials if ownership is verified
+  const accountUsername = isOwnershipVerified
+    ? credentialsRes?.data?.username || ""
+    : "";
+  const accountPassword = isOwnershipVerified
+    ? credentialsRes?.data?.password || ""
+    : "";
 
   return (
     <>
@@ -508,7 +549,7 @@ export default function GameCredentialPage() {
       <StoreLayout 
         navbarVariant="private">
         <div className="w-full flex flex-col gap-10 lg:gap-11xl pb-16">
-          {(isProductLoading || isCredsLoading) && !apiProduct && !credentialsRes ? (
+          {(isProductLoading || isCredsLoading || isLibraryLoading) && !apiProduct && !credentialsRes && !libraryGame ? (
             <section className="w-full grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-start">
               <div className="flex flex-col gap-6">
                 <Skeleton className="h-5 w-48" />
@@ -729,19 +770,55 @@ export default function GameCredentialPage() {
               {/* ===================================================================
                   INFORMASI AKUN GAME CARD (Modular CredentialRevealer Component)
                   =================================================================== */}
-              <CredentialRevealer
-                gameTitle={gameTitle}
-                username={accountUsername}
-                password={accountPassword}
-                accessToken={credentialsRes?.data?.access_token}
-                isPreorder={isPreorder}
-                isLoading={isCredsLoading && !credentialsRes}
-                onCopySuccess={(field) => {
-                  setToastMessage(`${field} berhasil disalin ke clipboard!`);
-                  setTimeout(() => setToastMessage(null), 3000);
-                }}
-                className="mt-5"
-              />
+              {isAccessDenied ? (
+                <div className="mt-5 w-full rounded-2xl bg-deep-blue-900/90 border border-red-500/30 p-6 sm:p-8 flex flex-col items-center text-center gap-4 shadow-xl backdrop-blur-md">
+                  <div className="w-14 h-14 rounded-full bg-red-500/10 border border-red-500/30 flex items-center justify-center text-red-400 mb-1">
+                    <LockIcon className="w-7 h-7 text-[#DF3848]" />
+                  </div>
+                  <div className="flex flex-col gap-1.5">
+                    <h3 className="text-h4 font-bold text-white">
+                      Akses Kredensial Ditolak
+                    </h3>
+                    <p className="text-body-sm text-gray-400 leading-relaxed">
+                      Anda belum memiliki lisensi game <span className="text-white font-semibold">{gameTitle}</span> di perpustakaan akun Anda. Beli game ini untuk membuka kredensial akun dan panduan bermain.
+                    </p>
+                  </div>
+                  <div className="flex flex-col sm:flex-row items-center gap-3 w-full mt-2">
+                    <Button
+                      type="button"
+                      variant="primary"
+                      size="sm"
+                      className="w-full sm:flex-1 py-3"
+                      onClick={() => router.push(productSlug ? `/store/${productSlug}` : "/store")}
+                    >
+                      Beli di Store
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      size="sm"
+                      className="w-full sm:flex-1 py-3"
+                      onClick={() => router.push("/library")}
+                    >
+                      Ke Perpustakaan
+                    </Button>
+                  </div>
+                </div>
+              ) : (
+                <CredentialRevealer
+                  gameTitle={gameTitle}
+                  username={accountUsername}
+                  password={accountPassword}
+                  accessToken={credentialsRes?.data?.access_token}
+                  isPreorder={isPreorder}
+                  isLoading={(isCredsLoading || isLibraryLoading) && !credentialsRes}
+                  onCopySuccess={(field) => {
+                    setToastMessage(`${field} berhasil disalin ke clipboard!`);
+                    setTimeout(() => setToastMessage(null), 3000);
+                  }}
+                  className="mt-5"
+                />
+              )}
               </div>
           </section>
 

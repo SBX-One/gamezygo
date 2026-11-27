@@ -1,6 +1,7 @@
 import * as React from "react";
 import Head from "next/head";
-import { Error500View } from "@/components/shared/Error500View";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { FluentWifiFilledIcon } from "@/components/shared/Error500View";
 
 export default function Custom500Page() {
   return (
@@ -13,7 +14,14 @@ export default function Custom500Page() {
         />
       </Head>
       <div className="w-full min-h-screen bg-deep-blue-950 flex items-center justify-center p-4">
-        <Error500View showBackButton={false} />
+        <EmptyState
+          icon={<FluentWifiFilledIcon className="w-8 h-8 text-gray-50" />}
+          title="500: Internal Server Error"
+          description="Terjadi kesalahan pada server. Halaman sedang tidak dapat dimuat. Silakan coba beberapa saat lagi."
+          backLabel=""
+          searchLabel="Muat Ulang"
+          onSearch={() => window.location.reload()}
+        />
       </div>
     </>
   );

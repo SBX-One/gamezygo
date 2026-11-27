@@ -583,7 +583,7 @@ export default function BundlePage() {
   // Auth state
   const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
   const authUser = useAuthStore((s) => s.user);
-  const addItem = useCartStore((s) => s.addItem);
+  const clearOrderDetails = useCartStore((s) => s.clearOrderDetails);
   const [isMounted, setIsMounted] = React.useState(false);
   React.useEffect(() => {
     setIsMounted(true);
@@ -723,23 +723,16 @@ export default function BundlePage() {
       plan.rawPrice ||
       parseInt(plan.price.replace(/\D/g, "")) ||
       150000;
-    const planItemId = `sub-${plan.numericId || plan.id}`;
+    const planNumericId = plan.numericId || Number(plan.id.replace(/\D/g, "")) || 1;
+    const planItemId = `sub-${planNumericId}`;
     const planTitle = `Paket Langganan ${plan.title}`;
     const coverImage =
       "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg";
 
-    // 1. Masukkan ke useCartStore
-    addItem(planItemId, 1, {
-      id: planItemId,
-      title: planTitle,
-      price: numericPrice,
-      originalPrice: numericPrice,
-      discount: "",
-      imageSrc: coverImage,
-      cover_image_url: coverImage,
-    });
+    // 1. Reset stale previous checkout order details before direct bundle checkout
+    clearOrderDetails();
 
-    // 2. Simpan ke sessionStorage untuk checkout
+    // 2. Simpan item bundle ke sessionStorage untuk direct checkout (tanpa melalui cart)
     try {
       if (typeof window !== "undefined") {
         sessionStorage.setItem(
@@ -747,7 +740,9 @@ export default function BundlePage() {
           JSON.stringify([
             {
               id: planItemId,
-              productId: plan.numericId || 1,
+              productId: planNumericId,
+              subscriptionPlanId: planNumericId,
+              itemType: "subscription",
               title: planTitle,
               imageSrc: coverImage,
               price: numericPrice,
@@ -762,11 +757,20 @@ export default function BundlePage() {
     // 3. Tutup modal jika terbuka
     setIsSubsModalOpen(false);
 
-    // 4. Feedback toast & navigasi ke keranjang
-    handleToast(`"${planTitle}" berhasil dimasukkan ke keranjang! Mengalihkan ke keranjang...`);
+    // 4. Jika belum login, arahkan ke login lalu langsung ke checkout bundle
+    if (!isAuthenticated) {
+      handleToast("Silakan login terlebih dahulu untuk berlangganan paket.");
+      setTimeout(() => {
+        router.push(`/login?redirect=${encodeURIComponent("/checkout?mode=direct")}`);
+      }, 400);
+      return;
+    }
+
+    // 5. Direct checkout untuk bundle (BUG-008)
+    handleToast(`Melanjutkan "${planTitle}" ke halaman checkout...`);
     setTimeout(() => {
-      router.push("/cart");
-    }, 600);
+      router.push("/checkout?mode=direct");
+    }, 300);
   };
 
   const handleSubscribeAction = (planTitle: string) => {

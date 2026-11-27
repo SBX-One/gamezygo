@@ -25,18 +25,38 @@ export default async function handler(
       gross_amount,
       orders,
       status_code = "200",
+      transaction_status = "settlement",
+      fraud_status = "accept",
+      payment_type = "credit_card",
     } = req.body;
+
+    const allowedStatuses = new Set([
+      "settlement",
+      "capture",
+      "pending",
+      "deny",
+      "cancel",
+      "expire",
+    ]);
+    const normalizedTransactionStatus = allowedStatuses.has(
+      String(transaction_status).toLowerCase()
+    )
+      ? String(transaction_status).toLowerCase()
+      : "settlement";
 
     // Collect all orders to fulfill (supporting both single and multiple items)
     const targets: OrderFulfillItem[] = [];
 
     if (Array.isArray(orders) && orders.length > 0) {
-      orders.forEach((o: any) => {
+      orders.forEach((o: Record<string, unknown>) => {
         if (o && (o.order_id || o.gateway_reference)) {
           targets.push({
-            order_id: o.order_id || o.gateway_reference,
-            gateway_reference: o.gateway_reference,
-            gross_amount: o.gross_amount || gross_amount,
+            order_id: String(o.order_id || o.gateway_reference),
+            gateway_reference: o.gateway_reference
+              ? String(o.gateway_reference)
+              : undefined,
+            gross_amount:
+              (o.gross_amount as number | string | undefined) || gross_amount,
           });
         }
       });
@@ -57,29 +77,39 @@ export default async function handler(
       });
     }
 
-    const backendUrl =
-      process.env.NEXT_PUBLIC_API_BASE_URL || "http://localhost:8000/api/v1";
-    const webhookEndpoint = `${backendUrl.replace(
-      /\/api\/v1\/?$/,
-      ""
-    )}/api/v1/user/payments/notification`;
+    const rawBackendUrl =
+      process.env.BACKEND_INTERNAL_URL ||
+      process.env.NEXT_PUBLIC_API_URL ||
+      process.env.NEXT_PUBLIC_API_BASE_URL ||
+      "http://localhost:8000";
+    const normalizedBackendBase = rawBackendUrl
+      .replace(/\/api\/v1\/?$/, "")
+      .replace(/\/+$/, "");
+    const webhookEndpoint = `${normalizedBackendBase}/api/v1/payments/webhook`;
 
     // Known server keys to try (frontend env key, backend default sandbox placeholder)
     const serverKeys = [
       process.env.MIDTRANS_SERVER_KEY || "",
       "SB-Mid-server-YOUR_SANDBOX_SERVER_KEY",
       "Mid-server-eAHxNEcAzv5orX_I7K8c0nxs",
-    ].filter(Boolean);
+      "",
+    ];
 
     let fulfilledCount = 0;
 
     for (const target of targets) {
-      const grossAmountFormatted = target.gross_amount
-        ? `${Math.round(Number(target.gross_amount))}.00`
-        : "100000.00";
+      const numericAmount = Number(target.gross_amount);
+      const grossAmountFormatted =
+        Number.isFinite(numericAmount) && numericAmount > 0
+          ? `${Math.round(numericAmount)}.00`
+          : "100000.00";
 
-      const orderIdentifiers = [target.gateway_reference, target.order_id].filter(
-        (id): id is string => Boolean(id)
+      const orderIdentifiers = Array.from(
+        new Set(
+          [target.gateway_reference, target.order_id].filter(
+            (id): id is string => Boolean(id)
+          )
+        )
       );
 
       let itemFulfilled = false;
@@ -88,7 +118,7 @@ export default async function handler(
         for (const key of serverKeys) {
           const signature = crypto
             .createHash("sha512")
-            .update(targetId + status_code + grossAmountFormatted + key)
+            .update(targetId + String(status_code) + grossAmountFormatted + key)
             .digest("hex");
 
           const notificationPayload = {
@@ -96,9 +126,9 @@ export default async function handler(
             status_code: String(status_code),
             gross_amount: grossAmountFormatted,
             signature_key: signature,
-            transaction_status: "settlement",
-            fraud_status: "accept",
-            payment_type: "credit_card",
+            transaction_status: normalizedTransactionStatus,
+            fraud_status: String(fraud_status || "accept"),
+            payment_type: String(payment_type || "credit_card"),
           };
 
           try {
@@ -111,8 +141,8 @@ export default async function handler(
               body: JSON.stringify(notificationPayload),
             });
 
-            const resData = await response.json();
-            if (response.ok && resData?.success) {
+            const resData = await response.json().catch(() => null);
+            if (response.ok && (resData?.success || resData?.status === "success")) {
               itemFulfilled = true;
               break;
             }
@@ -130,9 +160,10 @@ export default async function handler(
 
     return res.status(200).json({
       status: "success",
+      transaction_status: normalizedTransactionStatus,
       total_requested: targets.length,
       fulfilled_count: fulfilledCount,
-      message: `Fulfilled ${fulfilledCount} of ${targets.length} order(s).`,
+      message: `Synced ${fulfilledCount} of ${targets.length} order(s) with status '${normalizedTransactionStatus}'.`,
     });
   } catch (error: any) {
     return res.status(500).json({

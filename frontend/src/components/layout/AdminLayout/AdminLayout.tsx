@@ -6,7 +6,9 @@ import { AdminHeader } from "./AdminHeader";
 import { useUiStore } from "@/stores/use-ui-store";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { ErrorBoundary } from "@/components/shared/ErrorBoundary";
-import { Error500View } from "@/components/shared/Error500View";
+import { FluentWifiFilledIcon } from "@/components/shared/Error500View";
+import { EmptyState } from "@/components/ui/EmptyState";
+import { StoreLayout } from "@/components/layout/StoreLayout";
 import type { AdminLayoutProps } from "./AdminLayout.types";
 
 export function AdminLayout({
@@ -63,19 +65,52 @@ export function AdminLayout({
     return false;
   }, []);
 
+  const hasCustomerSession = React.useCallback(() => {
+    if (typeof window === "undefined") return false;
+    const storeState = useAuthStore.getState();
+    if (
+      storeState.token &&
+      storeState.role !== "admin" &&
+      storeState.user?.role !== "admin"
+    ) {
+      return true;
+    }
+    try {
+      const raw = localStorage.getItem("gamezygo-auth-storage");
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        const t = parsed?.state?.token;
+        const r = parsed?.state?.role;
+        const u = parsed?.state?.user;
+        if (t && r !== "admin" && u?.role !== "admin") {
+          return true;
+        }
+      }
+    } catch {
+      // ignore
+    }
+    return false;
+  }, []);
+
   const isAdmin =
     isMounted &&
     ((token && (role === "admin" || user?.role === "admin")) || checkAdminAuth());
 
-  // Route protection: verify admin session on mount
+  const isCustomerForbidden =
+    isMounted &&
+    !isAdmin &&
+    (Boolean(token && role !== "admin" && user?.role !== "admin") ||
+      hasCustomerSession());
+
+  // Route protection: redirect unauthenticated guests to /login; preserve customer session with 403 UI
   React.useEffect(() => {
     if (!router.isReady || !isMounted) return;
 
-    if (!isAdmin) {
+    if (!isAdmin && !isCustomerForbidden) {
       const redirectTarget = encodeURIComponent(router.asPath || "/admin/dashboard");
-      router.replace(`/login?redirect=${redirectTarget}`);
+      router.replace(`/admin/login?redirect=${redirectTarget}`);
     }
-  }, [isAdmin, isMounted, router]);
+  }, [isAdmin, isCustomerForbidden, isMounted, router]);
 
   // Toggle handler for both desktop and mobile
   const handleToggleSidebar = () => {
@@ -86,6 +121,57 @@ export function AdminLayout({
       toggleAdminSidebar();
     }
   };
+
+  if (isCustomerForbidden) {
+    return (
+      <StoreLayout
+        navbarVariant="login"
+        hideSidebar={true}
+        user={
+          user
+            ? {
+                name: user.name,
+                email: user.email,
+                avatarUrl: user.avatarUrl,
+              }
+            : undefined
+        }
+      >
+        <div className="py-16 sm:py-24 flex items-center justify-center w-full">
+          <EmptyState
+            icon={
+              <svg
+                width="28"
+                height="28"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                className="w-7 h-7 text-gray-50"
+              >
+                <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+                <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+              </svg>
+            }
+            title="403: Akses Ditolak"
+            description="Anda tidak memiliki izin Administrator untuk mengakses halaman ini. Silakan kembali ke halaman sebelumnya atau menuju beranda."
+            backLabel="Kembali"
+            searchLabel="Beranda"
+            onBack={() => {
+              if (typeof window !== "undefined" && window.history.length > 1) {
+                window.history.back();
+              } else {
+                router.push("/");
+              }
+            }}
+            onSearch={() => router.push("/")}
+          />
+        </div>
+      </StoreLayout>
+    );
+  }
 
   if (!isMounted || !isAdmin) {
     return (
@@ -151,12 +237,21 @@ export function AdminLayout({
               errorDescription={errorDescription}
             >
               {effectiveIsError ? (
-                <Error500View
-                  title={errorTitle}
-                  description={errorDescription}
-                  showBackButton={false}
-                  onReload={onReload}
-                />
+                <div className="py-16 sm:py-24 flex items-center justify-center w-full">
+                  <EmptyState
+                    icon={<FluentWifiFilledIcon className="w-8 h-8 text-gray-50" />}
+                    title={errorTitle || "500: Terjadi Gangguan Server"}
+                    description={
+                      errorDescription ||
+                      "Layanan admin sedang tidak dapat dijangkau. Silakan coba beberapa saat lagi."
+                    }
+                    backLabel=""
+                    searchLabel="Muat Ulang"
+                    onSearch={() =>
+                      onReload ? onReload() : window.location.reload()
+                    }
+                  />
+                </div>
               ) : (
                 children
               )}

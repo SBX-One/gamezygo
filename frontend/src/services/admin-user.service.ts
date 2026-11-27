@@ -102,7 +102,7 @@ function mapBackendUser(raw: Record<string, unknown>): AdminUserItem {
     username: raw.username ? String(raw.username) : undefined,
     name: raw.name ? String(raw.name) : raw.username ? String(raw.username) : undefined,
     loginType: mapLoginType(raw.login_type),
-    points: Number(stats.current_points ?? raw.points ?? 0),
+    points: Number(stats.current_points ?? raw.points ?? raw.total_points ?? 0),
     subscription: sub?.name ? String(sub.name) : "Free",
     subsDuration: sub?.remaining_duration_label
       ? String(sub.remaining_duration_label)

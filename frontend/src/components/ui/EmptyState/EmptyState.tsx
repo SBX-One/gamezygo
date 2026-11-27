@@ -81,18 +81,18 @@ export function EmptyState({
       {...props}
     >
       {/* 1. Icon Badge */}
-      <div className="w-16 h-16 rounded-lg bg-deep-blue-900 border border-deep-blue-700/60 flex items-center justify-center text-gray-50  mb-6">
+      <div className="w-16 h-16 rounded-2xl bg-deep-blue-900 flex items-center justify-center text-gray-50  mb-6">
         {icon || <FluentSearchIcon className="w-8 h-8 text-gray-50" />}
       </div>
 
       {/* 2. Title */}
-      <h3 className="text-gray-50 font-semibold text-h5 mb-2">
+      <h3 className="text-gray-50 font-semibold text-h4 mb-2">
         {title}
       </h3>
 
       {/* 3. Description */}
       {description && (
-        <p className="text-gray-400 text-body-sm font-normal mb-6">
+        <p className="text-gray-400 text-body-sm font-normal mb-6 lg:max-w-3/6">
           {description}
         </p>
       )}

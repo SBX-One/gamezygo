@@ -13,42 +13,10 @@ interface LeaderboardUser {
   points: number | string;
 }
 
-const WEEKLY_LEADERBOARD: LeaderboardUser[] = [
-  { rank: 1, name: "NgurahffTzy_00", points: 999 },
-  { rank: 2, name: "RendyGaming_67", points: 999 },
-  { rank: 3, name: "Oporguabolanya000", points: 999 },
-  { rank: 4, name: "Rendy Mahardika", points: 999 },
-  { rank: 4, name: "Rendy Mahardika", points: 999 },
-  { rank: 4, name: "Rendy Mahardika", points: 999 },
-  { rank: 4, name: "Rendy Mahardika", points: 999 },
-  { rank: 4, name: "Rendy Mahardika", points: 999 },
-  { rank: 4, name: "Rendy Mahardika", points: 999 },
-  { rank: 4, name: "Rendy Mahardika", points: 999 },
-];
-
-const MONTHLY_LEADERBOARD: LeaderboardUser[] = [
-  { rank: 1, name: "NgurahffTzy_00", points: 999 },
-  { rank: 2, name: "RendyGaming_67", points: 999 },
-  { rank: 3, name: "Oporguabolanya000", points: 999 },
-  { rank: 4, name: "Rendy Mahardika", points: 999 },
-  { rank: 4, name: "Rendy Mahardika", points: 999 },
-  { rank: 4, name: "Rendy Mahardika", points: 999 },
-  { rank: 4, name: "Rendy Mahardika", points: 999 },
-  { rank: 4, name: "Rendy Mahardika", points: 999 },
-  { rank: 4, name: "Rendy Mahardika", points: 999 },
-  { rank: 4, name: "Rendy Mahardika", points: 999 },
-];
-
-const LIFETIME_LEADERBOARD: LeaderboardUser[] = [
-  { rank: 1, name: "NgurahffTzy_00", points: 999 },
-  { rank: 2, name: "RendyGaming_67", points: 999 },
-  { rank: 3, name: "Oporguabolanya000", points: 999 },
-  { rank: 4, name: "Rendy Mahardika", points: 999 },
-  { rank: 4, name: "Rendy Mahardika", points: 999 },
-];
-
 export default function LeaderboardPage() {
   const [toastMessage, setToastMessage] = React.useState<string | null>(null);
+  const authUser = useAuthStore((s) => s.user);
+  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
 
   // TanStack Query: Leaderboard API
   const { data: weeklyApiRes, isLoading: isWeeklyLoading } = useLeaderboard("weekly");
@@ -56,7 +24,7 @@ export default function LeaderboardPage() {
   const { data: allTimeApiRes, isLoading: isAllTimeLoading } = useLeaderboard("all-time");
   const { data: userRankApiRes } = useUserLeaderboardRank();
 
-  const weeklyList = React.useMemo(() => {
+  const weeklyList: LeaderboardUser[] = React.useMemo(() => {
     if (weeklyApiRes?.data && weeklyApiRes.data.length > 0) {
       return weeklyApiRes.data.map((u) => ({
         rank: u.rank,
@@ -64,10 +32,10 @@ export default function LeaderboardPage() {
         points: u.point,
       }));
     }
-    return WEEKLY_LEADERBOARD;
+    return [];
   }, [weeklyApiRes]);
 
-  const monthlyList = React.useMemo(() => {
+  const monthlyList: LeaderboardUser[] = React.useMemo(() => {
     if (monthlyApiRes?.data && monthlyApiRes.data.length > 0) {
       return monthlyApiRes.data.map((u) => ({
         rank: u.rank,
@@ -75,10 +43,10 @@ export default function LeaderboardPage() {
         points: u.point,
       }));
     }
-    return MONTHLY_LEADERBOARD;
+    return [];
   }, [monthlyApiRes]);
 
-  const lifetimeList = React.useMemo(() => {
+  const lifetimeList: LeaderboardUser[] = React.useMemo(() => {
     if (allTimeApiRes?.data && allTimeApiRes.data.length > 0) {
       return allTimeApiRes.data.map((u) => ({
         rank: u.rank,
@@ -86,17 +54,32 @@ export default function LeaderboardPage() {
         points: u.point,
       }));
     }
-    return LIFETIME_LEADERBOARD;
+    return [];
   }, [allTimeApiRes]);
 
-  const userRankBadge = userRankApiRes?.data?.rank ? `#${userRankApiRes.data.rank}` : "#67";
+  const rankingsData = userRankApiRes?.data?.rankings;
+  const fallbackRank = userRankApiRes?.data?.rank && userRankApiRes.data.rank > 0
+    ? `#${userRankApiRes.data.rank}`
+    : "-";
+  const weeklyRankBadge = isAuthenticated
+    ? rankingsData?.weekly
+      ? `#${rankingsData.weekly}`
+      : fallbackRank
+    : "-";
+  const monthlyRankBadge = isAuthenticated
+    ? rankingsData?.monthly
+      ? `#${rankingsData.monthly}`
+      : fallbackRank
+    : "-";
+  const allTimeRankBadge = isAuthenticated
+    ? rankingsData?.all_time
+      ? `#${rankingsData.all_time}`
+      : fallbackRank
+    : "-";
   const userPointsBadge =
-    userRankApiRes?.data?.point !== undefined
-      ? `${userRankApiRes?.data?.point} pts`
-      : "67 pts";
-
-  const authUser = useAuthStore((s) => s.user);
-  const isAuthenticated = useAuthStore((s) => s.isAuthenticated);
+    isAuthenticated && userRankApiRes?.data?.point !== undefined
+      ? `${userRankApiRes.data.point} pts`
+      : "0 pts";
 
   const currentUser = authUser
     ? {
@@ -196,7 +179,7 @@ export default function LeaderboardPage() {
                       </span>
                     </div>
                     <span className="text-label-md font-bold text-gray-100">
-                      {userRankBadge}
+                      {weeklyRankBadge}
                     </span>
                   </div>
 
@@ -211,7 +194,7 @@ export default function LeaderboardPage() {
                       </span>
                     </div>
                     <span className="text-label-md font-bold text-gray-100">
-                      {userRankBadge}
+                      {monthlyRankBadge}
                     </span>
                   </div>
 
@@ -226,7 +209,7 @@ export default function LeaderboardPage() {
                       </span>
                     </div>
                     <span className="text-label-md font-bold text-gray-100">
-                      {userRankBadge}
+                      {allTimeRankBadge}
                     </span>
                   </div>
                 </div>
@@ -242,7 +225,7 @@ export default function LeaderboardPage() {
                       Mingguan
                     </Pill>
                     <span className="text-label-md font-semibold text-gray-400">
-                      {userRankBadge}
+                      {weeklyRankBadge}
                     </span>
                   </div>
 
@@ -255,7 +238,7 @@ export default function LeaderboardPage() {
                       Bulanan
                     </Pill>
                     <span className="text-label-md font-semibold text-gray-400">
-                      {userRankBadge}
+                      {monthlyRankBadge}
                     </span>
                   </div>
 
@@ -268,7 +251,7 @@ export default function LeaderboardPage() {
                       All-time
                     </Pill>
                     <span className="text-label-md font-semibold text-gray-400">
-                      {userRankBadge}
+                      {allTimeRankBadge}
                     </span>
                   </div>
 

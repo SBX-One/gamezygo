@@ -43,8 +43,13 @@ export function useAdminCatalog(params?: AdminCatalogQueryParams) {
 
     return rawData.products.map((p) => {
       const isPreOrder = Boolean(p.is_preorder || p.status === "pre-order");
+      const isDraft = Boolean(p.is_draft || p.status === "draft");
       const isArchived = Boolean(p.status === "archive");
-      const isActive = Boolean(p.is_active || p.status === "listing");
+      const isActive = Boolean(
+        p.status === "listing" ||
+          p.status === "published" ||
+          (p.is_active && !isDraft && !isArchived)
+      );
 
       return {
         id: String(p.id),
@@ -62,8 +67,8 @@ export function useAdminCatalog(params?: AdminCatalogQueryParams) {
         price: p.price,
         isActive: isActive,
         isPreOrder: isPreOrder,
-        isDraft: Boolean(p.is_draft),
-        isUnlisted: isArchived,
+        isDraft: isDraft,
+        isUnlisted: isDraft || isArchived,
         createdAt: p.created_at || undefined,
       };
     });
@@ -98,6 +103,21 @@ export function useAdminProductDetail(id: string | number | undefined) {
     queryFn: () => adminCatalogService.getProduct(id!),
     enabled: Boolean(id),
     staleTime: 60 * 1000,
+  });
+}
+
+export function useToggleCatalogListingStatus() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ productId, isListed }: { productId: string | number; isListed: boolean }) =>
+      adminCatalogService.toggleListingStatus(productId, isListed),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ADMIN_CATALOG_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["products"] });
+      queryClient.invalidateQueries({ queryKey: ["custom-sections"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-sections"] });
+    },
   });
 }
 

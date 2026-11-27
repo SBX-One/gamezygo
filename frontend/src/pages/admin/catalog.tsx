@@ -18,6 +18,7 @@ import {
 import {
   useAdminCatalog,
   useToggleProductStatus,
+  useToggleCatalogListingStatus,
   useDeleteProducts,
   useCreateProduct,
   useUpdateProduct,
@@ -61,6 +62,7 @@ export default function AdminCatalogPage() {
   });
 
   const toggleStatusMutation = useToggleProductStatus();
+  const toggleListingMutation = useToggleCatalogListingStatus();
   const deleteMutation = useDeleteProducts();
   const createProductMutation = useCreateProduct();
   const updateProductMutation = useUpdateProduct();
@@ -149,28 +151,28 @@ export default function AdminCatalogPage() {
   };
 
   /**
-   * Switch toggle on the far left column:
-   * Sets whether the game is actively listed in the user store catalog (status = 'listing')
-   * or archived/hidden (status = 'archive').
+   * Switch toggle on the far left column (De-list / Re-list, separate from Archive):
+   * - active === true  -> status = 'listing' (visible in public storefront)
+   * - active === false -> status = 'draft'   (de-listed from storefront, stays in catalog for quick edit)
    */
   const handleToggleStatus = (id: string, active: boolean) => {
-    toggleStatusMutation.mutate(
+    toggleListingMutation.mutate(
       {
         productId: id,
-        isActive: active,
+        isListed: active,
       },
       {
         onSuccess: () => {
           toast.success(
             active
-              ? "Game berhasil diaktifkan dan tampil di toko!"
-              : "Game dinonaktifkan."
+              ? "Game berhasil ditampilkan kembali di toko!"
+              : "Game berhasil di-delist (disembunyikan dari toko)."
           );
         },
         onError: (err: unknown) => {
           const msg =
             (err as { response?: { data?: { message?: string } } })?.response
-              ?.data?.message || "Gagal mengubah status game.";
+              ?.data?.message || "Gagal mengubah status listing game.";
           toast.error(msg);
         },
       }

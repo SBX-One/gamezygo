@@ -106,6 +106,8 @@ function mapBackendUser(raw: Record<string, unknown>): AdminUserItem {
     subscription: sub?.name ? String(sub.name) : "Free",
     subsDuration: sub?.remaining_duration_label
       ? String(sub.remaining_duration_label)
+      : sub?.duration_months !== undefined && sub?.duration_months !== null
+      ? `${sub.duration_months} months`
       : undefined,
     lifetimeValue:
       stats.lifetime_value !== undefined ? Number(stats.lifetime_value) : undefined,

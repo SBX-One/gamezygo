@@ -195,12 +195,14 @@ export default function HistoryPage() {
       subtotal_price?: number | string;
       status?: string;
       created_at?: string;
+      expires_at?: string;
       payment_method?: string;
       item_name?: string;
       item_type?: string;
       payment?: {
         gateway_reference?: string;
         payment_method?: string;
+        paid_at?: string | null;
       };
       order_items?: Array<{
         name?: string;
@@ -212,7 +214,12 @@ export default function HistoryPage() {
           cover_image_url?: string;
           thumbnail?: string;
           price?: number;
-        };
+        } | null;
+        subscription_plan?: {
+          name?: string;
+          duration_days?: number;
+          price?: number;
+        } | null;
       }>;
       items?: Array<{
         name?: string;
@@ -224,7 +231,12 @@ export default function HistoryPage() {
           cover_image_url?: string;
           thumbnail?: string;
           price?: number;
-        };
+        } | null;
+        subscription_plan?: {
+          name?: string;
+          duration_days?: number;
+          price?: number;
+        } | null;
       }>;
       credentials?: {
         username?: string;
@@ -249,7 +261,12 @@ export default function HistoryPage() {
       let gameTitle = "Pesanan Gamezygo";
       if (orderItemsList.length > 0) {
         const first = orderItemsList[0];
-        const prodName = first.product?.name || first.product?.title || first.name || first.title;
+        const prodName =
+          first.product?.name ||
+          first.product?.title ||
+          first.subscription_plan?.name ||
+          first.name ||
+          first.title;
         if (prodName) {
           gameTitle = orderItemsList.length > 1 ? `${prodName} (+${orderItemsList.length - 1} item)` : prodName;
         }
@@ -259,10 +276,15 @@ export default function HistoryPage() {
         gameTitle = "Paket Langganan";
       }
 
-      // Status normalization: 'paid' | 'completed' | 'success' -> 'Berhasil'
+      // Status normalization: 'paid' | 'settled' | 'completed' | 'success' -> 'Berhasil'
       const rawStatus = String(o.status || "").toLowerCase();
       let status: OrderStatus = "Pending";
-      if (rawStatus === "paid" || rawStatus === "completed" || rawStatus === "success") {
+      if (
+        rawStatus === "paid" ||
+        rawStatus === "settled" ||
+        rawStatus === "completed" ||
+        rawStatus === "success"
+      ) {
         status = "Berhasil";
       } else if (rawStatus === "pending") {
         status = "Pending";
@@ -284,8 +306,9 @@ export default function HistoryPage() {
 
       const paymentMethod = formatPaymentMethodLabel(rawPaymentMethod);
 
-      const purchaseDate = o.created_at
-        ? new Date(o.created_at).toLocaleDateString("id-ID", {
+      const dateRaw = o.created_at || o.payment?.paid_at || o.expires_at;
+      const purchaseDate = dateRaw
+        ? new Date(dateRaw).toLocaleDateString("id-ID", {
             day: "numeric",
             month: "short",
             year: "numeric",

@@ -132,9 +132,9 @@ apiClient.interceptors.response.use(
         // If refresh endpoint itself failed or retry already attempted, invalidate session
         if (originalRequest?._retry || originalRequest?.url?.includes("/admin/refresh")) {
           logout();
-          if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+          if (typeof window !== "undefined" && !window.location.pathname.startsWith("/admin/login")) {
             const redirectPath = encodeURIComponent(window.location.pathname + window.location.search);
-            window.location.href = `/login?redirect=${redirectPath}`;
+            window.location.href = `/admin/login?redirect=${redirectPath}`;
           }
           return Promise.reject(error);
         }
@@ -191,9 +191,9 @@ apiClient.interceptors.response.use(
         } catch (adminRefreshErr) {
           processQueue(adminRefreshErr, null);
           logout();
-          if (typeof window !== "undefined" && !window.location.pathname.startsWith("/login")) {
+          if (typeof window !== "undefined" && !window.location.pathname.startsWith("/admin/login")) {
             const redirectPath = encodeURIComponent(window.location.pathname + window.location.search);
-            window.location.href = `/login?redirect=${redirectPath}`;
+            window.location.href = `/admin/login?redirect=${redirectPath}`;
           }
           return Promise.reject(adminRefreshErr);
         } finally {

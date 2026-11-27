@@ -108,7 +108,7 @@ export function AdminLayout({
 
     if (!isAdmin && !isCustomerForbidden) {
       const redirectTarget = encodeURIComponent(router.asPath || "/admin/dashboard");
-      router.replace(`/login?redirect=${redirectTarget}`);
+      router.replace(`/admin/login?redirect=${redirectTarget}`);
     }
   }, [isAdmin, isCustomerForbidden, isMounted, router]);
 

@@ -79,6 +79,32 @@ class User extends Authenticatable implements JWTSubject
         return (int) ($this->attributes['points'] ?? $this->attributes['total_points'] ?? 0);
     }
 
+    public function getTotalPointsAttribute(): int
+    {
+        return (int) ($this->attributes['total_points'] ?? $this->attributes['points'] ?? 0);
+    }
+
+    public function addPoints(int $points, string $type = 'reward', string $description = ''): void
+    {
+        $oldPoints = $this->points;
+        $newPoints = $oldPoints + $points;
+
+        $this->points = $newPoints;
+        $this->total_points = $newPoints;
+        $this->save();
+
+        UserPointHistory::create([
+            'user_id' => $this->id,
+            'type' => $type,
+            'points' => $points,
+            'balance_before' => $oldPoints,
+            'balance_after' => $newPoints,
+            'description' => $description,
+        ]);
+
+        app(\App\Services\Loyalty\LoyaltyRewardService::class)->checkAndGenerateRewardVoucher($this, $oldPoints, $newPoints);
+    }
+
     public function devices(): HasMany
     {
         return $this->hasMany(UserDevice::class);

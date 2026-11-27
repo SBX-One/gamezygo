@@ -19,7 +19,23 @@ class CartService
      */
     public function getCartSummary(User $user): array
     {
-        $items = $this->cartRepository->getUserCart($user);
+        $rawItems = $this->cartRepository->getUserCart($user);
+
+        // Auto-prune archived or draft items from cart
+        $archivedItemIds = $rawItems->filter(function ($item) {
+            return in_array($item->status, ['archive', 'archived', 'draft'], true) || ! empty($item->archived_at);
+        })->pluck('id')->all();
+
+        if (! empty($archivedItemIds)) {
+            foreach ($archivedItemIds as $archivedId) {
+                $this->cartRepository->removeFromCart($user, $archivedId);
+            }
+            $items = $rawItems->reject(function ($item) use ($archivedItemIds) {
+                return in_array($item->id, $archivedItemIds, true);
+            })->values();
+        } else {
+            $items = $rawItems;
+        }
 
         $subtotalPrice = 0;
         $totalPrice = 0;
@@ -58,6 +74,10 @@ class CartService
 
         if (! $product) {
             throw new ModelNotFoundException('Product not found');
+        }
+
+        if (in_array($product->status, ['archive', 'archived', 'draft'], true) || ! empty($product->archived_at)) {
+            throw new DomainException('Product is currently unavailable or archived.');
         }
 
         if ($user->ownedGames()->where('products.id', $product->id)->exists()) {

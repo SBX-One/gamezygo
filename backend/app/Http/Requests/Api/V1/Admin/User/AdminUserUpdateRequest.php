@@ -16,6 +16,9 @@ class AdminUserUpdateRequest extends FormRequest
         return [
             'points' => ['nullable', 'integer', 'min:0'],
             'subscription_duration_adjustment' => ['nullable', 'integer'],
+            'duration_adjustment' => ['nullable', 'integer'],
+            'duration_months' => ['nullable', 'integer'],
+            'subscription_plan_id' => ['nullable', 'integer', 'exists:subscription_plans,id'],
         ];
     }
 }

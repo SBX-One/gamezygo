@@ -33,18 +33,42 @@ class ProductFactory extends Factory
             'product_launcher_category_id' => ProductLauncherCategory::first()?->id ?? ProductLauncherCategory::factory(),
             'product_instruction_id' => ProductInstruction::first()?->id ?? ProductInstruction::factory(),
             'steam_url' => fake()->url(),
-            'status' => fake()->randomElement(['listing', 'pre-order', 'archive']),
+            'status' => 'listing',
             'is_subscription_supported' => fake()->boolean(70),
         ];
+    }
+
+    public function archived(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'archive',
+            'archived_at' => now(),
+        ]);
+    }
+
+    public function draft(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'draft',
+        ]);
+    }
+
+    public function preOrder(): static
+    {
+        return $this->state(fn (array $attributes) => [
+            'status' => 'pre-order',
+        ]);
     }
 
     public function configure(): static
     {
         return $this->afterCreating(function (Product $product) {
-            ProductGameAccount::factory()
-                ->create([
-                    'product_id' => $product->id,
-                ]);
+            if ($product->status !== 'pre-order') {
+                ProductGameAccount::factory()
+                    ->create([
+                        'product_id' => $product->id,
+                    ]);
+            }
 
             ProductSpecificationRequirement::factory()
                 ->count(12)

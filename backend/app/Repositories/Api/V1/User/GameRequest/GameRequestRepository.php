@@ -7,6 +7,8 @@ use App\Models\Product;
 use App\Models\User;
 use App\Repositories\Contracts\Api\V1\User\GameRequest\GameRequestRepositoryInterface;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 class GameRequestRepository implements GameRequestRepositoryInterface
 {
@@ -44,7 +46,19 @@ class GameRequestRepository implements GameRequestRepositoryInterface
      */
     public function getUserRequests(User $user, array $filters = [], int $perPage = 20): LengthAwarePaginator
     {
-        $query = $user->gameRequests();
+        $query = GameRequest::query()
+            ->where(function ($q) use ($user) {
+                $q->where('user_id', $user->id);
+
+                if (Schema::hasTable('game_request_users')) {
+                    $q->orWhereExists(function ($sub) use ($user) {
+                        $sub->select(DB::raw(1))
+                            ->from('game_request_users')
+                            ->whereColumn('game_request_users.game_request_id', 'game_requests.id')
+                            ->where('game_request_users.user_id', $user->id);
+                    });
+                }
+            });
 
         if (! empty($filters['search'])) {
             $search = trim((string) $filters['search']);
@@ -103,7 +117,7 @@ class GameRequestRepository implements GameRequestRepositoryInterface
      */
     public function hasUserRequestedGame(User $user, string $steamUrl, ?string $appId = null): bool
     {
-        return $user->gameRequests()
+        $isCreator = $user->gameRequests()
             ->whereIn('status', ['pending', 'reviewed'])
             ->where(function ($q) use ($steamUrl, $appId) {
                 $q->where('steam_url', $steamUrl);
@@ -114,6 +128,28 @@ class GameRequestRepository implements GameRequestRepositoryInterface
                 }
             })
             ->exists();
+
+        if ($isCreator) {
+            return true;
+        }
+
+        if (Schema::hasTable('game_request_users')) {
+            return DB::table('game_request_users')
+                ->join('game_requests', 'game_requests.id', '=', 'game_request_users.game_request_id')
+                ->where('game_request_users.user_id', $user->id)
+                ->whereIn('game_requests.status', ['pending', 'reviewed'])
+                ->where(function ($q) use ($steamUrl, $appId) {
+                    $q->where('game_requests.steam_url', $steamUrl);
+
+                    if ($appId) {
+                        $q->orWhere('game_requests.steam_url', 'like', "%/app/{$appId}%")
+                            ->orWhere('game_requests.steam_url', 'like', "%/app/{$appId}/%");
+                    }
+                })
+                ->exists();
+        }
+
+        return false;
     }
 
     /**
@@ -144,36 +180,52 @@ class GameRequestRepository implements GameRequestRepositoryInterface
         $steamUrl = $data['steam_url'];
         $appId = $data['app_id'] ?? null;
 
-        // Calculate existing requests for this game to compute new count
-        $existingCountQuery = GameRequest::query()->where(function ($q) use ($steamUrl, $appId) {
-            $q->where('steam_url', $steamUrl);
-            if ($appId) {
-                $q->orWhere('steam_url', 'like', "%/app/{$appId}%");
-            }
-        });
+        // Check if an existing game request already exists for this Steam URL or App ID
+        $existing = GameRequest::query()
+            ->where(function ($q) use ($steamUrl, $appId) {
+                $q->where('steam_url', $steamUrl);
+                if ($appId) {
+                    $q->orWhere('steam_url', 'like', "%/app/{$appId}%")
+                        ->orWhere('steam_url', 'like', "%/app/{$appId}/%");
+                }
+            })
+            ->first();
 
-        $currentCount = $existingCountQuery->count();
-        $newCount = $currentCount + 1;
+        if ($existing) {
+            $existing->increment('request_count');
+            $existing->update([
+                'last_requested_at' => now(),
+            ]);
+
+            if (Schema::hasTable('game_request_users')) {
+                DB::table('game_request_users')->insertOrIgnore([
+                    'game_request_id' => $existing->id,
+                    'user_id' => $user->id,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]);
+            }
+
+            return $existing->fresh();
+        }
 
         $gameRequest = $user->gameRequests()->create([
             'name' => $data['name'],
             'steam_url' => $steamUrl,
-            'request_count' => $newCount,
+            'request_count' => 1,
             'note' => $data['note'] ?? null,
             'status' => 'pending',
             'admin_note' => null,
+            'last_requested_at' => now(),
         ]);
 
-        // Synchronize request_count across all matching requests
-        if ($currentCount > 0) {
-            GameRequest::query()
-                ->where(function ($q) use ($steamUrl, $appId) {
-                    $q->where('steam_url', $steamUrl);
-                    if ($appId) {
-                        $q->orWhere('steam_url', 'like', "%/app/{$appId}%");
-                    }
-                })
-                ->update(['request_count' => $newCount]);
+        if (Schema::hasTable('game_request_users')) {
+            DB::table('game_request_users')->insertOrIgnore([
+                'game_request_id' => $gameRequest->id,
+                'user_id' => $user->id,
+                'created_at' => now(),
+                'updated_at' => now(),
+            ]);
         }
 
         return $gameRequest;

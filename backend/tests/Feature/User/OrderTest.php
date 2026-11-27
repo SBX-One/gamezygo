@@ -946,4 +946,127 @@ class OrderTest extends TestCase
                 'message' => 'Keranjang belanja Anda kosong.',
             ]);
     }
+
+    public function test_cannot_checkout_single_archived_product(): void
+    {
+        $user = User::factory()->create(['status' => 'active']);
+        $token = auth('api')->login($user);
+
+        $archived = Product::factory()->create([
+            'status'      => 'archive',
+            'archived_at' => now(),
+        ]);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/user/orders', [
+                'item_type'  => 'product',
+                'product_id' => $archived->id,
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Product is currently unavailable or archived.',
+            ]);
+    }
+
+    public function test_checkout_cart_rejects_and_detaches_archived_products(): void
+    {
+        $user = User::factory()->create(['status' => 'active']);
+        $token = auth('api')->login($user);
+
+        $active = Product::factory()->create(['price' => 100000, 'status' => 'listing']);
+        $archived = Product::factory()->create(['price' => 200000, 'status' => 'archive']);
+
+        $user->cartItems()->attach([$active->id, $archived->id]);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/user/orders', [
+                'item_type' => 'cart',
+            ]);
+
+        $response->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Beberapa produk di keranjang Anda sudah tidak tersedia dan telah dihapus.',
+            ]);
+
+        // Archived product should have been detached from user cart items
+        $this->assertDatabaseMissing('user_cart_items', [
+            'user_id'    => $user->id,
+            'product_id' => $archived->id,
+        ]);
+    }
+
+    public function test_authenticated_user_can_list_orders_with_status_filtering(): void
+    {
+        $user = User::factory()->create(['status' => 'active']);
+        $otherUser = User::factory()->create(['status' => 'active']);
+
+        $pendingOrder = Order::create([
+            'user_id'         => $user->id,
+            'order_code'      => 'ORD-20261127-001',
+            'subtotal_price'  => 100000,
+            'discount_amount' => 0,
+            'total_price'     => 100000,
+            'status'          => 'pending',
+            'expired_at'      => now()->addDay(),
+        ]);
+
+        $settledOrder = Order::create([
+            'user_id'         => $user->id,
+            'order_code'      => 'ORD-20261127-002',
+            'subtotal_price'  => 200000,
+            'discount_amount' => 0,
+            'total_price'     => 200000,
+            'status'          => 'settled',
+            'expired_at'      => now()->addDay(),
+            'paid_at'         => now(),
+        ]);
+
+        // Other user order should not appear
+        Order::create([
+            'user_id'         => $otherUser->id,
+            'order_code'      => 'ORD-20261127-999',
+            'subtotal_price'  => 300000,
+            'discount_amount' => 0,
+            'total_price'     => 300000,
+            'status'          => 'pending',
+            'expired_at'      => now()->addDay(),
+        ]);
+
+        $token = auth('api')->login($user);
+
+        // Test without filter: returns both user orders
+        $responseAll = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/user/orders');
+
+        $responseAll->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'message' => 'Orders retrieved successfully',
+            ]);
+        $allCodes = collect($responseAll->json('data'))->pluck('order_number')->all();
+        $this->assertContains('ORD-20261127-001', $allCodes);
+        $this->assertContains('ORD-20261127-002', $allCodes);
+        $this->assertNotContains('ORD-20261127-999', $allCodes);
+
+        // Test filter status=pending
+        $responsePending = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/user/orders?status=pending');
+
+        $responsePending->assertStatus(200);
+        $pendingCodes = collect($responsePending->json('data'))->pluck('order_number')->all();
+        $this->assertContains('ORD-20261127-001', $pendingCodes);
+        $this->assertNotContains('ORD-20261127-002', $pendingCodes);
+
+        // Test filter status=settled
+        $responseSettled = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/user/orders?status=settled');
+
+        $responseSettled->assertStatus(200);
+        $settledCodes = collect($responseSettled->json('data'))->pluck('order_number')->all();
+        $this->assertContains('ORD-20261127-002', $settledCodes);
+        $this->assertNotContains('ORD-20261127-001', $settledCodes);
+    }
 }

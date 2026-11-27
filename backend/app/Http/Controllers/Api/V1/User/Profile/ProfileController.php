@@ -60,7 +60,7 @@ class ProfileController extends Controller
     {
         try {
             $user = $request->user() ?? auth('api')->user();
-            $avatarFile = $request->file('avatar');
+            $avatarFile = $request->file('avatar') ?? $request->file('avatar_url') ?? $request->file('profile_url');
 
             $updatedUser = $this->profileService->updateProfile($user, $request->validated(), $avatarFile);
             $profile = $this->profileService->getProfile($updatedUser);

@@ -51,9 +51,9 @@ class ProductController extends Controller
         ], 200);
     }
 
-    public function show(Product $product): ProductDetailResource
+    public function show(string $slug): ProductDetailResource
     {
-        $productDetail = $this->productService->getProductDetail($product->slug);
+        $productDetail = $this->productService->getProductDetail($slug);
 
         return new ProductDetailResource($productDetail);
     }

@@ -9,16 +9,50 @@ use App\Models\User;
 use App\Models\Voucher;
 use App\Repositories\Contracts\Api\V1\User\Order\OrderRepositoryInterface;
 use App\Services\Credential\CredentialAllocationService;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Relations\MorphTo;
 use Illuminate\Support\Facades\DB;
 
 class OrderRepository implements OrderRepositoryInterface
 {
     /**
+     * Get paginated orders for a user with optional filters.
+     *
+     * @param  array<string, mixed>  $filters
+     */
+    public function getUserOrders(User $user, array $filters = [], int $perPage = 10): LengthAwarePaginator
+    {
+        $status = $filters['status'] ?? null;
+
+        return Order::where('user_id', $user->id)
+            ->when($status, function ($query) use ($status) {
+                if ($status === 'paid' || $status === 'settled') {
+                    $query->whereIn('status', ['paid', 'settled']);
+                } else {
+                    $query->where('status', $status);
+                }
+            })
+            ->with([
+                'items.purchasable' => function (MorphTo $morphTo) {
+                    $morphTo->morphWith([
+                        Product::class => ['files'],
+                    ]);
+                },
+                'payment',
+            ])
+            ->latest()
+            ->paginate($perPage);
+    }
+
+    /**
      * Create a new pending order for a product.
      */
     public function createOrderForProduct(User $user, Product $product): Order
     {
+        if (in_array($product->status, ['archive', 'archived', 'draft'], true) || ! empty($product->archived_at)) {
+            throw new \DomainException('Product is currently unavailable or archived.');
+        }
+
         $unitPrice = ($product->discount_price > 0 && $product->discount_price < $product->price)
           ? $product->discount_price
           : $product->price;
@@ -68,6 +102,17 @@ class OrderRepository implements OrderRepositoryInterface
 
         if ($cartItems->isEmpty()) {
             throw new \DomainException('Keranjang belanja Anda kosong.');
+        }
+
+        $archivedItems = $cartItems->filter(function ($product) {
+            return in_array($product->status, ['archive', 'archived', 'draft'], true) || ! empty($product->archived_at);
+        });
+
+        if ($archivedItems->isNotEmpty()) {
+            foreach ($archivedItems as $archivedItem) {
+                $user->cartItems()->detach($archivedItem->id);
+            }
+            throw new \DomainException('Beberapa produk di keranjang Anda sudah tidak tersedia dan telah dihapus.');
         }
 
         $orderCode = $this->generateOrderCode();

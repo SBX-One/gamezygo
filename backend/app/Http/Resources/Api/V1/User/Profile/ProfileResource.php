@@ -36,9 +36,15 @@ class ProfileResource extends JsonResource
             $user instanceof User ? $user->orders()->withCount('items')->latest()->take(3)->get() : []
         );
 
-        $avatarUrl = ($user instanceof User && $user->avatar)
-          ? (filter_var($user->avatar->file_path, FILTER_VALIDATE_URL) ? $user->avatar->file_path : Storage::disk('public')->url($user->avatar->file_path))
-          : ($user->avatar_url ?? 'https://ui-avatars.com/api/?name='.urlencode($user->name ?? 'User'));
+        $avatarUrl = $user->avatar_url;
+        if (! $avatarUrl && $user instanceof User && $user->avatar) {
+            $avatarUrl = filter_var($user->avatar->file_path, FILTER_VALIDATE_URL)
+                ? $user->avatar->file_path
+                : Storage::disk('public')->url($user->avatar->file_path);
+        }
+        if (! $avatarUrl) {
+            $avatarUrl = 'https://ui-avatars.com/api/?name='.urlencode($user->name ?? 'User');
+        }
 
         return [
             'id' => $user->id,
@@ -53,10 +59,12 @@ class ProfileResource extends JsonResource
                 'url' => filter_var($user->avatar->file_path, FILTER_VALIDATE_URL) ? $user->avatar->file_path : Storage::disk('public')->url($user->avatar->file_path),
             ] : null,
             'avatar_url' => $avatarUrl,
+            'profile_url' => $avatarUrl,
             'status' => $user->status,
             'joined_at' => $user->created_at,
             'total_transaction' => (int) ($user->total_transaction ?? 0),
-            'total_points' => (int) ($user->total_points ?? 0),
+            'points' => (int) ($user->points ?: $user->total_points ?: 0),
+            'total_points' => (int) ($user->total_points ?: $user->points ?: 0),
             'total_games_owned' => (int) $totalGames,
             'rankings' => [
                 'weekly' => (int) ($rankings['weekly'] ?? 1),

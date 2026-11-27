@@ -16,6 +16,16 @@ class OrderService
     ) {}
 
     /**
+     * Get paginated orders for a user.
+     *
+     * @param  array<string, mixed>  $filters
+     */
+    public function getUserOrders(User $user, array $filters = [], int $perPage = 10): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        return $this->orderRepository->getUserOrders($user, $filters, $perPage);
+    }
+
+    /**
      * Create a new order for user.
      */
     public function createOrder(User $user, array $data): Order

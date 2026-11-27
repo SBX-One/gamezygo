@@ -424,4 +424,85 @@ class CartTest extends TestCase
         $this->assertCount(1, $items);
         $this->assertEquals($productA->id, $items[0]['id']);
     }
+
+    public function test_cannot_add_archived_or_draft_product_to_cart(): void
+    {
+        $user = User::factory()->create(['status' => 'active']);
+        $token = auth('api')->login($user);
+
+        $archived = Product::factory()->create([
+            'status'      => 'archive',
+            'archived_at' => now(),
+        ]);
+
+        $draft = Product::factory()->create([
+            'status' => 'draft',
+        ]);
+
+        $responseArchived = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/user/cart', [
+                'product_id' => $archived->id,
+            ]);
+
+        $responseArchived->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Product is currently unavailable or archived.',
+            ]);
+
+        $responseDraft = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/user/cart', [
+                'product_id' => $draft->id,
+            ]);
+
+        $responseDraft->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+                'message' => 'Product is currently unavailable or archived.',
+            ]);
+    }
+
+    public function test_cart_summary_prunes_archived_products(): void
+    {
+        $user = User::factory()->create(['status' => 'active']);
+        $token = auth('api')->login($user);
+
+        $activeProduct = Product::factory()->create([
+            'name'           => 'Active Product',
+            'price'          => 100000,
+            'discount_price' => null,
+            'status'         => 'listing',
+        ]);
+
+        $archivedProduct = Product::factory()->create([
+            'name'        => 'De-listed Product',
+            'price'       => 200000,
+            'status'      => 'archive',
+            'archived_at' => now(),
+        ]);
+
+        // Manually attach both to user cart (simulating product being archived after customer added it)
+        $user->cartItems()->attach([$activeProduct->id, $archivedProduct->id]);
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/user/cart');
+
+        $response->assertStatus(200);
+        $items = $response->json('data.items');
+
+        // Only active product should remain in cart summary
+        $this->assertCount(1, $items);
+        $this->assertEquals($activeProduct->id, $items[0]['id']);
+        $this->assertEquals(100000, $response->json('data.total_prices'));
+
+        // Database should be pruned of the archived product
+        $this->assertDatabaseMissing('user_cart_items', [
+            'user_id'    => $user->id,
+            'product_id' => $archivedProduct->id,
+        ]);
+        $this->assertDatabaseHas('user_cart_items', [
+            'user_id'    => $user->id,
+            'product_id' => $activeProduct->id,
+        ]);
+    }
 }

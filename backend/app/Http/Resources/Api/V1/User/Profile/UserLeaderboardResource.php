@@ -14,9 +14,12 @@ class UserLeaderboardResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $point = (int) ($this->resource['point'] ?? $this->resource['points'] ?? 0);
+
         return [
             'rank' => (int) ($this->resource['rank'] ?? 1),
-            'point' => (int) ($this->resource['point'] ?? 0),
+            'point' => $point,
+            'points' => $point,
         ];
     }
 }

@@ -24,16 +24,21 @@ class UpdateProfileRequest extends FormRequest
      */
     public function rules(): array
     {
+        $hasFile = $this->hasFile('avatar') || $this->hasFile('avatar_url') || $this->hasFile('profile_url');
+
         $rules = [
             'name' => ['sometimes', 'required', 'string', 'max:255'],
-            'phone' => ['nullable', 'string', 'max:20'],
-            'avatar_url' => ['nullable', 'string', 'max:500'],
+            'phone' => ['nullable', 'string', 'regex:/^(\+?[0-9]{8,16})$/', 'max:20'],
+            'avatar_url' => ['nullable', 'string', 'max:1000'],
+            'profile_url' => ['nullable', 'string', 'max:1000'],
         ];
 
-        if ($this->hasFile('avatar')) {
-            $rules['avatar'] = ['nullable', 'file', 'image', 'mimes:jpeg,png,jpg,webp', 'max:2048'];
+        if ($hasFile) {
+            $rules['avatar'] = ['nullable', 'file', 'image', 'mimes:jpeg,png,jpg,webp,gif', 'max:5120'];
+            $rules['avatar_url'] = ['nullable'];
+            $rules['profile_url'] = ['nullable'];
         } else {
-            $rules['avatar'] = ['nullable', 'string', 'max:500'];
+            $rules['avatar'] = ['nullable', 'string', 'max:1000'];
         }
 
         return $rules;
@@ -50,9 +55,10 @@ class UpdateProfileRequest extends FormRequest
             'name.required' => 'Name cannot be empty.',
             'name.string' => 'Name must be a valid string.',
             'name.max' => 'Name may not exceed 255 characters.',
-            'avatar.image' => 'Avatar must be an image file (jpeg, png, jpg, webp).',
-            'avatar.mimes' => 'Avatar must be a file of type: jpeg, png, jpg, webp.',
-            'avatar.max' => 'Avatar image size may not exceed 2MB.',
+            'avatar.image' => 'Avatar must be an image file (jpeg, png, jpg, webp, gif).',
+            'avatar.mimes' => 'Avatar must be a file of type: jpeg, png, jpg, webp, gif.',
+            'avatar.max' => 'Avatar image size may not exceed 5MB.',
+            'phone.regex' => 'The phone number format is invalid. Please enter a valid phone number (e.g. 081234567890 or +6281234567890).',
             'phone.max' => 'Phone number may not exceed 20 characters.',
         ];
     }

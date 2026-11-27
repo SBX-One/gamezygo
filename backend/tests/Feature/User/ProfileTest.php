@@ -615,4 +615,186 @@ class ProfileTest extends TestCase
         $this->assertEquals(2, $response->json('data.rank'));
         $this->assertEquals(1250, $response->json('data.point'));
     }
+
+    public function test_points_synchronization_across_profile_and_leaderboard(): void
+    {
+        $user = User::create([
+            'name' => 'Points Sync User',
+            'email' => 'sync@example.com',
+            'password' => bcrypt('secret123'),
+            'status' => 'active',
+            'points' => 300,
+            'total_points' => 0,
+        ]);
+
+        $token = auth('api')->login($user);
+
+        // 1. Profile must return points = 300 and total_points = 300
+        $profileResponse = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/user/profile');
+
+        $profileResponse->assertStatus(200)
+            ->assertJsonPath('data.points', 300)
+            ->assertJsonPath('data.total_points', 300);
+
+        // 2. User leaderboard must return point = 300
+        $leaderboardResponse = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/user/profile/leaderboard');
+
+        $leaderboardResponse->assertStatus(200)
+            ->assertJsonPath('data.point', 300);
+
+        // 3. User available vouchers endpoint
+        $vouchersResponse = $this->withHeader('Authorization', "Bearer {$token}")
+            ->getJson('/api/v1/user/vouchers');
+
+        $vouchersResponse->assertStatus(200)
+            ->assertJson(['success' => true]);
+    }
+
+    public function test_public_leaderboard_endpoint_returns_ranked_users_with_points(): void
+    {
+        User::create([
+            'name' => 'Gamer Alpha',
+            'email' => 'alpha.leader@example.com',
+            'password' => bcrypt('secret123'),
+            'status' => 'active',
+            'points' => 1200,
+            'total_points' => 0,
+        ]);
+
+        User::create([
+            'name' => 'Gamer Beta',
+            'email' => 'beta.leader@example.com',
+            'password' => bcrypt('secret123'),
+            'status' => 'active',
+            'points' => 0,
+            'total_points' => 800,
+        ]);
+
+        $response = $this->getJson('/api/v1/leaderboards');
+
+        $response->assertStatus(200)
+            ->assertJson([
+                'success' => true,
+                'message' => 'Leaderboard retrieved successfully',
+            ]);
+
+        $data = $response->json('data');
+        $this->assertNotEmpty($data);
+        $first = $data[0];
+        $this->assertEquals('Gamer Alpha', $first['name']);
+        $this->assertEquals(1200, $first['point']);
+        $this->assertEquals(1200, $first['points']);
+    }
+
+    public function test_avatar_upload_accepts_file_up_to_5mb(): void
+    {
+        Storage::fake('public');
+
+        $user = User::create([
+            'name' => 'Avatar Size Tester',
+            'email' => 'size.avatar@example.com',
+            'password' => bcrypt('secret123'),
+            'status' => 'active',
+        ]);
+
+        $token = auth('api')->login($user);
+
+        // 3MB image file (3072 KB)
+        $file = UploadedFile::fake()->create('large-avatar.jpg', 3072, 'image/jpeg');
+
+        $response = $this->withHeader('Authorization', "Bearer {$token}")
+            ->postJson('/api/v1/user/profile', [
+                'avatar' => $file,
+            ]);
+
+        $response->assertStatus(200);
+        $this->assertNotNull($response->json('data.avatar_url'));
+    }
+
+    public function test_modifying_profile_url_updates_avatar_url_without_400_error(): void
+    {
+        Storage::fake('public');
+
+        $user = User::create([
+            'name' => 'Profile URL User',
+            'email' => 'url.user@example.com',
+            'password' => bcrypt('secret123'),
+            'status' => 'active',
+            'avatar_url' => 'https://example.com/initial-avatar.jpg',
+        ]);
+
+        $token = auth('api')->login($user);
+
+        // 1. Modifying profile with avatar_url
+        $response1 = $this->withHeader('Authorization', "Bearer {$token}")
+            ->putJson('/api/v1/user/profile', [
+                'avatar_url' => 'https://images.example.com/new-avatar-1.jpg',
+            ]);
+
+        $response1->assertStatus(200)
+            ->assertJsonPath('data.avatar_url', 'https://images.example.com/new-avatar-1.jpg');
+
+        $this->assertEquals('https://images.example.com/new-avatar-1.jpg', $user->fresh()->avatar_url);
+
+        // 2. Modifying profile with profile_url alias
+        $response2 = $this->withHeader('Authorization', "Bearer {$token}")
+            ->putJson('/api/v1/user/profile', [
+                'profile_url' => 'https://images.example.com/new-avatar-2.jpg',
+            ]);
+
+        $response2->assertStatus(200)
+            ->assertJsonPath('data.avatar_url', 'https://images.example.com/new-avatar-2.jpg');
+
+        $this->assertEquals('https://images.example.com/new-avatar-2.jpg', $user->fresh()->avatar_url);
+    }
+
+    public function test_phone_number_format_validation(): void
+    {
+        $user = User::create([
+            'name' => 'Phone Validator User',
+            'email' => 'phone.user@example.com',
+            'password' => bcrypt('secret123'),
+            'status' => 'active',
+        ]);
+
+        $token = auth('api')->login($user);
+
+        // Reject random invalid text
+        $responseInvalidText = $this->withHeader('Authorization', "Bearer {$token}")
+            ->putJson('/api/v1/user/profile', [
+                'phone' => 'random invalid text',
+            ]);
+
+        $responseInvalidText->assertStatus(422)
+            ->assertJsonValidationErrors(['phone']);
+
+        // Reject alphanumeric invalid phone
+        $responseAlphanumeric = $this->withHeader('Authorization', "Bearer {$token}")
+            ->putJson('/api/v1/user/profile', [
+                'phone' => 'abc12345678',
+            ]);
+
+        $responseAlphanumeric->assertStatus(422)
+            ->assertJsonValidationErrors(['phone']);
+
+        // Accept valid Indonesian phone format
+        $responseValidIndo = $this->withHeader('Authorization', "Bearer {$token}")
+            ->putJson('/api/v1/user/profile', [
+                'phone' => '081234567890',
+            ]);
+
+        $responseValidIndo->assertStatus(200)
+            ->assertJsonPath('data.phone', '081234567890');
+
+        // Accept valid international E.164 phone format
+        $responseValidIntl = $this->withHeader('Authorization', "Bearer {$token}")
+            ->putJson('/api/v1/user/profile', [
+                'phone' => '+6281234567890',
+            ]);
+
+        $responseValidIntl->assertStatus(200)
+            ->assertJsonPath('data.phone', '+6281234567890');
+    }
 }

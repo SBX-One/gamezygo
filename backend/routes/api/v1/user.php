@@ -16,6 +16,7 @@ use App\Http\Controllers\Api\V1\User\Profile\ProfileController;
 use App\Http\Controllers\Api\V1\User\Review\ReviewController;
 use App\Http\Controllers\Api\V1\User\SubscriptionPlan\SubscriptionPlanController;
 use App\Http\Controllers\Api\V1\User\UserSubscription\UserSubscriptionController;
+use App\Http\Controllers\Api\V1\User\Voucher\UserVoucherController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -33,7 +34,7 @@ Route::group([], function () {
         ->group(function () {
             Route::get('/', 'index')->name('index');
             Route::get('/filters', 'filters')->name('filters');
-            Route::get('/{product:slug}', 'show')->name('show');
+            Route::get('/{slug}', 'show')->name('show');
         });
 
     // Custom sections
@@ -96,7 +97,7 @@ Route::prefix('user')
             ->group(function () {
                 Route::get('/', 'show')->name('show');
                 Route::get('/leaderboard', 'leaderboard')->name('leaderboard');
-                Route::match(['put', 'post'], '/', 'update')->name('update');
+                Route::match(['put', 'patch', 'post'], '/', 'update')->name('update');
                 Route::match(['put', 'patch', 'post'], '/change-password', 'changePassword')->name('change-password');
                 Route::get('/products', 'products')->name('products');
             });
@@ -143,11 +144,15 @@ Route::prefix('user')
             ->prefix('orders')
             ->name('orders.')
             ->group(function () {
+                Route::get('/', 'index')->name('index');
                 Route::post('/', 'store')->name('store');
                 Route::get('/{orderId}', 'show')->name('show');
                 Route::post('/{orderId}/voucher', 'applyVoucher')->name('apply-voucher');
                 Route::delete('/{orderId}/voucher', 'removeVoucher')->name('remove-voucher');
             });
+
+        // Customer Available Vouchers
+        Route::get('vouchers', [UserVoucherController::class, 'index'])->name('vouchers.index');
 
         // Payments
         Route::controller(PaymentController::class)

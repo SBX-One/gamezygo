@@ -15,6 +15,7 @@ import { useInfiniteReviews, useCreateReview } from "@/hooks/use-reviews";
 import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useUserProfile } from "@/hooks/use-profile";
+import { resolveImageUrl } from "@/utils/image-url";
 import { MOCK_USER } from "@/lib/mock/data";
 
 interface AttachedImage {
@@ -412,9 +413,22 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
               "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=120&h=120&q=80",
             rating: `${r.rating || 5} Star`,
             review: r.review,
-            gameName: "Black Myth Wukong, 2+",
+            gameName:
+              (r as { product?: { name?: string } }).product?.name ||
+              "Gamezygo",
             images: (r.images || [])
-              .map((img) => img.url || img.file_url || "")
+              .map((img) => {
+                if (typeof img === "string") return resolveImageUrl(img, "");
+                const raw = img as {
+                  url?: string;
+                  file_url?: string;
+                  image_url?: string;
+                  file_path?: string;
+                };
+                const candidate =
+                  raw.url || raw.file_url || raw.image_url || raw.file_path || "";
+                return candidate ? resolveImageUrl(candidate, "") : "";
+              })
               .filter((url): url is string => Boolean(url)),
           }))
         : reviews;

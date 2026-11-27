@@ -1,4 +1,5 @@
 import { apiClient } from "@/lib/api-client";
+import { resolveImageUrl } from "@/utils/image-url";
 import type {
   AdminReviewItem,
   ReviewStatus,
@@ -96,7 +97,22 @@ export function mapBackendReviewToItem(row: BackendReviewRow): AdminReviewItem {
     createdAt: formatReviewDate(row.created_at),
     rating: Number(row.rating ?? 5),
     reviewText: String(row.review ?? ""),
-    thumbnails: Array.isArray(row.images) ? row.images.map((img) => img.url) : [],
+    thumbnails: Array.isArray(row.images)
+      ? row.images
+          .map((img) => {
+            if (typeof img === "string") return resolveImageUrl(img, "");
+            const raw = img as {
+              url?: string;
+              file_url?: string;
+              image_url?: string;
+              file_path?: string;
+            };
+            const candidate =
+              raw.url || raw.file_url || raw.image_url || raw.file_path || "";
+            return candidate ? resolveImageUrl(candidate, "") : "";
+          })
+          .filter(Boolean)
+      : [],
     status: mapBackendStatusToUi(row.status),
     price: row.product?.price ? Number(row.product.price) : undefined,
     gameTitle: row.product?.name,

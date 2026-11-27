@@ -42,6 +42,7 @@ export function useUpdateAdminReviewStatus() {
     }) => adminReviewService.updateStatus(id, status),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ADMIN_REVIEWS_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["reviews"] });
     },
   });
 }
@@ -59,6 +60,7 @@ export function useReplyAdminReview() {
     }) => adminReviewService.replyReview(id, message),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ADMIN_REVIEWS_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["reviews"] });
     },
   });
 }
@@ -70,6 +72,7 @@ export function useDeleteAdminReview() {
     mutationFn: (id: string | number) => adminReviewService.deleteReview(id),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ADMIN_REVIEWS_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["reviews"] });
     },
   });
 }
@@ -82,6 +85,7 @@ export function useBulkDeleteAdminReviews() {
       adminReviewService.bulkDeleteReviews(ids),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ADMIN_REVIEWS_KEYS.all });
+      queryClient.invalidateQueries({ queryKey: ["reviews"] });
     },
   });
 }

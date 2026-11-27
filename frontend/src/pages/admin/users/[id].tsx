@@ -138,11 +138,19 @@ export default function AdminUserDetailPage() {
         payload.subscription_duration_adjustment = durationAdjustment;
       }
 
-      await updateUserMutation.mutateAsync({
+      const res = (await updateUserMutation.mutateAsync({
         id: userId,
         data: payload,
-      });
-      toast.success("Data pengguna berhasil diperbarui.", "Tersimpan");
+      })) as { data?: { subscription?: unknown } } | undefined;
+
+      if (durationAdjustment !== 0 && !res?.data?.subscription) {
+        toast.warning(
+          "Pengguna ini belum memiliki langganan aktif, sehingga server tidak memperbarui durasi langganan.",
+          "Langganan Belum Aktif"
+        );
+      } else {
+        toast.success("Data pengguna berhasil diperbarui.", "Tersimpan");
+      }
       setIsEditDrawerOpen(false);
     } catch (err: unknown) {
       const msg =

@@ -31,13 +31,9 @@ export function AdminUserMetricsGrid({
   onEditSubsDuration,
   className,
 }: AdminUserMetricsGridProps) {
-  const lifetimeValueFormatted =
-    user.lifetimeValue !== undefined
-      ? `IDR ${user.lifetimeValue.toLocaleString("en-US")}`
-      : "IDR 455,000";
-
-  const pointsFormatted = `${user.points ?? 128} pts`;
-  const subsDurationFormatted = user.subsDuration || "2 months";
+  const lifetimeValueFormatted = `IDR ${(user.lifetimeValue ?? 0).toLocaleString("en-US")}`;
+  const pointsFormatted = `${user.points ?? 0} pts`;
+  const subsDurationFormatted = user.subsDuration || "-";
 
   return (
     <div className={cn("grid grid-cols-1 md:grid-cols-3 gap-4 w-full select-none", className)}>

@@ -180,13 +180,13 @@ export const adminCatalogService = {
   },
 
   /**
-   * Toggle product De-list / Re-list status (separate from Archive, FR-26).
-   * - isListed === true  -> status 'listing' (visible in public storefront)
-   * - isListed === false -> status 'draft'   (hidden from public storefront, stays in catalog for quick edit)
+   * Toggle product De-list / Re-list status (separate from Draft and Archive, FR-26).
+   * - isListed === true  -> status 'listing'  (visible & purchasable in public storefront)
+   * - isListed === false -> status 'unlisted' (temporarily hidden from storefront for maintenance; owners keep Library access)
    */
   async toggleListingStatus(productId: number | string, isListed: boolean): Promise<unknown> {
     const response = await apiClient.post(`/admin/catalog/${productId}`, {
-      status: isListed ? "listing" : "draft",
+      status: isListed ? "listing" : "unlisted",
     });
     return response.data;
   },

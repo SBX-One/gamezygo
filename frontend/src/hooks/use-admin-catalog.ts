@@ -44,11 +44,12 @@ export function useAdminCatalog(params?: AdminCatalogQueryParams) {
     return rawData.products.map((p) => {
       const isPreOrder = Boolean(p.is_preorder || p.status === "pre-order");
       const isDraft = Boolean(p.is_draft || p.status === "draft");
+      const isUnlisted = Boolean(p.status === "unlisted" || p.status === "delist");
       const isArchived = Boolean(p.status === "archive");
       const isActive = Boolean(
         p.status === "listing" ||
           p.status === "published" ||
-          (p.is_active && !isDraft && !isArchived)
+          (p.is_active && !isDraft && !isUnlisted && !isArchived)
       );
 
       return {
@@ -68,7 +69,7 @@ export function useAdminCatalog(params?: AdminCatalogQueryParams) {
         isActive: isActive,
         isPreOrder: isPreOrder,
         isDraft: isDraft,
-        isUnlisted: isDraft || isArchived,
+        isUnlisted: isUnlisted,
         createdAt: p.created_at || undefined,
       };
     });

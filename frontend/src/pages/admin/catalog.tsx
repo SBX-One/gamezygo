@@ -151,9 +151,9 @@ export default function AdminCatalogPage() {
   };
 
   /**
-   * Switch toggle on the far left column (De-list / Re-list, separate from Archive):
-   * - active === true  -> status = 'listing' (visible in public storefront)
-   * - active === false -> status = 'draft'   (de-listed from storefront, stays in catalog for quick edit)
+   * Switch toggle on the far left column (De-list / Re-list, separate from Draft & Archive):
+   * - active === true  -> status = 'listing'  (visible & purchasable in public storefront)
+   * - active === false -> status = 'unlisted' (temporarily hidden from storefront; owners keep Library access)
    */
   const handleToggleStatus = (id: string, active: boolean) => {
     toggleListingMutation.mutate(

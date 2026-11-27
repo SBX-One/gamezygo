@@ -79,7 +79,9 @@ export default function AdminEditProductPage() {
           initialPrice: String(
             serverProduct.original_price || serverProduct.price
           ),
-          isPreOrder: Boolean(serverProduct.is_preorder),
+          isPreOrder: Boolean(
+            serverProduct.is_preorder || serverProduct.status === "pre-order"
+          ),
           genres: serverProduct.categories
             ? Array.from(
                 new Set(

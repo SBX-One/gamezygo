@@ -610,4 +610,63 @@ class AdminCatalogTest extends TestCase
             'status' => 'draft',
         ]);
     }
+
+    public function test_pre_order_game_creation_does_not_save_credentials_to_db(): void
+    {
+        $payload = [
+            'name' => 'Upcoming Blockbuster 2027',
+            'price' => 750000,
+            'status' => 'pre-order',
+            'steam_url' => 'https://store.steampowered.com/app/123456/',
+            'game_account' => [
+                'username' => 'premature_user',
+                'password' => 'premature_pass',
+            ],
+        ];
+
+        $response = $this->withHeader('Authorization', "Bearer {$this->adminToken}")
+            ->postJson('/api/v1/admin/catalog', $payload);
+
+        $response->assertStatus(201)
+            ->assertJsonPath('data.status', 'pre-order');
+
+        $productId = $response->json('data.id');
+
+        // Product must be saved as pre-order
+        $this->assertDatabaseHas('products', [
+            'id' => $productId,
+            'status' => 'pre-order',
+        ]);
+
+        // Credentials MUST NOT be saved into product_game_accounts (FR-25 / BUG-016)
+        $this->assertDatabaseMissing('product_game_accounts', [
+            'product_id' => $productId,
+        ]);
+    }
+
+    public function test_pre_order_game_edit_does_not_prematurely_switch_status_to_listing_without_credentials(): void
+    {
+        $product = Product::factory()->create([
+            'name' => 'Cyber Shadow 2077',
+            'status' => 'pre-order',
+        ]);
+
+        // Attempting to update product with status listing without game credentials
+        $response = $this->withHeader('Authorization', "Bearer {$this->adminToken}")
+            ->putJson("/api/v1/admin/catalog/{$product->id}", [
+                'name' => 'Cyber Shadow 2077 Updated',
+                'price' => 600000,
+                'status' => 'listing',
+            ]);
+
+        // Should be rejected by validation requiring credentials to transition to listed
+        $response->assertStatus(422)
+            ->assertJsonValidationErrors(['game_account']);
+
+        // Database status must remain pre-order
+        $this->assertDatabaseHas('products', [
+            'id' => $product->id,
+            'status' => 'pre-order',
+        ]);
+    }
 }

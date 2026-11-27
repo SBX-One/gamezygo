@@ -15,18 +15,21 @@ class LeaderboardRepository implements LeaderboardRepositoryInterface
     {
         $paginator = User::query()
             ->where('status', 'active')
-            ->select('id', 'name', 'total_points')
-            ->orderByDesc('total_points')
+            ->select('id', 'name', 'points', 'total_points')
+            ->orderByRaw('COALESCE(NULLIF(total_points, 0), points, 0) DESC')
             ->paginate($perPage);
 
         $startRank = ($paginator->currentPage() - 1) * $paginator->perPage() + 1;
 
         $items = collect($paginator->items())->map(function ($user, $index) use ($startRank) {
+            $point = (int) ($user->total_points ?: $user->points ?: 0);
+
             return [
                 'rank' => $startRank + $index,
                 'id' => $user->id,
                 'name' => $user->name,
-                'point' => (int) $user->total_points,
+                'point' => $point,
+                'points' => $point,
             ];
         });
 

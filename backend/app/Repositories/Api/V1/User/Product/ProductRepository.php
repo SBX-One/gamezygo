@@ -28,6 +28,8 @@ class ProductRepository implements ProductRepositoryInterface
         $sortBy = $filters['sort_by'] ?? null;
 
         return Product::query()
+            ->whereNotIn('status', ['archive', 'archived', 'draft'])
+            ->whereNull('archived_at')
             ->with(['genreCategories', 'productLauncherCategory'])
             ->when($search, function ($query) use ($search) {
                 $query->where('name', 'like', '%'.$search.'%');
@@ -92,6 +94,8 @@ class ProductRepository implements ProductRepositoryInterface
     {
         return Product::query()
             ->where('slug', $slug)
+            ->whereNotIn('status', ['archive', 'archived', 'draft'])
+            ->whereNull('archived_at')
             ->with([
                 'genreCategories',
                 'productLauncherCategory',

@@ -5,9 +5,11 @@ namespace App\Repositories\Api\V1\Admin\User;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\Product;
+use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Models\UserDevice;
 use App\Models\UserPointHistory;
+use App\Models\UserSubscription;
 use App\Repositories\Contracts\Api\V1\Admin\User\AdminUserRepositoryInterface;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Storage;
@@ -181,6 +183,7 @@ class AdminUserRepository implements AdminUserRepositoryInterface
                 'status' => $activeSub->status,
                 'started_at' => $activeSub->started_at?->toISOString(),
                 'expired_at' => $activeSub->expired_at?->toISOString(),
+                'duration_months' => $diffMonths,
                 'remaining_days' => $diffDays,
                 'remaining_duration_label' => $durationLabel,
             ];
@@ -210,6 +213,8 @@ class AdminUserRepository implements AdminUserRepositoryInterface
             'avatar_url' => $user->avatar_url ?? 'https://placehold.co/150',
             'login_type' => $user->login_type,
             'status' => $user->status,
+            'points' => (int) $user->points,
+            'total_points' => (int) $user->total_points,
             'statistics' => $statistics,
             'subscription' => $subData,
             'created_at' => $user->created_at?->toISOString(),
@@ -249,18 +254,48 @@ class AdminUserRepository implements AdminUserRepositoryInterface
                     'balance_after' => $newPoints,
                     'description' => 'Manual adjustment by admin',
                 ]);
+
+                // Auto-generate loyalty reward voucher if 100-point threshold reached (TC-48 / FR-23)
+                app(\App\Services\Loyalty\LoyaltyRewardService::class)->checkAndGenerateRewardVoucher($user, $oldPoints, $newPoints);
             }
         }
 
         $user->save();
 
         // Subscription Duration Adjustment
+        $adjustment = $data['subscription_duration_adjustment']
+            ?? $data['duration_adjustment']
+            ?? $data['duration_months']
+            ?? null;
+
         $activeSub = $user->subscriptions->first();
-        if (isset($data['subscription_duration_adjustment']) && $activeSub) {
-            $adjustment = (int) $data['subscription_duration_adjustment'];
-            $currentExpiry = $activeSub->expired_at ? Carbon::parse($activeSub->expired_at) : now();
-            $activeSub->expired_at = $currentExpiry->addMonths($adjustment);
-            $activeSub->save();
+
+        if ($adjustment !== null) {
+            $adjustmentMonths = (int) $adjustment;
+            if ($activeSub) {
+                $currentExpiry = ($activeSub->expired_at && Carbon::parse($activeSub->expired_at)->isFuture())
+                    ? Carbon::parse($activeSub->expired_at)
+                    : now();
+
+                $activeSub->expired_at = $currentExpiry->copy()->addMonths($adjustmentMonths);
+                $activeSub->status = 'active';
+                $activeSub->save();
+            } else {
+                $planId = $data['subscription_plan_id']
+                    ?? SubscriptionPlan::where('is_active', true)->value('id')
+                    ?? SubscriptionPlan::value('id');
+
+                if ($planId) {
+                    $activeSub = UserSubscription::create([
+                        'user_id' => $user->id,
+                        'subscription_plan_id' => $planId,
+                        'started_at' => now(),
+                        'expired_at' => now()->addMonths($adjustmentMonths),
+                        'status' => 'active',
+                    ]);
+                    $activeSub->load('subscriptionPlan');
+                }
+            }
         }
 
         $subResponse = null;

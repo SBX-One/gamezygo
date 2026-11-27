@@ -7,13 +7,26 @@ use App\Models\Product;
 use App\Models\SubscriptionPlan;
 use App\Models\User;
 use App\Models\Voucher;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 interface OrderRepositoryInterface
 {
     /**
+     * Get paginated orders for a user with optional filters.
+     *
+     * @param  array<string, mixed>  $filters
+     */
+    public function getUserOrders(User $user, array $filters = [], int $perPage = 10): LengthAwarePaginator;
+
+    /**
      * Create a new pending order for a product.
      */
     public function createOrderForProduct(User $user, Product $product): Order;
+
+    /**
+     * Create a new pending order from all items in user's cart.
+     */
+    public function createOrderFromCart(User $user): Order;
 
     /**
      * Create a new pending order for a subscription plan.

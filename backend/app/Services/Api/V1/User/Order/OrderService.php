@@ -16,10 +16,24 @@ class OrderService
     ) {}
 
     /**
+     * Get paginated orders for a user.
+     *
+     * @param  array<string, mixed>  $filters
+     */
+    public function getUserOrders(User $user, array $filters = [], int $perPage = 10): \Illuminate\Contracts\Pagination\LengthAwarePaginator
+    {
+        return $this->orderRepository->getUserOrders($user, $filters, $perPage);
+    }
+
+    /**
      * Create a new order for user.
      */
     public function createOrder(User $user, array $data): Order
     {
+        if (($data['item_type'] ?? '') === 'cart') {
+            return $this->orderRepository->createOrderFromCart($user);
+        }
+
         if (($data['item_type'] ?? '') === 'subscription' || ! empty($data['subscription_plan_id'])) {
             $plan = SubscriptionPlan::where('is_active', true)->findOrFail($data['subscription_plan_id']);
 

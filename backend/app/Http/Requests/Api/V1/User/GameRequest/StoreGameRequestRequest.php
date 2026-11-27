@@ -28,7 +28,7 @@ class StoreGameRequestRequest extends FormRequest
             'steam_url' => [
                 'required',
                 'string',
-                'regex:#^https?://store\.steampowered\.com/app/\d+#i',
+                'regex:~^https?://store\.steampowered\.com/app/\d+(/[a-zA-Z0-9_\-\.%]+)?/?(\?.*)?$~i',
             ],
             'note' => ['nullable', 'string', 'max:1000'],
         ];

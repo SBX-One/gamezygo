@@ -524,4 +524,85 @@ class GameRequestTest extends TestCase
                 'data' => null,
             ]);
     }
+
+    public function test_submitting_duplicate_steam_url_increments_counter_and_does_not_create_duplicate_row(): void
+    {
+        Http::fake([
+            'https://store.steampowered.com/api/appdetails*' => Http::response([
+                '777888' => [
+                    'success' => true,
+                    'data' => [
+                        'name' => 'Duplicate Test Game',
+                    ],
+                ],
+            ], 200),
+        ]);
+
+        $user1 = User::factory()->create();
+        $user2 = User::factory()->create();
+
+        $token1 = auth('api')->login($user1);
+        $response1 = $this->withHeader('Authorization', "Bearer {$token1}")
+            ->postJson('/api/v1/user/game-requests', [
+                'steam_url' => 'https://store.steampowered.com/app/777888/Duplicate_Test_Game/',
+            ]);
+
+        $response1->assertStatus(201)
+            ->assertJsonPath('data.request_count', 1);
+
+        $this->assertDatabaseCount('game_requests', 1);
+
+        // Second user requests same steam game
+        $token2 = auth('api')->login($user2);
+        $response2 = $this->withHeader('Authorization', "Bearer {$token2}")
+            ->postJson('/api/v1/user/game-requests', [
+                'steam_url' => 'https://store.steampowered.com/app/777888/',
+            ]);
+
+        $response2->assertStatus(201)
+            ->assertJsonPath('data.request_count', 2);
+
+        // Database must STILL have only 1 row (no duplicate row created!)
+        $this->assertDatabaseCount('game_requests', 1);
+
+        $gameRequest = GameRequest::where('steam_url', 'like', '%777888%')->first();
+        $this->assertNotNull($gameRequest);
+        $this->assertEquals(2, $gameRequest->request_count);
+        $this->assertNotNull($gameRequest->last_requested_at);
+
+        // User 2 cannot request again (prevents repeated spamming)
+        $response3 = $this->withHeader('Authorization', "Bearer {$token2}")
+            ->postJson('/api/v1/user/game-requests', [
+                'steam_url' => 'https://store.steampowered.com/app/777888/',
+            ]);
+
+        $response3->assertStatus(422)
+            ->assertJson([
+                'success' => false,
+                'message' => 'You have already requested this game.',
+            ]);
+    }
+
+    public function test_tampered_or_modified_steam_urls_are_rejected(): void
+    {
+        $user = User::factory()->create();
+        $token = auth('api')->login($user);
+
+        $tamperedUrls = [
+            'https://store.steampowered.com/app/123456/extra/invalid/path',
+            'https://store.steampowered.com/app/123456tampered',
+            'https://store.steampowered.com.attacker.com/app/123456',
+            'https://store.steampowered.com/sub/123456',
+            'https://store.steampowered.com/app/',
+        ];
+
+        foreach ($tamperedUrls as $url) {
+            $response = $this->withHeader('Authorization', "Bearer {$token}")
+                ->postJson('/api/v1/user/game-requests', [
+                    'steam_url' => $url,
+                ]);
+
+            $response->assertStatus(422);
+        }
+    }
 }

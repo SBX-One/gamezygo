@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\Api\V1\User\Order\ApplyVoucherRequest;
 use App\Http\Requests\Api\V1\User\Order\CreateOrderRequest;
 use App\Http\Resources\Api\V1\User\Order\CreateOrderResource;
+use App\Http\Resources\Api\V1\User\Order\OrderCollection;
 use App\Http\Resources\Api\V1\User\Order\OrderDetailResource;
 use App\Http\Resources\Api\V1\User\Order\OrderVoucherResource;
 use App\Services\Api\V1\User\Order\OrderService;
@@ -21,18 +22,41 @@ class OrderController extends Controller
     ) {}
 
     /**
+     * Get paginated list of user orders.
+     */
+    public function index(Request $request): OrderCollection
+    {
+        $user = $request->user();
+        $filters = $request->only(['status']);
+        $perPage = (int) $request->get('per_page', 10);
+
+        $orders = $this->orderService->getUserOrders($user, $filters, $perPage);
+
+        return new OrderCollection($orders);
+    }
+
+    /**
      * Create a new order.
      */
     public function store(CreateOrderRequest $request): JsonResponse
     {
         $user = $request->user();
-        $order = $this->orderService->createOrder($user, $request->validated());
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Order created successfully',
-            'data' => (new CreateOrderResource($order))->resolve(),
-        ], 201);
+        try {
+            $order = $this->orderService->createOrder($user, $request->validated());
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Order created successfully',
+                'data' => (new CreateOrderResource($order))->resolve(),
+            ], 201);
+        } catch (DomainException $e) {
+            return response()->json([
+                'success' => false,
+                'message' => $e->getMessage(),
+                'data' => null,
+            ], 422);
+        }
     }
 
     /**

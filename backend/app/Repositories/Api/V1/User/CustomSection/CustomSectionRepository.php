@@ -16,13 +16,20 @@ class CustomSectionRepository implements CustomSectionRepositoryInterface
     {
         $sections = CustomSection::query()
             ->where('is_active', true)
-            ->with(['products.genreCategories'])
+            ->with(['products' => function ($query) {
+                $query->whereNotIn('products.status', ['archive', 'archived', 'draft'])
+                    ->whereNull('products.archived_at')
+                    ->with('genreCategories');
+            }])
             ->orderBy('order_number')
             ->get();
 
         foreach ($sections as $section) {
             if ($section->display_type === 'auto') {
-                $query = Product::query()->with('genreCategories');
+                $query = Product::query()
+                    ->whereNotIn('status', ['archive', 'archived', 'draft'])
+                    ->whereNull('archived_at')
+                    ->with('genreCategories');
 
                 match ($section->auto_rule) {
                     'best_seller' => $query->withCount('orderItems')->orderByDesc('order_items_count'),

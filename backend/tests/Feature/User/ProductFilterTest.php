@@ -133,4 +133,72 @@ class ProductFilterTest extends TestCase
         $detailResponse->assertStatus(200)
             ->assertJsonPath('data.name', 'Grand Theft Auto V');
     }
+
+    public function test_guest_catalog_excludes_archived_and_draft_products(): void
+    {
+        Product::factory()->create([
+            'name'   => 'Active Cyberpunk',
+            'status' => 'listing',
+        ]);
+
+        Product::factory()->create([
+            'name'        => 'Archived Witcher',
+            'status'      => 'archive',
+            'archived_at' => now(),
+        ]);
+
+        Product::factory()->create([
+            'name'   => 'Draft Elden Ring',
+            'status' => 'draft',
+        ]);
+
+        $response = $this->getJson('/api/v1/products');
+
+        $response->assertStatus(200);
+        $productNames = collect($response->json('data'))->pluck('name')->all();
+
+        $this->assertContains('Active Cyberpunk', $productNames);
+        $this->assertNotContains('Archived Witcher', $productNames);
+        $this->assertNotContains('Draft Elden Ring', $productNames);
+    }
+
+    public function test_guest_catalog_search_excludes_archived_and_draft_products(): void
+    {
+        Product::factory()->create([
+            'name'   => 'Valorant Active Edition',
+            'status' => 'listing',
+        ]);
+
+        Product::factory()->create([
+            'name'   => 'Valorant Archived Edition',
+            'status' => 'archive',
+        ]);
+
+        $response = $this->getJson('/api/v1/products?search=Valorant');
+
+        $response->assertStatus(200);
+        $names = collect($response->json('data'))->pluck('name')->all();
+
+        $this->assertContains('Valorant Active Edition', $names);
+        $this->assertNotContains('Valorant Archived Edition', $names);
+    }
+
+    public function test_guest_cannot_view_archived_or_draft_product_detail_by_slug(): void
+    {
+        $archivedProduct = Product::factory()->create([
+            'name'        => 'Secret Archived Game',
+            'slug'        => 'secret-archived-game',
+            'status'      => 'archive',
+            'archived_at' => now(),
+        ]);
+
+        $draftProduct = Product::factory()->create([
+            'name'   => 'Secret Draft Game',
+            'slug'   => 'secret-draft-game',
+            'status' => 'draft',
+        ]);
+
+        $this->getJson("/api/v1/products/{$archivedProduct->slug}")->assertStatus(404);
+        $this->getJson("/api/v1/products/{$draftProduct->slug}")->assertStatus(404);
+    }
 }

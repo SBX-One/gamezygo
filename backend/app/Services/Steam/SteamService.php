@@ -12,7 +12,7 @@ class SteamService
      */
     public function isValidSteamUrl(string $url): bool
     {
-        return (bool) preg_match('~^https?://store\.steampowered\.com/app/(\d+)~i', trim($url));
+        return (bool) preg_match('~^https?://store\.steampowered\.com/app/\d+(/[a-zA-Z0-9_\-\.%]+)?/?(\?.*)?$~i', trim($url));
     }
 
     /**

@@ -87,10 +87,18 @@ class ProfileService
             }
 
             $updateData['avatar_url'] = Storage::disk('public')->url($path);
-        } elseif (! empty($data['avatar_url'])) {
-            $updateData['avatar_url'] = $data['avatar_url'];
-        } elseif (! empty($data['avatar']) && is_string($data['avatar'])) {
-            $updateData['avatar_url'] = $data['avatar'];
+        } else {
+            $url = $data['avatar_url'] ?? $data['profile_url'] ?? (is_string($data['avatar'] ?? null) ? $data['avatar'] : null);
+            if ($url !== null) {
+                $existingAvatar = $user->avatar()->first();
+                if ($existingAvatar) {
+                    if ($existingAvatar->file_path && Storage::disk('public')->exists($existingAvatar->file_path)) {
+                        Storage::disk('public')->delete($existingAvatar->file_path);
+                    }
+                    $existingAvatar->delete();
+                }
+                $updateData['avatar_url'] = $url;
+            }
         }
 
         $this->cacheService->flushUser($user->id);
@@ -140,7 +148,8 @@ class ProfileService
 
         return [
             'rank' => (int) $rank,
-            'point' => (int) ($user->total_points ?? 0),
+            'point' => (int) ($user->total_points ?: $user->points ?: 0),
+            'points' => (int) ($user->points ?: $user->total_points ?: 0),
         ];
     }
 }

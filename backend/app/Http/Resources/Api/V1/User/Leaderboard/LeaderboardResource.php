@@ -14,11 +14,14 @@ class LeaderboardResource extends JsonResource
      */
     public function toArray(Request $request): array
     {
+        $point = (int) ($this->resource['point'] ?? $this->resource['points'] ?? 0);
+
         return [
             'rank' => $this->resource['rank'] ?? 0,
             'id' => $this->resource['id'],
             'name' => $this->resource['name'],
-            'point' => (int) ($this->resource['point'] ?? 0),
+            'point' => $point,
+            'points' => $point,
         ];
     }
 }

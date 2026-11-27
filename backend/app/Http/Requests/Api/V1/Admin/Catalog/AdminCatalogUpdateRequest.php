@@ -80,10 +80,22 @@ class AdminCatalogUpdateRequest extends FormRequest
     public function withValidator($validator): void
     {
         $validator->after(function ($validator) {
-            if ($this->input('status') === 'published') {
-                $productId = $this->route('id') ?? $this->route('catalog') ?? $this->route('product');
-                $product = $productId ? Product::find($productId) : null;
+            $productId = $this->route('id') ?? $this->route('catalog') ?? $this->route('product');
+            $product = $productId ? Product::find($productId) : null;
 
+            // Transitioning from pre-order to published/listing requires credentials (BUG-017)
+            if (in_array($this->input('status'), ['published', 'listing'], true)) {
+                if ($product && $product->status === 'pre-order') {
+                    $gameAccount = $this->input('game_account');
+                    $hasCredentials = (! empty($gameAccount['username']) && ! empty($gameAccount['password']))
+                      || ($product && $product->gameAccount()->exists());
+                    if (! $hasCredentials) {
+                        $validator->errors()->add('game_account', 'Game credentials are required to transition a Pre-Order game to Listed.');
+                    }
+                }
+            }
+
+            if ($this->input('status') === 'published') {
                 $gameAccount = $this->input('game_account');
                 $hasGameAccount = (! empty($gameAccount['username']) && ! empty($gameAccount['password']))
                   || ($product && $product->gameAccount()->exists());

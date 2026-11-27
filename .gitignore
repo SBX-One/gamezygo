@@ -2,6 +2,12 @@ AGENTS.md
 CLAUDE.md
 GEMINI.md
 
-
 .vercel
 .env*
+/.agents/mcp_config.json
+
+# Playwright
+frontend/playwright-report/
+frontend/test-results/
+frontend/blob-report/
+frontend/playwright/.cache/

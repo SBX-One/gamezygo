@@ -217,13 +217,15 @@ class AdminCatalogRepository implements AdminCatalogRepositoryInterface
                 $product->customSections()->sync([$data['promotion_section_id']]);
             }
 
-            // Game account
-            if (! empty($data['game_account']['username']) || ! empty($data['game_account']['password'])) {
-                ProductGameAccount::create([
-                    'product_id' => $product->id,
-                    'username' => (string) ($data['game_account']['username'] ?? ''),
-                    'password' => (string) ($data['game_account']['password'] ?? ''),
-                ]);
+            // Game account (Do NOT save credentials for pre-order products as per FR-25 / BUG-016)
+            if (($product->status ?? '') !== 'pre-order') {
+                if (! empty($data['game_account']['username']) || ! empty($data['game_account']['password'])) {
+                    ProductGameAccount::create([
+                        'product_id' => $product->id,
+                        'username' => (string) ($data['game_account']['username'] ?? ''),
+                        'password' => (string) ($data['game_account']['password'] ?? ''),
+                    ]);
+                }
             }
 
             // Specifications
@@ -275,6 +277,15 @@ class AdminCatalogRepository implements AdminCatalogRepositoryInterface
             }
 
             if (! empty($data['status'])) {
+                // Prevent premature switch from pre-order to listing without credentials (BUG-017)
+                if ($product->status === 'pre-order' && in_array($data['status'], ['listing', 'published'], true)) {
+                    $hasCredentials = (! empty($data['game_account']['username']) && ! empty($data['game_account']['password']))
+                        || $product->gameAccount()->exists();
+
+                    if (! $hasCredentials) {
+                        $data['status'] = 'pre-order';
+                    }
+                }
                 $updateData['status'] = $data['status'];
             }
 
@@ -296,16 +307,18 @@ class AdminCatalogRepository implements AdminCatalogRepositoryInterface
                 }
             }
 
-            // Game account
-            if (isset($data['game_account'])) {
-                if (! empty($data['game_account']['username']) || ! empty($data['game_account']['password'])) {
-                    ProductGameAccount::updateOrCreate(
-                        ['product_id' => $product->id],
-                        [
-                            'username' => (string) ($data['game_account']['username'] ?? ''),
-                            'password' => (string) ($data['game_account']['password'] ?? ''),
-                        ]
-                    );
+            // Game account (Do NOT save credentials for pre-order products as per FR-25 / BUG-016)
+            if (($product->status ?? '') !== 'pre-order' && ($updateData['status'] ?? $product->status) !== 'pre-order') {
+                if (isset($data['game_account'])) {
+                    if (! empty($data['game_account']['username']) || ! empty($data['game_account']['password'])) {
+                        ProductGameAccount::updateOrCreate(
+                            ['product_id' => $product->id],
+                            [
+                                'username' => (string) ($data['game_account']['username'] ?? ''),
+                                'password' => (string) ($data['game_account']['password'] ?? ''),
+                            ]
+                        );
+                    }
                 }
             }
 

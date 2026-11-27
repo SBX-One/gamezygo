@@ -470,4 +470,109 @@ class AdminUserTest extends TestCase
                 'message' => 'Users retrieved successfully',
             ]);
     }
+
+    public function test_auto_voucher_generated_when_user_reaches_100_point_threshold(): void
+    {
+        $user = User::create([
+            'name' => 'Threshold User',
+            'username' => 'threshold_user',
+            'email' => 'threshold@test.com',
+            'password' => Hash::make('secret123'),
+            'status' => 'active',
+            'points' => 50,
+            'total_points' => 50,
+        ]);
+
+        $this->assertDatabaseMissing('voucher_users', [
+            'user_id' => $user->id,
+        ]);
+
+        // Update points to 100 (hitting the threshold)
+        $response = $this->withHeader('Authorization', "Bearer {$this->adminToken}")
+            ->putJson("/api/v1/admin/users/{$user->id}", [
+                'points' => 100,
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.points', 100);
+
+        // Verify voucher is created and attached to user
+        $this->assertDatabaseHas('voucher_users', [
+            'user_id' => $user->id,
+        ]);
+
+        $voucher = $user->vouchers()->first();
+        $this->assertNotNull($voucher);
+        $this->assertStringStartsWith('LOYALTY100-', $voucher->code);
+        $this->assertTrue((bool) $voucher->is_active);
+    }
+
+    public function test_admin_user_detail_returns_actual_points_and_subscription_duration(): void
+    {
+        $plan = SubscriptionPlan::create([
+            'name' => 'Paket Premium',
+            'price' => 150000,
+            'duration_days' => 60,
+            'duration_months' => 2,
+            'is_active' => true,
+        ]);
+
+        $sub = UserSubscription::create([
+            'user_id' => $this->user->id,
+            'subscription_plan_id' => $plan->id,
+            'started_at' => now(),
+            'expired_at' => now()->addDays(60),
+            'status' => 'active',
+        ]);
+
+        $response = $this->withHeader('Authorization', "Bearer {$this->adminToken}")
+            ->getJson("/api/v1/admin/users/{$this->user->id}");
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.points', 100)
+            ->assertJsonPath('data.total_points', 100)
+            ->assertJsonPath('data.subscription.name', 'Paket Premium')
+            ->assertJsonPath('data.subscription.status', 'active');
+
+        $this->assertNotNull($response->json('data.subscription.duration_months'));
+        $this->assertNotNull($response->json('data.subscription.remaining_days'));
+    }
+
+    public function test_admin_can_extend_subscription_duration_for_user_without_active_subscription(): void
+    {
+        $plan = SubscriptionPlan::create([
+            'name' => 'Compensation Plan',
+            'price' => 100000,
+            'duration_days' => 30,
+            'duration_months' => 1,
+            'is_active' => true,
+        ]);
+
+        $targetUser = User::create([
+            'name' => 'Comp User',
+            'email' => 'comp@test.com',
+            'password' => Hash::make('secret123'),
+            'status' => 'active',
+        ]);
+
+        // User currently has no subscription
+        $this->assertDatabaseMissing('user_subscriptions', [
+            'user_id' => $targetUser->id,
+        ]);
+
+        $response = $this->withHeader('Authorization', "Bearer {$this->adminToken}")
+            ->putJson("/api/v1/admin/users/{$targetUser->id}", [
+                'subscription_duration_adjustment' => 2,
+                'subscription_plan_id' => $plan->id,
+            ]);
+
+        $response->assertStatus(200)
+            ->assertJsonPath('data.subscription.name', 'Compensation Plan');
+
+        $this->assertDatabaseHas('user_subscriptions', [
+            'user_id' => $targetUser->id,
+            'subscription_plan_id' => $plan->id,
+            'status' => 'active',
+        ]);
+    }
 }

@@ -129,7 +129,7 @@ export default function AdminUserDetailPage() {
         currentRaw.includes("month") || currentRaw.includes("bulan")
           ? currentNum
           : currentRaw.includes("day") || currentRaw.includes("hari")
-          ? Math.max(0, Math.round(currentNum / 30))
+          ? Math.floor(currentNum / 30)
           : 0;
       const durationAdjustment = targetMonths - currentMonths;
 

@@ -61,49 +61,28 @@ export function AdminUserEditDrawer({
 
   if (!isOpen) return null;
 
-  // Stepper helper for subs duration
-  const DURATION_PRESETS = [
-    "1 month",
-    "2 months",
-    "3 months",
-    "4 months",
-    "5 months",
-    "6 months",
-    "12 months",
-  ];
+  // Parse duration string cleanly to whole months (so "7 days" is 0 months, not 7 months!)
+  const parseDurationToMonths = (raw: string): number => {
+    const lower = raw.toLowerCase();
+    const match = lower.match(/(\d+)/);
+    if (!match) return 0;
+    const num = parseInt(match[1], 10);
+    if (lower.includes("day") || lower.includes("hari")) {
+      return Math.floor(num / 30);
+    }
+    return num;
+  };
 
   const handleDecreaseDuration = () => {
-    const idx = DURATION_PRESETS.indexOf(subsDuration);
-    if (idx > 0) {
-      setSubsDuration(DURATION_PRESETS[idx - 1]);
-    } else if (idx === -1) {
-      // Parse numeric month
-      const match = subsDuration.match(/(\d+)/);
-      if (match) {
-        const num = Math.max(1, parseInt(match[1], 10) - 1);
-        setSubsDuration(`${num} ${num === 1 ? "month" : "months"}`);
-      } else {
-        setSubsDuration("1 month");
-      }
-    }
+    const currentMonths = parseDurationToMonths(subsDuration);
+    const next = Math.max(0, currentMonths - 1);
+    setSubsDuration(`${next} ${next === 1 ? "month" : "months"}`);
   };
 
   const handleIncreaseDuration = () => {
-    const idx = DURATION_PRESETS.indexOf(subsDuration);
-    if (idx !== -1 && idx < DURATION_PRESETS.length - 1) {
-      setSubsDuration(DURATION_PRESETS[idx + 1]);
-    } else if (idx === -1) {
-      const match = subsDuration.match(/(\d+)/);
-      if (match) {
-        const num = parseInt(match[1], 10) + 1;
-        setSubsDuration(`${num} months`);
-      } else {
-        setSubsDuration("3 months");
-      }
-    } else {
-      // Already at 12 months, increment by 6
-      setSubsDuration("24 months");
-    }
+    const currentMonths = parseDurationToMonths(subsDuration);
+    const next = currentMonths + 1;
+    setSubsDuration(`${next} ${next === 1 ? "month" : "months"}`);
   };
 
   const handleSave = (e: React.FormEvent) => {

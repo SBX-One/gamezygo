@@ -35,16 +35,16 @@ export function AdminUserEditDrawer({
   onSave,
   className,
 }: AdminUserEditDrawerProps) {
-  const [points, setPoints] = React.useState<number>(user.points ?? 128);
+  const [points, setPoints] = React.useState<number>(user.points ?? 0);
   const [subsDuration, setSubsDuration] = React.useState<string>(
-    user.subsDuration || "2 months"
+    user.subsDuration || "0 months"
   );
 
   // Sync state with incoming user
   React.useEffect(() => {
     if (user && isOpen) {
-      setPoints(user.points ?? 128);
-      setSubsDuration(user.subsDuration || "2 months");
+      setPoints(user.points ?? 0);
+      setSubsDuration(user.subsDuration || "0 months");
     }
   }, [user, isOpen]);
 
@@ -112,7 +112,6 @@ export function AdminUserEditDrawer({
       points,
       subsDuration,
     });
-    onClose();
   };
 
   return (

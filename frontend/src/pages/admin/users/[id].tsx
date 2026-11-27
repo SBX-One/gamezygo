@@ -122,18 +122,33 @@ export default function AdminUserDetailPage() {
     subsDuration: string;
   }) => {
     try {
-      const days = parseInt(subsDuration.replace(/[^\d]/g, ""), 10) || undefined;
+      const targetMonths = parseInt(subsDuration.replace(/[^\d]/g, ""), 10) || 0;
+      const currentRaw = (user.subsDuration || "").toLowerCase();
+      const currentNum = parseInt(currentRaw.replace(/[^\d]/g, ""), 10) || 0;
+      const currentMonths =
+        currentRaw.includes("month") || currentRaw.includes("bulan")
+          ? currentNum
+          : currentRaw.includes("day") || currentRaw.includes("hari")
+          ? Math.max(0, Math.round(currentNum / 30))
+          : 0;
+      const durationAdjustment = targetMonths - currentMonths;
+
+      const payload: Record<string, unknown> = { points };
+      if (durationAdjustment !== 0) {
+        payload.subscription_duration_adjustment = durationAdjustment;
+      }
+
       await updateUserMutation.mutateAsync({
         id: userId,
-        data: {
-          points,
-          subs_duration_days: days,
-        },
+        data: payload,
       });
       toast.success("Data pengguna berhasil diperbarui.", "Tersimpan");
       setIsEditDrawerOpen(false);
-    } catch {
-      toast.error("Gagal memperbarui data pengguna.", "Gagal");
+    } catch (err: unknown) {
+      const msg =
+        (err as { response?: { data?: { message?: string } } })?.response?.data
+          ?.message || "Gagal memperbarui data pengguna.";
+      toast.error(msg, "Gagal");
     }
   };
 

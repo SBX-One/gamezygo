@@ -5,6 +5,7 @@ import { StoreLayout } from "@/components/layout";
 import { Button, EmptyState, ListRowSkeleton, Toast, Item } from "@/components/ui";
 import { useCart, useRemoveFromCart, useClearCart } from "@/hooks/use-cart";
 import { useUserLibrary } from "@/hooks/use-library";
+import { isPubliclyVisibleProduct } from "@/services/products.service";
 import { formatRupiah, formatDiscount } from "@/utils/formatters";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { useCartStore } from "@/stores/use-cart-store";
@@ -101,12 +102,21 @@ export default function CartPage() {
     return set;
   }, [libraryRes]);
 
+  const isCartItemAvailable = React.useCallback((item: unknown): boolean => {
+    if (!isPubliclyVisibleProduct(item)) return false;
+    const raw = item as { is_available?: boolean; available?: boolean };
+    if (raw.is_available === false || raw.available === false) return false;
+    return true;
+  }, []);
+
   // Computed Cart Items (prioritizes API when authenticated, else local Zustand store)
   const cartItems: CartItemData[] = React.useMemo(() => {
     if (isAuthenticated) {
       if (cartApiRes?.data?.items) {
         return cartApiRes.data.items
           .filter((item) => {
+            // Never show games that are archived/de-listed/unavailable (BUG-014)
+            if (!isCartItemAvailable(item)) return false;
             // Never show games that the user already owns!
             const idMatch = ownedGameIds.has(String(item.id));
             const nameMatch = ownedGameIds.has(item.name.toLowerCase().trim());
@@ -130,6 +140,7 @@ export default function CartPage() {
     }
     return storeCartItems
       .filter((item) => {
+        if (item.product && !isCartItemAvailable(item.product)) return false;
         const idMatch = ownedGameIds.has(String(item.productId));
         const nameMatch = ownedGameIds.has((item.product?.title || "").toLowerCase().trim());
         return !idMatch && !nameMatch;
@@ -143,7 +154,36 @@ export default function CartPage() {
         originalPriceFormatted: formatRupiah(item.product?.originalPrice || item.product?.price || 0),
         price: item.product?.price || 0,
       }));
-  }, [isAuthenticated, cartApiRes, isCartApiLoading, storeCartItems, ownedGameIds]);
+  }, [isAuthenticated, cartApiRes, isCartApiLoading, storeCartItems, ownedGameIds, isCartItemAvailable]);
+
+  // Auto-prune de-listed, archived, or unavailable items from cart & notify user (BUG-014)
+  const notifiedUnavailableRef = React.useRef<Set<string>>(new Set());
+  React.useEffect(() => {
+    if (!isAuthenticated || !cartApiRes?.data?.items) return;
+
+    const unavailableItems = cartApiRes.data.items.filter(
+      (item) => !isCartItemAvailable(item)
+    );
+
+    if (unavailableItems.length > 0) {
+      const newlyDetected = unavailableItems.filter(
+        (item) => !notifiedUnavailableRef.current.has(String(item.id))
+      );
+      unavailableItems.forEach((item) => {
+        notifiedUnavailableRef.current.add(String(item.id));
+        removeItemFromStore(String(item.id));
+        removeCartMutation.mutate(item.id);
+      });
+      if (newlyDetected.length > 0) {
+        const names = newlyDetected.map((i) => `"${i.name}"`).join(", ");
+        setToastMessage({
+          type: "error",
+          title: "Produk Tidak Tersedia",
+          description: `${names} sedang di-delist atau diarsipkan dan telah dihapus dari keranjang Anda.`,
+        });
+      }
+    }
+  }, [isAuthenticated, cartApiRes?.data?.items, isCartItemAvailable, removeCartMutation, removeItemFromStore]);
 
   // Auto-cleanup: If backend cart database returns items that the user already owns in Library,
   // silently delete them from the database so cart in DB stays clean!

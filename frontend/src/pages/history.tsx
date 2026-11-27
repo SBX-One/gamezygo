@@ -20,6 +20,7 @@ import {
 } from "@/features/history";
 import { useUserOrders } from "@/hooks/use-orders";
 import { useUserLibrary } from "@/hooks/use-library";
+import { useUserProfile } from "@/hooks/use-profile";
 import { formatRupiah } from "@/utils/formatters";
 
 // Funnel / Filter Icon
@@ -162,6 +163,8 @@ export default function HistoryPage() {
 
   // TanStack Query: Fetch user orders from API
   const { data: userOrdersRes, isLoading: isOrdersLoading } = useUserOrders();
+  // TanStack Query: Fetch user profile recent_transactions (includes pending orders even if GET /user/orders is unavailable)
+  const { data: profileRes, isLoading: isProfileLoading } = useUserProfile();
   // TanStack Query: Fetch user's purchased games in library as reliable fallback
   const { data: libraryRes, isLoading: isLibraryLoading } = useUserLibrary();
 
@@ -302,9 +305,78 @@ export default function HistoryPage() {
     });
   }, [userOrdersRes, savedPaymentMethods]);
 
-  // Combine real backend orders with library items fallback (guarantee user's purchased games appear)
+  // Map profile recent_transactions fallback (ensures pending/failed/paid orders appear in Payment History, BUG-015)
+  const profileRecentOrders: OrderHistoryItem[] = React.useMemo(() => {
+    const rawProfile = profileRes?.data as
+      | (Record<string, unknown> & {
+          recent_transactions?: Array<{
+            id?: string | number;
+            order_code?: string;
+            order_number?: string;
+            subtotal_price?: number | string;
+            total_price?: number | string;
+            status?: string;
+            created_at?: string;
+            total_items?: number;
+            payment_method?: string;
+          }>;
+        })
+      | undefined;
+
+    const recent = rawProfile?.recent_transactions;
+    if (!Array.isArray(recent) || recent.length === 0) return [];
+
+    return recent.map((tx, idx) => {
+      const priceVal = Number(tx.total_price || tx.subtotal_price || 0);
+      const orderCode = tx.order_code || tx.order_number || `ORD-${tx.id || idx}`;
+      const rawStatus = String(tx.status || "").toLowerCase();
+      let status: OrderStatus = "Pending";
+      if (rawStatus === "paid" || rawStatus === "completed" || rawStatus === "success") {
+        status = "Berhasil";
+      } else if (rawStatus === "pending") {
+        status = "Pending";
+      } else if (rawStatus === "expired" || rawStatus === "cancelled" || rawStatus === "failed") {
+        status = "Gagal";
+      }
+
+      const savedMethod =
+        savedPaymentMethods[orderCode] ||
+        savedPaymentMethods[String(tx.id)];
+      const paymentMethod = formatPaymentMethodLabel(
+        savedMethod || tx.payment_method || "Midtrans"
+      );
+
+      const purchaseDate = tx.created_at
+        ? new Date(tx.created_at).toLocaleDateString("id-ID", {
+            day: "numeric",
+            month: "short",
+            year: "numeric",
+          })
+        : new Date().toLocaleDateString("id-ID");
+
+      const itemCount = Number(tx.total_items || 1);
+      const gameTitle =
+        itemCount > 1
+          ? `Pesanan #${orderCode} (${itemCount} item)`
+          : `Pesanan #${orderCode}`;
+
+      return {
+        id: String(tx.id || orderCode || `recent-${idx}`),
+        transactionId: orderCode,
+        gameTitle,
+        purchaseDate,
+        price: priceVal,
+        formattedPrice: formatRupiah(priceVal),
+        paymentMethod,
+        status,
+      };
+    });
+  }, [profileRes, savedPaymentMethods]);
+
+  // Combine real backend orders, profile recent_transactions (including pending), and library fallback
   const effectiveOrders: OrderHistoryItem[] = React.useMemo(() => {
     if (apiOrders.length > 0) return apiOrders;
+    if (profileRecentOrders.length > 0) return profileRecentOrders;
 
     if (libraryRes?.data && libraryRes.data.length > 0) {
       return libraryRes.data.map((item, idx) => {
@@ -327,7 +399,7 @@ export default function HistoryPage() {
     }
 
     return [];
-  }, [apiOrders, libraryRes]);
+  }, [apiOrders, profileRecentOrders, libraryRes]);
 
   // Compute filtered items strictly based on effectiveOrders
   const filteredItems = React.useMemo(() => {
@@ -463,7 +535,7 @@ export default function HistoryPage() {
           {/* =========================================================================
               3. CONTENT AREA / VIEWS
               ========================================================================= */}
-          {(isOrdersLoading || isLibraryLoading) && effectiveOrders.length === 0 ? (
+          {(isOrdersLoading || isProfileLoading || isLibraryLoading) && effectiveOrders.length === 0 ? (
             <div className="flex flex-col gap-3 w-full">
               {Array.from({ length: 5 }).map((_, idx) => (
                 <ListRowSkeleton key={idx} />

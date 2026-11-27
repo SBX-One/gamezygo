@@ -19,6 +19,30 @@ export interface FetchProductsParams {
   genre_categories?: string[];
 }
 
+const HIDDEN_STOREFRONT_STATUSES = new Set([
+  "archive",
+  "archived",
+  "unlisted",
+  "delist",
+  "draft",
+]);
+
+/**
+ * Defensive frontend filter to ensure archived, de-listed, or draft products
+ * never leak into public storefront listings or search results (BUG-013).
+ */
+export function isPubliclyVisibleProduct(product: unknown): boolean {
+  if (!product || typeof product !== "object") return false;
+  const p = product as Record<string, unknown>;
+  const status = typeof p.status === "string" ? p.status.toLowerCase().trim() : "";
+  if (status && HIDDEN_STOREFRONT_STATUSES.has(status)) return false;
+  if (p.is_archived === true || p.is_draft === true || p.is_unlisted === true) {
+    return false;
+  }
+  if (p.archived_at || p.deleted_at) return false;
+  return true;
+}
+
 /**
  * Fetch paginated products list with query filters
  * Primary Endpoint (Postman guest): GET /api/v1/products
@@ -66,7 +90,14 @@ export async function fetchProducts(
   const queryString = queryParams.toString();
   const url = queryString ? `/products?${queryString}` : "/products";
 
-  return apiGet<ApiPaginatedResponse<ProductListItem>>(url);
+  const res = await apiGet<ApiPaginatedResponse<ProductListItem>>(url);
+  if (Array.isArray(res?.data)) {
+    return {
+      ...res,
+      data: res.data.filter(isPubliclyVisibleProduct),
+    };
+  }
+  return res;
 }
 
 /**
@@ -112,9 +143,25 @@ export async function fetchCustomSections(): Promise<
     ? (r as unknown as CustomSectionItem[])
     : [];
 
+  const filteredList = list.map((section) => {
+    const rawSection = section as CustomSectionItem & {
+      products?: unknown[];
+      items?: unknown[];
+    };
+    return {
+      ...section,
+      ...(Array.isArray(rawSection.products)
+        ? { products: rawSection.products.filter(isPubliclyVisibleProduct) }
+        : {}),
+      ...(Array.isArray(rawSection.items)
+        ? { items: rawSection.items.filter(isPubliclyVisibleProduct) }
+        : {}),
+    } as CustomSectionItem;
+  });
+
   return {
     success: r?.success ?? true,
     message: r?.message ?? "",
-    data: list,
+    data: filteredList,
   };
 }

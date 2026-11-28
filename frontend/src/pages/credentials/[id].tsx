@@ -828,93 +828,91 @@ export default function GameCredentialPage() {
           {/* =========================================================================
               C. DETAIL SPESIFIKASI (MINIMUM & REKOMENDASI)
               ========================================================================= */}
-          <section className="w-full flex flex-col gap-6 pt-4">
-            <h2 className="text-h3 font-semibold text-gray-100">
-              Detail Spesifikasi
-            </h2>
+          {(() => {
+            const hasSpecValue = (val?: string | null) => {
+              const trimmed = (val ?? "").trim();
+              return Boolean(trimmed) && trimmed !== "-";
+            };
+            const minSpecItems = [
+              { label: "OS", value: minSpecs.os },
+              { label: "CPU", value: minSpecs.cpu },
+              { label: "RAM", value: minSpecs.ram },
+              { label: "GPU", value: minSpecs.gpu },
+              { label: "DirectX", value: minSpecs.directx },
+              { label: "Storage", value: minSpecs.storage },
+              { label: "Sound Card", value: minSpecs.soundCard },
+            ].filter((item) => hasSpecValue(item.value));
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {/* Card 1: MINIMUM */}
-              <div className="w-full rounded-xl bg-deep-blue-900 border border-white/10 p-6 flex flex-col gap-4">
-                <span className="text-body-md font-semibold text-gray-50  uppercase">
-                  MINIMUM
-                </span>
+            const recSpecItems = [
+              { label: "OS", value: recSpecs.os },
+              { label: "CPU", value: recSpecs.cpu },
+              { label: "RAM", value: recSpecs.ram },
+              { label: "GPU", value: recSpecs.gpu },
+              { label: "DirectX", value: recSpecs.directx },
+              { label: "Storage", value: recSpecs.storage },
+              { label: "Sound Card", value: recSpecs.soundCard },
+            ].filter((item) => hasSpecValue(item.value));
 
-                <div className="flex flex-col gap-6 text-body-sm ">
-                  <div className="flex flex-col gap-2 ">
-                    <span className="text-body-xs text-gray-400">OS</span>
-                    <span className="text-body-sm text-gray-100 font-semibold">{minSpecs.os}</span>
-                  </div>
-                  <div className="flex flex-col gap-2 ">
-                    <span className="text-body-xs text-gray-400">CPU</span>
-                    <span className="text-body-sm text-gray-100 font-semibold">{minSpecs.cpu}</span>
-                  </div>
-                  <div className="flex flex-col gap-2 ">
-                    <span className="text-body-xs text-gray-400">RAM</span>
-                    <span className="text-body-sm text-gray-100 font-semibold">{minSpecs.ram}</span>
-                  </div>
-                  <div className="flex flex-col gap-2 ">
-                    <span className="text-body-xs text-gray-400">GPU</span>
-                    <span className="text-body-sm text-gray-100 font-semibold">{minSpecs.gpu}</span>
-                  </div>
-                  <div className="flex flex-col gap-2 ">
-                    <span className="text-body-xs text-gray-400">DirectX</span>
-                    <span className="text-body-sm text-gray-100 font-semibold">{minSpecs.directx}</span>
-                  </div>
-                  <div className="flex flex-col gap-2 ">
-                    <span className="text-body-xs text-gray-400">Storage</span>
-                    <span className="text-body-sm text-gray-100 font-semibold">{minSpecs.storage}</span>
-                  </div>
-                  <div className="flex flex-col gap-2 ">
-                    <span className="text-body-xs text-gray-400">Sound Card</span>
-                    <span className="text-body-sm text-gray-100 font-semibold">
-                      {minSpecs.soundCard || "-"}
-                    </span>
-                  </div>
+            if (minSpecItems.length === 0 && recSpecItems.length === 0) {
+              return null;
+            }
+
+            return (
+              <section className="w-full flex flex-col gap-6 pt-4">
+                <h2 className="text-h3 font-semibold text-gray-100">
+                  Detail Spesifikasi
+                </h2>
+
+                <div
+                  className={`grid gap-6 ${
+                    minSpecItems.length > 0 && recSpecItems.length > 0
+                      ? "grid-cols-1 md:grid-cols-2"
+                      : "grid-cols-1"
+                  }`}
+                >
+                  {/* Card 1: MINIMUM */}
+                  {minSpecItems.length > 0 && (
+                    <div className="w-full rounded-xl bg-deep-blue-900 border border-white/10 p-6 flex flex-col gap-4">
+                      <span className="text-body-md font-semibold text-gray-50 uppercase">
+                        MINIMUM
+                      </span>
+
+                      <div className="flex flex-col gap-6 text-body-sm">
+                        {minSpecItems.map((spec) => (
+                          <div key={spec.label} className="flex flex-col gap-2">
+                            <span className="text-body-xs text-gray-400">{spec.label}</span>
+                            <span className="text-body-sm text-gray-100 font-semibold">
+                              {spec.value}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Card 2: REKOMENDASI */}
+                  {recSpecItems.length > 0 && (
+                    <div className="w-full rounded-xl bg-deep-blue-900 border border-white/10 p-6 flex flex-col gap-4">
+                      <span className="text-body-md font-semibold text-gray-50 uppercase">
+                        REKOMENDASI
+                      </span>
+
+                      <div className="flex flex-col gap-6 text-body-sm">
+                        {recSpecItems.map((spec) => (
+                          <div key={spec.label} className="flex flex-col gap-2">
+                            <span className="text-body-xs text-gray-400">{spec.label}</span>
+                            <span className="text-body-sm text-gray-100 font-semibold">
+                              {spec.value}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-
-              {/* Card 2: REKOMENDASI */}
-              <div className="w-full rounded-xl bg-deep-blue-900 border border-white/10 p-6 flex flex-col gap-4">
-                <span className="text-body-md font-semibold text-gray-50  uppercase">
-                  REKOMENDASI
-                </span>
-
-                <div className="flex flex-col gap-6 text-body-sm">
-                  <div className="flex flex-col gap-2 ">
-                    <span className="text-body-xs text-gray-400">OS</span>
-                    <span className="text-body-sm text-gray-100 font-semibold">{recSpecs.os}</span>
-                  </div>
-                  <div className="flex flex-col gap-2 ">
-                    <span className="text-body-xs text-gray-400">CPU</span>
-                    <span className="text-body-sm text-gray-100 font-semibold">{recSpecs.cpu}</span>
-                  </div>
-                  <div className="flex flex-col gap-2 ">
-                    <span className="text-body-xs text-gray-400">RAM</span>
-                    <span className="text-body-sm text-gray-100 font-semibold">{recSpecs.ram}</span>
-                  </div>
-                  <div className="flex flex-col gap-2 ">
-                    <span className="text-body-xs text-gray-400">GPU</span>
-                    <span className="text-body-sm text-gray-100 font-semibold">{recSpecs.gpu}</span>
-                  </div>
-                  <div className="flex flex-col gap-2 ">
-                    <span className="text-body-xs text-gray-400">DirectX</span>
-                    <span className="text-body-sm text-gray-100 font-semibold">{recSpecs.directx}</span>
-                  </div>
-                  <div className="flex flex-col gap-2 ">
-                    <span className="text-body-xs text-gray-400">Storage</span>
-                    <span className="text-body-sm text-gray-100 font-semibold">{recSpecs.storage}</span>
-                  </div>
-                  <div className="flex flex-col gap-2 ">
-                    <span className="text-body-xs text-gray-400">Sound Card</span>
-                    <span className="text-body-sm text-gray-100 font-semibold">
-                      {recSpecs.soundCard || "-"}
-                    </span>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </section>
+              </section>
+            );
+          })()}
 
           {/* =========================================================================
               D. PANDUAN MENGUNDUH (DYNAMIC INSTRUCTION TEMPLATE OR DEFAULT 4 STEPS)

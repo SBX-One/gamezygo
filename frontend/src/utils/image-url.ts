@@ -69,7 +69,7 @@ export function resolveImageUrl(
 }
 
 const STEAM_HORIZONTAL_BANNER_REGEX =
-  /^(https?:\/\/(?:cdn|shared)\.[a-z0-9.-]*steamstatic\.com\/(?:store_item_assets\/)?steam\/apps\/(\d+)\/)(?:header|capsule_616x353|capsule_sm_120|capsule_231x87|library_hero)[^/?#]*(\?.*)?$/i;
+  /^(https?:\/\/(?:cdn|shared)\.[a-z0-9.-]*steamstatic\.com\/(?:store_item_assets\/)?steam\/apps\/(\d+)\/)(?:[a-f0-9]+\/)?(?:header|capsule_616x353|capsule_sm_120|capsule_231x87|library_hero)[^/?#]*(\?.*)?$/i;
 
 const STEAM_LIBRARY_VERTICAL_REGEX =
   /^(https?:\/\/(?:cdn|shared)\.[a-z0-9.-]*steamstatic\.com\/(?:store_item_assets\/)?steam\/apps\/(\d+)\/)library_600x900_2x\.jpg(\?.*)?$/i;

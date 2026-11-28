@@ -371,17 +371,49 @@ export function AdminArticleBlockEditor({
     const file = e.target.files?.[0];
     if (!file) return;
 
+    const applyImageUrl = (dataUrl: string) => {
+      onBlocksChange(
+        blocks.map((b) =>
+          b.id === blockId ? { ...b, imageUrl: dataUrl } : b
+        )
+      );
+    };
+
     const reader = new FileReader();
     reader.onload = () => {
-      if (typeof reader.result === "string") {
-        onBlocksChange(
-          blocks.map((b) =>
-            b.id === blockId ? { ...b, imageUrl: reader.result as string } : b
-          )
-        );
-      }
+      if (typeof reader.result !== "string") return;
+      const rawDataUrl = reader.result;
+
+      // Compress & resize via offscreen canvas so HTML content payload stays within DB/server limits
+      const img = new window.Image();
+      img.onload = () => {
+        try {
+          const maxWidth = 960;
+          const scale = img.width > maxWidth ? maxWidth / img.width : 1;
+          const targetW = Math.max(1, Math.round(img.width * scale));
+          const targetH = Math.max(1, Math.round(img.height * scale));
+          const canvas = document.createElement("canvas");
+          canvas.width = targetW;
+          canvas.height = targetH;
+          const ctx = canvas.getContext("2d");
+          if (ctx) {
+            ctx.drawImage(img, 0, 0, targetW, targetH);
+            const compressed = canvas.toDataURL("image/jpeg", 0.72);
+            applyImageUrl(
+              compressed.length < rawDataUrl.length ? compressed : rawDataUrl
+            );
+            return;
+          }
+        } catch {
+          // Fallback to original data URL if canvas fails
+        }
+        applyImageUrl(rawDataUrl);
+      };
+      img.onerror = () => applyImageUrl(rawDataUrl);
+      img.src = rawDataUrl;
     };
     reader.readAsDataURL(file);
+    e.target.value = "";
   };
 
   const handleDeleteBlock = (id: string) => {

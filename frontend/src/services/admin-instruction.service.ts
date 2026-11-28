@@ -9,6 +9,7 @@ interface BackendInstructionRow {
   id: number | string;
   title?: string;
   content?: string | null;
+  status?: string | null;
   is_used?: boolean;
   total_products?: number;
   created_at?: string | null;
@@ -76,11 +77,11 @@ export function parseInstructionContentToSteps(
 }
 
 function mapInstructionRow(row: BackendInstructionRow): InstructionTemplate {
-  const isUsed = Boolean(row.is_used || (row.total_products ?? 0) > 0);
+  const isExplicitDraft = String(row.status ?? "").toLowerCase() === "draft";
   return {
     id: String(row.id),
     title: String(row.title ?? "Untitled Instruction"),
-    badge: isUsed ? "Listed" : "Draft",
+    badge: isExplicitDraft ? "Draft" : "Listed",
     createdAt: formatDateLabel(row.created_at),
     lastEdit: row.last_edit ? `Last edit ${formatDateLabel(row.last_edit)}` : "Baru saja",
     steps: row.content ? parseInstructionContentToSteps(row.content, row.title) : [],

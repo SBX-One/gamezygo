@@ -46,7 +46,7 @@ export function AdminInstructionEditorTopBar({
             type="text"
             value={title}
             onChange={(e) => onTitleChange(e.target.value)}
-            placeholder="Intruction Title"
+            placeholder="Instruction Title"
             className="w-full h-10 pl-3.5 pr-9 bg-deep-blue-900 border border-deep-blue-700 rounded-lg text-label-xs sm:text-sm text-white placeholder-gray-500 focus:outline-none focus:border-deep-blue-500 transition-colors shadow-xs"
           />
           {title ? (

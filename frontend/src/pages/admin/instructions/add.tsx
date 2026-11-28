@@ -18,7 +18,10 @@ import type {
   ArticleEditorBlock,
 } from "@/features/admin/types/admin-article.types";
 import { serializeArticleBlocksToHtml } from "@/features/admin/utils/article-content.utils";
-import { useCreateAdminInstruction } from "@/hooks/use-admin-instructions";
+import {
+  useCreateAdminInstruction,
+  useUpdateAdminInstruction,
+} from "@/hooks/use-admin-instructions";
 
 const ChevronRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -247,8 +250,9 @@ export default function AdminAddNewInstructionPage() {
     router.push("/admin/instructions");
   };
 
-  // Helper to persist instruction in localStorage
   const createMutation = useCreateAdminInstruction();
+  const updateMutation = useUpdateAdminInstruction();
+  const [savedDraftId, setSavedDraftId] = React.useState<string | null>(null);
 
   const returnUrl = (router.query.returnUrl as string) || (router.query.from as string) || "/admin/instructions";
 
@@ -264,20 +268,37 @@ export default function AdminAddNewInstructionPage() {
     const serializedContent = serializeArticleBlocksToHtml(blocks).trim() || `<p>${finalTitle}</p>`;
 
     try {
-      const created = await createMutation.mutateAsync({
-        title: finalTitle,
-        content: serializedContent,
-      });
+      let targetId = savedDraftId;
+      if (targetId) {
+        const updated = await updateMutation.mutateAsync({
+          id: targetId,
+          data: {
+            title: finalTitle,
+            content: serializedContent,
+          },
+        });
+        targetId = updated.id || targetId;
+      } else {
+        const created = await createMutation.mutateAsync({
+          title: finalTitle,
+          content: serializedContent,
+        });
+        targetId = created.id;
+        setSavedDraftId(created.id);
+      }
+
       showToast(successMessage);
       if (alwaysRedirect || router.query.returnUrl) {
         setTimeout(() => {
-          router.push(getReturnUrlWithTemplate(created.id));
+          router.push(getReturnUrlWithTemplate(targetId));
         }, 500);
       }
     } catch {
       showToast("Gagal menyimpan instruksi ke server.");
     }
   };
+
+  const isSubmitting = createMutation.isPending || updateMutation.isPending;
 
   // Save Draft Handler
   const handleSaveDraft = () => {
@@ -310,6 +331,7 @@ export default function AdminAddNewInstructionPage() {
       <Button
         variant="inactive"
         size="sm"
+        disabled={isSubmitting}
         onClick={handleSaveDraft}
       >
         Save Draft
@@ -318,6 +340,7 @@ export default function AdminAddNewInstructionPage() {
       <Button
         variant="primary"
         size="sm"
+        disabled={isSubmitting}
         onClick={handlePublish}
       >
         Publish

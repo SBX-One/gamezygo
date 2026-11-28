@@ -434,12 +434,25 @@ export default function CheckoutPage() {
     // Ensure an order exists in backend before validating voucher
     if (!targetOrderId) {
       const firstItem = checkoutItems[0];
-      const isSubscription = String(firstItem.id).startsWith("sub-");
-      const numericId = Number(firstItem.productId || firstItem.id);
+      const isSubscription =
+        firstItem.itemType === "subscription" ||
+        String(firstItem.id).startsWith("sub-");
+      const isMultiItemCart = !isDirectMode && checkoutItems.length > 1;
+      const numericId = Number(
+        isSubscription
+          ? firstItem.subscriptionPlanId ||
+              firstItem.productId ||
+              String(firstItem.id).replace(/\D/g, "")
+          : firstItem.productId || firstItem.id
+      );
 
       try {
         const orderRes = await createOrderMutation.mutateAsync(
-          isSubscription
+          isMultiItemCart
+            ? {
+                item_type: "cart",
+              }
+            : isSubscription
             ? {
                 item_type: "subscription",
                 subscription_plan_id:

@@ -235,17 +235,22 @@ export default function AdminEditProductPage() {
         );
         const promoSectionId = sectionMatch ? sectionMatch.id : undefined;
 
+        const targetStatus = formData.isPreOrder ? "pre-order" : "listing";
+
         if (formData.imageFile) {
           const payload = new FormData();
           payload.append("name", formData.name.trim());
           payload.append("price", String(cleanPrice));
           payload.append("steam_url", formData.storeUrl || "");
-          payload.append("status", "listing");
-          if (formData.accountUsername) {
-            payload.append("game_account[username]", formData.accountUsername);
-          }
-          if (formData.accountPassword) {
-            payload.append("game_account[password]", formData.accountPassword);
+          payload.append("status", targetStatus);
+          payload.append("is_preorder", formData.isPreOrder ? "1" : "0");
+          if (!formData.isPreOrder) {
+            if (formData.accountUsername) {
+              payload.append("game_account[username]", formData.accountUsername);
+            }
+            if (formData.accountPassword) {
+              payload.append("game_account[password]", formData.accountPassword);
+            }
           }
           payload.append("thumbnail", formData.imageFile);
           formData.genres.forEach((g) => payload.append("genres[]", g));
@@ -268,16 +273,21 @@ export default function AdminEditProductPage() {
               name: formData.name.trim(),
               price: cleanPrice,
               steam_url: formData.storeUrl,
-              status: "listing",
+              status: targetStatus,
+              is_preorder: formData.isPreOrder,
               image_url: formData.imageSrc,
               genres: formData.genres,
               category_ids: categoryIds.length ? categoryIds : undefined,
               launcher_ids: launcherId ? [launcherId] : undefined,
               promotion_section_id: promoSectionId,
-              game_account: {
-                username: formData.accountUsername,
-                password: formData.accountPassword,
-              },
+              ...(formData.isPreOrder
+                ? {}
+                : {
+                    game_account: {
+                      username: formData.accountUsername,
+                      password: formData.accountPassword,
+                    },
+                  }),
               specifications,
               promotion_section: promoSection,
               instruction_template_id: instructionId,
@@ -356,18 +366,23 @@ export default function AdminEditProductPage() {
     );
     const promoSectionId = sectionMatch ? sectionMatch.id : undefined;
 
+    const targetStatus = formData.isPreOrder ? "pre-order" : "listing";
+
     try {
       if (formData.imageFile) {
         const payload = new FormData();
         payload.append("name", formData.name.trim());
         payload.append("price", String(cleanPrice));
         payload.append("steam_url", formData.storeUrl || "");
-        payload.append("status", "listing");
-        if (formData.accountUsername) {
-          payload.append("game_account[username]", formData.accountUsername);
-        }
-        if (formData.accountPassword) {
-          payload.append("game_account[password]", formData.accountPassword);
+        payload.append("status", targetStatus);
+        payload.append("is_preorder", formData.isPreOrder ? "1" : "0");
+        if (!formData.isPreOrder) {
+          if (formData.accountUsername) {
+            payload.append("game_account[username]", formData.accountUsername);
+          }
+          if (formData.accountPassword) {
+            payload.append("game_account[password]", formData.accountPassword);
+          }
         }
         payload.append("thumbnail", formData.imageFile);
 
@@ -405,16 +420,21 @@ export default function AdminEditProductPage() {
             name: formData.name.trim(),
             price: cleanPrice,
             steam_url: formData.storeUrl,
-            status: "listing", // ensure active in user store
+            status: targetStatus,
+            is_preorder: formData.isPreOrder,
             image_url: formData.imageSrc,
             genres: formData.genres,
             category_ids: categoryIds.length ? categoryIds : undefined,
             launcher_ids: launcherId ? [launcherId] : undefined,
             promotion_section_id: promoSectionId,
-            game_account: {
-              username: formData.accountUsername,
-              password: formData.accountPassword,
-            },
+            ...(formData.isPreOrder
+              ? {}
+              : {
+                  game_account: {
+                    username: formData.accountUsername,
+                    password: formData.accountPassword,
+                  },
+                }),
             specifications,
             promotion_section: promoSection,
             instruction_template_id: instructionId,
@@ -587,11 +607,13 @@ export default function AdminEditProductPage() {
               onChange={handleFormChange}
             />
 
-            {/* Section 3: Shared Account Credentials */}
-            <AdminAddProductAccountInfo
-              formData={formData}
-              onChange={handleFormChange}
-            />
+            {/* Section 3: Shared Account Credentials (Hidden for Pre-Order products - BUG-016/017) */}
+            {!formData.isPreOrder && (
+              <AdminAddProductAccountInfo
+                formData={formData}
+                onChange={handleFormChange}
+              />
+            )}
 
             {/* Section 4: Minimum & Recommendation Hardware Specs */}
             <AdminAddProductSpecs

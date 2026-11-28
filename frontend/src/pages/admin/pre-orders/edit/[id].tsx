@@ -262,6 +262,16 @@ export default function AdminPreOrderEditProductPage() {
       toast.warning("Nama produk wajib diisi.", "Validasi");
       return;
     }
+    if (
+      isContinueToList &&
+      (!formData.accountUsername.trim() || !formData.accountPassword.trim())
+    ) {
+      toast.warning(
+        "Username dan Password akun wajib diisi sebelum mempublikasikan produk Pre-Order.",
+        "Validasi Kredensial"
+      );
+      return;
+    }
     setIsConfirmSaveOpen(true);
   };
 

@@ -1,7 +1,32 @@
 import * as React from "react";
+import Image from "next/image";
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 import type { BannerCarouselProps, BannerSlide } from "./BannerCarousel.types";
+
+const OPTIMIZABLE_HOSTS = [
+  "steamstatic.com",
+  "amazonaws.com",
+  "images.unsplash.com",
+  "sbxonestudio.com",
+  "picsum.photos",
+  "placehold.co",
+  "localhost",
+  "127.0.0.1",
+];
+
+function shouldOptimizeBannerSrc(src: string): boolean {
+  if (!src) return false;
+  if (src.startsWith("/")) return true;
+  try {
+    const { hostname } = new URL(src);
+    return OPTIMIZABLE_HOSTS.some(
+      (h) => hostname === h || hostname.endsWith(`.${h}`)
+    );
+  } catch {
+    return false;
+  }
+}
 
 const ChevronLeftIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -124,13 +149,17 @@ export function BannerCarousel({
         className="w-full h-full min-h-full relative cursor-pointer group/slide overflow-hidden flex items-center justify-center bg-deep-blue-950"
         onClick={() => onSlideClick?.(slide, index)}
       >
-        <img
+        <Image
           src={slide.imageSrc}
           alt={slide.alt || slide.title || `Slide ${index + 1}`}
+          fill
+          priority={index === 0}
           fetchPriority={index === 0 ? "high" : "auto"}
           loading={index === 0 ? "eager" : "lazy"}
-          decoding={index === 0 ? "sync" : "async"}
-          className="w-full h-full object-cover object-center select-none transition-transform duration-500 ease-out group-hover/slide:scale-[1.02]"
+          sizes="(max-width: 640px) 100vw, (max-width: 1280px) 92vw, 1280px"
+          quality={75}
+          unoptimized={!shouldOptimizeBannerSrc(slide.imageSrc)}
+          className="object-cover object-center select-none transition-transform duration-500 ease-out group-hover/slide:scale-[1.02]"
           draggable={false}
         />
         {/* Subtle bottom vignette to ensure indicators and badges remain prominent */}

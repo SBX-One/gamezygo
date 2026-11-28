@@ -685,12 +685,6 @@ export default function LandingPage() {
           name="description"
           content="Jelajahi ribuan akun game original Steam, Epic Games, dan EA dengan harga terjangkau, pengiriman instan, dan garansi penuh di Gamezygo."
         />
-        <link
-          rel="preload"
-          as="image"
-          href="/assets/png/Banner.png"
-          fetchPriority="high"
-        />
       </Head>
 
       <StoreLayout

@@ -3,8 +3,36 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
 import type { OrderHistoryItem, OrderStatus } from "../types";
-import { fetchOrderDetail } from "@/services/orders.service";
+import { createPayment, fetchOrderDetail } from "@/services/orders.service";
 import { formatPaymentMethodLabel } from "../utils/payment-method";
+
+function loadMidtransSnapScript(): Promise<boolean> {
+  if (typeof window === "undefined") return Promise.resolve(false);
+  if (window.snap?.pay) return Promise.resolve(true);
+
+  return new Promise((resolve) => {
+    const existing = document.getElementById("midtrans-snap-script");
+    if (existing) {
+      existing.addEventListener("load", () => resolve(Boolean(window.snap?.pay)));
+      existing.addEventListener("error", () => resolve(false));
+      return;
+    }
+
+    const script = document.createElement("script");
+    script.id = "midtrans-snap-script";
+    script.src =
+      process.env.NEXT_PUBLIC_MIDTRANS_SNAP_URL ||
+      "https://app.sandbox.midtrans.com/snap/snap.js";
+    const clientKey = process.env.NEXT_PUBLIC_MIDTRANS_CLIENT_KEY || "";
+    if (clientKey) {
+      script.setAttribute("data-client-key", clientKey);
+    }
+    script.async = true;
+    script.onload = () => resolve(Boolean(window.snap?.pay));
+    script.onerror = () => resolve(false);
+    document.body.appendChild(script);
+  });
+}
 
 export interface TransactionDetailModalProps {
   isOpen: boolean;
@@ -43,6 +71,11 @@ export function TransactionDetailModal({
     order?.transactionId || "E908YRH3H3UR3B"
   );
   const [isLoading, setIsLoading] = React.useState(false);
+  const [isResumingPayment, setIsResumingPayment] = React.useState(false);
+  const [statusFeedback, setStatusFeedback] = React.useState<{
+    type: "info" | "error" | "success";
+    text: string;
+  } | null>(null);
   const [currentStatus, setCurrentStatus] = React.useState<OrderStatus>(
     order?.status || "Pending"
   );
@@ -52,6 +85,7 @@ export function TransactionDetailModal({
     setPrevOrderId(order.id);
     setTransactionIdInput(order.transactionId || "E908YRH3H3UR3B");
     setCurrentStatus(order.status);
+    setStatusFeedback(null);
   }
 
   // Prevent background scrolling without altering body overflow (keeps sticky navbar and scroll position intact)
@@ -100,45 +134,121 @@ export function TransactionDetailModal({
   if (!isOpen || !order) return null;
 
   const handleCheckStatus = async () => {
+    if (!order.id) return;
     setIsLoading(true);
+    setStatusFeedback(null);
     try {
-      if (order.id) {
-        const res = await fetchOrderDetail(order.id);
-        if (res?.data) {
-          const rawStatus = (res.data.status || "").toLowerCase();
-          const nextStatus: OrderStatus =
-            rawStatus === "paid" || rawStatus === "completed" || rawStatus === "success"
-              ? "Berhasil"
-              : rawStatus === "pending"
-              ? "Pending"
-              : "Gagal";
-          setCurrentStatus(nextStatus);
-          onStatusUpdated?.({
-            ...order,
-            transactionId: transactionIdInput,
-            status: nextStatus,
-          });
-          setIsLoading(false);
-          return;
-        }
-      }
-    } catch {
-      // API fallback
-    }
-
-    setTimeout(() => {
-      setIsLoading(false);
-      const nextStatus: OrderStatus =
-        currentStatus === "Pending" ? "Berhasil" : currentStatus;
-      setCurrentStatus(nextStatus);
-      if (onStatusUpdated) {
-        onStatusUpdated({
+      const res = await fetchOrderDetail(order.id);
+      if (res?.data) {
+        const rawStatus = (res.data.status || "").toLowerCase();
+        const nextStatus: OrderStatus =
+          rawStatus === "paid" || rawStatus === "completed" || rawStatus === "success"
+            ? "Berhasil"
+            : rawStatus === "pending"
+            ? "Pending"
+            : "Gagal";
+        setCurrentStatus(nextStatus);
+        onStatusUpdated?.({
           ...order,
           transactionId: transactionIdInput,
           status: nextStatus,
         });
+        setStatusFeedback({
+          type: nextStatus === "Berhasil" ? "success" : nextStatus === "Gagal" ? "error" : "info",
+          text:
+            nextStatus === "Berhasil"
+              ? "Pembayaran telah terverifikasi berhasil."
+              : nextStatus === "Pending"
+              ? "Transaksi masih menunggu pembayaran. Klik Lanjutkan Pembayaran untuk menyelesaikan."
+              : "Transaksi gagal atau telah kedaluwarsa.",
+        });
+      } else {
+        setStatusFeedback({
+          type: "error",
+          text: "Tidak dapat mengambil status terbaru dari server.",
+        });
       }
-    }, 600);
+    } catch {
+      setStatusFeedback({
+        type: "error",
+        text: "Gagal memeriksa status pembayaran. Silakan coba lagi beberapa saat.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResumePayment = async () => {
+    if (!order.id) return;
+    setIsResumingPayment(true);
+    setStatusFeedback(null);
+    try {
+      const payRes = await createPayment(order.id, "midtrans");
+      const pData = (payRes?.data ?? {}) as unknown as {
+        snap_token?: string;
+        redirect_url?: string;
+        gateway?: { snap_token?: string; redirect_url?: string };
+        payment?: { snap_token?: string; redirect_url?: string };
+      };
+      const snapToken =
+        pData.gateway?.snap_token ||
+        pData.payment?.snap_token ||
+        pData.snap_token ||
+        "";
+      const redirectUrl =
+        pData.gateway?.redirect_url ||
+        pData.payment?.redirect_url ||
+        pData.redirect_url ||
+        "";
+
+      if (snapToken) {
+        const snapReady = await loadMidtransSnapScript();
+        if (snapReady && window.snap?.pay) {
+          window.snap.pay(snapToken, {
+            onSuccess: () => {
+              void handleCheckStatus();
+            },
+            onPending: () => {
+              setStatusFeedback({
+                type: "info",
+                text: "Menunggu penyelesaian pembayaran. Gunakan Cek Status untuk memperbarui.",
+              });
+            },
+            onError: () => {
+              setStatusFeedback({
+                type: "error",
+                text: "Pembayaran gagal diproses oleh Midtrans. Silakan coba lagi.",
+              });
+            },
+            onClose: () => {
+              void handleCheckStatus();
+            },
+          });
+          return;
+        }
+      }
+
+      if (redirectUrl) {
+        window.open(redirectUrl, "_blank", "noopener,noreferrer");
+        setStatusFeedback({
+          type: "info",
+          text: "Halaman pembayaran dibuka di tab baru. Klik Cek Status setelah selesai membayar.",
+        });
+        return;
+      }
+
+      setStatusFeedback({
+        type: "error",
+        text: "Token pembayaran tidak tersedia untuk transaksi ini.",
+      });
+    } catch {
+      setStatusFeedback({
+        type: "error",
+        text: "Gagal menyiapkan sesi pembayaran. Transaksi mungkin sudah kedaluwarsa.",
+      });
+    } finally {
+      setIsResumingPayment(false);
+    }
   };
 
   // Determine stepper active states
@@ -233,16 +343,43 @@ export function TransactionDetailModal({
             {isPending && (
               <Button
                 type="button"
-                variant="primary"
+                variant="secondary"
                 size="sm"
                 isLoading={isLoading}
-              onClick={handleCheckStatus}
-              className="rounded-lg px-5 py-2.5 font-semibold shrink-0 cursor-pointer shadow-xs"
-            >
-              Cek Status
-            </Button>
+                onClick={handleCheckStatus}
+                className="rounded-lg px-4 py-2.5 font-semibold shrink-0 cursor-pointer shadow-xs"
+              >
+                Cek Status
+              </Button>
             )}
           </div>
+          {isPending && (
+            <Button
+              type="button"
+              variant="primary"
+              size="sm"
+              fullWidth
+              isLoading={isResumingPayment}
+              onClick={handleResumePayment}
+              className="mt-1 rounded-lg py-2.5 font-semibold cursor-pointer shadow-xs"
+            >
+              Lanjutkan Pembayaran
+            </Button>
+          )}
+          {statusFeedback && (
+            <p
+              className={cn(
+                "text-label-xs mt-1",
+                statusFeedback.type === "error"
+                  ? "text-rose-400"
+                  : statusFeedback.type === "success"
+                  ? "text-emerald-400"
+                  : "text-amber-300"
+              )}
+            >
+              {statusFeedback.text}
+            </p>
+          )}
         </div>
 
         {/* Section 2: DETAIL PESANAN */}

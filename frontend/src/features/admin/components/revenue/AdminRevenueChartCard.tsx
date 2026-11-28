@@ -1,14 +1,22 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
-import { AdminCard, AdminEmptyState } from "@/components/admin";
+import { AdminCard, AdminDropdown, AdminEmptyState } from "@/components/admin";
 import { MOCK_REVENUE_CHART_DATA } from "../../data/admin-revenue-mock-data";
 import type { RevenueChartPoint } from "../../types/admin-revenue.types";
 import { formatRupiah } from "@/utils/formatters";
 import { AdminRevenueDateRangePicker } from "./AdminRevenueDateRangePicker";
 
+const CHART_RANGE_OPTIONS = [
+  { label: "1W", value: "weekly" },
+  { label: "1M", value: "monthly" },
+  { label: "1Y", value: "yearly" },
+];
+
 export interface AdminRevenueChartCardProps {
   isEmpty?: boolean;
   data?: RevenueChartPoint[];
+  period?: string;
+  onPeriodChange?: (period: string) => void;
   onChangeRange?: (start: Date | null, end: Date | null, label: string) => void;
   className?: string;
   isLoading?: boolean;
@@ -37,6 +45,8 @@ function buildSmoothPath(points: { x: number; y: number }[]): string {
 export function AdminRevenueChartCard({
   isEmpty = false,
   data = MOCK_REVENUE_CHART_DATA,
+  period = "weekly",
+  onPeriodChange,
   onChangeRange,
   className,
   isLoading = false,
@@ -66,14 +76,24 @@ export function AdminRevenueChartCard({
 
   const [isDatePickerOpen, setIsDatePickerOpen] = React.useState(false);
 
-  // Header right slot: Interactive Date Range Calendar Picker (Gambar 1 & Gambar 2)
+  // Header right slot: Standard Range Dropdown (1W / 1M / 1Y) + Date Range Calendar Picker
   const headerRight = (
-    <AdminRevenueDateRangePicker
-      onChangeRange={(start, end, label) => {
-        onChangeRange?.(start, end, label);
-      }}
-      onOpenChange={setIsDatePickerOpen}
-    />
+    <div className="flex items-center gap-2">
+      {onPeriodChange && (
+        <AdminDropdown
+          options={CHART_RANGE_OPTIONS}
+          selectedValue={period}
+          onSelect={(val) => onPeriodChange(val)}
+          placeholder="1W"
+        />
+      )}
+      <AdminRevenueDateRangePicker
+        onChangeRange={(start, end, label) => {
+          onChangeRange?.(start, end, label);
+        }}
+        onOpenChange={setIsDatePickerOpen}
+      />
+    </div>
   );
 
   const activeData = data && data.length > 0 ? data : MOCK_REVENUE_CHART_DATA;

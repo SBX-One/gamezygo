@@ -67,3 +67,41 @@ export function resolveImageUrl(
 
   return `/${trimmed.replace(/^\/+/, "")}`;
 }
+
+const STEAM_HORIZONTAL_BANNER_REGEX =
+  /^(https?:\/\/(?:cdn|shared)\.[a-z0-9.-]*steamstatic\.com\/(?:store_item_assets\/)?steam\/apps\/(\d+)\/)(?:header|capsule_616x353|capsule_sm_120|capsule_231x87|library_hero)[^/?#]*(\?.*)?$/i;
+
+const STEAM_LIBRARY_VERTICAL_REGEX =
+  /^(https?:\/\/(?:cdn|shared)\.[a-z0-9.-]*steamstatic\.com\/(?:store_item_assets\/)?steam\/apps\/(\d+)\/)library_600x900_2x\.jpg(\?.*)?$/i;
+
+/**
+ * Converts horizontal Steam banner URLs (e.g. header.jpg, capsule_616x353.jpg)
+ * into Steam's vertical portrait capsule (library_600x900_2x.jpg) so vertical
+ * storefront cards (aspect-3/4) render without distortion or pixelation.
+ */
+export function normalizeSteamVerticalCover(url: string): string {
+  if (!url) return url;
+  const trimmed = url.trim();
+  const match = trimmed.match(STEAM_HORIZONTAL_BANNER_REGEX);
+  if (match && match[2]) {
+    const appId = match[2];
+    if (appId === "107410") {
+      return "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/107410/hero_capsule.jpg";
+    }
+    return `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appId}/library_600x900_2x.jpg`;
+  }
+  return trimmed;
+}
+
+/**
+ * Returns the secondary Steam vertical fallback (hero_capsule.jpg) if
+ * library_600x900_2x.jpg is unavailable for an older Steam title.
+ */
+export function getSteamHeroCapsuleFallback(url: string): string | null {
+  if (!url) return null;
+  const match = url.trim().match(STEAM_LIBRARY_VERTICAL_REGEX);
+  if (match && match[2]) {
+    return `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${match[2]}/hero_capsule.jpg`;
+  }
+  return null;
+}

@@ -5,6 +5,10 @@ import { useRouter } from "next/router";
 import { cn } from "@/lib/utils";
 import { Pill } from "@/components/ui/Pill";
 import { Button } from "@/components/ui/Button";
+import {
+  normalizeSteamVerticalCover,
+  getSteamHeroCapsuleFallback,
+} from "@/utils/image-url";
 import type { ProductCardProps } from "./ProductCard.types";
 
 /**
@@ -56,17 +60,40 @@ export function ProductCard({
   const isUnavailable = state === "unavailable";
   const isPreOrder = state === "pre-order";
 
-  const resolvedImageSrc = React.useMemo((): string => {
-    if (!imageSrc) return "";
-    // Replace zoomed-in library art for 107410 / targeted with proper hero_capsule
-    if (imageSrc.includes("107410/library_600x900_2x.jpg")) {
-      return "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/107410/hero_capsule.jpg";
+  const imageCandidates = React.useMemo((): string[] => {
+    if (!imageSrc) return [];
+    const normalized = normalizeSteamVerticalCover(imageSrc);
+    const list: string[] = [];
+    // Replace zoomed-in library art for 107410 with proper hero_capsule
+    if (normalized.includes("107410/library_600x900_2x.jpg")) {
+      list.push(
+        "https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/107410/hero_capsule.jpg"
+      );
+    } else {
+      list.push(normalized);
+      const heroFallback = getSteamHeroCapsuleFallback(normalized);
+      if (heroFallback && !list.includes(heroFallback)) {
+        list.push(heroFallback);
+      }
     }
-    return imageSrc;
+    if (!list.includes(imageSrc)) {
+      list.push(imageSrc);
+    }
+    return list;
   }, [imageSrc]);
 
-  const [failedSrc, setFailedSrc] = React.useState<string | null>(null);
-  const hasImgError = Boolean(failedSrc && failedSrc === resolvedImageSrc);
+  const [fallbackIdx, setFallbackIdx] = React.useState<number>(0);
+
+  React.useEffect(() => {
+    setFallbackIdx(0);
+  }, [imageSrc]);
+
+  const resolvedImageSrc = imageCandidates[fallbackIdx] ?? "";
+  const hasImgError = fallbackIdx >= imageCandidates.length || !resolvedImageSrc;
+
+  const handleImageError = React.useCallback(() => {
+    setFallbackIdx((prev) => prev + 1);
+  }, []);
 
   // Action Button Rendering
   const renderActionButton = () => {
@@ -201,7 +228,7 @@ export function ProductCard({
               fill
               sizes="(max-width: 640px) 100vw, 176px"
               className="object-cover transition-transform duration-300 hover:scale-105"
-              onError={() => setFailedSrc(resolvedImageSrc)}
+              onError={handleImageError}
             />
           ) : (
             <div className="w-full h-full bg-deep-blue-900/40 border border-white/5 flex flex-col items-center justify-center text-gray-500 gap-1.5 animate-pulse">
@@ -295,7 +322,7 @@ export function ProductCard({
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
             className="object-cover transition-transform duration-300 hover:scale-105"
-            onError={() => setFailedSrc(resolvedImageSrc)}
+            onError={handleImageError}
           />
         ) : (
           <div className="w-full h-full bg-deep-blue-900/40 border border-white/5 flex flex-col items-center justify-center text-gray-500 gap-2 animate-pulse">

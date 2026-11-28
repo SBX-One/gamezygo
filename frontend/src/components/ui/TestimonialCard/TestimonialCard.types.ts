@@ -24,6 +24,8 @@ export interface TestimonialCardProps
   userName: React.ReactNode;
   /** Nama game atau info tambahan (misal: 'Black Myth Wukong, 2+') */
   gameName?: React.ReactNode;
+  /** Balasan resmi dari Admin Gamezygo (opsional) */
+  adminReply?: string | null;
   /** React 19 native ref */
   ref?: React.Ref<HTMLDivElement>;
 }

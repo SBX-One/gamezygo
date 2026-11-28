@@ -1,5 +1,5 @@
 import { apiClient } from "@/lib/api-client";
-import { resolveImageUrl } from "@/utils/image-url";
+import { resolveImageUrl, normalizeSteamVerticalCover } from "@/utils/image-url";
 import type { ProductSection, SectionProduct } from "@/features/admin/types/admin-section.types";
 
 interface BackendSectionCategory {
@@ -48,7 +48,7 @@ function mapSectionProduct(p: BackendSectionProduct): SectionProduct {
   return {
     id: String(p.id),
     title: p.name || p.title || "Untitled Game",
-    imageSrc: resolveImageUrl(p.thumbnail || p.image_url || p.imageSrc),
+    imageSrc: normalizeSteamVerticalCover(resolveImageUrl(p.thumbnail || p.image_url || p.imageSrc)),
     categories,
     price: p.discount_price ?? p.price,
     originalPrice:
@@ -108,11 +108,20 @@ export const adminSectionService = {
    * Create a new custom section
    */
   async createSection(title: string): Promise<ProductSection> {
-    const response = await apiClient.post<{ success: boolean; data: BackendCustomSection }>(
+    const response = await apiClient.post<{ success?: boolean; data?: BackendCustomSection }>(
       "/admin/custom-sections",
       { title, display_type: "manual" }
     );
-    return mapCustomSection(response.data.data);
+    const created = response.data?.data ?? (response.data as unknown as BackendCustomSection);
+    if (!created || !created.id) {
+      return {
+        id: `temp-${Date.now()}`,
+        title,
+        slug: title.toLowerCase().replace(/[^a-z0-9]+/g, "-"),
+        products: [],
+      };
+    }
+    return mapCustomSection(created);
   },
 
   /**
@@ -120,8 +129,17 @@ export const adminSectionService = {
    */
   async updateSection(sectionId: string | number, data: { title?: string; display_type?: string }): Promise<unknown> {
     const numericId = typeof sectionId === "string" ? parseInt(sectionId.replace("sec-", ""), 10) || sectionId : sectionId;
-    const response = await apiClient.patch(`/admin/custom-sections/${numericId}`, data);
-    return response.data;
+    try {
+      const response = await apiClient.patch(`/admin/custom-sections/${numericId}`, data);
+      return response.data;
+    } catch (err: unknown) {
+      const status = (err as { response?: { status?: number } })?.response?.status;
+      if (status === 405) {
+        const response = await apiClient.put(`/admin/custom-sections/${numericId}`, data);
+        return response.data;
+      }
+      throw err;
+    }
   },
 
   /**
@@ -152,11 +170,24 @@ export const adminSectionService = {
     const numericProductIds = productIds.map((id) =>
       typeof id === "string" ? parseInt(id.replace("prod-", ""), 10) || id : id
     );
-    const response = await apiClient.post<{ success: boolean; data: BackendSectionProduct[] }>(
+    const response = await apiClient.post<{
+      success?: boolean;
+      data?: BackendSectionProduct[] | BackendCustomSection | null;
+    }>(
       `/admin/custom-sections/${numericSecId}/products`,
       { product_ids: numericProductIds }
     );
-    return (response.data.data ?? []).map(mapSectionProduct);
+    const rawData = response.data?.data;
+    if (Array.isArray(rawData)) {
+      return rawData.map(mapSectionProduct);
+    }
+    if (rawData && typeof rawData === "object") {
+      const nested = rawData.custom_section_products ?? rawData.products;
+      if (Array.isArray(nested)) {
+        return nested.map(mapSectionProduct);
+      }
+    }
+    return [];
   },
 
   /**

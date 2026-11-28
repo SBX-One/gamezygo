@@ -186,25 +186,41 @@ export default function AdminProductSectionPage() {
     }
   };
 
+  // Debounce timers for inline title editing to avoid firing a PATCH per keystroke
+  const titleDebounceTimersRef = React.useRef<Record<string, ReturnType<typeof setTimeout>>>({});
+
+  React.useEffect(() => {
+    const timers = titleDebounceTimersRef.current;
+    return () => {
+      Object.values(timers).forEach(clearTimeout);
+    };
+  }, []);
+
   // Title modification handlers
   const handleTitleChange = (sectionId: string, newTitle: string) => {
     setSections((prev) =>
       prev.map((s) => (s.id === sectionId ? { ...s, title: newTitle } : s))
     );
-    updateSectionMutation.mutate({
-      sectionId,
-      data: { title: newTitle },
-    });
+    if (titleDebounceTimersRef.current[sectionId]) {
+      clearTimeout(titleDebounceTimersRef.current[sectionId]);
+    }
+    const trimmed = newTitle.trim();
+    if (!trimmed) return;
+    titleDebounceTimersRef.current[sectionId] = setTimeout(() => {
+      updateSectionMutation.mutate({
+        sectionId,
+        data: { title: trimmed },
+      });
+    }, 500);
   };
 
   const handleClearTitle = (sectionId: string) => {
+    if (titleDebounceTimersRef.current[sectionId]) {
+      clearTimeout(titleDebounceTimersRef.current[sectionId]);
+    }
     setSections((prev) =>
       prev.map((s) => (s.id === sectionId ? { ...s, title: "" } : s))
     );
-    updateSectionMutation.mutate({
-      sectionId,
-      data: { title: "" },
-    });
   };
 
   // Add new section (Image 4)

@@ -218,7 +218,7 @@ export function AdminLayout({
       {/* 4. Main Admin View Area - Fixed scroll container with min-h-0 */}
       <div className="flex-1 h-full min-w-0 min-h-0 flex flex-col overflow-y-auto py-2.5 px-3">
         {/* Main Panel Container with 16px Rounded Corners (Figma Image 1, 2, 3) */}
-        <div className="w-full bg-deep-blue-950 rounded-lg flex flex-col mb-4 shrink-0 overflow-hidden">
+        <div className="w-full min-h-[calc(100vh-1.25rem)] bg-deep-blue-950 rounded-lg flex flex-col mb-4 shrink-0 overflow-hidden">
           {/* Top Navbar Header (Figma Image 2, 3, 4) */}
           <AdminHeader
             title={title}
@@ -229,7 +229,7 @@ export function AdminLayout({
           />
 
           {/* Main Content Area: 32px gap from Navbar (Figma Image 1 auto-layout gap 32), 24px bottom padding */}
-          <main className={cn("p-6 pt-8 pb-6 space-y-8 w-full", className)}>
+          <main className={cn("p-6 pt-8 pb-6 space-y-8 w-full flex-1", className)}>
             <ErrorBoundary
               showBackButton={false}
               onReset={onReload}

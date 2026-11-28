@@ -86,12 +86,13 @@ export interface ParsedSystemRequirements {
   directx: string;
   storage: string;
   soundCard?: string;
+  network?: string;
   notes?: string;
 }
 
 /**
  * Parses Steam Store API raw HTML pc_requirements strings (minimum & recommended)
- * into clean structured specifications for display cards.
+ * into clean structured specifications for display cards (supports English & Indonesian labels).
  */
 export function parseSteamRequirements(
   htmlString?: string,
@@ -105,6 +106,7 @@ export function parseSteamRequirements(
     directx: fallback?.directx || "Versi 11",
     storage: fallback?.storage || "30 GB Available Space",
     soundCard: fallback?.soundCard || "DX Compatible",
+    network: fallback?.network,
     notes: fallback?.notes,
   };
 
@@ -117,7 +119,8 @@ export function parseSteamRequirements(
     .replace(/<[^>]*>/g, "")
     .replace(/&amp;/g, "&")
     .replace(/&lt;/g, "<")
-    .replace(/&gt;/g, ">");
+    .replace(/&gt;/g, ">")
+    .replace(/&nbsp;/g, " ");
 
   const lines = clean
     .split("\n")
@@ -126,30 +129,36 @@ export function parseSteamRequirements(
 
   for (const line of lines) {
     const lower = line.toLowerCase();
-    if (lower.startsWith("os") || lower.startsWith("os *:") || lower.includes("os:")) {
-      const val = line.replace(/^(os\s*\*?\s*:?)/i, "").trim();
+    if (/^(os|sistem operasi)\s*\*?\s*:/i.test(line)) {
+      const val = line.replace(/^(os|sistem operasi)\s*\*?\s*:\s*/i, "").trim();
       if (val) result.os = val;
-    } else if (lower.startsWith("processor") || lower.includes("processor:")) {
-      const val = line.replace(/^(processor\s*\*?\s*:?)/i, "").trim();
+    } else if (/^(processor|prosesor|cpu)\s*\*?\s*:/i.test(line)) {
+      const val = line.replace(/^(processor|prosesor|cpu)\s*\*?\s*:\s*/i, "").trim();
       if (val) result.cpu = val;
-    } else if (lower.startsWith("memory") || lower.includes("memory:")) {
-      const val = line.replace(/^(memory\s*\*?\s*:?)/i, "").trim();
+    } else if (/^(memory|memori|ram)\s*\*?\s*:/i.test(line)) {
+      const val = line.replace(/^(memory|memori|ram)\s*\*?\s*:\s*/i, "").trim();
       if (val) result.ram = val;
-    } else if (lower.startsWith("graphics") || lower.includes("graphics:")) {
-      const val = line.replace(/^(graphics\s*\*?\s*:?)/i, "").trim();
+    } else if (/^(graphics|grafis|gpu|video card|kartu grafis)\s*\*?\s*:/i.test(line)) {
+      const val = line.replace(/^(graphics|grafis|gpu|video card|kartu grafis)\s*\*?\s*:\s*/i, "").trim();
       if (val) result.gpu = val;
-    } else if (lower.startsWith("directx") || lower.includes("directx:")) {
-      const val = line.replace(/^(directx\s*\*?\s*:?)/i, "").trim();
+    } else if (/^directx\s*\*?\s*:/i.test(line)) {
+      const val = line.replace(/^directx\s*\*?\s*:\s*/i, "").trim();
       if (val) result.directx = val;
-    } else if (lower.startsWith("storage") || lower.includes("storage:") || lower.includes("hard drive")) {
-      const val = line.replace(/^(storage\s*\*?\s*:?|hard drive\s*\*?\s*:?)/i, "").trim();
+    } else if (/^(storage|penyimpanan|hard drive|ruang penyimpanan)\s*\*?\s*:/i.test(line)) {
+      const val = line.replace(/^(storage|penyimpanan|hard drive|ruang penyimpanan)\s*\*?\s*:\s*/i, "").trim();
       if (val) result.storage = val;
-    } else if (lower.startsWith("sound card") || lower.includes("sound card:")) {
-      const val = line.replace(/^(sound card\s*\*?\s*:?)/i, "").trim();
+    } else if (/^(sound card|kartu suara)\s*\*?\s*:/i.test(line)) {
+      const val = line.replace(/^(sound card|kartu suara)\s*\*?\s*:\s*/i, "").trim();
       if (val) result.soundCard = val;
-    } else if (lower.startsWith("additional notes") || lower.includes("additional notes:")) {
-      const val = line.replace(/^(additional notes\s*\*?\s*:?)/i, "").trim();
+    } else if (/^(network|jaringan)\s*\*?\s*:/i.test(line)) {
+      const val = line.replace(/^(network|jaringan)\s*\*?\s*:\s*/i, "").trim();
+      if (val) result.network = val;
+    } else if (/^(additional notes|catatan tambahan)\s*\*?\s*:/i.test(line)) {
+      const val = line.replace(/^(additional notes|catatan tambahan)\s*\*?\s*:\s*/i, "").trim();
       if (val) result.notes = val;
+    } else if (lower.includes("os:")) {
+      const val = line.split(/os:/i)[1]?.trim();
+      if (val) result.os = val;
     }
   }
 

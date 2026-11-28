@@ -1,4 +1,5 @@
 import * as React from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import { resolveImageUrl } from "@/utils/image-url";
 import { CatalogProductThumbnail } from "./CatalogProductThumbnail";
@@ -150,9 +151,14 @@ export function AdminCatalogTable({
   isLoading = false,
 }: AdminCatalogTableProps) {
   const [activeMenuId, setActiveMenuId] = React.useState<string | null>(null);
+  const [menuPos, setMenuPos] = React.useState<{
+    top: number;
+    left: number;
+    openUpward: boolean;
+  } | null>(null);
   const menuRef = React.useRef<HTMLDivElement>(null);
 
-  // Close active dropdown menu when clicking outside
+  // Close active dropdown menu when clicking outside or scrolling/resizing
   React.useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
       if (
@@ -160,15 +166,29 @@ export function AdminCatalogTable({
         !menuRef.current.contains(event.target as Node)
       ) {
         setActiveMenuId(null);
+        setMenuPos(null);
       }
+    }
+    function handleScrollOrResize() {
+      setActiveMenuId(null);
+      setMenuPos(null);
     }
     if (activeMenuId) {
       document.addEventListener("mousedown", handleClickOutside);
+      window.addEventListener("scroll", handleScrollOrResize, true);
+      window.addEventListener("resize", handleScrollOrResize);
     }
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
+      window.removeEventListener("scroll", handleScrollOrResize, true);
+      window.removeEventListener("resize", handleScrollOrResize);
     };
   }, [activeMenuId]);
+
+  const activeMenuItem = React.useMemo(
+    () => (activeMenuId ? items.find((i) => i.id === activeMenuId) ?? null : null),
+    [activeMenuId, items]
+  );
 
   const allSelected =
     items.length > 0 && items.every((item) => selectedIds.includes(item.id));
@@ -373,46 +393,28 @@ export function AdminCatalogTable({
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          setActiveMenuId(isMenuOpen ? null : item.id);
+                          if (isMenuOpen) {
+                            setActiveMenuId(null);
+                            setMenuPos(null);
+                            return;
+                          }
+                          const rect = e.currentTarget.getBoundingClientRect();
+                          const menuWidth = 156;
+                          const estimatedMenuHeight = 112;
+                          const spaceBelow = window.innerHeight - rect.bottom;
+                          const openUpward = spaceBelow < estimatedMenuHeight + 16 && rect.top > estimatedMenuHeight;
+                          setMenuPos({
+                            top: openUpward ? rect.top - 6 : rect.bottom + 6,
+                            left: Math.max(12, rect.right - menuWidth),
+                            openUpward,
+                          });
+                          setActiveMenuId(item.id);
                         }}
                         aria-label="Aksi Produk"
                         className="p-1.5 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 transition-colors cursor-pointer"
                       >
                         <MoreVerticalIcon />
                       </button>
-
-                      {isMenuOpen && (
-                        <div
-                          ref={menuRef}
-                          className={cn(
-                            "absolute right-0 z-50 min-w-37.5 rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-3 shadow-2xl animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-2 text-left",
-                            isNearBottom ? "bottom-full mb-1.5" : "top-full mt-1.5"
-                          )}
-                        >
-                          <button
-                            type="button"
-                            onClick={() => {
-                              onEditItem?.(item);
-                              setActiveMenuId(null);
-                            }}
-                            className="flex items-center gap-3 w-full px-2 py-1.5 rounded-lg text-sm font-medium text-white hover:bg-white/5 text-left transition-colors cursor-pointer select-none"
-                          >
-                            <EditIcon className="w-4.5 h-4.5 text-white shrink-0" strokeWidth={2} />
-                            <span>Edit</span>
-                          </button>
-                          <button
-                            type="button"
-                            onClick={() => {
-                              onDeleteItem?.(item.id);
-                              setActiveMenuId(null);
-                            }}
-                            className="flex items-center gap-3 w-full px-2 py-1.5 rounded-lg text-sm font-medium text-white hover:bg-white/5 text-left transition-colors cursor-pointer select-none"
-                          >
-                            <TrashIcon className="w-4.5 h-4.5 text-white shrink-0" strokeWidth={2} />
-                            <span>Delete</span>
-                          </button>
-                        </div>
-                      )}
                     </div>
                   </AdminTableCell>
                 </AdminTableRow>
@@ -454,6 +456,48 @@ export function AdminCatalogTable({
           )}
         </AdminTableBody>
       </AdminTable>
+
+      {typeof document !== "undefined" &&
+        activeMenuItem &&
+        menuPos &&
+        createPortal(
+          <div
+            ref={menuRef}
+            style={{
+              position: "fixed",
+              top: menuPos.top,
+              left: menuPos.left,
+              transform: menuPos.openUpward ? "translateY(-100%)" : undefined,
+            }}
+            className="z-9999 min-w-37.5 rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-3 shadow-2xl animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-2 text-left"
+          >
+            <button
+              type="button"
+              onClick={() => {
+                onEditItem?.(activeMenuItem);
+                setActiveMenuId(null);
+                setMenuPos(null);
+              }}
+              className="flex items-center gap-3 w-full px-2 py-1.5 rounded-lg text-sm font-medium text-white hover:bg-white/5 text-left transition-colors cursor-pointer select-none"
+            >
+              <EditIcon className="w-4.5 h-4.5 text-white shrink-0" strokeWidth={2} />
+              <span>Edit</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => {
+                onDeleteItem?.(activeMenuItem.id);
+                setActiveMenuId(null);
+                setMenuPos(null);
+              }}
+              className="flex items-center gap-3 w-full px-2 py-1.5 rounded-lg text-sm font-medium text-white hover:bg-white/5 text-left transition-colors cursor-pointer select-none"
+            >
+              <TrashIcon className="w-4.5 h-4.5 text-white shrink-0" strokeWidth={2} />
+              <span>Delete</span>
+            </button>
+          </div>,
+          document.body
+        )}
     </AdminCard>
   );
 }

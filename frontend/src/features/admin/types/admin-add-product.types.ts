@@ -145,42 +145,10 @@ export const DEFAULT_ADD_PRODUCT_FORM: AdminAddProductFormData = {
   launcher: "Steam",
   promotionSection: "",
   storeUrl: "",
-  accountUsername: "Username_test",
-  accountPassword: "Password@123",
-  minimumSpecs: [
-    {
-      id: "spec-1",
-      label: "OS version",
-      value: "Windows® 10 (64-bit)",
-    },
-    {
-      id: "spec-2",
-      label: "CPU",
-      value: "Intel® Core™ i7-7700 (quad-core) / AMD® Ryzen™ 5 1600 (hexa-core)",
-    },
-    {
-      id: "spec-3",
-      label: "Additional Space",
-      value: "SSD recommended",
-    },
-  ],
-  recommendationSpecs: [
-    {
-      id: "spec-rec-1",
-      label: "OS version",
-      value: "Windows® 10 (64-bit)",
-    },
-    {
-      id: "spec-rec-2",
-      label: "CPU",
-      value: "Intel® Core™ i7-7700 (quad-core) / AMD® Ryzen™ 5 1600 (hexa-core)",
-    },
-    {
-      id: "spec-rec-3",
-      label: "Additional Space",
-      value: "SSD recommended",
-    },
-  ],
+  accountUsername: "",
+  accountPassword: "",
+  minimumSpecs: [],
+  recommendationSpecs: [],
   hasInstructionTemplate: true,
   selectedTemplate: DEFAULT_INSTRUCTION_TEMPLATES[0],
 };
@@ -196,8 +164,8 @@ export const MOCK_EDIT_PRODUCT_FORM: AdminAddProductFormData = {
   launcher: "Steam",
   promotionSection: "",
   storeUrl: "https://www.instagram.com/sbxonestudio/",
-  accountUsername: "Username_test",
-  accountPassword: "Password@123",
+  accountUsername: "",
+  accountPassword: "",
   minimumSpecs: [
     {
       id: "spec-min-1",

@@ -61,8 +61,8 @@ export function AdminAddProductAccountInfo({
   const handleSaveModal = (e: React.FormEvent) => {
     e.preventDefault();
     onChange({
-      accountUsername: tempUsername.trim() || formData.accountUsername,
-      accountPassword: tempPassword.trim() || formData.accountPassword,
+      accountUsername: tempUsername.trim(),
+      accountPassword: tempPassword.trim(),
     });
     setIsModalOpen(false);
   };
@@ -71,7 +71,7 @@ export function AdminAddProductAccountInfo({
     <div className={cn("flex flex-col gap-3.5 w-full", className)}>
       {/* Section Title */}
       <h3 className="text-h3 sm:text-h5 font-semibold text-white select-none">
-        Informasi Akun Game
+        Informasi Akun Game <span className="text-rose-400">*</span>
       </h3>
 
       {/* Account Info Card (Matching Image 4) */}
@@ -80,9 +80,15 @@ export function AdminAddProductAccountInfo({
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2 ">
             <span className="text-gray-400 text-body-xs ">Username :</span>
-            <span className="text-body-sm font-semibold text-white">
-              {formData.accountUsername}
-            </span>
+            {formData.accountUsername ? (
+              <span className="text-body-sm font-semibold text-white">
+                {formData.accountUsername}
+              </span>
+            ) : (
+              <span className="text-body-sm italic text-gray-500">
+                Belum diisi (wajib)
+              </span>
+            )}
           </div>
 
           <Button
@@ -103,9 +109,15 @@ export function AdminAddProductAccountInfo({
         <div className="flex items-center justify-between gap-4">
           <div className="flex items-center gap-2 ">
             <span className="text-gray-400 text-body-xs ">Password :</span>
-            <span className="text-body-sm font-semibold text-white">
-              {formData.accountPassword}
-            </span>
+            {formData.accountPassword ? (
+              <span className="text-body-sm font-semibold text-white">
+                {formData.accountPassword}
+              </span>
+            ) : (
+              <span className="text-body-sm italic text-gray-500">
+                Belum diisi (wajib)
+              </span>
+            )}
           </div>
 
             <Button

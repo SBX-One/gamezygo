@@ -1,7 +1,11 @@
 import * as React from "react";
 import Image from "next/image";
 import { cn } from "@/lib/utils";
-import { resolveImageUrl } from "@/utils/image-url";
+import {
+  resolveImageUrl,
+  normalizeSteamVerticalCover,
+  getSteamHeroCapsuleFallback,
+} from "@/utils/image-url";
 
 export interface CatalogProductThumbnailProps {
   src?: string | null;
@@ -34,10 +38,8 @@ export function CatalogProductThumbnail({
   size = "md",
   className,
 }: CatalogProductThumbnailProps) {
-  const [hasError, setHasError] = React.useState(false);
-
-  const cleanSrc = React.useMemo(() => {
-    if (!src || hasError) return null;
+  const imageCandidates = React.useMemo(() => {
+    if (!src) return [];
     const resolved = resolveImageUrl(src);
     const lower = resolved.toLowerCase();
     // If backend returns placehold.co, via.placeholder, or invalid storage, use clean SVG poster
@@ -51,10 +53,27 @@ export function CatalogProductThumbnail({
       lower.endsWith("/storage") ||
       lower.includes("text=")
     ) {
-      return null;
+      return [];
     }
-    return resolved;
-  }, [src, hasError]);
+    const portrait = normalizeSteamVerticalCover(resolved);
+    const list: string[] = [portrait];
+    const heroFallback = getSteamHeroCapsuleFallback(portrait);
+    if (heroFallback && !list.includes(heroFallback)) {
+      list.push(heroFallback);
+    }
+    if (!list.includes(resolved)) {
+      list.push(resolved);
+    }
+    return list;
+  }, [src]);
+
+  const [fallbackIdx, setFallbackIdx] = React.useState(0);
+
+  React.useEffect(() => {
+    setFallbackIdx(0);
+  }, [src]);
+
+  const cleanSrc = imageCandidates[fallbackIdx] ?? null;
 
   const sizeClasses = {
     sm: "w-8 h-10 rounded-md", // 32px x 40px - clean portrait poster
@@ -92,7 +111,7 @@ export function CatalogProductThumbnail({
         fill
         sizes="96px"
         unoptimized
-        onError={() => setHasError(true)}
+        onError={() => setFallbackIdx((prev) => prev + 1)}
         className="object-cover object-center transition-transform duration-200"
         style={{
           imageRendering: "auto",

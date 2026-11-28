@@ -86,8 +86,73 @@ export default async function handler(
 
     const { data } = appData;
 
-    // High resolution capsule image for vertical 3:4 product cards
-    const libraryCapsuleUrl = `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${numericAppId}/hero_capsule.jpg`;
+    // Resolve best available vertical portrait capsule (600x900):
+    // 1. Try Steam's official IStoreBrowseService API (returns exact hashed library_capsule_2x for newer games)
+    // 2. Fallback to probing standard portrait paths (library_600x900_2x -> library_600x900 -> hero_capsule)
+    // 3. Last resort: data.header_image
+    let libraryCapsuleUrl = "";
+
+    try {
+      const browseInput = JSON.stringify({
+        ids: [{ appid: numericAppId }],
+        context: { language: "indonesian", country_code: "ID" },
+        data_request: { include_assets: true },
+      });
+      const browseRes = await fetch(
+        `https://api.steampowered.com/IStoreBrowseService/GetItems/v1/?input_json=${encodeURIComponent(browseInput)}`,
+        {
+          headers: { "User-Agent": "Mozilla/5.0" },
+          signal: AbortSignal.timeout(3000),
+        }
+      );
+      if (browseRes.ok) {
+        const browseJson = (await browseRes.json()) as {
+          response?: {
+            store_items?: Array<{
+              assets?: {
+                asset_url_format?: string;
+                library_capsule_2x?: string;
+                library_capsule?: string;
+                hero_capsule?: string;
+              };
+            }>;
+          };
+        };
+        const assets = browseJson?.response?.store_items?.[0]?.assets;
+        const portraitFile =
+          assets?.library_capsule_2x ||
+          assets?.library_capsule ||
+          assets?.hero_capsule;
+        if (assets?.asset_url_format && portraitFile) {
+          libraryCapsuleUrl = `https://shared.fastly.steamstatic.com/store_item_assets/${assets.asset_url_format.replace("${FILENAME}", portraitFile)}`;
+        }
+      }
+    } catch {
+      // Fallback to direct CDN probe below
+    }
+
+    if (!libraryCapsuleUrl) {
+      const verticalCandidates = [
+        `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${numericAppId}/library_600x900_2x.jpg`,
+        `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${numericAppId}/library_600x900.jpg`,
+        `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${numericAppId}/hero_capsule.jpg`,
+      ];
+      const probeResults = await Promise.all(
+        verticalCandidates.map(async (candidate) => {
+          try {
+            const probe = await fetch(candidate, {
+              method: "HEAD",
+              headers: { "User-Agent": "Mozilla/5.0" },
+              signal: AbortSignal.timeout(3000),
+            });
+            return probe.ok ? candidate : null;
+          } catch {
+            return null;
+          }
+        })
+      );
+      libraryCapsuleUrl = probeResults.find(Boolean) || data.header_image;
+    }
 
     const highlightTrailer = data.movies?.find((m) => m.highlight) || data.movies?.[0];
 

@@ -53,6 +53,32 @@ export function AdminAddProductMediaUpload({
 }: AdminAddProductMediaUploadProps) {
   const fileInputRef = React.useRef<HTMLInputElement>(null);
 
+  const imageCandidates = React.useMemo(() => {
+    if (!value) return [];
+    const primary = resolveImageUrl(value);
+    const list = [primary];
+    const steamMatch = primary.match(/steam\/apps\/(\d+)\//i);
+    if (steamMatch?.[1]) {
+      const appId = steamMatch[1];
+      const fallbacks = [
+        `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appId}/hero_capsule.jpg`,
+        `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${appId}/header.jpg`,
+      ];
+      fallbacks.forEach((fb) => {
+        if (!list.includes(fb)) list.push(fb);
+      });
+    }
+    return list;
+  }, [value]);
+
+  const [fallbackIdx, setFallbackIdx] = React.useState(0);
+
+  React.useEffect(() => {
+    setFallbackIdx(0);
+  }, [value]);
+
+  const activeSrc = imageCandidates[fallbackIdx] || "";
+
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
@@ -87,14 +113,15 @@ export function AdminAddProductMediaUpload({
         className="hidden"
       />
 
-      {value ? (
+      {activeSrc ? (
         <div className="relative w-full h-full rounded-lg overflow-hidden">
           <Image
-            src={resolveImageUrl(value)}
+            src={activeSrc}
             alt="Product cover preview"
             fill
             unoptimized
             className="object-cover"
+            onError={() => setFallbackIdx((prev) => prev + 1)}
           />
           {/* Overlay hover actions */}
           <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-3">

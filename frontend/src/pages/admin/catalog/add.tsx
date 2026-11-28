@@ -196,6 +196,13 @@ export default function AdminAddProductPage() {
       toast.warning("Nama produk wajib diisi.", "Validasi");
       return;
     }
+    if (!formData.isPreOrder) {
+      if (!formData.accountUsername.trim() || !formData.accountPassword.trim()) {
+        setErrorMessage("Informasi Akun Game (Username dan Password) wajib diisi.");
+        toast.warning("Username dan Password akun game wajib diisi.", "Validasi");
+        return;
+      }
+    }
     setIsSaving(true);
     setErrorMessage(null);
     try {

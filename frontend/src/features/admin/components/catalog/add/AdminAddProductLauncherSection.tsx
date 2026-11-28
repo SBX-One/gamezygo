@@ -98,6 +98,12 @@ export function AdminAddProductLauncherSection({
         if (parsed.soundCard && parsed.soundCard !== "-") {
           rows.push(["Sound Card", parsed.soundCard]);
         }
+        if (parsed.network && parsed.network !== "-") {
+          rows.push(["Network", parsed.network]);
+        }
+        if (parsed.notes && parsed.notes !== "-") {
+          rows.push(["Additional Notes", parsed.notes]);
+        }
         return rows
           .filter(([, val]) => val && val !== "-")
           .map(([label, value], idx) => ({
@@ -122,13 +128,14 @@ export function AdminAddProductLauncherSection({
       }
 
       if (steamData.price) {
-        const initialAmount = Math.round((steamData.price.initial || 0) / 100);
-        const finalAmount = Math.round((steamData.price.final || 0) / 100);
-        if (!formData.initialPrice && initialAmount > 0) {
-          updates.initialPrice = initialAmount.toLocaleString("id-ID");
+        // /api/steam/game/[appId] already converts Steam subunits (cents) into whole IDR amounts
+        const initialAmount = Math.round(steamData.price.initial || 0);
+        const finalAmount = Math.round(steamData.price.final || 0);
+        if (initialAmount > 0) {
+          updates.initialPrice = String(initialAmount);
         }
-        if (!formData.finalPrice && finalAmount > 0) {
-          updates.finalPrice = finalAmount.toLocaleString("id-ID");
+        if (finalAmount > 0) {
+          updates.finalPrice = String(finalAmount);
         }
       }
 

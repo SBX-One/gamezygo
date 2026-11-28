@@ -22,6 +22,9 @@ export function useCart(options?: { enabled?: boolean }) {
     queryKey: CART_KEYS.detail(),
     queryFn: () => fetchCart(),
     enabled: isAuthenticated && (options?.enabled ?? true),
+    staleTime: 0,
+    refetchOnMount: "always",
+    refetchOnWindowFocus: true,
   });
 }
 
@@ -33,8 +36,9 @@ export function useAddToCart() {
 
   return useMutation({
     mutationFn: (productId: number) => addToCart(productId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CART_KEYS.all });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: CART_KEYS.all });
+      await queryClient.refetchQueries({ queryKey: CART_KEYS.all });
     },
   });
 }
@@ -47,8 +51,9 @@ export function useRemoveFromCart() {
 
   return useMutation({
     mutationFn: (cartItemId: number | string) => removeFromCart(cartItemId),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CART_KEYS.all });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: CART_KEYS.all });
+      await queryClient.refetchQueries({ queryKey: CART_KEYS.all });
     },
   });
 }
@@ -61,8 +66,9 @@ export function useClearCart() {
 
   return useMutation({
     mutationFn: () => clearCartApi(),
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: CART_KEYS.all });
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: CART_KEYS.all });
+      await queryClient.refetchQueries({ queryKey: CART_KEYS.all });
     },
   });
 }

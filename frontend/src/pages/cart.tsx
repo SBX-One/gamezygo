@@ -363,11 +363,11 @@ export default function CartPage() {
         {/* ========================================================
             2. TWO-COLUMN LAYOUT: Left (Cart List/Empty) & Right (Detail Transaksi)
            ======================================================== */}
-        <div className="flex flex-col-reverse fi lg:grid  lg:grid-cols-14 gap-8 lg:gap-12 items-start w-full">
+        <div className="flex flex-col-reverse lg:grid lg:grid-cols-12 gap-8 lg:gap-12 items-start w-full">
           {/* ======================================================
               LEFT COLUMN: Subheader (Total Items + Hapus Semua) + Items
              ====================================================== */}
-          <div className="lg:col-span-8 flex flex-col w-full">
+          <div className="lg:col-span-7 flex flex-col w-full min-w-0">
             {/* Subheader bar */}
             <div className="flex items-center justify-between pb-4 border-b-gradient-secondary mb-6">
               <span className="text-body-sm  text-gray-400">
@@ -427,7 +427,7 @@ export default function CartPage() {
           {/* ======================================================
               RIGHT COLUMN: "Detail Transaksi" Summary Card
              ====================================================== */}
-          <div className="lg:col-span-6 w-full lg:sticky top-28">
+          <div className="lg:col-span-5 w-full lg:sticky top-28 min-w-0">
             <div className=" rounded-lg border-gradient-secondary p-6 flex flex-col gap-8">
               {/* TOTAL BELANJA BOX */}
               <div className="bg-surface-secondary-default border-gradient-secondary rounded-lg px-4 py-3.5 flex items-center justify-between">

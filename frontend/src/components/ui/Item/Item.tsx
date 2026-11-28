@@ -80,19 +80,19 @@ export function Item({
 
        
         </div>
-        <div className="flex  justify-between">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2.5 w-full">
 
-   {discount && (
-     <Pill
-     variant="primary"
-     size="xs"
-              className="px-3"
+          {discount && (
+            <Pill
+              variant="primary"
+              size="xs"
+              className="px-3 w-fit"
             >
               {discount}
             </Pill>
           )}
-        {/* Pojok Bawah Kanan: Harga + Tombol Beli Sekarang + Tombol Trash */}
-        <div className="flex items-center justify-end flex-wrap sm:flex-nowrap gap-3 sm:gap-4 self-end mt-auto">
+          {/* Pojok Bawah Kanan: Harga + Tombol Beli Sekarang + Tombol Trash */}
+          <div className="flex items-center justify-between sm:justify-end flex-wrap sm:flex-nowrap gap-2.5 sm:gap-4 w-full sm:w-auto sm:ml-auto mt-auto">
           {/* Kolom Harga dengan text-right dan items-end */}
           <div className="flex flex-col items-end text-right leading-tight shrink-0">
             {originalPrice && (

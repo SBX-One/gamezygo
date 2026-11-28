@@ -1,6 +1,7 @@
 import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
+import { InstructionContentRenderer } from "@/components/shared/InstructionContentRenderer";
 import type { InstructionTemplate } from "../../types/admin-instruction.types";
 
 export interface AdminInstructionDetailViewProps {
@@ -68,27 +69,12 @@ export function AdminInstructionDetailView({
         {/* Continuous Red Accent Bar */}
         <div className="w-1 bg-[#DF3848] rounded-full shrink-0 self-stretch" />
 
-        {/* Steps List */}
+        {/* Steps / Rich Markdown Content */}
         <div className="flex-1 min-w-0 flex flex-col">
-          {template.steps.map((step, idx) => (
-            <React.Fragment key={step.stepNumber}>
-              <div className="flex flex-col gap-1 py-3 first:pt-0 last:pb-0">
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                  LANGKAH {step.stepNumber}
-                </span>
-                <h4 className="text-label-xs sm:text-sm font-semibold text-white tracking-tight">
-                  {step.title}
-                </h4>
-                <p className="text-label-xs text-gray-400 font-normal leading-relaxed">
-                  {step.description}
-                </p>
-              </div>
-
-              {idx < template.steps.length - 1 && (
-                <div className="w-full h-px bg-deep-blue-700/60 my-2" />
-              )}
-            </React.Fragment>
-          ))}
+          <InstructionContentRenderer
+            content={template.content}
+            steps={template.steps}
+          />
         </div>
       </div>
     </div>

@@ -62,14 +62,14 @@ export function parseInstructionContentToSteps(
 
     steps.push({
       stepNumber: idx++,
-      title: `Langkah ${steps.length + 1}`,
+      title: "",
       description: text,
     });
   }
   if (steps.length === 0 && content.trim()) {
     steps.push({
       stepNumber: 1,
-      title: fallbackTitle,
+      title: "",
       description: content.replace(/<[^>]+>/g, "").trim(),
     });
   }

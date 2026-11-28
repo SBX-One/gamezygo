@@ -3,6 +3,7 @@ import { useRouter } from "next/router";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { InputField } from "@/components/ui/InputField";
+import { InstructionContentRenderer } from "@/components/shared/InstructionContentRenderer";
 import {
   type InstructionTemplateItem,
   type AdminAddProductFormData,
@@ -124,6 +125,7 @@ export function AdminAddProductInstructionTemplate({
       badge: item.badge === "Draft" ? "Draft" : "Listed",
       createdAt: item.createdAt || "-",
       lastEdit: item.lastEdit || "Baru saja",
+      content: item.content,
       steps:
         Array.isArray(item.steps) && item.steps.length > 0
           ? item.steps
@@ -303,23 +305,11 @@ export function AdminAddProductInstructionTemplate({
       {activeTemplate ? (
         /* Steps View with Continuous Red Left Border & Dividers (Matching Image 5) */
         <div className="p-6 sm:p-8 flex flex-col select-none">
-          <div className="border-l-2 border-[#DF3848] pl-5 sm:pl-6 flex flex-col divide-y divide-deep-blue-700/60">
-            {activeTemplate.steps.map((step) => (
-              <div
-                key={step.stepNumber}
-                className="py-5 first:pt-0 last:pb-0 flex flex-col gap-1.5"
-              >
-                <span className="text-[11px] font-bold text-gray-400 uppercase tracking-wider">
-                  LANGKAH {step.stepNumber}
-                </span>
-                <h5 className="text-sm sm:text-base font-semibold text-white">
-                  {step.title}
-                </h5>
-                <p className="text-label-xs sm:text-sm text-gray-400 font-normal leading-relaxed">
-                  {step.description}
-                </p>
-              </div>
-            ))}
+          <div className="border-l-2 border-[#DF3848] pl-5 sm:pl-6 flex flex-col">
+            <InstructionContentRenderer
+              content={(activeTemplate as { content?: string }).content}
+              steps={activeTemplate.steps}
+            />
           </div>
         </div>
       ) : (

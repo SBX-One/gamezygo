@@ -72,8 +72,28 @@ function escapeHtml(text: string): string {
     .replaceAll("'", "&#39;");
 }
 
+function formatInlineMarkdownToHtml(escapedText: string): string {
+  let result = escapedText;
+  // Inline code: `code`
+  result = result.replace(/`([^`]+)`/g, "<code>$1</code>");
+  // Links: [label](https://...)
+  result = result.replace(
+    /\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g,
+    '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>'
+  );
+  // Bold: **text** or __text__
+  result = result.replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>");
+  result = result.replace(/__([^_]+)__/g, "<strong>$1</strong>");
+  // Strikethrough: ~~text~~
+  result = result.replace(/~~([^~]+)~~/g, "<s>$1</s>");
+  // Italic: *text* or _text_
+  result = result.replace(/(?<!\*)\*([^*]+)\*(?!\*)/g, "<em>$1</em>");
+  result = result.replace(/(?<!\w)_([^_]+)_(?!\w)/g, "<em>$1</em>");
+  return result;
+}
+
 function wrapInlineFormatting(block: ArticleEditorBlock, escapedText: string): string {
-  let result = escapedText.replace(/\n/g, "<br />");
+  let result = formatInlineMarkdownToHtml(escapedText).replace(/\n/g, "<br />");
   if (block.isStrike) result = `<s>${result}</s>`;
   if (block.isUnderline) result = `<u>${result}</u>`;
   if (block.isItalic) result = `<em>${result}</em>`;
@@ -201,6 +221,156 @@ function makeBlockId(index: number): string {
   return `blk-parsed-${index}-${Math.random().toString(36).slice(2, 6)}`;
 }
 
+/**
+ * Parse Markdown text (headings, lists, quotes, code fences, dividers, paragraphs)
+ * into ArticleEditorBlock[] for both editing and rich rendering.
+ */
+export function parseMarkdownToArticleBlocks(rawMarkdown: string): ArticleEditorBlock[] {
+  const normalized = rawMarkdown.replace(/\r\n/g, "\n").trim();
+  if (!normalized) {
+    return [{ id: "blk-initial", type: "paragraph", content: "" }];
+  }
+
+  const rawLines = normalized.split("\n");
+  const blocks: ArticleEditorBlock[] = [];
+  let idx = 0;
+  let i = 0;
+
+  while (i < rawLines.length) {
+    const rawLine = rawLines[i];
+    const trimmed = rawLine.trim();
+
+    if (!trimmed) {
+      i += 1;
+      continue;
+    }
+
+    // Fenced code block: ```
+    if (trimmed.startsWith("```")) {
+      const codeLines: string[] = [];
+      i += 1;
+      while (i < rawLines.length && !rawLines[i].trim().startsWith("```")) {
+        codeLines.push(rawLines[i]);
+        i += 1;
+      }
+      if (i < rawLines.length) i += 1; // skip closing ```
+      blocks.push({
+        id: makeBlockId(idx++),
+        type: "code",
+        content: codeLines.join("\n"),
+      });
+      continue;
+    }
+
+    // Horizontal divider: --- or *** or ___
+    if (/^(-{3,}|\*{3,}|_{3,})$/.test(trimmed)) {
+      blocks.push({
+        id: makeBlockId(idx++),
+        type: "divider",
+        content: "",
+      });
+      i += 1;
+      continue;
+    }
+
+    // Headings: # .. ####
+    const headingMatch = trimmed.match(/^(#{1,4})\s+(.+)$/);
+    if (headingMatch) {
+      const level = headingMatch[1].length as 1 | 2 | 3 | 4;
+      blocks.push({
+        id: makeBlockId(idx++),
+        type: `h${level}` as ArticleBlockType,
+        content: headingMatch[2].trim(),
+      });
+      i += 1;
+      continue;
+    }
+
+    // Blockquote: > ...
+    const quoteMatch = trimmed.match(/^>\s?(.*)$/);
+    if (quoteMatch) {
+      blocks.push({
+        id: makeBlockId(idx++),
+        type: "quote",
+        content: quoteMatch[1].trim(),
+      });
+      i += 1;
+      continue;
+    }
+
+    // Bullet list: - item or * item
+    const bulletMatch = trimmed.match(/^[-*+]\s+(.+)$/);
+    if (bulletMatch) {
+      blocks.push({
+        id: makeBlockId(idx++),
+        type: "bullet-list",
+        content: bulletMatch[1].trim(),
+      });
+      i += 1;
+      continue;
+    }
+
+    // Numbered list: 1. item
+    const numberedMatch = trimmed.match(/^\d+[.)]\s+(.+)$/);
+    if (numberedMatch) {
+      blocks.push({
+        id: makeBlockId(idx++),
+        type: "numbered-list",
+        content: numberedMatch[1].trim(),
+      });
+      i += 1;
+      continue;
+    }
+
+    // Regular paragraph
+    blocks.push({
+      id: makeBlockId(idx++),
+      type: "paragraph",
+      content: trimmed,
+    });
+    i += 1;
+  }
+
+  return blocks.length > 0
+    ? blocks
+    : [{ id: "blk-initial", type: "paragraph", content: "" }];
+}
+
+function htmlNodeToInlineMarkdown(node: Element): string {
+  const serializeChildren = (parent: Node): string => {
+    let out = "";
+    parent.childNodes.forEach((child) => {
+      if (child.nodeType === Node.TEXT_NODE) {
+        out += child.textContent || "";
+        return;
+      }
+      if (child.nodeType === Node.ELEMENT_NODE) {
+        const el = child as Element;
+        const tag = el.tagName.toLowerCase();
+        const inner = serializeChildren(el);
+        if (tag === "br") {
+          out += "\n";
+        } else if (tag === "strong" || tag === "b") {
+          out += inner ? `**${inner}**` : "";
+        } else if (tag === "em" || tag === "i") {
+          out += inner ? `*${inner}*` : "";
+        } else if (tag === "s" || tag === "del" || tag === "strike") {
+          out += inner ? `~~${inner}~~` : "";
+        } else if (tag === "code") {
+          out += inner ? `\`${inner}\`` : "";
+        } else if (tag === "a") {
+          const href = el.getAttribute("href") || "";
+          out += href ? `[${inner || href}](${href})` : inner;
+        } else {
+          out += inner;
+        }
+      }
+    });
+    return out;
+  };
+  return serializeChildren(node).trim();
+}
+
 function extractInlineStyleFlags(el: Element): {
   isBold: boolean;
   isItalic: boolean;
@@ -270,18 +440,14 @@ export function parseContentToArticleBlocks(rawContent?: string | null): Article
         }
 
         if (tag === "p") {
-          const text = node.innerHTML
-            .replace(/<br\s*\/?>/gi, "\n")
-            .replace(/<[^>]+>/g, "")
-            .trim();
-          const decoded = new DOMParser().parseFromString(text, "text/html").body.textContent || "";
-          if (decoded) {
-            const flags = extractInlineStyleFlags(node);
+          const markdownText = htmlNodeToInlineMarkdown(node);
+          if (markdownText) {
+            const { align } = extractInlineStyleFlags(node);
             blocks.push({
               id: makeBlockId(idx++),
               type: "paragraph",
-              content: decoded,
-              ...flags,
+              content: markdownText,
+              align,
             });
           }
           return;
@@ -290,11 +456,14 @@ export function parseContentToArticleBlocks(rawContent?: string | null): Article
         if (tag === "ul" || tag === "ol") {
           const listType: ArticleBlockType = tag === "ul" ? "bullet-list" : "numbered-list";
           node.querySelectorAll(":scope > li").forEach((li) => {
-            blocks.push({
-              id: makeBlockId(idx++),
-              type: listType,
-              content: (li.textContent || "").trim(),
-            });
+            const markdownText = htmlNodeToInlineMarkdown(li);
+            if (markdownText) {
+              blocks.push({
+                id: makeBlockId(idx++),
+                type: listType,
+                content: markdownText,
+              });
+            }
           });
           return;
         }
@@ -391,21 +560,9 @@ export function parseContentToArticleBlocks(rawContent?: string | null): Article
     }
   }
 
-  // 3. Plain text / seeded paragraphs fallback
-  const lines = content
-    .split(/\n{2,}|\r?\n/)
-    .map((line) => line.replace(/<[^>]+>/g, "").trim())
-    .filter(Boolean);
-
-  if (lines.length === 0) {
-    return [{ id: "blk-initial", type: "paragraph", content: "" }];
-  }
-
-  return lines.map((line, idx) => ({
-    id: makeBlockId(idx),
-    type: "paragraph" as ArticleBlockType,
-    content: line,
-  }));
+  // 3. Markdown / plain text fallback
+  const stripped = content.replace(/<[^>]+>/g, "");
+  return parseMarkdownToArticleBlocks(stripped);
 }
 
 /**

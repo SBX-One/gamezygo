@@ -3,6 +3,7 @@ import Image from "next/image";
 import { cn } from "@/lib/utils";
 import { AdminArticleSlashMenu } from "./AdminArticleSlashMenu";
 import { AdminArticleTableBlock } from "./AdminArticleTableBlock";
+import { parseMarkdownToArticleBlocks } from "../../utils/article-content.utils";
 import type {
   ArticleBlockType,
   ArticleEditorBlock,
@@ -212,9 +213,139 @@ export function AdminArticleBlockEditor({
       setSlashMenuState((prev) => ({ ...prev, isOpen: false }));
     }
 
+    const currentBlock = blocks.find((b) => b.id === id);
+
+    // Live Markdown block shortcuts when typing at the start of a paragraph block
+    if (currentBlock?.type === "paragraph") {
+      const headingShortcut = value.match(/^(#{1,4})\s(.*)$/);
+      if (headingShortcut) {
+        const level = headingShortcut[1].length as 1 | 2 | 3 | 4;
+        const rest = headingShortcut[2];
+        setSlashMenuState((prev) => ({ ...prev, isOpen: false }));
+        onBlocksChange(
+          blocks.map((b) =>
+            b.id === id
+              ? { ...b, type: `h${level}` as ArticleBlockType, content: rest }
+              : b
+          )
+        );
+        focusBlock(id);
+        return;
+      }
+
+      const bulletShortcut = value.match(/^[-*+]\s(.*)$/);
+      if (bulletShortcut) {
+        setSlashMenuState((prev) => ({ ...prev, isOpen: false }));
+        onBlocksChange(
+          blocks.map((b) =>
+            b.id === id
+              ? { ...b, type: "bullet-list", content: bulletShortcut[1] }
+              : b
+          )
+        );
+        focusBlock(id);
+        return;
+      }
+
+      const numberedShortcut = value.match(/^\d+[.)]\s(.*)$/);
+      if (numberedShortcut) {
+        setSlashMenuState((prev) => ({ ...prev, isOpen: false }));
+        onBlocksChange(
+          blocks.map((b) =>
+            b.id === id
+              ? { ...b, type: "numbered-list", content: numberedShortcut[1] }
+              : b
+          )
+        );
+        focusBlock(id);
+        return;
+      }
+
+      const quoteShortcut = value.match(/^>\s(.*)$/);
+      if (quoteShortcut) {
+        setSlashMenuState((prev) => ({ ...prev, isOpen: false }));
+        onBlocksChange(
+          blocks.map((b) =>
+            b.id === id ? { ...b, type: "quote", content: quoteShortcut[1] } : b
+          )
+        );
+        focusBlock(id);
+        return;
+      }
+
+      if (value === "```") {
+        setSlashMenuState((prev) => ({ ...prev, isOpen: false }));
+        onBlocksChange(
+          blocks.map((b) =>
+            b.id === id ? { ...b, type: "code", content: "" } : b
+          )
+        );
+        focusBlock(id);
+        return;
+      }
+
+      if (value === "---") {
+        const idx = blocks.findIndex((b) => b.id === id);
+        const nextBlock: ArticleEditorBlock = {
+          id: `blk-${Date.now()}-${Math.random().toString(36).slice(2, 6)}`,
+          type: "paragraph",
+          content: "",
+        };
+        setSlashMenuState((prev) => ({ ...prev, isOpen: false }));
+        const updated = [
+          ...blocks.slice(0, idx),
+          { ...currentBlock, type: "divider" as ArticleBlockType, content: "" },
+          nextBlock,
+          ...blocks.slice(idx + 1),
+        ];
+        onBlocksChange(updated);
+        focusBlock(nextBlock.id);
+        return;
+      }
+    }
+
     onBlocksChange(
       blocks.map((b) => (b.id === id ? { ...b, content: value } : b))
     );
+  };
+
+  // Multi-line Markdown paste support on paragraph blocks
+  const handleParagraphPaste = (
+    e: React.ClipboardEvent<HTMLTextAreaElement>,
+    index: number,
+    block: ArticleEditorBlock
+  ) => {
+    const pasted = e.clipboardData?.getData("text/plain") || "";
+    const hasMultilineOrMd =
+      pasted.includes("\n") ||
+      /^(#{1,4}\s|[-*+]\s|\d+[.)]\s|>\s|```|---)/m.test(pasted);
+    if (!hasMultilineOrMd) return;
+
+    const parsedBlocks = parseMarkdownToArticleBlocks(pasted);
+    if (parsedBlocks.length === 0) return;
+
+    e.preventDefault();
+    const prefix = block.content.trim();
+    const inserted =
+      prefix && parsedBlocks[0].type === "paragraph"
+        ? [
+            { ...parsedBlocks[0], content: `${prefix} ${parsedBlocks[0].content}` },
+            ...parsedBlocks.slice(1),
+          ]
+        : prefix
+        ? [{ ...block }, ...parsedBlocks]
+        : parsedBlocks;
+
+    const updated = [
+      ...blocks.slice(0, index),
+      ...inserted,
+      ...blocks.slice(index + 1),
+    ];
+    onBlocksChange(updated);
+    const lastInserted = inserted[inserted.length - 1];
+    if (lastInserted) {
+      focusBlock(lastInserted.id);
+    }
   };
 
   // Key Down Handler: Seamless Enter to create new section + Backspace to remove
@@ -549,10 +680,11 @@ export function AdminArticleBlockEditor({
                     }
                     onFocus={() => onActiveBlockChange(block.id)}
                     onKeyDown={(e) => handleKeyDown(e, index, block)}
+                    onPaste={(e) => handleParagraphPaste(e, index, block)}
                     placeholder={
                       index === 0 && blocks.length === 1
-                        ? "Mulai buat instruksi."
-                        : "Ketik '/' untuk opsi..."
+                        ? "Mulai buat instruksi... (mendukung Markdown: #, -, 1., >, **tebal**, *miring*)"
+                        : "Ketik '/' untuk opsi atau gunakan Markdown (#, -, 1.)..."
                     }
                     rows={1}
                     className={cn(

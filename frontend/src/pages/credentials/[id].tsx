@@ -23,7 +23,7 @@ import { OWNED_LIBRARY_GAMES } from "@/pages/library";
 import { useGameCredentials, useUserLibrary } from "@/hooks/use-library";
 import { useProductDetail } from "@/hooks/use-products";
 import { formatRupiah } from "@/utils/formatters";
-import { parseInstructionContentToSteps } from "@/services/admin-instruction.service";
+import { InstructionContentRenderer } from "@/components/shared/InstructionContentRenderer";
 
 // ============================================================================
 // SVG ICONS
@@ -925,36 +925,12 @@ export default function GameCredentialPage() {
             <div className="w-full rounded-xl bg-deep-blue-900 border border-white/10 p-6 sm:p-8 flex flex-col gap-6">
             <div className="grid gap-6 pl-6 border-l-gradient-primary">
               {(() => {
-                const dynamicSteps = apiProduct?.product_instruction?.content
-                  ? parseInstructionContentToSteps(
-                      apiProduct.product_instruction.content,
-                      apiProduct.product_instruction.title || "Panduan Mengunduh"
-                    )
-                  : [];
+                const instructionContent = apiProduct?.product_instruction?.content?.trim();
 
-                if (dynamicSteps.length > 0) {
-                  return dynamicSteps.map((step) => {
-                    const isAutoStepTitle =
-                      Boolean(step.description) &&
-                      /^langkah\s+\d+$/i.test(step.title.trim());
-                    return (
-                      <div
-                        key={step.stepNumber}
-                        className="grid gap-2 pl-2 border-b-gradient-secondary pb-6"
-                      >
-                        {step.title && !isAutoStepTitle && (
-                          <h3 className="text-body-md font-semibold text-gray-100">
-                            {step.title}
-                          </h3>
-                        )}
-                        {step.description && (
-                          <p className="text-body-sm text-gray-300 whitespace-pre-line">
-                            {step.description}
-                          </p>
-                        )}
-                      </div>
-                    );
-                  });
+                if (instructionContent) {
+                  return (
+                    <InstructionContentRenderer content={instructionContent} />
+                  );
                 }
 
                 return (

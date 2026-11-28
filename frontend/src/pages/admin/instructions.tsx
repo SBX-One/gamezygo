@@ -204,7 +204,7 @@ export default function AdminInstructionsPage() {
             <AdminInstructionDetailView
               template={activeTemplate}
               onChangeTemplate={() => setIsChangeModalOpen(true)}
-              onCreateNewTemplate={() => setIsCreateModalOpen(true)}
+              onCreateNewTemplate={() => router.push("/admin/instructions/add")}
             />
           )}
         </div>

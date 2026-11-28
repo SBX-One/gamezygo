@@ -152,6 +152,18 @@ export default function AdminCategoriesPage() {
 
   // 4. Delete whole category group
   const handlePromptDeleteCategory = (category: AdminCategoryGroup) => {
+    const lockedParents = new Set(["genre", "launcher", "promotion"]);
+    if (
+      category.scope === "product" &&
+      lockedParents.has(category.title.trim().toLowerCase())
+    ) {
+      toast.warning(
+        `Kategori induk "${category.title}" terkunci sesuai struktur katalog dan tidak dapat dihapus.`,
+        "Kategori Terkunci"
+      );
+      return;
+    }
+
     setDeleteModalState({
       isOpen: true,
       title: `Hapus Kategori "${category.title}"?`,

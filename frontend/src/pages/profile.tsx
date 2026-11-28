@@ -13,7 +13,7 @@ import {
 } from "@/components/ui";
 import { useUserProfile, useUpdateProfile } from "@/hooks/use-profile";
 import { useUserLeaderboardRank } from "@/hooks/use-leaderboard";
-import { useUserOrders } from "@/hooks/use-orders";
+import { useUserOrders, useUserVouchers } from "@/hooks/use-orders";
 import { useOwnedGames } from "@/hooks/use-library";
 import { formatRupiah } from "@/utils/formatters";
 import { useAuthStore } from "@/stores/use-auth-store";
@@ -335,6 +335,11 @@ export default function ProfilePage() {
   const monthlyRank = userRankings?.monthly ?? (userRankRes?.data?.rank ? userRankRes.data.rank : undefined);
   const allTimeRank = userRankings?.all_time;
 
+  // Fetch available vouchers for authenticated user (GET /api/v1/user/vouchers)
+  const { data: userVouchersRes } = useUserVouchers({
+    enabled: isAuthenticated,
+  });
+
   // Resolve real auto-generated reward voucher from backend API (never fake hardcoded code)
   const profileRaw = profileApiRes?.data as
     | (Record<string, unknown> & {
@@ -344,7 +349,18 @@ export default function ProfilePage() {
         vouchers?: Array<{ code?: string }>;
       })
     | undefined;
+  const availableUserVouchers = Array.isArray(userVouchersRes?.data)
+    ? userVouchersRes.data
+    : [];
+  const loyaltyVoucher =
+    availableUserVouchers.find(
+      (v) =>
+        v.code?.toUpperCase().startsWith("LOYALTY") ||
+        v.name?.toLowerCase().includes("loyalty")
+    ) || availableUserVouchers[0];
+
   const rewardVoucherCode =
+    loyaltyVoucher?.code ||
     profileRaw?.reward_voucher?.code ||
     profileRaw?.auto_voucher?.code ||
     profileRaw?.voucher_code ||
@@ -369,8 +385,22 @@ export default function ProfilePage() {
       updateUser({ phone: cleanPhone });
       setUser((prev) => ({ ...prev, phone: cleanPhone }));
       handleToast("Nomor telepon berhasil disimpan!");
-    } catch {
-      handleToast("Gagal menyimpan nomor telepon. Silakan coba lagi.", "error");
+    } catch (err: unknown) {
+      const apiErr = err as {
+        response?: {
+          data?: {
+            message?: string;
+            errors?: { phone?: string[] };
+          };
+        };
+      };
+      const serverMsg =
+        apiErr?.response?.data?.errors?.phone?.[0] ||
+        apiErr?.response?.data?.message;
+      handleToast(
+        serverMsg || "Gagal menyimpan nomor telepon. Silakan coba lagi.",
+        "error"
+      );
     } finally {
       setIsPhoneSaving(false);
     }

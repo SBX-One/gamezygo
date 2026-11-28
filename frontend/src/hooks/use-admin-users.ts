@@ -71,6 +71,7 @@ export function useUpdateUser() {
         queryKey: ADMIN_USER_KEYS.detail(variables.id),
       });
       queryClient.invalidateQueries({ queryKey: ["user-profile"] });
+      queryClient.invalidateQueries({ queryKey: ["user-vouchers"] });
       queryClient.invalidateQueries({ queryKey: ["leaderboard"] });
       queryClient.invalidateQueries({ queryKey: ["user-leaderboard-rank"] });
     },

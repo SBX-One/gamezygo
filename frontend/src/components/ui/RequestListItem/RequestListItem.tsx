@@ -82,7 +82,13 @@ export function RequestListItem({
   // Helper untuk menentukan URL detail game di store
   const getDetailHref = () => {
     if (href) return href;
-    if (id && !id.startsWith("ar-") && !id.startsWith("cr-") && !id.startsWith("mr-")) {
+    if (
+      id &&
+      !/^\d+$/.test(id) &&
+      !id.startsWith("ar-") &&
+      !id.startsWith("cr-") &&
+      !id.startsWith("mr-")
+    ) {
       return `/store/${id}`;
     }
     if (title) {

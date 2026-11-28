@@ -928,7 +928,7 @@ export default function StorePage() {
                         platform={product.platform}
                         buttonText={owned ? "Sudah Dimiliki" : inCart ? "Di Keranjang" : "Tambah Keranjang"}
                         isActionDisabled={owned || inCart}
-                        href={`/store/${product.id}`}
+                        href={`/store/${(product as { slug?: string }).slug || product.id}`}
                         onActionClick={() => handleAddToCart(product.title)}
                         className="pb-8xl"
                       />
@@ -1012,7 +1012,7 @@ export default function StorePage() {
                       isBestSeller={false}
                       buttonText={owned ? "Sudah Dimiliki" : inCart ? "Di Keranjang" : "Tambah Keranjang"}
                       isActionDisabled={owned || inCart}
-                      href={`/store/${game.id}`}
+                      href={`/store/${(game as { slug?: string }).slug || game.id}`}
                       onActionClick={() => handleAddToCart(game.title)}
                       className="w-full sm:min-w-0"
                     />
@@ -1117,7 +1117,7 @@ export default function StorePage() {
                         price={product.price}
                         discount={product.discount}
                         platform={product.platform}
-                        href={`/store/${product.id}`}
+                        href={`/store/${(product as { slug?: string }).slug || product.id}`}
                         onActionClick={() => handleAddToCart(product.title)}
                         className="pb-8xl"
                       />

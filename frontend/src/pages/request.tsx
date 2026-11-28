@@ -18,6 +18,7 @@ import {
   useUnvoteGameRequest,
 } from "@/hooks/use-requests";
 import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
+import { useProducts } from "@/hooks/use-products";
 import { useAuthStore } from "@/stores/use-auth-store";
 import productsData from "@/json/products.json";
 
@@ -298,6 +299,14 @@ export default function RequestGamePage() {
   const requestsApiItems = React.useMemo(() => {
     return requestsPages?.pages?.flatMap((page) => page.data ?? []) ?? [];
   }, [requestsPages]);
+
+  // Fetch catalog products when viewing "added" tab to resolve exact product slugs (BUG-023)
+  const { data: catalogRes } = useProducts();
+  const catalogProducts = React.useMemo(
+    () => (Array.isArray(catalogRes?.data) ? catalogRes.data : []),
+    [catalogRes]
+  );
+
   const createRequestMutation = useCreateGameRequest();
   const deleteRequestMutation = useDeleteGameRequest();
   const voteMutation = useVoteGameRequest();
@@ -735,6 +744,31 @@ export default function RequestGamePage() {
         const apiAdded: RequestGameData[] = requestsApiItems.map((r, index) => {
           const fallback = productsData.tawaranKhusus[index % productsData.tawaranKhusus.length];
           const steamAppId = extractSteamAppId(r.steam_url);
+          const rawReq = r as unknown as {
+            product_slug?: string;
+            slug?: string;
+            product?: { slug?: string };
+          };
+          const normalizedName = (r.name || "").trim().toLowerCase();
+          const matchedCatalogProduct = catalogProducts.find((p) => {
+            const pName = (p.name || "").trim().toLowerCase();
+            if (normalizedName && pName === normalizedName) return true;
+            const pSteamUrl = (p as { steam_url?: string }).steam_url;
+            if (steamAppId && pSteamUrl && pSteamUrl.includes(`/app/${steamAppId}`)) {
+              return true;
+            }
+            return false;
+          });
+          const resolvedSlug =
+            rawReq.product?.slug ||
+            rawReq.product_slug ||
+            rawReq.slug ||
+            matchedCatalogProduct?.slug ||
+            (r.name || "")
+              .toLowerCase()
+              .replace(/[^a-z0-9]+/g, "-")
+              .replace(/^-|-$/g, "");
+
           return {
             id: String(r.id),
             title: r.name,
@@ -749,7 +783,7 @@ export default function RequestGamePage() {
               ? new Date(r.updated_at).toLocaleDateString("id-ID")
               : "-",
             requestCount: r.request_count || 1,
-            storeHref: `/store/${r.id}`,
+            storeHref: resolvedSlug ? `/store/${resolvedSlug}` : "/store",
           };
         });
         return apiAdded;
@@ -767,6 +801,7 @@ export default function RequestGamePage() {
     communityRequests,
     addedRequests,
     isAuthenticated,
+    catalogProducts,
   ]);
 
   const currentVariant: RequestCardVariant = React.useMemo(() => {

@@ -423,27 +423,8 @@ export default function StorePage() {
     }
   };
 
-  // Determine active genres based on interactive state or user applied filters
-  const activeGenres = React.useMemo(() => {
-    if (appliedGenres.length > 0) return appliedGenres;
-    if (
-      (previewState === "filter-applied" || previewState === "filter-empty") &&
-      appliedCategories.length === 0 &&
-      appliedLaunchers.length === 0 &&
-      appliedPriceRange[0] === 0 &&
-      appliedPriceRange[1] === 200000
-    ) {
-      return ["Action", "Adventure", "NSFW"];
-    }
-    return selectedGenres;
-  }, [
-    appliedGenres,
-    appliedCategories,
-    appliedLaunchers,
-    appliedPriceRange,
-    previewState,
-    selectedGenres,
-  ]);
+  // Determine active genres strictly from user-applied filters (never inject mock genres on sort, BUG-031)
+  const activeGenres = appliedGenres;
 
   const handleClearSearch = () => {
     setSearchQuery("");

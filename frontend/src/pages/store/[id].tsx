@@ -613,15 +613,18 @@ export default function GameStoreDetailPage() {
       // ignore
     }
 
+    const backTarget = router.asPath && router.asPath.startsWith("/") ? router.asPath : `/store/${id}`;
+    const directCheckoutUrl = `/checkout?mode=direct&from=${encodeURIComponent(backTarget)}`;
+
     if (!isAuthenticated) {
       showToast("Silakan login terlebih dahulu untuk checkout.", "warning");
       setTimeout(() => {
-        router.push(`/login?redirect=${encodeURIComponent("/checkout?mode=direct")}`);
+        router.push(`/login?redirect=${encodeURIComponent(directCheckoutUrl)}`);
       }, 500);
       return;
     }
 
-    router.push("/checkout?mode=direct");
+    router.push(directCheckoutUrl);
   };
 
   // Wishlist Handler

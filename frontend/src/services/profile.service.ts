@@ -28,7 +28,7 @@ export async function updateUserProfile(
       payload,
       {
         headers: {
-          "Content-Type": "multipart/form-data",
+          "Content-Type": undefined,
         },
       }
     );

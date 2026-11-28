@@ -372,18 +372,30 @@ export default function ProfilePage() {
     rewardVoucherCode || router.query.reward === "true" || userPoints >= 100
   );
 
+  // Strict phone format regex matching backend UpdateProfileRequest.php (BUG-026)
+  const PHONE_REGEX = /^\+?[0-9]{8,16}$/;
+
   // Handler simpan nomor telepon
   const handleSavePhone = async () => {
     if (!isAuthenticated) {
       handleToast("Silakan login terlebih dahulu untuk menyimpan nomor telepon", "error");
       return;
     }
-    const cleanPhone = phoneNumber.trim();
+    const normalizedPhone = phoneNumber.trim().replace(/[\s-]/g, "");
+    if (normalizedPhone && !PHONE_REGEX.test(normalizedPhone)) {
+      handleToast(
+        "Format nomor telepon tidak valid. Gunakan 8-16 digit angka (contoh: 081234567890 atau +6281234567890).",
+        "error"
+      );
+      return;
+    }
+
     setIsPhoneSaving(true);
     try {
-      await updateProfileMutation.mutateAsync({ phone: cleanPhone });
-      updateUser({ phone: cleanPhone });
-      setUser((prev) => ({ ...prev, phone: cleanPhone }));
+      await updateProfileMutation.mutateAsync({ phone: normalizedPhone || null });
+      setPhoneNumber(normalizedPhone);
+      updateUser({ phone: normalizedPhone || null });
+      setUser((prev) => ({ ...prev, phone: normalizedPhone || null }));
       handleToast("Nomor telepon berhasil disimpan!");
     } catch (err: unknown) {
       const apiErr = err as {
@@ -440,13 +452,29 @@ export default function ProfilePage() {
       return;
     }
     const trimmedAvatar = editAvatarUrl?.trim() || "";
-    const cleanPhone = phoneNumber?.trim() || undefined;
+    if (
+      !selectedAvatarFile &&
+      trimmedAvatar &&
+      !/^(https?:\/\/|\/)/i.test(trimmedAvatar)
+    ) {
+      handleToast(
+        "URL foto profil tidak valid. Gunakan URL yang diawali http:// atau https://.",
+        "error"
+      );
+      return;
+    }
+
+    const normalizedPhone = phoneNumber?.trim().replace(/[\s-]/g, "") || "";
+    const validPhone =
+      normalizedPhone && PHONE_REGEX.test(normalizedPhone)
+        ? normalizedPhone
+        : undefined;
 
     try {
       if (selectedAvatarFile) {
         const formData = new FormData();
         formData.append("name", trimmedName);
-        if (cleanPhone) formData.append("phone", cleanPhone);
+        if (validPhone) formData.append("phone", validPhone);
         formData.append("avatar", selectedAvatarFile);
 
         const res = await updateProfileMutation.mutateAsync(formData);
@@ -462,25 +490,43 @@ export default function ProfilePage() {
           avatarUrl: newAvatarUrl,
         });
       } else {
-        await updateProfileMutation.mutateAsync({
+        const payload: Partial<{ name: string; avatar_url: string; phone: string }> = {
           name: trimmedName,
-          avatar_url: trimmedAvatar || undefined,
-          phone: cleanPhone,
-        });
+        };
+        if (trimmedAvatar) payload.avatar_url = trimmedAvatar;
+        if (validPhone) payload.phone = validPhone;
+
+        const res = await updateProfileMutation.mutateAsync(payload);
+        const newAvatarUrl =
+          res?.data?.avatar_url || trimmedAvatar || user.avatarUrl;
         setUser((prev) => ({
           ...prev,
           name: trimmedName,
-          avatarUrl: trimmedAvatar || prev.avatarUrl,
+          avatarUrl: newAvatarUrl,
         }));
         updateUser({
           name: trimmedName,
-          avatarUrl: trimmedAvatar || user.avatarUrl,
+          avatarUrl: newAvatarUrl,
         });
       }
       setIsEditModalOpen(false);
       handleToast("Profil berhasil diperbarui!");
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "Gagal memperbarui profil";
+      const apiErr = err as {
+        response?: {
+          data?: {
+            message?: string;
+            errors?: Record<string, string[]>;
+          };
+        };
+      };
+      const firstFieldErr = apiErr?.response?.data?.errors
+        ? Object.values(apiErr.response.data.errors).flat()[0]
+        : undefined;
+      const msg =
+        firstFieldErr ||
+        apiErr?.response?.data?.message ||
+        (err instanceof Error ? err.message : "Gagal memperbarui profil");
       handleToast(msg, "error");
     }
   };

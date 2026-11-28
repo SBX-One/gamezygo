@@ -35,6 +35,7 @@ export function TestimonialCard({
   images,
   userName = "Dyven Siauw",
   gameName = "Black Myth Wukong, 2+",
+  adminReply,
   className,
   ref,
   ...props
@@ -133,6 +134,18 @@ export function TestimonialCard({
               </div>
             ))
           )}
+        </div>
+      )}
+
+      {/* 3.5 Optional Admin Reply Block (BUG-028) */}
+      {adminReply && adminReply.trim().length > 0 && (
+        <div className="mt-6 rounded-lg bg-deep-blue-950/80 border border-white/10 p-4 flex flex-col gap-1.5">
+          <span className="text-body-xs font-semibold text-indigo-300 uppercase tracking-wide">
+            Balasan Admin Gamezygo
+          </span>
+          <p className="text-body-sm text-gray-300 leading-relaxed whitespace-pre-line">
+            {adminReply}
+          </p>
         </div>
       )}
 

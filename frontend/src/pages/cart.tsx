@@ -265,7 +265,7 @@ export default function CartPage() {
     if (isAuthenticated && cartApiRes?.data) {
       clearCartMutation.mutate();
     }
-    showToast("error", "Keranjang Dikosongkan", "Semua item di keranjang telah dihapus.");
+    showToast("error", "Keranjang Dikosongkan", "Semua item di keranjang sudah berhasil dikosongkan.");
   };
 
   // Buy Now on Single Item
@@ -337,7 +337,7 @@ export default function CartPage() {
       <StoreLayout
         hideNavbar={true}
         hideSidebar={true}
-        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 flex flex-col"
+        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 flex flex-col min-h-[calc(100vh-220px)] pb-16"
       >
         {/* ========================================================
             1. PAGE TITLE & FULL-WIDTH DIVIDER (With Back Button)
@@ -363,11 +363,11 @@ export default function CartPage() {
         {/* ========================================================
             2. TWO-COLUMN LAYOUT: Left (Cart List/Empty) & Right (Detail Transaksi)
            ======================================================== */}
-        <div className="flex flex-col-reverse fi lg:grid  lg:grid-cols-14 gap-8 lg:gap-12 items-start w-full">
+        <div className="flex flex-col-reverse lg:grid lg:grid-cols-12 gap-8 lg:gap-12 items-start w-full min-h-[420px] min-w-0">
           {/* ======================================================
               LEFT COLUMN: Subheader (Total Items + Hapus Semua) + Items
              ====================================================== */}
-          <div className="lg:col-span-8 flex flex-col w-full">
+          <div className="lg:col-span-7 flex flex-col w-full min-w-0">
             {/* Subheader bar */}
             <div className="flex items-center justify-between pb-4 border-b-gradient-secondary mb-6">
               <span className="text-body-sm  text-gray-400">
@@ -427,7 +427,7 @@ export default function CartPage() {
           {/* ======================================================
               RIGHT COLUMN: "Detail Transaksi" Summary Card
              ====================================================== */}
-          <div className="lg:col-span-6 w-full lg:sticky top-28">
+          <div className="lg:col-span-5 w-full lg:sticky top-28 min-w-0">
             <div className=" rounded-lg border-gradient-secondary p-6 flex flex-col gap-8">
               {/* TOTAL BELANJA BOX */}
               <div className="bg-surface-secondary-default border-gradient-secondary rounded-lg px-4 py-3.5 flex items-center justify-between">

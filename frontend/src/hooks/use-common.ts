@@ -23,12 +23,12 @@ export function useAnnouncements() {
 }
 
 /**
- * Hook to fetch FAQ items
+ * Hook to fetch FAQ items scoped by page ("home" for Landing Page, "subscription" for Bundle)
  */
-export function useFaqs() {
+export function useFaqs(page?: string) {
   return useQuery({
-    queryKey: COMMON_KEYS.faqs,
-    queryFn: () => fetchFaqs(),
+    queryKey: page ? [...COMMON_KEYS.faqs, page] : COMMON_KEYS.faqs,
+    queryFn: () => fetchFaqs(page),
   });
 }
 

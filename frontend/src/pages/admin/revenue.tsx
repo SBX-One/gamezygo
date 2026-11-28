@@ -24,6 +24,7 @@ export default function AdminRevenuePage() {
   const [metricsPeriod, setMetricsPeriod] = React.useState<string>("today");
   const [orderPeriod, setOrderPeriod] = React.useState<string>("today");
   const [spreadPeriod, setSpreadPeriod] = React.useState<string>("today");
+  const [chartPeriod, setChartPeriod] = React.useState<string>("weekly");
   const [chartStartDate, setChartStartDate] = React.useState<string | undefined>(undefined);
   const [chartEndDate, setChartEndDate] = React.useState<string | undefined>(undefined);
 
@@ -41,6 +42,7 @@ export default function AdminRevenuePage() {
     isError: isChartError,
     refetch: refetchChart,
   } = useAdminRevenueChart({
+    period: chartPeriod,
     start_date: chartStartDate,
     end_date: chartEndDate,
   });
@@ -128,6 +130,12 @@ export default function AdminRevenuePage() {
               isEmpty={isEmptyState}
               isLoading={isChartLoading}
               data={chartData}
+              period={chartPeriod}
+              onPeriodChange={(nextPeriod) => {
+                setChartPeriod(nextPeriod);
+                setChartStartDate(undefined);
+                setChartEndDate(undefined);
+              }}
               onChangeRange={handleDateRangeChange}
             />
             <AdminIncomeSpreadCard

@@ -1,32 +1,30 @@
 import { apiClient } from "@/lib/api-client";
 import type { AdminFaqItem } from "@/features/admin/types/admin-faq.types";
 
+export const SUPPORTED_FAQ_CATEGORIES = ["Landing Page", "Bundle"] as const;
+
 const PAGE_TO_CATEGORY: Record<string, string> = {
   home: "Landing Page",
   landing: "Landing Page",
   landing_page: "Landing Page",
-  subscription: "Subscription",
-  catalog: "Katalog Game",
-  checkout: "Checkout",
-  general: "General",
+  subscription: "Bundle",
+  bundle: "Bundle",
 };
 
 const CATEGORY_TO_PAGE: Record<string, string> = {
   "Landing Page": "home",
+  Bundle: "subscription",
   Subscription: "subscription",
-  "Katalog Game": "catalog",
-  Checkout: "checkout",
-  General: "general",
 };
 
 export function mapBackendPageToCategory(page?: string | null): string {
-  const key = String(page ?? "general").trim().toLowerCase();
-  return PAGE_TO_CATEGORY[key] ?? (page ? String(page) : "General");
+  const key = String(page ?? "home").trim().toLowerCase();
+  return PAGE_TO_CATEGORY[key] ?? "Landing Page";
 }
 
 export function mapCategoryToBackendPage(category?: string | null): string {
-  if (!category) return "general";
-  return CATEGORY_TO_PAGE[category] ?? category.trim().toLowerCase().replace(/\s+/g, "_");
+  if (!category) return "home";
+  return CATEGORY_TO_PAGE[category] ?? "home";
 }
 
 function formatFaqLastEdit(iso?: string | null): string {
@@ -120,11 +118,8 @@ export const adminFaqService = {
   },
 
   async getPages(): Promise<string[]> {
-    const response = await apiClient.get<{ data?: string[] }>("/admin/faqs/pages");
-    const rawPages = Array.isArray(response.data?.data) ? response.data.data : [];
-    const categories = rawPages.map((p) => mapBackendPageToCategory(p));
-    const defaults = ["Landing Page", "Subscription", "Katalog Game", "Checkout"];
-    return Array.from(new Set([...defaults, ...categories]));
+    // Strictly expose only supported scopes per FR-36 / BUG-032: Landing Page & Bundle
+    return [...SUPPORTED_FAQ_CATEGORIES];
   },
 
   async createFaq(payload: {

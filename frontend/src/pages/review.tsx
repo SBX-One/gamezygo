@@ -31,6 +31,7 @@ interface ReviewItem {
   avatarSrc?: string;
   rating: string;
   review: string;
+  adminReply?: string;
   gameName: string;
   images: string[];
 }
@@ -413,6 +414,26 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
               "https://images.unsplash.com/photo-1566492031773-4f4e44671857?auto=format&fit=crop&w=120&h=120&q=80",
             rating: `${r.rating || 5} Star`,
             review: r.review,
+            adminReply:
+              (
+                r as {
+                  admin_reply?: string | null;
+                  reply?: string | null;
+                  replies?: Array<{ message?: string; reply?: string }>;
+                }
+              ).admin_reply ||
+              (r as { reply?: string | null }).reply ||
+              (
+                r as {
+                  replies?: Array<{ message?: string; reply?: string }>;
+                }
+              ).replies?.[0]?.message ||
+              (
+                r as {
+                  replies?: Array<{ message?: string; reply?: string }>;
+                }
+              ).replies?.[0]?.reply ||
+              undefined,
             gameName:
               (r as { product?: { name?: string } }).product?.name ||
               "Gamezygo",
@@ -887,6 +908,7 @@ export default function ReviewPage({ isDashboardMode = false }: ReviewPageProps)
                       avatarSrc={item.avatarSrc}
                       rating={item.rating}
                       review={item.review}
+                      adminReply={item.adminReply}
                       gameName={item.gameName}
                       images={item.images && item.images.length > 0 ? item.images : false}
                       className="h-full justify-between"

@@ -6,30 +6,30 @@ import type {
 } from "@/types";
 import type { BannerSlide } from "@/components/ui/BannerCarousel/BannerCarousel.types";
 import type { ProductCardRowItem } from "@/components/ui/ProductCardRow/ProductCardRow.types";
-import { resolveImageUrl } from "./image-url";
+import { resolveImageUrl, normalizeSteamVerticalCover } from "./image-url";
 
 function getCoverImage(product: ProductListItem | ProductDetailItem | Record<string, unknown>): string {
   const p = product as Record<string, unknown>;
   const rawThumbnail = typeof p.thumbnail === "string" ? p.thumbnail.trim() : "";
   if (rawThumbnail) {
-    return resolveImageUrl(rawThumbnail);
+    return normalizeSteamVerticalCover(resolveImageUrl(rawThumbnail));
   }
   const rawImageSrc = typeof p.imageSrc === "string" ? p.imageSrc.trim() : "";
   if (rawImageSrc) {
-    return resolveImageUrl(rawImageSrc);
+    return normalizeSteamVerticalCover(resolveImageUrl(rawImageSrc));
   }
   const rawImageUrl = typeof p.image_url === "string" ? p.image_url.trim() : "";
   if (rawImageUrl) {
-    return resolveImageUrl(rawImageUrl);
+    return normalizeSteamVerticalCover(resolveImageUrl(rawImageUrl));
   }
   const rawBanner = typeof p.banner_file_url === "string" ? p.banner_file_url.trim() : "";
   if (rawBanner) {
-    return resolveImageUrl(rawBanner);
+    return normalizeSteamVerticalCover(resolveImageUrl(rawBanner));
   }
   if ("steam_url" in p && typeof p.steam_url === "string" && p.steam_url) {
     const match = p.steam_url.match(/\/app\/(\d+)/);
     if (match && match[1]) {
-      return `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${match[1]}/hero_capsule.jpg`;
+      return `https://shared.fastly.steamstatic.com/store_item_assets/steam/apps/${match[1]}/library_600x900_2x.jpg`;
     }
   }
   return "";

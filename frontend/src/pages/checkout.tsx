@@ -1073,9 +1073,27 @@ export default function CheckoutPage() {
           <div className="w-full mx-auto px-4 sm:px-0 flex items-center gap-3">
             <button
               type="button"
-              onClick={() => router.push("/cart")}
+              onClick={() => {
+                const rawFrom =
+                  typeof router.query.from === "string"
+                    ? router.query.from.trim()
+                    : "";
+                if (
+                  isDirectMode &&
+                  rawFrom.startsWith("/") &&
+                  !rawFrom.startsWith("//")
+                ) {
+                  router.push(rawFrom);
+                  return;
+                }
+                if (isDirectMode) {
+                  router.back();
+                  return;
+                }
+                router.push("/cart");
+              }}
               className="w-10 h-10 rounded-lg bg-surface-secondary-default hover:bg-white/10 border border-white/10 flex items-center justify-center text-gray-300 hover:text-white transition-all cursor-pointer"
-              aria-label="Kembali ke Keranjang"
+              aria-label={isDirectMode ? "Kembali ke Halaman Sebelumnya" : "Kembali ke Keranjang"}
             >
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <path d="M19 12H5M12 19l-7-7 7-7" />

@@ -4,6 +4,7 @@ import { InputField } from "@/components/ui/InputField";
 import { Button } from "@/components/ui/Button";
 import { AdminSwitch } from "@/components/admin/AdminSwitch";
 import { AdminAddProductMediaUpload } from "./AdminAddProductMediaUpload";
+import { useAdminCategories } from "@/hooks/use-admin-categories";
 import {
   GENRE_CHOICES,
   type AdminAddProductFormData,
@@ -47,6 +48,8 @@ export function AdminAddProductBasicInfo({
   showPreOrder = true,
   className,
 }: AdminAddProductBasicInfoProps) {
+  const { data: adminCategoriesData } = useAdminCategories();
+
   // Canonical active genres from formData
   const canonicalSelectedGenres = React.useMemo(() => {
     if (!formData.genres?.length) return [];
@@ -55,16 +58,37 @@ export function AdminAddProductBasicInfo({
     );
   }, [formData.genres]);
 
-  // Combine standard GENRE_CHOICES with any unique custom genres
+  // Combine standard GENRE_CHOICES with dynamic product categories from /admin/categories (BUG-033)
   const allGenres = React.useMemo(() => {
     const list = [...GENRE_CHOICES] as string[];
+    const dynamicGroups = adminCategoriesData?.productCategories ?? [];
+    dynamicGroups.forEach((group) => {
+      const groupTitleLower = group.title.trim().toLowerCase();
+      // Skip launcher/promotion parent groups when listing genre tags
+      if (groupTitleLower === "launcher" || groupTitleLower === "promotion") {
+        return;
+      }
+      if (group.subCategories && group.subCategories.length > 0) {
+        group.subCategories.forEach((sub) => {
+          const norm = normalizeGenreName(sub.name);
+          if (norm && !list.some((c) => c.toLowerCase() === norm.toLowerCase())) {
+            list.push(norm);
+          }
+        });
+      } else if (group.title && groupTitleLower !== "genre") {
+        const norm = normalizeGenreName(group.title);
+        if (norm && !list.some((c) => c.toLowerCase() === norm.toLowerCase())) {
+          list.push(norm);
+        }
+      }
+    });
     canonicalSelectedGenres.forEach((g) => {
       if (!list.some((choice) => choice.toLowerCase() === g.toLowerCase())) {
         list.push(g);
       }
     });
     return list;
-  }, [canonicalSelectedGenres]);
+  }, [adminCategoriesData, canonicalSelectedGenres]);
 
   const toggleGenre = (genre: string) => {
     const targetNorm = normalizeGenreName(genre);

@@ -3,10 +3,13 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { AdminDropdown } from "@/components/admin/AdminDropdown";
 import { useAdminSections } from "@/hooks/use-admin-sections";
+import { fetchSteamGame, parseSteamRequirements } from "@/services/steam";
+import { toast } from "@/stores/use-toast-store";
 import {
   LAUNCHER_CHOICES,
   PROMOTION_SECTION_OPTIONS,
   type AdminAddProductFormData,
+  type SpecItem,
 } from "../../../types/admin-add-product.types";
 
 export interface AdminAddProductLauncherSectionProps {
@@ -38,6 +41,122 @@ export function AdminAddProductLauncherSection({
   className,
 }: AdminAddProductLauncherSectionProps) {
   const [isUrlSaved, setIsUrlSaved] = React.useState(false);
+  const [isFetchingSteam, setIsFetchingSteam] = React.useState(false);
+
+  const handleFetchSteamMetadata = async () => {
+    const rawUrl = (formData.storeUrl || "").trim();
+    if (!rawUrl) return;
+
+    const match = rawUrl.match(/store\.steampowered\.com\/app\/(\d+)/i);
+    if (!match || !match[1]) {
+      setIsUrlSaved(true);
+      if (formData.launcher === "Steam") {
+        toast.warning(
+          "URL disimpan, namun bukan format link Steam Store (store.steampowered.com/app/<AppID>).",
+          "Format URL Steam"
+        );
+      }
+      return;
+    }
+
+    const appId = Number(match[1]);
+    setIsFetchingSteam(true);
+    try {
+      const steamData = await fetchSteamGame(appId);
+      if (!steamData || !steamData.name) {
+        toast.error(
+          "Gagal mengambil metadata dari Steam. Periksa kembali URL Steam Anda.",
+          "Steam Auto-Fetch"
+        );
+        return;
+      }
+
+      const emptySpecs = {
+        os: "-",
+        cpu: "-",
+        ram: "-",
+        gpu: "-",
+        directx: "-",
+        storage: "-",
+        soundCard: "-",
+      };
+
+      const toSpecItems = (
+        rawHtml: string | undefined,
+        prefix: string
+      ): SpecItem[] => {
+        if (!rawHtml) return [];
+        const parsed = parseSteamRequirements(rawHtml, emptySpecs);
+        const rows: Array<[string, string]> = [
+          ["OS", parsed.os],
+          ["Processor", parsed.cpu],
+          ["Memory", parsed.ram],
+          ["Graphics", parsed.gpu],
+          ["DirectX", parsed.directx],
+          ["Storage", parsed.storage],
+        ];
+        if (parsed.soundCard && parsed.soundCard !== "-") {
+          rows.push(["Sound Card", parsed.soundCard]);
+        }
+        return rows
+          .filter(([, val]) => val && val !== "-")
+          .map(([label, value], idx) => ({
+            id: `${prefix}-${idx}-${Date.now()}`,
+            label,
+            value,
+          }));
+      };
+
+      const updates: Partial<AdminAddProductFormData> = {
+        name: steamData.name,
+      };
+
+      if (!formData.imageFile && (steamData.hero_capsule || steamData.banner)) {
+        updates.imageSrc = steamData.hero_capsule || steamData.banner;
+      }
+
+      if (Array.isArray(steamData.genres) && steamData.genres.length > 0) {
+        updates.genres = Array.from(
+          new Set(steamData.genres.map((g) => g.trim()).filter(Boolean))
+        );
+      }
+
+      if (steamData.price) {
+        const initialAmount = Math.round((steamData.price.initial || 0) / 100);
+        const finalAmount = Math.round((steamData.price.final || 0) / 100);
+        if (!formData.initialPrice && initialAmount > 0) {
+          updates.initialPrice = initialAmount.toLocaleString("id-ID");
+        }
+        if (!formData.finalPrice && finalAmount > 0) {
+          updates.finalPrice = finalAmount.toLocaleString("id-ID");
+        }
+      }
+
+      const minItems = toSpecItems(steamData.pc_requirements?.minimum, "steam-min");
+      if (minItems.length > 0) {
+        updates.minimumSpecs = minItems;
+      }
+
+      const recItems = toSpecItems(steamData.pc_requirements?.recommended, "steam-rec");
+      if (recItems.length > 0) {
+        updates.recommendationSpecs = recItems;
+      }
+
+      onChange(updates);
+      setIsUrlSaved(true);
+      toast.success(
+        `Metadata "${steamData.name}" berhasil diisi otomatis dari Steam.`,
+        "Steam Auto-Fetch"
+      );
+    } catch {
+      toast.error(
+        "Terjadi kesalahan saat mengambil metadata Steam.",
+        "Steam Auto-Fetch"
+      );
+    } finally {
+      setIsFetchingSteam(false);
+    }
+  };
 
   // Dynamically load sections from Product Section Management
   const { data: serverSections } = useAdminSections();
@@ -134,14 +253,13 @@ export function AdminAddProductLauncherSection({
 
           {/* Done Button (Matching Image 3) */}
           <Button
-          variant={"primary"}
-          size={"sm"}
-            disabled={!formData.storeUrl}
-          
+            variant={"primary"}
+            size={"sm"}
+            disabled={!formData.storeUrl || isFetchingSteam}
             type="button"
-            onClick={() => setIsUrlSaved(true)}
-            >
-            {isUrlSaved ? "Saved" : "Done"}
+            onClick={handleFetchSteamMetadata}
+          >
+            {isFetchingSteam ? "Fetching..." : isUrlSaved ? "Saved" : "Done"}
           </Button>
         </div>
       </div>

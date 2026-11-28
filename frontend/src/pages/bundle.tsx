@@ -605,7 +605,7 @@ export default function BundlePage() {
     isFetchingNextPage: isFetchingNextSubsProducts,
     fetchNextPage: fetchNextSubsProducts,
   });
-  const { data: faqsApiRes, isLoading: isFaqsLoading } = useFaqs();
+  const { data: faqsApiRes, isLoading: isFaqsLoading } = useFaqs("subscription");
   const resolvedFaqs = React.useMemo(() => {
     if (faqsApiRes?.data && faqsApiRes.data.length > 0) {
       return faqsApiRes.data
@@ -1579,7 +1579,7 @@ export default function BundlePage() {
                           platform={game.launcher}
                           showPrice={false}
                           showActionButton={false}
-                          href={`/credentials/${targetSlug}`}
+                          href={`/credentials/${targetSlug}?from=bundle`}
                           className="hover:-translate-y-0.5 transition-transform duration-200 pb-8xl cursor-pointer"
                         />
                       );

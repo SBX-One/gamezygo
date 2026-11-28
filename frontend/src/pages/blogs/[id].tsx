@@ -19,6 +19,13 @@ import {
 import { useBlogDetail, useBlogs } from "@/hooks/use-blogs";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { formatDate } from "@/utils/formatters";
+import { resolveImageUrl } from "@/utils/image-url";
+import { parseContentToArticleBlocks } from "@/features/admin/utils/article-content.utils";
+
+function stripHtmlTags(raw?: string | null): string {
+  if (!raw) return "";
+  return raw.replace(/<[^>]+>/g, " ").replace(/\s+/g, " ").trim();
+}
 
 // Fluent Play Icon
 const FluentPlayIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -93,12 +100,12 @@ export default function BlogDetailPage() {
         fullDate: formatDate(apiBlog.published_at),
         bannerSrc: apiBlog.banner_file_url,
         imageSrc: apiBlog.banner_file_url,
-        description: apiBlog.sort_description,
+        description: stripHtmlTags(apiBlog.sort_description),
         content: apiBlog.content,
         author: apiBlog.author?.name || "Admin",
         guideTitle: apiBlog.title,
         guideEntries: fallbackBlog.guideEntries,
-        intro1: apiBlog.sort_description,
+        intro1: stripHtmlTags(apiBlog.sort_description),
         intro2: undefined,
       };
     }
@@ -236,8 +243,140 @@ export default function BlogDetailPage() {
               {/* Guide / Content entries */}
               <div className="flex flex-col gap-12">
                 {blog.content ? (
-                  <div className="prose prose-invert max-w-none text-body-sm sm:text-body-md text-gray-300 leading-relaxed font-normal whitespace-pre-line">
-                    {blog.content}
+                  <div className="flex flex-col gap-5 text-body-sm sm:text-body-md text-gray-300 leading-relaxed font-normal">
+                    {(() => {
+                      const blocks = parseContentToArticleBlocks(blog.content);
+                      if (blocks.length === 0) {
+                        return (
+                          <p className="whitespace-pre-line">
+                            {stripHtmlTags(blog.content)}
+                          </p>
+                        );
+                      }
+                      return blocks.map((block) => {
+                        const cleanText = stripHtmlTags(block.content);
+                        const alignClass =
+                          block.align === "center"
+                            ? "text-center"
+                            : block.align === "right"
+                            ? "text-right"
+                            : "text-left";
+                        const styleClass = [
+                          block.isBold ? "font-bold" : "",
+                          block.isItalic ? "italic" : "",
+                          block.isUnderline ? "underline" : "",
+                          block.isStrike ? "line-through" : "",
+                          alignClass,
+                        ]
+                          .filter(Boolean)
+                          .join(" ");
+
+                        switch (block.type) {
+                          case "h1":
+                            return (
+                              <h1 key={block.id} className={`text-h3 font-bold text-white ${styleClass}`}>
+                                {cleanText}
+                              </h1>
+                            );
+                          case "h2":
+                            return (
+                              <h2 key={block.id} className={`text-h4 font-bold text-white ${styleClass}`}>
+                                {cleanText}
+                              </h2>
+                            );
+                          case "h3":
+                          case "h4":
+                            return (
+                              <h3 key={block.id} className={`text-body-lg sm:text-h6 font-semibold text-gray-50 ${styleClass}`}>
+                                {cleanText}
+                              </h3>
+                            );
+                          case "bullet-list":
+                            return (
+                              <div key={block.id} className={`flex items-start gap-2.5 pl-2 ${styleClass}`}>
+                                <span className="text-rose-400 mt-0.5">•</span>
+                                <span>{cleanText}</span>
+                              </div>
+                            );
+                          case "numbered-list":
+                            return (
+                              <div key={block.id} className={`pl-2 ${styleClass}`}>
+                                {cleanText}
+                              </div>
+                            );
+                          case "quote":
+                            return (
+                              <blockquote
+                                key={block.id}
+                                className="border-l-4 border-[#DF3848] pl-4 italic text-gray-300"
+                              >
+                                {cleanText}
+                              </blockquote>
+                            );
+                          case "code":
+                            return (
+                              <pre
+                                key={block.id}
+                                className="p-4 rounded-lg bg-deep-blue-900 border border-white/10 font-mono text-body-xs text-indigo-300 overflow-x-auto"
+                              >
+                                <code>{block.content}</code>
+                              </pre>
+                            );
+                          case "callout":
+                            return (
+                              <div
+                                key={block.id}
+                                className="p-4 rounded-lg bg-deep-blue-900 border border-indigo-500/30 text-gray-200"
+                              >
+                                {cleanText}
+                              </div>
+                            );
+                          case "divider":
+                            return (
+                              <hr key={block.id} className="border-t border-white/10 my-2" />
+                            );
+                          case "image":
+                            return block.imageUrl ? (
+                              <figure key={block.id} className="my-2 flex flex-col gap-2">
+                                <img
+                                  src={resolveImageUrl(block.imageUrl, block.imageUrl)}
+                                  alt={block.imageCaption || blog.title}
+                                  className="w-full rounded-lg border border-white/10 object-cover max-h-[520px]"
+                                />
+                                {block.imageCaption && (
+                                  <figcaption className="text-body-xs text-gray-400 text-center">
+                                    {block.imageCaption}
+                                  </figcaption>
+                                )}
+                              </figure>
+                            ) : null;
+                          case "table":
+                            return block.tableData && block.tableData.length > 0 ? (
+                              <div key={block.id} className="overflow-x-auto">
+                                <table className="w-full border-collapse border border-white/10 text-body-xs">
+                                  <tbody>
+                                    {block.tableData.map((row, rIdx) => (
+                                      <tr key={rIdx} className="border-b border-white/10">
+                                        {row.map((cell, cIdx) => (
+                                          <td key={cIdx} className="px-3 py-2 border-r border-white/10 last:border-r-0">
+                                            {stripHtmlTags(cell)}
+                                          </td>
+                                        ))}
+                                      </tr>
+                                    ))}
+                                  </tbody>
+                                </table>
+                              </div>
+                            ) : null;
+                          default:
+                            return cleanText ? (
+                              <p key={block.id} className={`whitespace-pre-line ${styleClass}`}>
+                                {cleanText}
+                              </p>
+                            ) : null;
+                        }
+                      });
+                    })()}
                   </div>
                 ) : blog.guideEntries && blog.guideEntries.length > 0 ? (
                   blog.guideEntries.map((entry, idx) => (

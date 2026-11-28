@@ -127,6 +127,9 @@ export function BannerCarousel({
         <img
           src={slide.imageSrc}
           alt={slide.alt || slide.title || `Slide ${index + 1}`}
+          fetchPriority={index === 0 ? "high" : "auto"}
+          loading={index === 0 ? "eager" : "lazy"}
+          decoding={index === 0 ? "sync" : "async"}
           className="w-full h-full object-cover object-center select-none transition-transform duration-500 ease-out group-hover/slide:scale-[1.02]"
           draggable={false}
         />

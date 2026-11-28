@@ -98,20 +98,32 @@ export function AdminReviewCard({
             ))}
           </div>
         )}
+        {/* Existing Admin Reply Preview */}
+        {review.reply && (
+          <div className="mb-4 rounded-lg bg-deep-blue-950/80 border border-indigo-500/25 px-3.5 py-2.5">
+            <span className="text-[11px] font-semibold uppercase tracking-wide text-indigo-300 block mb-1">
+              Balasan Admin
+            </span>
+            <p className="text-body-xs text-gray-300 leading-relaxed line-clamp-3">
+              {review.reply}
+            </p>
+          </div>
+        )}
       </div>
 
       {/* Action Buttons using Button Component */}
       <div className="pt-2">
         {isPostedView ? (
-          /* Posted View ("Di Posting") matching Image 3 & 4: Single "Sembunyikan" Button */
+          /* Posted View ("Di Posting"): Clear unpublish action distinct from Archive */
           <Button
             type="button"
             variant="inactive"
             size="sm"
             onClick={() => onHide?.(review)}
+            title="Tarik ulasan ini dari halaman publik tanpa menghapusnya ke Arsip"
             className="w-full justify-center"
           >
-            Sembunyikan
+            Tarik dari Store
           </Button>
         ) : (
           /* Normal View: "Post", "Arsipkan", "Balas" */
@@ -134,6 +146,7 @@ export function AdminReviewCard({
                 variant="inactive"
                 size="sm"
                 onClick={() => onArchive?.(review)}
+                title="Pindahkan ulasan ke Arsip (disembunyikan dari store dan antrean aktif)"
                 className="flex-1 justify-center"
               >
                 {isArchived ? "Diarsipkan" : "Arsipkan"}
@@ -146,7 +159,7 @@ export function AdminReviewCard({
                 onClick={() => onReply?.(review)}
                 className="flex-1 justify-center"
               >
-                Balas
+                {review.reply ? "Edit Balasan" : "Balas"}
               </Button>
             </div>
           </div>

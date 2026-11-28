@@ -23,6 +23,10 @@ import {
   useDeleteAdminSubCategory,
 } from "@/hooks/use-admin-categories";
 import { toast } from "@/stores/use-toast-store";
+import {
+  GENRE_CHOICES,
+  LAUNCHER_CHOICES,
+} from "@/features/admin/types/admin-add-product.types";
 
 export default function AdminCategoriesPage() {
   const { data: serverResult, isLoading, isError, refetch } = useAdminCategories();
@@ -81,10 +85,70 @@ export default function AdminCategoriesPage() {
     [serverResult, categories]
   );
 
-  const productCategories = React.useMemo(
-    () => serverResult?.productCategories ?? categories.filter((c) => c.scope === "product"),
-    [serverResult, categories]
+  const LOCKED_PRODUCT_GROUPS = React.useMemo(
+    () => ["genre", "launcher", "platform"],
+    []
   );
+
+  const productCategories = React.useMemo(() => {
+    const rawList =
+      serverResult?.productCategories ??
+      categories.filter((c) => c.scope === "product");
+
+    const defaultGenreSubs = GENRE_CHOICES.map((name, idx) => ({
+      id: `default-genre-${idx}`,
+      name,
+    }));
+
+    const defaultLauncherSubs = LAUNCHER_CHOICES.map((name, idx) => ({
+      id: `default-launcher-${idx}`,
+      name,
+    }));
+
+    const existingGenre = rawList.find(
+      (c) => c.title.trim().toLowerCase() === "genre"
+    );
+    const genreGroup = existingGenre
+      ? {
+          ...existingGenre,
+          subCategories:
+            existingGenre.subCategories.length > 0
+              ? existingGenre.subCategories
+              : defaultGenreSubs,
+        }
+      : {
+          id: "virtual-genre",
+          title: "Genre",
+          scope: "product" as const,
+          subCategories: defaultGenreSubs,
+        };
+
+    const existingLauncher = rawList.find((c) => {
+      const lower = c.title.trim().toLowerCase();
+      return lower === "launcher" || lower === "platform";
+    });
+    const launcherGroup = existingLauncher
+      ? {
+          ...existingLauncher,
+          subCategories:
+            existingLauncher.subCategories.length > 0
+              ? existingLauncher.subCategories
+              : defaultLauncherSubs,
+        }
+      : {
+          id: "virtual-launcher",
+          title: "Launcher",
+          scope: "product" as const,
+          subCategories: defaultLauncherSubs,
+        };
+
+    const otherGroups = rawList.filter((c) => {
+      const lower = c.title.trim().toLowerCase();
+      return lower !== "genre" && lower !== "launcher" && lower !== "platform";
+    });
+
+    return [genreGroup, launcherGroup, ...otherGroups];
+  }, [serverResult, categories]);
 
   // 1. Add new category button clicked on column
   const handleOpenAddNew = (scope: CategoryScope) => {
@@ -221,6 +285,21 @@ export default function AdminCategoriesPage() {
           name: name.trim(),
         });
         toast.success("Sub-kategori berhasil diperbarui!");
+      } else if (String(cat.id).startsWith("virtual-")) {
+        // Core hardcoded parent (Genre / Launcher) does not exist in DB yet -> create parent with default + new sub-category
+        const baseDefaults =
+          cat.title.trim().toLowerCase() === "genre"
+            ? [...GENRE_CHOICES]
+            : [...LAUNCHER_CHOICES];
+        const mergedSubs = Array.from(new Set([...baseDefaults, name.trim()]));
+        await createCatMutation.mutateAsync({
+          scope: cat.scope,
+          data: {
+            title: cat.title,
+            subCategories: mergedSubs,
+          },
+        });
+        toast.success(`Sub-kategori berhasil ditambahkan ke ${cat.title}!`);
       } else {
         // Add new sub
         await createSubMutation.mutateAsync({
@@ -326,6 +405,7 @@ export default function AdminCategoriesPage() {
             title="Product"
             scope="product"
             categories={productCategories}
+            lockedCategoryTitles={LOCKED_PRODUCT_GROUPS}
             showRightBorder={false}
             onAddNewCategory={handleOpenAddNew}
             onEditCategory={handleOpenEditCategory}

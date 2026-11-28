@@ -13,6 +13,7 @@ export interface AdminCategoryColumnProps {
   title: string;
   scope: CategoryScope;
   categories: AdminCategoryGroup[];
+  lockedCategoryTitles?: string[];
   onAddNewCategory: (scope: CategoryScope) => void;
   onEditCategory: (category: AdminCategoryGroup) => void;
   onDeleteCategory: (category: AdminCategoryGroup) => void;
@@ -44,6 +45,7 @@ export function AdminCategoryColumn({
   title,
   scope,
   categories,
+  lockedCategoryTitles = [],
   onAddNewCategory,
   onEditCategory,
   onDeleteCategory,
@@ -95,7 +97,7 @@ export function AdminCategoryColumn({
 
             {/* Subtitle matching Image 2 */}
             <p className="text-label-xs sm:text-sm text-gray-400 font-normal text-center mb-6 leading-relaxed w-full">
-              Katalog Subscription Anda saat ini masih kosong.
+              Belum ada kategori yang ditambahkan.
             </p>
 
             {/* Action Button: + Tambah Kategori */}
@@ -110,17 +112,23 @@ export function AdminCategoryColumn({
             </Button>
           </div>
         ) : (
-          categories.map((category) => (
-            <AdminCategoryGroupCard
-              key={category.id}
-              category={category}
-              onEditCategory={onEditCategory}
-              onDeleteCategory={onDeleteCategory}
-              onAddSubCategory={onAddSubCategory}
-              onEditSubCategory={onEditSubCategory}
-              onDeleteSubCategory={onDeleteSubCategory}
-            />
-          ))
+          categories.map((category) => {
+            const isLocked = lockedCategoryTitles.includes(
+              category.title.trim().toLowerCase()
+            );
+            return (
+              <AdminCategoryGroupCard
+                key={category.id}
+                category={category}
+                isLocked={isLocked}
+                onEditCategory={onEditCategory}
+                onDeleteCategory={onDeleteCategory}
+                onAddSubCategory={onAddSubCategory}
+                onEditSubCategory={onEditSubCategory}
+                onDeleteSubCategory={onDeleteSubCategory}
+              />
+            );
+          })
         )}
       </div>
     </div>

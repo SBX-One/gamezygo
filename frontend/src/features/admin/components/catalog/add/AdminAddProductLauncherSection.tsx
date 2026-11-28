@@ -166,7 +166,7 @@ export function AdminAddProductLauncherSection({
     }
   };
 
-  // Dynamically load Launcher sub-categories from /admin/categories
+  // Dynamically load Launcher sub-categories (preserves default LAUNCHER_CHOICES + dynamic DB sub-categories)
   const { data: adminCategoriesData } = useAdminCategories();
   const launcherOptions = React.useMemo(() => {
     const list: string[] = [...LAUNCHER_CHOICES];
@@ -211,26 +211,32 @@ export function AdminAddProductLauncherSection({
             LAUNCHER
           </label>
           <div className="flex flex-wrap items-center gap-2">
-            {launcherOptions.map((launcher) => {
-              const isSelected =
-                formData.launcher.toLowerCase() === launcher.toLowerCase();
-              return (
-                <Button
-                  key={launcher}
-                  type="button"
-                  variant={isSelected ? "active" : "inactive"}
-                  size="sm"
-                  onClick={() =>
-                    onChange({
-                      launcher: launcher as AdminAddProductFormData["launcher"],
-                    })
-                  }
-                  className="cursor-pointer"
-                >
-                  {launcher}
-                </Button>
-              );
-            })}
+            {launcherOptions.length === 0 ? (
+              <span className="text-body-xs text-gray-500 italic">
+                Belum ada launcher. Tambahkan sub-kategori pada &quot;Launcher&quot; di menu Kategori.
+              </span>
+            ) : (
+              launcherOptions.map((launcher) => {
+                const isSelected =
+                  formData.launcher.toLowerCase() === launcher.toLowerCase();
+                return (
+                  <Button
+                    key={launcher}
+                    type="button"
+                    variant={isSelected ? "active" : "inactive"}
+                    size="sm"
+                    onClick={() =>
+                      onChange({
+                        launcher: launcher as AdminAddProductFormData["launcher"],
+                      })
+                    }
+                    className="cursor-pointer"
+                  >
+                    {launcher}
+                  </Button>
+                );
+              })
+            )}
           </div>
         </div>
 

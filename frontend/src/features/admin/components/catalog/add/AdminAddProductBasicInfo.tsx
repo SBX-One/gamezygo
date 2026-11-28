@@ -58,9 +58,9 @@ export function AdminAddProductBasicInfo({
     );
   }, [formData.genres]);
 
-  // Separate core "Genre" choices from custom Product Main Categories (2-level hierarchy)
+  // Separate core "Genre" choices from custom Product Main Categories (preserves default GENRE_CHOICES + dynamic DB sub-categories)
   const { allGenres, customCategoryGroups } = React.useMemo(() => {
-    const genreList = [...GENRE_CHOICES] as string[];
+    const genreList: string[] = [...GENRE_CHOICES];
     const customGroups: Array<{
       id: string;
       title: string;
@@ -216,23 +216,29 @@ export function AdminAddProductBasicInfo({
             GENRE
           </label>
           <div className="flex flex-wrap items-center gap-2">
-            {allGenres.map((genre) => {
-              const isSelected = canonicalSelectedGenres.some(
-                (g) => g.toLowerCase() === genre.toLowerCase()
-              );
-              return (
-                <Button
-                  key={genre}
-                  type="button"
-                  variant={isSelected ? "active" : "inactive"}
-                  size="sm"
-                  onClick={() => toggleGenre(genre)}
-                  className="cursor-pointer"
-                >
-                  {genre}
-                </Button>
-              );
-            })}
+            {allGenres.length === 0 ? (
+              <span className="text-body-xs text-gray-500 italic">
+                Belum ada genre. Tambahkan sub-kategori pada &quot;Genre&quot; di menu Kategori.
+              </span>
+            ) : (
+              allGenres.map((genre) => {
+                const isSelected = canonicalSelectedGenres.some(
+                  (g) => g.toLowerCase() === genre.toLowerCase()
+                );
+                return (
+                  <Button
+                    key={genre}
+                    type="button"
+                    variant={isSelected ? "active" : "inactive"}
+                    size="sm"
+                    onClick={() => toggleGenre(genre)}
+                    className="cursor-pointer"
+                  >
+                    {genre}
+                  </Button>
+                );
+              })
+            )}
           </div>
         </div>
 

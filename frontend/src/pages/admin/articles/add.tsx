@@ -9,6 +9,7 @@ import {
   AdminArticleCoverUpload,
   AdminArticleBlockEditor,
 } from "@/features/admin/components/articles";
+import { AdminArticleCategorySelector } from "@/features/admin/components/articles/AdminArticleCategorySelector";
 import type {
   ArticleBlockType,
   ArticleEditorBlock,
@@ -397,38 +398,12 @@ export default function AdminAddBlogPage() {
               }}
             />
 
-            {/* Category Metadata Bar */}
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-3.5 px-4 rounded-lg bg-white/3 border border-white/10">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-3 w-full sm:w-auto">
-                <label
-                  htmlFor="blog-category-select"
-                  className="text-label-xs font-semibold text-gray-300 uppercase tracking-wider shrink-0"
-                >
-                  Kategori
-                </label>
-                <select
-                  id="blog-category-select"
-                  value={effectiveCategoryId}
-                  onChange={(e) =>
-                    setSelectedCategoryId(
-                      e.target.value ? Number(e.target.value) : ""
-                    )
-                  }
-                  className="w-full sm:w-auto h-9 px-3 rounded-lg bg-deep-blue-900 border border-white/10 text-label-xs text-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
-                >
-                  <option value="">-- Pilih Kategori --</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <span className="text-[11px] text-gray-400">
-                Ketik <code className="text-indigo-300">/</code> di editor untuk menyisipkan Heading, Gambar, Tabel, Quote, atau Callout.
-              </span>
-            </div>
+            {/* Category Chips Selector (matching Add Catalog style) */}
+            <AdminArticleCategorySelector
+              selectedCategoryId={effectiveCategoryId}
+              onSelectCategoryId={(id) => setSelectedCategoryId(id)}
+              fallbackCategories={categories}
+            />
 
             <div className="w-full h-px bg-white/10" />
 

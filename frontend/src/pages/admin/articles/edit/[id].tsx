@@ -9,6 +9,7 @@ import {
   AdminArticleCoverUpload,
   AdminArticleBlockEditor,
 } from "@/features/admin/components/articles";
+import { AdminArticleCategorySelector } from "@/features/admin/components/articles/AdminArticleCategorySelector";
 import type {
   AdminBlogCategoryItem,
   ArticleBlockType,
@@ -410,34 +411,15 @@ function AdminEditBlogForm({ detail, categories }: AdminEditBlogFormProps) {
             }}
           />
 
+          {/* Category Chips Selector (matching Add Catalog style) */}
+          <AdminArticleCategorySelector
+            selectedCategoryId={selectedCategoryId}
+            onSelectCategoryId={(id) => setSelectedCategoryId(id)}
+            fallbackCategories={categories}
+          />
+
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 py-3.5 px-4 rounded-lg bg-white/3 border border-white/10">
             <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 w-full sm:w-auto">
-              <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2.5 w-full sm:w-auto">
-                <label
-                  htmlFor="edit-blog-category"
-                  className="text-label-xs font-semibold text-gray-300 uppercase tracking-wider shrink-0"
-                >
-                  Kategori
-                </label>
-                <select
-                  id="edit-blog-category"
-                  value={selectedCategoryId}
-                  onChange={(e) =>
-                    setSelectedCategoryId(
-                      e.target.value ? Number(e.target.value) : ""
-                    )
-                  }
-                  className="w-full sm:w-auto h-9 px-3 rounded-lg bg-deep-blue-900 border border-white/10 text-label-xs text-white focus:outline-none focus:border-indigo-500 transition-colors cursor-pointer"
-                >
-                  <option value="">-- Tanpa Kategori --</option>
-                  {categories.map((cat) => (
-                    <option key={cat.id} value={cat.id}>
-                      {cat.name}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
               <div className="flex flex-col sm:flex-row sm:items-center gap-1.5 sm:gap-2.5 w-full sm:w-auto">
                 <label
                   htmlFor="edit-blog-status"

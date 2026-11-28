@@ -6,6 +6,7 @@ import type { AdminCategoryGroup, SubCategoryItem } from "../../types/admin-cate
 
 export interface AdminCategoryGroupCardProps {
   category: AdminCategoryGroup;
+  isLocked?: boolean;
   onEditCategory: (category: AdminCategoryGroup) => void;
   onDeleteCategory?: (category: AdminCategoryGroup) => void;
   onAddSubCategory: (category: AdminCategoryGroup) => void;
@@ -69,6 +70,7 @@ const TrashIcon = (props: React.SVGProps<SVGSVGElement>) => (
 
 export function AdminCategoryGroupCard({
   category,
+  isLocked = false,
   onEditCategory,
   onDeleteCategory,
   onAddSubCategory,
@@ -101,18 +103,19 @@ export function AdminCategoryGroupCard({
             Add
           </Button>
 
-          {/* Edit Category Button: Button variant="outline" size="xs" */}
-          <Button
-            variant="outline"
-            size="xs"
-            leftIcon={<EditIcon className="w-3.5 h-3.5" />}
-            onClick={() => onEditCategory(category)}
-            className="w-7 h-7 min-w-7 min-h-7 p-0 flex items-center justify-center shrink-0"
-            aria-label="Edit judul kategori"
-          />
+          {/* Edit & Delete Category Buttons: hidden for locked core groups (Genre, Launcher) */}
+          {!isLocked && (
+            <Button
+              variant="outline"
+              size="xs"
+              leftIcon={<EditIcon className="w-3.5 h-3.5" />}
+              onClick={() => onEditCategory(category)}
+              className="w-7 h-7 min-w-7 min-h-7 p-0 flex items-center justify-center shrink-0"
+              aria-label="Edit judul kategori"
+            />
+          )}
 
-          {/* Optional Delete Category Button */}
-          {onDeleteCategory && (
+          {!isLocked && onDeleteCategory && (
             <Button
               variant="outline"
               size="xs"

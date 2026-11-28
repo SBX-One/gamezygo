@@ -157,20 +157,6 @@ export function AdminArticleCoverUpload({
               ADD THUMBNAIL
             </span>
           </div>
-
-          {/* Quick preset thumbnail option */}
-          <div className="flex items-center justify-end">
-            <button
-              type="button"
-              onClick={() => {
-                onCoverFileChange?.(null);
-                onCoverChange(SAMPLE_COVER);
-              }}
-              className="text-[11px] text-gray-400 hover:text-white underline underline-offset-4 cursor-pointer transition-colors"
-            >
-              Gunakan Gambar Sampel Summer Promo
-            </button>
-          </div>
         </div>
       )}
     </div>

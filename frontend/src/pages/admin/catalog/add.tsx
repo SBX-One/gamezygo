@@ -17,6 +17,7 @@ import {
 } from "@/features/admin/types/admin-add-product.types";
 import { useCreateProduct, useAdminCatalogFilters } from "@/hooks/use-admin-catalog";
 import { useAdminSections } from "@/hooks/use-admin-sections";
+import { useAdminCategories } from "@/hooks/use-admin-categories";
 import { toast } from "@/stores/use-toast-store";
 
 const ChevronRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
@@ -62,6 +63,7 @@ export default function AdminAddProductPage() {
   const createProductMutation = useCreateProduct();
   const { data: filterMeta } = useAdminCatalogFilters();
   const { data: serverSections } = useAdminSections();
+  const { data: adminCategoriesData } = useAdminCategories();
 
   const formData: AdminAddProductFormData = React.useMemo(() => {
     if (draftFormData) return draftFormData;
@@ -89,15 +91,37 @@ export default function AdminAddProductPage() {
     const cleanPrice = parseInt(formData.finalPrice.replace(/\D/g, ""), 10) || 0;
     const cleanInitialPrice = parseInt(formData.initialPrice.replace(/\D/g, ""), 10) || cleanPrice;
 
-    // Resolve category IDs from genre names
-    const categoryIds = (formData.genres || [])
-      .map((g) => {
-        const match = filterMeta?.categories?.find(
-          (c: { name?: string; id?: number }) => c.name?.toLowerCase() === g.toLowerCase()
-        );
-        return match ? match.id : null;
-      })
-      .filter((id): id is number => id !== null);
+    // Resolve category IDs from genre names and dynamic sub-categories
+    const dynamicSubCatMap = new Map<string, number>();
+    (adminCategoriesData?.productCategories ?? []).forEach((group) => {
+      const groupNumId = Number(group.id);
+      if (!Number.isNaN(groupNumId) && groupNumId > 0) {
+        dynamicSubCatMap.set(group.title.trim().toLowerCase(), groupNumId);
+      }
+      (group.subCategories ?? []).forEach((sub) => {
+        const subNumId = Number(sub.id);
+        if (!Number.isNaN(subNumId) && subNumId > 0) {
+          dynamicSubCatMap.set(sub.name.trim().toLowerCase(), subNumId);
+        }
+      });
+    });
+
+    const categoryIds = Array.from(
+      new Set(
+        (formData.genres || [])
+          .map((g) => {
+            const lower = g.trim().toLowerCase();
+            const match = filterMeta?.categories?.find(
+              (c: { name?: string; id?: number }) =>
+                c.name?.trim().toLowerCase() === lower
+            );
+            if (match?.id) return Number(match.id);
+            const dynamicId = dynamicSubCatMap.get(lower);
+            return dynamicId ?? null;
+          })
+          .filter((id): id is number => id !== null)
+      )
+    );
 
     // Resolve launcher ID
     const launcherList = (filterMeta as { launcher?: Array<{ name?: string; id?: number }> } | null)?.launcher;

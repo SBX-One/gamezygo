@@ -933,24 +933,28 @@ export default function GameCredentialPage() {
                   : [];
 
                 if (dynamicSteps.length > 0) {
-                  return dynamicSteps.map((step) => (
-                    <div
-                      key={step.stepNumber}
-                      className="grid gap-2 pl-2 border-b-gradient-secondary pb-6"
-                    >
-                      <span className="text-body-xs text-gray-400 uppercase">
-                        LANGKAH {step.stepNumber}
-                      </span>
-                      <h3 className="text-body-md font-semibold text-gray-100">
-                        {step.title}
-                      </h3>
-                      {step.description && (
-                        <p className="text-body-sm text-gray-400 whitespace-pre-line">
-                          {step.description}
-                        </p>
-                      )}
-                    </div>
-                  ));
+                  return dynamicSteps.map((step) => {
+                    const isAutoStepTitle =
+                      Boolean(step.description) &&
+                      /^langkah\s+\d+$/i.test(step.title.trim());
+                    return (
+                      <div
+                        key={step.stepNumber}
+                        className="grid gap-2 pl-2 border-b-gradient-secondary pb-6"
+                      >
+                        {step.title && !isAutoStepTitle && (
+                          <h3 className="text-body-md font-semibold text-gray-100">
+                            {step.title}
+                          </h3>
+                        )}
+                        {step.description && (
+                          <p className="text-body-sm text-gray-300 whitespace-pre-line">
+                            {step.description}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  });
                 }
 
                 return (

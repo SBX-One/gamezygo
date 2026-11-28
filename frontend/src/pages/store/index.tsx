@@ -81,6 +81,7 @@ import {
   useCustomSections,
   useInfiniteProducts,
   useProductFilters,
+  useProducts,
 } from "@/hooks/use-products";
 import { useInfiniteScroll } from "@/hooks/use-infinite-scroll";
 import {
@@ -104,7 +105,6 @@ interface ProductItem {
   isBestSeller?: boolean;
 }
 
-const MINI_FEATURED_GAMES: ProductItem[] = productsData.miniFeatured;
 const TAWARAN_KHUSUS_PRODUCTS: ProductItem[] = productsData.tawaranKhusus;
 const RILIS_TERBARU_PRODUCTS: ProductItem[] = productsData.rilisTerbaru;
 const ALL_STORE_PRODUCTS: ProductItem[] = productsData.semuaProduk;
@@ -197,6 +197,9 @@ export default function StorePage() {
   // React Query API Data Hooks
   const { data: announcementsData, isLoading: isAnnouncementsLoading } = useAnnouncements();
   const { data: sectionsData, isLoading: isSectionsLoading } = useCustomSections();
+  const { data: bestSellerData, isLoading: isBestSellerLoading } = useProducts({
+    filter: "best_seller",
+  });
   const {
     data: productsInfiniteData,
     isLoading: isProductsLoading,
@@ -205,6 +208,16 @@ export default function StorePage() {
     fetchNextPage,
   } = useInfiniteProducts(apiQueryParams);
   useProductFilters();
+
+  const bestSellerApiProducts = React.useMemo(
+    () => (Array.isArray(bestSellerData?.data) ? bestSellerData.data : []),
+    [bestSellerData]
+  );
+
+  const topBestSellerGames = React.useMemo(
+    () => bestSellerApiProducts.slice(0, 2).map((item) => mapProductToCardItem(item)),
+    [bestSellerApiProducts]
+  );
 
   const allApiProducts = React.useMemo(
     () => productsInfiniteData?.pages.flatMap((page) => page.data ?? []) ?? [],
@@ -349,7 +362,9 @@ export default function StorePage() {
   );
 
   const handleAddToCart = (gameTitle: string) => {
-    const matchedApi = allApiProducts.find((p) => p.name === gameTitle);
+    const matchedApi =
+      allApiProducts.find((p) => p.name === gameTitle) ||
+      bestSellerApiProducts.find((p) => p.name === gameTitle);
     const matchedLocal = ALL_STORE_PRODUCTS.find((p) => p.title === gameTitle);
     const prodId = matchedApi ? String(matchedApi.id) : (matchedLocal?.id || gameTitle);
 
@@ -974,31 +989,70 @@ export default function StorePage() {
                 />
               )}
 
-              {/* 2 Horizontal Product Cards: Di bawah pada layar kecil/zoom (order-2), di kiri pada layar lebar (xl:order-1) */}
+              {/* 2 Horizontal Product Cards: 2 Game dengan Pembelian Terbanyak (best_seller) */}
               <div className="order-2 xl:order-1 xl:col-span-2 flex flex-col gap-6 shrink-0 w-full justify-between">
-                {MINI_FEATURED_GAMES.slice(0, 2).map((game) => {
-                  const owned = isGameOwned(game.id, game.title);
-                  const inCart = isInCartStore(game.id, game.title);
-                  return (
-                    <ProductCard
-                      key={game.id}
-                      orientation="horizontal"
-                      title={game.title}
-                      imageSrc={game.imageSrc}
-                      genres={game.genres}
-                      originalPrice={game.originalPrice}
-                      price={game.price}
-                      discount={game.discount}
-                      platform={game.platform}
-                      isBestSeller={false}
-                      buttonText={owned ? "Sudah Dimiliki" : inCart ? "Di Keranjang" : "Tambah Keranjang"}
-                      isActionDisabled={owned || inCart}
-                      href={`/store/${(game as { slug?: string }).slug || game.id}`}
-                      onActionClick={() => handleAddToCart(game.title)}
-                      className="w-full sm:min-w-0"
-                    />
-                  );
-                })}
+                {isBestSellerLoading ? (
+                  Array.from({ length: 2 }).map((_, idx) => (
+                    <div
+                      key={`best-seller-skel-${idx}`}
+                      className="flex items-center gap-4 p-4 rounded-xl bg-surface-secondary-default border border-white/5 h-[250px] w-full"
+                    >
+                      <Skeleton className="w-[140px] h-full rounded-lg shrink-0" />
+                      <div className="flex flex-col justify-between flex-1 h-full py-1 gap-3">
+                        <div className="flex flex-col gap-2">
+                          <Skeleton className="h-5 w-3/4 rounded" />
+                          <div className="flex gap-2">
+                            <Skeleton className="h-5 w-16 rounded-full" />
+                            <Skeleton className="h-5 w-16 rounded-full" />
+                          </div>
+                        </div>
+                        <div className="flex flex-col gap-2">
+                          <Skeleton className="h-5 w-1/2 rounded" />
+                          <Skeleton className="h-10 w-full rounded-lg" />
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : topBestSellerGames.length > 0 ? (
+                  topBestSellerGames.map((game) => {
+                    const owned = isGameOwned(game.id, game.title);
+                    const inCart = isInCartStore(game.id, game.title);
+                    return (
+                      <ProductCard
+                        key={game.id}
+                        orientation="horizontal"
+                        title={game.title}
+                        imageSrc={game.imageSrc}
+                        genres={game.genres}
+                        originalPrice={game.originalPrice}
+                        price={game.price}
+                        discount={game.discount}
+                        platform={game.platform}
+                        isBestSeller={false}
+                        buttonText={
+                          owned
+                            ? "Sudah Dimiliki"
+                            : inCart
+                            ? "Di Keranjang"
+                            : "Tambah Keranjang"
+                        }
+                        isActionDisabled={owned || inCart}
+                        href={`/store/${game.slug || game.id}`}
+                        onActionClick={() => handleAddToCart(game.title)}
+                        className="w-full sm:min-w-0"
+                      />
+                    );
+                  })
+                ) : (
+                  <div className="w-full flex-1 flex flex-col items-center justify-center p-6 rounded-xl bg-surface-secondary-default/60 border border-white/5 text-center gap-1.5">
+                    <p className="text-body-md font-semibold text-gray-200">
+                      Belum ada game terlaris saat ini
+                    </p>
+                    <p className="text-body-sm text-gray-400">
+                      2 game dengan pembelian terbanyak akan tampil otomatis di sini.
+                    </p>
+                  </div>
+                )}
               </div>
             </section>
 

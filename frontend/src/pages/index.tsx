@@ -29,11 +29,11 @@ import { useAddToCart } from "@/hooks/use-cart";
 import { useOwnedGames } from "@/hooks/use-library";
 import { useAnnouncements, useCommunities, useFaqs } from "@/hooks/use-common";
 import { resolveImageUrl } from "@/utils/image-url";
-import { useCustomSections } from "@/hooks/use-products";
+import { useCustomSections, useProducts } from "@/hooks/use-products";
 import { useLeaderboard } from "@/hooks/use-leaderboard";
 import { useReviews } from "@/hooks/use-reviews";
 import { useBlogs } from "@/hooks/use-blogs";
-import { mapAnnouncementToSlide, mapSectionProducts } from "@/utils/adapters";
+import { mapAnnouncementToSlide, mapProductToCardItem, mapSectionProducts } from "@/utils/adapters";
 import type { BannerSlide } from "@/components/ui/BannerCarousel/BannerCarousel.types";
 import type { ProductCardRowItem } from "@/components/ui/ProductCardRow/ProductCardRow.types";
 import type { CustomSectionItem, FaqItem } from "@/types";
@@ -150,7 +150,6 @@ const DEFAULT_FAQS = [
 ];
 
 // Product Card Row Fallback items (7 items to enable scroll and right fade shadow)
-const MINI_FEATURED_PRODUCTS: ProductCardRowItem[] = productsData.miniFeatured;
 const TAWARAN_KHUSUS_PRODUCTS: ProductCardRowItem[] = productsData.tawaranKhusus;
 const RILIS_TERBARU_PRODUCTS: ProductCardRowItem[] = productsData.rilisTerbaru;
 
@@ -359,11 +358,40 @@ export default function LandingPage() {
     return null;
   }, [sectionsRes]);
 
+  // 2b. Game Pilihan Hanya Untuk Anda (Best Seller / Game Terpopuler)
+  const { data: bestSellerProductsRes, isLoading: isBestSellerLoading } =
+    useProducts({ filter: "best_seller" });
+
+  const featuredPopularProducts = React.useMemo(() => {
+    const rawItems = bestSellerProductsRes?.data;
+    if (!Array.isArray(rawItems) || rawItems.length === 0) return [];
+    return rawItems.map((item) => mapProductToCardItem(item));
+  }, [bestSellerProductsRes]);
+
   // 3. Deretan Game Terpopuler (Tabs: Trending, Terbaru, Segera)
   const [popularTab, setPopularTab] = React.useState<string>("trending");
   const popularScrollRef = React.useRef<HTMLDivElement>(null);
   const [canPopularScrollUp, setCanPopularScrollUp] = React.useState<boolean>(false);
-  const [canPopularScrollDown, setCanPopularScrollDown] = React.useState<boolean>(true);
+  const [canPopularScrollDown, setCanPopularScrollDown] = React.useState<boolean>(false);
+
+  const popularQueryParams = React.useMemo(() => {
+    if (popularTab === "terbaru") {
+      return { filter: "new_release", sort_by: "latest" };
+    }
+    if (popularTab === "segera") {
+      return { filter: "coming_soon", sort_by: "latest" };
+    }
+    return { filter: "best_seller" };
+  }, [popularTab]);
+
+  const { data: popularProductsRes, isLoading: isPopularLoading } =
+    useProducts(popularQueryParams);
+
+  const popularGames = React.useMemo(() => {
+    const rawItems = popularProductsRes?.data;
+    if (!Array.isArray(rawItems) || rawItems.length === 0) return [];
+    return rawItems.map((item) => mapProductToCardItem(item));
+  }, [popularProductsRes]);
 
   const checkPopularScroll = React.useCallback(() => {
     const el = popularScrollRef.current;
@@ -381,7 +409,7 @@ export default function LandingPage() {
     }
     const timer = setTimeout(checkPopularScroll, 120);
     return () => clearTimeout(timer);
-  }, [popularTab, checkPopularScroll]);
+  }, [popularTab, popularGames.length, isPopularLoading, checkPopularScroll]);
 
   React.useEffect(() => {
     const el = popularScrollRef.current;
@@ -393,417 +421,6 @@ export default function LandingPage() {
     ro.observe(el);
     return () => ro.disconnect();
   }, [checkPopularScroll]);
-
-  const popularGames = React.useMemo(() => {
-    const trendingList = [
-      {
-        id: "dead-by-daylight",
-        title: "Dead By Daylight",
-        discount: "-30%",
-        originalPrice: "Rp 439.000,00",
-        price: "Rp 219.500",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/381210/library_600x900_2x.jpg",
-      },
-      {
-        id: "fc-26",
-        title: "EA SPORTS FC™ 26 Standard Edition",
-        discount: "-30%",
-        originalPrice: "Rp 439.000,00",
-        price: "Rp 219.500",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2195250/library_600x900_2x.jpg",
-      },
-      {
-        id: "rdr2",
-        title: "Read Dead Redemption II",
-        discount: "-30%",
-        originalPrice: "Rp 439.000,00",
-        price: "Rp 219.500",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1174180/library_600x900_2x.jpg",
-      },
-      {
-        id: "phantom-blade",
-        title: "Phantom Blade Zero",
-        discount: "-30%",
-        originalPrice: "Rp 439.000,00",
-        price: "Rp 219.500",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2358720/library_600x900_2x.jpg",
-      },
-      {
-        id: "gta-v",
-        title: "Grand Theft Auto V",
-        discount: "-30%",
-        originalPrice: "Rp 439.000,00",
-        price: "Rp 219.500",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-      },
-      {
-        id: "cf-27",
-        title: "EA SPORTS CF™ 27 Standard Edition",
-        discount: "-30%",
-        originalPrice: "Rp 439.000,00",
-        price: "Rp 219.500",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2582560/library_600x900_2x.jpg",
-      },
-      {
-        id: "ac-black-flag",
-        title: "Assassin's Creed Black Flag Resynced",
-        discount: "-30%",
-        originalPrice: "Rp 439.000,00",
-        price: "Rp 219.500",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/242050/library_600x900_2x.jpg",
-      },
-      {
-        id: "007-first-light",
-        title: "007 - First Light",
-        discount: "-30%",
-        originalPrice: "Rp 439.000,00",
-        price: "Rp 219.500",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/library_600x900_2x.jpg",
-      },
-      {
-        id: "subnautica-2",
-        title: "Subnautica 2",
-        discount: "-30%",
-        originalPrice: "Rp 439.000,00",
-        price: "Rp 219.500",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1962700/library_600x900_2x.jpg",
-      },
-      {
-        id: "elden-ring",
-        title: "Elden Ring: Shadow of the Erdtree",
-        discount: "-25%",
-        originalPrice: "Rp 560.000,00",
-        price: "Rp 420.000",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/library_600x900_2x.jpg",
-      },
-      {
-        id: "cyberpunk-2077",
-        title: "Cyberpunk 2077: Ultimate Edition",
-        discount: "-50%",
-        originalPrice: "Rp 699.000,00",
-        price: "Rp 349.500",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1091500/library_600x900_2x.jpg",
-      },
-      {
-        id: "black-myth-wukong",
-        title: "Black Myth: Wukong",
-        discount: "-20%",
-        originalPrice: "Rp 699.000,00",
-        price: "Rp 499.000",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2358720/library_600x900_2x.jpg",
-      },
-      {
-        id: "ghost-tsushima",
-        title: "Ghost of Tsushima DIRECTOR'S CUT",
-        discount: "-50%",
-        originalPrice: "Rp 879.000,00",
-        price: "Rp 439.500",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2215430/library_600x900_2x.jpg",
-      },
-      {
-        id: "god-of-war-ragnarok",
-        title: "God of War Ragnarök",
-        discount: "-20%",
-        originalPrice: "Rp 879.000,00",
-        price: "Rp 703.200",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2322010/library_600x900_2x.jpg",
-      },
-      {
-        id: "hogwarts-legacy",
-        title: "Hogwarts Legacy Digital Deluxe",
-        discount: "-70%",
-        originalPrice: "Rp 799.000,00",
-        price: "Rp 239.700",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/990080/library_600x900_2x.jpg",
-      },
-    ];
-
-    const terbaruList = [
-      {
-        id: "fc-25",
-        title: "EA SPORTS FC™ 25",
-        discount: "-50%",
-        originalPrice: "Rp 799.000,00",
-        price: "Rp 389.000",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2195250/library_600x900_2x.jpg",
-      },
-      {
-        id: "silent-hill-2",
-        title: "Silent Hill 2 Remake",
-        discount: "-29%",
-        originalPrice: "Rp 650.000,00",
-        price: "Rp 460.000",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2124490/library_600x900_2x.jpg",
-      },
-      {
-        id: "space-marine-2",
-        title: "Warhammer 40k: Space Marine 2",
-        discount: "-30%",
-        originalPrice: "Rp 599.000,00",
-        price: "Rp 420.000",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2183900/library_600x900_2x.jpg",
-      },
-      {
-        id: "black-myth",
-        title: "Black Myth: Wukong",
-        discount: "-20%",
-        originalPrice: "Rp 699.000,00",
-        price: "Rp 499.000",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2358720/library_600x900_2x.jpg",
-      },
-      {
-        id: "tekken-8",
-        title: "Tekken 8",
-        discount: "-48%",
-        originalPrice: "Rp 699.000,00",
-        price: "Rp 360.000",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1778820/library_600x900_2x.jpg",
-      },
-      {
-        id: "persona-3",
-        title: "Persona 3 Reload",
-        discount: "-47%",
-        originalPrice: "Rp 650.000,00",
-        price: "Rp 340.000",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2161700/library_600x900_2x.jpg",
-      },
-      {
-        id: "helldivers-2",
-        title: "Helldivers 2",
-        discount: "-48%",
-        originalPrice: "Rp 579.000,00",
-        price: "Rp 299.000",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/553850/library_600x900_2x.jpg",
-      },
-      {
-        id: "elden-ring-erdtree",
-        title: "Elden Ring: Shadow of the Erdtree",
-        discount: "-25%",
-        originalPrice: "Rp 560.000,00",
-        price: "Rp 420.000",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1245620/library_600x900_2x.jpg",
-      },
-      {
-        id: "dragons-dogma-2",
-        title: "Dragon's Dogma 2",
-        discount: "-48%",
-        originalPrice: "Rp 750.000,00",
-        price: "Rp 390.000",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2054970/library_600x900_2x.jpg",
-      },
-      {
-        id: "ff-xvi",
-        title: "Final Fantasy XVI Complete",
-        discount: "-20%",
-        originalPrice: "Rp 729.000,00",
-        price: "Rp 583.200",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2515020/library_600x900_2x.jpg",
-      },
-      {
-        id: "frostpunk-2",
-        title: "Frostpunk 2 Deluxe Edition",
-        discount: "-15%",
-        originalPrice: "Rp 649.000,00",
-        price: "Rp 551.650",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1601580/library_600x900_2x.jpg",
-      },
-      {
-        id: "metaphor-refantazio",
-        title: "Metaphor: ReFantazio",
-        discount: "-15%",
-        originalPrice: "Rp 799.000,00",
-        price: "Rp 679.150",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2627720/library_600x900_2x.jpg",
-      },
-      {
-        id: "stalker-2",
-        title: "S.T.A.L.K.E.R. 2: Heart of Chornobyl",
-        discount: "-10%",
-        originalPrice: "Rp 799.000,00",
-        price: "Rp 719.100",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1643320/library_600x900_2x.jpg",
-      },
-      {
-        id: "star-wars-outlaws",
-        title: "Star Wars Outlaws Gold Edition",
-        discount: "-25%",
-        originalPrice: "Rp 999.000,00",
-        price: "Rp 749.250",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2842040/library_600x900_2x.jpg",
-      },
-      {
-        id: "kingdom-come-2",
-        title: "Kingdom Come: Deliverance II",
-        discount: "-15%",
-        originalPrice: "Rp 799.000,00",
-        price: "Rp 679.150",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1771300/library_600x900_2x.jpg",
-      },
-    ];
-
-    const segeraList = [
-      {
-        id: "gta-6",
-        title: "Grand Theft Auto VI",
-        discount: "-15%",
-        originalPrice: "Rp 999.000,00",
-        price: "Rp 849.000",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/271590/library_600x900_2x.jpg",
-      },
-      {
-        id: "monster-hunter-wilds",
-        title: "Monster Hunter Wilds",
-        discount: "-27%",
-        originalPrice: "Rp 720.000,00",
-        price: "Rp 520.000",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2246340/library_600x900_2x.jpg",
-      },
-      {
-        id: "ghost-of-yotei",
-        title: "Ghost of Yotei",
-        discount: "-20%",
-        originalPrice: "Rp 850.000,00",
-        price: "Rp 680.000",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2215430/library_600x900_2x.jpg",
-      },
-      {
-        id: "re-9",
-        title: "Resident Evil 9: Apocalypse",
-        discount: "-25%",
-        originalPrice: "Rp 799.000,00",
-        price: "Rp 599.000",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2124490/library_600x900_2x.jpg",
-      },
-      {
-        id: "fm-26",
-        title: "Football Manager 2026",
-        discount: "-30%",
-        originalPrice: "Rp 650.000,00",
-        price: "Rp 455.000",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/2195250/library_600x900_2x.jpg",
-      },
-      {
-        id: "death-stranding-2",
-        title: "Death Stranding 2: On The Beach",
-        discount: "-20%",
-        originalPrice: "Rp 850.000,00",
-        price: "Rp 680.000",
-        imageSrc:
-          "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80",
-      },
-      {
-        id: "doom-dark-ages",
-        title: "DOOM: The Dark Ages",
-        discount: "-25%",
-        originalPrice: "Rp 799.000,00",
-        price: "Rp 599.000",
-        imageSrc:
-          "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80",
-      },
-      {
-        id: "civilization-vii",
-        title: "Sid Meier's Civilization® VII",
-        discount: "-20%",
-        originalPrice: "Rp 799.000,00",
-        price: "Rp 639.000",
-        imageSrc:
-          "https://images.unsplash.com/photo-1511512578047-dfb367046420?auto=format&fit=crop&w=600&q=80",
-      },
-      {
-        id: "mafia-old-country",
-        title: "Mafia: The Old Country",
-        discount: "-20%",
-        originalPrice: "Rp 750.000,00",
-        price: "Rp 600.000",
-        imageSrc:
-          "https://images.unsplash.com/photo-1579373903781-fd5c0c30c4cd?auto=format&fit=crop&w=600&q=80",
-      },
-      {
-        id: "witcher-4",
-        title: "The Witcher 4: Polaris",
-        discount: "-10%",
-        originalPrice: "Rp 899.000,00",
-        price: "Rp 809.100",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/292030/library_600x900_2x.jpg",
-      },
-      {
-        id: "borderlands-4",
-        title: "Borderlands 4",
-        discount: "-15%",
-        originalPrice: "Rp 850.000,00",
-        price: "Rp 722.500",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1285190/library_600x900_2x.jpg",
-      },
-      {
-        id: "silksong",
-        title: "Hollow Knight: Silksong",
-        discount: "-20%",
-        originalPrice: "Rp 249.000,00",
-        price: "Rp 199.200",
-        imageSrc:
-          "https://shared.akamai.steamstatic.com/store_item_assets/steam/apps/1030300/library_600x900_2x.jpg",
-      },
-      {
-        id: "fable-4",
-        title: "Fable",
-        discount: "-15%",
-        originalPrice: "Rp 799.000,00",
-        price: "Rp 679.150",
-        imageSrc:
-          "https://images.unsplash.com/photo-1542751371-adc38448a05e?auto=format&fit=crop&w=600&q=80",
-      },
-      {
-        id: "judas",
-        title: "Judas",
-        discount: "-20%",
-        originalPrice: "Rp 799.000,00",
-        price: "Rp 639.200",
-        imageSrc:
-          "https://images.unsplash.com/photo-1550745165-9bc0b252726f?auto=format&fit=crop&w=600&q=80",
-      },
-    ];
-
-    if (popularTab === "terbaru") return terbaruList;
-    if (popularTab === "segera") return segeraList;
-    return trendingList;
-  }, [popularTab]);
 
   // 7. Leaderboard (Monthly & Weekly)
   const { data: weeklyLbRes } = useLeaderboard("weekly");
@@ -1118,23 +735,62 @@ export default function LandingPage() {
             />
           </div>
           <div data-animate="cards-track">
-            <ProductCardRow
-              orientation="horizontal"
-              products={enrichRowItems(MINI_FEATURED_PRODUCTS)}
-              onAddToCart={(title) => {
-                const item = MINI_FEATURED_PRODUCTS.find((p) => p.title === title);
-                const price = item?.numericPrice || (item?.price ? parseInt(item.price.replace(/\D/g, '')) || 0 : 0);
-                const origPrice = item?.originalPrice ? parseInt(item.originalPrice.replace(/\D/g, '')) || price : price;
-                handleAddToCart({
-                  id: item?.id || 1,
-                  title: item?.title || title,
-                  imageSrc: item?.imageSrc,
-                  price,
-                  originalPrice: origPrice,
-                  discount: item?.discount,
-                });
-              }}
-            />
+            {isBestSellerLoading ? (
+              <div className="flex gap-4 overflow-hidden">
+                {Array.from({ length: 3 }).map((_, idx) => (
+                  <div
+                    key={`featured-skeleton-${idx}`}
+                    className="flex items-center gap-4 p-4 rounded-xl bg-surface-secondary-default border border-white/5 min-w-[340px] sm:min-w-[420px] h-[180px]"
+                  >
+                    <Skeleton className="w-[110px] h-full rounded-lg shrink-0" />
+                    <div className="flex flex-col justify-between flex-1 h-full py-1 gap-3">
+                      <div className="flex flex-col gap-2">
+                        <Skeleton className="h-5 w-3/4 rounded" />
+                        <div className="flex gap-2">
+                          <Skeleton className="h-5 w-16 rounded-full" />
+                          <Skeleton className="h-5 w-16 rounded-full" />
+                        </div>
+                      </div>
+                      <div className="flex flex-col gap-2">
+                        <Skeleton className="h-5 w-1/2 rounded" />
+                        <Skeleton className="h-9 w-full rounded-lg" />
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : featuredPopularProducts.length > 0 ? (
+              <ProductCardRow
+                orientation="horizontal"
+                products={enrichRowItems(featuredPopularProducts)}
+                onAddToCart={(title) => {
+                  const item = featuredPopularProducts.find((p) => p.title === title);
+                  const price =
+                    item?.numericPrice ||
+                    (item?.price ? parseInt(item.price.replace(/\D/g, "")) || 0 : 0);
+                  const origPrice = item?.originalPrice
+                    ? parseInt(item.originalPrice.replace(/\D/g, "")) || price
+                    : price;
+                  handleAddToCart({
+                    id: item?.id || 1,
+                    title: item?.title || title,
+                    imageSrc: item?.imageSrc,
+                    price,
+                    originalPrice: origPrice,
+                    discount: item?.discount,
+                  });
+                }}
+              />
+            ) : (
+              <div className="w-full flex flex-col items-center justify-center py-10 px-6 rounded-xl bg-surface-secondary-default/60 border border-white/5 text-center gap-1.5">
+                <p className="text-body-md font-semibold text-gray-200">
+                  Belum ada game terpopuler saat ini
+                </p>
+                <p className="text-body-sm text-gray-400">
+                  Game pilihan berdasarkan data terpopuler akan tampil otomatis di sini.
+                </p>
+              </div>
+            )}
           </div>
         </section>
       </section>
@@ -1178,17 +834,52 @@ export default function LandingPage() {
               className="max-h-87.5 sm:max-h-95 overflow-y-auto overflow-x-hidden scroll-smooth overscroll-contain pb-14 pt-1 px-1 -mx-1"
             >
               <div data-animate="grid" className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 w-full">
-                {popularGames.map((game) => (
-                  <GameListItem
-                    key={game.id}
-                    title={game.title}
-                    imageSrc={game.imageSrc}
-                    discount={game.discount}
-                    originalPrice={game.originalPrice}
-                    price={game.price}
-                    onClick={() => router.push(`/store`)}
-                  />
-                ))}
+                {isPopularLoading ? (
+                  Array.from({ length: 6 }).map((_, idx) => (
+                    <div
+                      key={`popular-skeleton-${idx}`}
+                      className="flex items-center gap-4 p-2 rounded-lg bg-surface-secondary-default border border-white/5 h-[84px]"
+                    >
+                      <Skeleton className="w-16.5 h-full rounded-md shrink-0" />
+                      <div className="flex flex-col justify-between flex-1 h-full py-1 gap-2">
+                        <Skeleton className="h-4 w-3/4 rounded" />
+                        <div className="flex items-center justify-between gap-2">
+                          <Skeleton className="h-5 w-12 rounded-full" />
+                          <Skeleton className="h-4 w-20 rounded" />
+                        </div>
+                      </div>
+                    </div>
+                  ))
+                ) : popularGames.length > 0 ? (
+                  popularGames.map((game) => (
+                    <GameListItem
+                      key={game.id}
+                      title={game.title}
+                      imageSrc={game.imageSrc}
+                      discount={game.discount || undefined}
+                      originalPrice={game.originalPrice || undefined}
+                      price={game.price}
+                      onClick={() =>
+                        router.push(game.slug ? `/store/${game.slug}` : "/store")
+                      }
+                    />
+                  ))
+                ) : (
+                  <div className="col-span-full flex flex-col items-center justify-center py-12 px-6 rounded-xl bg-surface-secondary-default/60 border border-white/5 text-center gap-2">
+                    <p className="text-body-md font-semibold text-gray-200">
+                      {popularTab === "segera"
+                        ? "Belum ada game Pre-Order saat ini"
+                        : popularTab === "terbaru"
+                        ? "Belum ada game terbaru yang ditambahkan"
+                        : "Belum ada game trending saat ini"}
+                    </p>
+                    <p className="text-body-sm text-gray-400">
+                      {popularTab === "segera"
+                        ? "Game dengan status Pre-Order yang ditambahkan di katalog akan tampil otomatis di sini."
+                        : "Daftar game akan tampil otomatis berdasarkan data katalog terbaru."}
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 

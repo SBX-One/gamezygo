@@ -44,17 +44,28 @@ export default function AdminProductPerformancePage() {
     typeof router.query.id === "string" && router.query.id.trim()
       ? router.query.id.trim()
       : "";
+  const routeName =
+    typeof router.query.name === "string" && router.query.name.trim()
+      ? router.query.name.trim()
+      : "";
 
-  // Fallback to the first product in catalog if /admin/product-performance is opened directly without [id]
+  // Resolve product ID from catalog when opened via ?name=... or directly without [id]
   const fallbackCatalogQuery = useQuery({
-    queryKey: ["admin-catalog-first-product"],
+    queryKey: ["admin-catalog-resolve-product", routeName],
     queryFn: async () => {
       const response = await apiClient.get<{
-        data?: { products?: Array<{ id: number | string }> };
-      }>("/admin/catalog", { params: { per_page: 1 } });
-      return response.data?.data?.products?.[0]?.id
-        ? String(response.data.data.products[0].id)
-        : "";
+        data?: { products?: Array<{ id: number | string; name?: string }> };
+      }>("/admin/catalog", {
+        params: routeName ? { search: routeName, per_page: 20 } : { per_page: 1 },
+      });
+      const list = response.data?.data?.products ?? [];
+      if (routeName) {
+        const exact = list.find(
+          (p) => (p.name || "").trim().toLowerCase() === routeName.toLowerCase()
+        );
+        if (exact?.id) return String(exact.id);
+      }
+      return list[0]?.id ? String(list[0].id) : "";
     },
     enabled: router.isReady && !routeId,
     staleTime: 60 * 1000,

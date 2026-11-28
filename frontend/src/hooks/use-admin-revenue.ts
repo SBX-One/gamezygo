@@ -131,8 +131,12 @@ function transformTables(rawData?: AdminRevenueApiResponse["data"]) {
           // keep fallback
         }
 
+        const prodWithId = prod as { id?: number | string };
         return {
-          id: `prod-item-${idx}`,
+          id:
+            prodWithId.id !== undefined && prodWithId.id !== null
+              ? String(prodWithId.id)
+              : `prod-item-${idx}`,
           name: prod.name,
           totalSell: prod.total_sold.toLocaleString("id-ID"),
           totalRevenue: formatRupiah(prod.total_revenue),

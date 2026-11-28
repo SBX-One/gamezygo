@@ -1579,7 +1579,7 @@ export default function BundlePage() {
                           platform={game.launcher}
                           showPrice={false}
                           showActionButton={false}
-                          href={`/credentials/${targetSlug}`}
+                          href={`/credentials/${targetSlug}?from=bundle`}
                           className="hover:-translate-y-0.5 transition-transform duration-200 pb-8xl cursor-pointer"
                         />
                       );

@@ -583,7 +583,9 @@ export default function GameCredentialPage() {
             <Breadcrumbs
               items={[
                 { label: "Home", href: "/" },
-                { label: "Perpustakaan", href: "/library" },
+                router.query.from === "bundle"
+                  ? { label: "Bundle", href: "/bundle" }
+                  : { label: "Perpustakaan", href: "/library" },
                 { label: gameTitle },
               ]}
             />

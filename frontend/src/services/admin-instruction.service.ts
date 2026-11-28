@@ -34,12 +34,34 @@ export function parseInstructionContentToSteps(
   const blocks = parseContentToArticleBlocks(content);
   const steps: InstructionStep[] = [];
   let idx = 1;
-  for (const b of blocks) {
+  for (let i = 0; i < blocks.length; i++) {
+    const b = blocks[i];
     const text = b.content.replace(/<[^>]+>/g, "").trim();
     if (!text) continue;
+
+    if (b.type.startsWith("h")) {
+      const next = blocks[i + 1];
+      const nextText = next ? next.content.replace(/<[^>]+>/g, "").trim() : "";
+      if (next && !next.type.startsWith("h") && nextText) {
+        steps.push({
+          stepNumber: idx++,
+          title: text,
+          description: nextText,
+        });
+        i++;
+        continue;
+      }
+      steps.push({
+        stepNumber: idx++,
+        title: text,
+        description: "",
+      });
+      continue;
+    }
+
     steps.push({
       stepNumber: idx++,
-      title: b.type.startsWith("h") ? text : `Langkah ${steps.length + 1}`,
+      title: `Langkah ${steps.length + 1}`,
       description: text,
     });
   }

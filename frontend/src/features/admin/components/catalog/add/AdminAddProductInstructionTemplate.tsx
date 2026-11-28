@@ -4,10 +4,14 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { InputField } from "@/components/ui/InputField";
 import {
-  DEFAULT_INSTRUCTION_TEMPLATES,
   type InstructionTemplateItem,
   type AdminAddProductFormData,
 } from "../../../types/admin-add-product.types";
+import {
+  useAdminInstructions,
+  useCreateAdminInstruction,
+} from "@/hooks/use-admin-instructions";
+import { toast } from "@/stores/use-toast-store";
 
 export interface AdminAddProductInstructionTemplateProps {
   formData: AdminAddProductFormData;
@@ -109,49 +113,59 @@ export function AdminAddProductInstructionTemplate({
   className,
 }: AdminAddProductInstructionTemplateProps) {
   const router = useRouter();
-  const [templates, setTemplates] = React.useState<InstructionTemplateItem[]>(
-    DEFAULT_INSTRUCTION_TEMPLATES
-  );
+  const { data: instructionsResult } = useAdminInstructions({ per_page: 100 });
+  const createInstructionMutation = useCreateAdminInstruction();
+
+  const templates: InstructionTemplateItem[] = React.useMemo(() => {
+    const apiList = instructionsResult?.instructions ?? [];
+    return apiList.map((item) => ({
+      id: String(item.id),
+      title: item.title || "Untitled Instruction",
+      badge: item.badge === "Draft" ? "Draft" : "Listed",
+      createdAt: item.createdAt || "-",
+      lastEdit: item.lastEdit || "Baru saja",
+      steps:
+        Array.isArray(item.steps) && item.steps.length > 0
+          ? item.steps
+          : [
+              {
+                stepNumber: 1,
+                title: item.title || "Instruksi",
+                description:
+                  "Ikuti langkah download dan login sesuai panduan resmi akun game.",
+              },
+            ],
+    }));
+  }, [instructionsResult]);
+
   const [isChooseModalOpen, setIsChooseModalOpen] = React.useState(false);
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [searchQuery, setSearchQuery] = React.useState("");
 
-  // Load custom templates created from /admin/instructions/add
+  // Hydrate selectedTemplate with full steps/metadata from live DB list once loaded
   React.useEffect(() => {
-    try {
-      const stored = localStorage.getItem("gamezygo_admin_instruction_templates");
-      if (stored) {
-        const parsed = JSON.parse(stored);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          const formatted: InstructionTemplateItem[] = parsed.map((item) => ({
-            id: item.id || `tpl-${Date.now()}`,
-            title: item.title || "Custom Instruction",
-            badge: item.badge === "Draft" ? "Draft" : "Listed",
-            createdAt: item.createdAt || "Baru saja",
-            lastEdit: item.lastEdit || "Baru saja",
-            steps: Array.isArray(item.steps) && item.steps.length > 0
-              ? item.steps
-              : [{ stepNumber: 1, title: item.title, description: "Instruksi khusus." }],
-          }));
-
-          setTemplates((prev) => {
-            const combined = [...formatted, ...prev];
-            return combined.filter(
-              (tpl, idx, arr) => arr.findIndex((t) => t.id === tpl.id) === idx
-            );
-          });
-        }
-      }
-    } catch {
-      // LocalStorage fallback
+    if (!templates.length) return;
+    const selectedId = formData.selectedTemplate?.id;
+    if (!selectedId) return;
+    const match = templates.find((t) => String(t.id) === String(selectedId));
+    if (
+      match &&
+      (match.title !== formData.selectedTemplate?.title ||
+        match.steps.length !== formData.selectedTemplate?.steps.length ||
+        match.createdAt !== formData.selectedTemplate?.createdAt)
+    ) {
+      onChange({
+        selectedTemplate: match,
+        hasInstructionTemplate: true,
+      });
     }
-  }, []);
+  }, [templates, formData.selectedTemplate, onChange]);
 
   // Auto-select template if newTemplateId is passed via router query
   React.useEffect(() => {
     const newId = router.query.newTemplateId;
     if (newId && typeof newId === "string") {
-      const match = templates.find((t) => t.id === newId);
+      const match = templates.find((t) => String(t.id) === newId);
       if (match) {
         onChange({
           selectedTemplate: match,
@@ -159,7 +173,7 @@ export function AdminAddProductInstructionTemplate({
         });
       }
     }
-  }, [router.query.newTemplateId, templates]);
+  }, [router.query.newTemplateId, templates, onChange]);
 
   // Directs to /admin/instructions/add preserving the current page as returnUrl or invokes callback to auto-save edits
   const handleNavigateToCreateTemplate = () => {
@@ -197,33 +211,42 @@ export function AdminAddProductInstructionTemplate({
     setIsCreateModalOpen(true);
   };
 
-  const handleSaveNewTemplate = (e: React.FormEvent) => {
+  const handleSaveNewTemplate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!newTitle.trim()) return;
 
-    const created: InstructionTemplateItem = {
-      id: `tpl-${Date.now()}`,
-      title: newTitle.trim(),
-      badge: "Listed",
-      createdAt: "22/07/2026",
-      lastEdit: "Just now",
-      steps: [
-        {
-          stepNumber: 1,
-          title: newTitle.trim(),
-          description:
-            newDescription.trim() ||
-            "Ikuti langkah download dan login sesuai panduan resmi akun game.",
-        },
-      ],
-    };
+    const cleanTitle = newTitle.trim();
+    const cleanDesc =
+      newDescription.trim() ||
+      "Ikuti langkah download dan login sesuai panduan resmi akun game.";
 
-    setTemplates((prev) => [created, ...prev]);
-    onChange({
-      selectedTemplate: created,
-      hasInstructionTemplate: true,
-    });
-    setIsCreateModalOpen(false);
+    try {
+      const created = await createInstructionMutation.mutateAsync({
+        title: cleanTitle,
+        content: `<h3>${cleanTitle}</h3><p>${cleanDesc}</p>`,
+      });
+
+      const formatted: InstructionTemplateItem = {
+        id: String(created.id),
+        title: created.title,
+        badge: created.badge === "Draft" ? "Draft" : "Listed",
+        createdAt: created.createdAt || "Baru saja",
+        lastEdit: created.lastEdit || "Baru saja",
+        steps:
+          created.steps.length > 0
+            ? created.steps
+            : [{ stepNumber: 1, title: cleanTitle, description: cleanDesc }],
+      };
+
+      onChange({
+        selectedTemplate: formatted,
+        hasInstructionTemplate: true,
+      });
+      toast.success("Template instruksi berhasil dibuat.", "Instruction Created");
+      setIsCreateModalOpen(false);
+    } catch {
+      toast.error("Gagal membuat template instruksi baru.", "Error");
+    }
   };
 
   const activeTemplate = formData.selectedTemplate;

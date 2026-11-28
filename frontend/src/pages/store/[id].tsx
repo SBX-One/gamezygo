@@ -30,6 +30,7 @@ import { useAddToCart } from "@/hooks/use-cart";
 import { useAddToWishlist, useRemoveFromWishlist } from "@/hooks/use-wishlist";
 import { useAuthStore } from "@/stores/use-auth-store";
 import { formatRupiah, formatDiscount } from "@/utils/formatters";
+import { parseInstructionContentToSteps } from "@/services/admin-instruction.service";
 
 // ============================================================================
 // SVG ICONS
@@ -1222,66 +1223,100 @@ export default function GameStoreDetailPage() {
               </section>
 
               {/* ===================================================================
-                  PANDUAN MENGUNDUH (4 STEP GUIDE)
+                  PANDUAN MENGUNDUH (DYNAMIC INSTRUCTION TEMPLATE OR DEFAULT 4 STEPS)
                   =================================================================== */}
               <section id="panduan-mengunduh" className="w-full min-w-0 max-w-full flex flex-col gap-4 sm:gap-6 pt-2 sm:pt-4 scroll-mt-28">
                 <h2 className="text-h3 font-semibold text-gray-100">
-                  Panduan Mengunduh
+                  {apiProduct?.product_instruction?.title || "Panduan Mengunduh"}
                 </h2>
 
                 <div className="w-full rounded-xl bg-deep-blue-900 border border-white/10 p-5 sm:p-8 flex flex-col gap-4 sm:gap-6 min-w-0">
                   <div className="grid gap-5 sm:gap-6 pl-4 sm:pl-6 border-l-gradient-primary min-w-0">
-                    {/* Step 1 */}
-                    <div className="grid gap-1.5 sm:gap-2 border-b-gradient-secondary pb-4 sm:pb-6 min-w-0">
-                      <span className="text-body-xs text-gray-400 uppercase">
-                        LANGKAH 1
-                      </span>
-                      <h3 className="text-body-md font-semibold text-gray-100">
-                        Buka launcher Steam atau unduh di Gamezygo
-                      </h3>
-                      <p className="text-body-sm text-gray-400">
-                        Buka katalog pembelian Anda di Gamezygo lalu klik &apos;Unduh Game&apos; atau buka launcher Steam resmi di PC Anda.
-                      </p>
-                    </div>
+                    {(() => {
+                      const dynamicSteps = apiProduct?.product_instruction?.content
+                        ? parseInstructionContentToSteps(
+                            apiProduct.product_instruction.content,
+                            apiProduct.product_instruction.title || "Panduan Mengunduh"
+                          )
+                        : [];
 
-                    {/* Step 2 */}
-                    <div className="grid gap-1.5 sm:gap-2 border-b-gradient-secondary pb-4 sm:pb-6 min-w-0">
-                      <span className="text-body-xs text-gray-400 uppercase">
-                        LANGKAH 2
-                      </span>
-                      <h3 className="text-body-md font-semibold text-gray-100">
-                        Masukkan Akun yang telah diberikan
-                      </h3>
-                      <p className="text-body-sm text-gray-400">
-                        Salin dan tempel Username serta Password akun game yang tertera pada kotak &apos;Informasi Akun Game&apos; di atas.
-                      </p>
-                    </div>
+                      if (dynamicSteps.length > 0) {
+                        return dynamicSteps.map((step) => (
+                          <div
+                            key={step.stepNumber}
+                            className="grid gap-1.5 sm:gap-2 border-b-gradient-secondary pb-4 sm:pb-6 min-w-0"
+                          >
+                            <span className="text-body-xs text-gray-400 uppercase">
+                              LANGKAH {step.stepNumber}
+                            </span>
+                            <h3 className="text-body-md font-semibold text-gray-100">
+                              {step.title}
+                            </h3>
+                            {step.description && (
+                              <p className="text-body-sm text-gray-400 whitespace-pre-line">
+                                {step.description}
+                              </p>
+                            )}
+                          </div>
+                        ));
+                      }
 
-                    {/* Step 3 */}
-                    <div className="grid gap-1.5 sm:gap-2 border-b-gradient-secondary pb-4 sm:pb-6 min-w-0">
-                      <span className="text-body-xs text-gray-400 uppercase">
-                        LANGKAH 3
-                      </span>
-                      <h3 className="text-body-md font-semibold text-gray-100">
-                        Masuk ke library dan install game
-                      </h3>
-                      <p className="text-body-sm text-gray-400">
-                        Setelah berhasil login ke Steam, buka tab Library, temukan game ini dan klik &apos;Install&apos; lalu tunggu hingga proses unduhan selesai.
-                      </p>
-                    </div>
+                      return (
+                        <>
+                          {/* Step 1 */}
+                          <div className="grid gap-1.5 sm:gap-2 border-b-gradient-secondary pb-4 sm:pb-6 min-w-0">
+                            <span className="text-body-xs text-gray-400 uppercase">
+                              LANGKAH 1
+                            </span>
+                            <h3 className="text-body-md font-semibold text-gray-100">
+                              Buka launcher Steam atau unduh di Gamezygo
+                            </h3>
+                            <p className="text-body-sm text-gray-400">
+                              Buka katalog pembelian Anda di Gamezygo lalu klik &apos;Unduh Game&apos; atau buka launcher Steam resmi di PC Anda.
+                            </p>
+                          </div>
 
-                    {/* Step 4 */}
-                    <div className="grid gap-1.5 sm:gap-2 border-b-gradient-secondary pb-4 sm:pb-6 min-w-0">
-                      <span className="text-body-xs text-gray-400 uppercase">
-                        LANGKAH 4
-                      </span>
-                      <h3 className="text-body-md font-semibold text-gray-100">
-                        Login Steam &gt; Aktifkan Steam Mode Offline &gt; Mainkan Game Offline
-                      </h3>
-                      <p className="text-body-sm text-gray-400">
-                        Penting: Sebelum bermain, ubah status Steam ke &apos;Go Offline&apos; melalui menu Steam &gt; Go Offline agar akun tidak bentrok dengan pengguna lain.
-                      </p>
-                    </div>
+                          {/* Step 2 */}
+                          <div className="grid gap-1.5 sm:gap-2 border-b-gradient-secondary pb-4 sm:pb-6 min-w-0">
+                            <span className="text-body-xs text-gray-400 uppercase">
+                              LANGKAH 2
+                            </span>
+                            <h3 className="text-body-md font-semibold text-gray-100">
+                              Masukkan Akun yang telah diberikan
+                            </h3>
+                            <p className="text-body-sm text-gray-400">
+                              Salin dan tempel Username serta Password akun game yang tertera pada kotak &apos;Informasi Akun Game&apos; di atas.
+                            </p>
+                          </div>
+
+                          {/* Step 3 */}
+                          <div className="grid gap-1.5 sm:gap-2 border-b-gradient-secondary pb-4 sm:pb-6 min-w-0">
+                            <span className="text-body-xs text-gray-400 uppercase">
+                              LANGKAH 3
+                            </span>
+                            <h3 className="text-body-md font-semibold text-gray-100">
+                              Masuk ke library dan install game
+                            </h3>
+                            <p className="text-body-sm text-gray-400">
+                              Setelah berhasil login ke Steam, buka tab Library, temukan game ini dan klik &apos;Install&apos; lalu tunggu hingga proses unduhan selesai.
+                            </p>
+                          </div>
+
+                          {/* Step 4 */}
+                          <div className="grid gap-1.5 sm:gap-2 border-b-gradient-secondary pb-4 sm:pb-6 min-w-0">
+                            <span className="text-body-xs text-gray-400 uppercase">
+                              LANGKAH 4
+                            </span>
+                            <h3 className="text-body-md font-semibold text-gray-100">
+                              Login Steam &gt; Aktifkan Steam Mode Offline &gt; Mainkan Game Offline
+                            </h3>
+                            <p className="text-body-sm text-gray-400">
+                              Penting: Sebelum bermain, ubah status Steam ke &apos;Go Offline&apos; melalui menu Steam &gt; Go Offline agar akun tidak bentrok dengan pengguna lain.
+                            </p>
+                          </div>
+                        </>
+                      );
+                    })()}
                   </div>
                 </div>
               </section>

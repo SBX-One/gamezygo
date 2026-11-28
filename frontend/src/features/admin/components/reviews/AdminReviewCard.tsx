@@ -2,6 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
+import { resolveImageUrl } from "@/utils/image-url";
 import type { AdminReviewItem } from "../../types/admin-review.types";
 
 export interface AdminReviewCardProps {
@@ -85,12 +86,12 @@ export function AdminReviewCard({
             {review.thumbnails.slice(0, 3).map((thumb, idx) => (
               <div
                 key={idx}
-                onClick={() => onViewImage?.(thumb)}
+                onClick={() => onViewImage?.(resolveImageUrl(thumb))}
                 className="relative flex-1 h-16 sm:h-18 rounded-lg overflow-hidden border border-white/10 bg-deep-blue-950 group cursor-pointer"
                 title="Lihat screenshot"
               >
                 <img
-                  src={thumb}
+                  src={resolveImageUrl(thumb)}
                   alt={`Screenshot ${idx + 1}`}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                 />
@@ -139,17 +140,17 @@ export function AdminReviewCard({
               {isPosted ? "Posted ✓" : "Post"}
             </Button>
 
-            {/* Secondary Actions: "Arsipkan" & "Balas" */}
+            {/* Secondary Actions: "Delete" & "Balas" */}
             <div className="flex items-center gap-2.5 w-full">
               <Button
                 type="button"
                 variant="inactive"
                 size="sm"
                 onClick={() => onArchive?.(review)}
-                title="Pindahkan ulasan ke Arsip (disembunyikan dari store dan antrean aktif)"
+                title="Hapus ulasan dari antrean moderasi"
                 className="flex-1 justify-center"
               >
-                {isArchived ? "Diarsipkan" : "Arsipkan"}
+                Delete
               </Button>
 
               <Button

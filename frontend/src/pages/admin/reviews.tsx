@@ -19,6 +19,7 @@ import {
   useAdminReviews,
   useUpdateAdminReviewStatus,
   useReplyAdminReview,
+  useDeleteAdminReview,
 } from "@/hooks/use-admin-reviews";
 import { toast } from "@/stores/use-toast-store";
 import type { AdminReviewQueryParams } from "@/services/admin-review.service";
@@ -59,7 +60,7 @@ const ChevronRightIcon = (props: React.SVGProps<SVGSVGElement>) => (
 const DEFAULT_FILTERS: AdminReviewFilterState = {
   search: "",
   star: null,
-  statuses: ["Posted", "Draft", "Archive"],
+  statuses: ["Draft"],
   priceRange: [0, 200000],
   sortBy: "terbaru",
 };
@@ -120,6 +121,7 @@ export default function AdminReviewsPage() {
   const { data: serverResult, isLoading, isError, refetch } = useAdminReviews(queryParams);
   const updateStatusMutation = useUpdateAdminReviewStatus();
   const replyMutation = useReplyAdminReview();
+  const deleteReviewMutation = useDeleteAdminReview();
 
   const reviews = React.useMemo(() => {
     return serverResult?.reviews ?? [];
@@ -174,21 +176,13 @@ export default function AdminReviewsPage() {
     }
   };
 
-  // Action: Archive review
-  const handleArchive = async (review: AdminReviewItem) => {
-    const nextStatus = review.status === "Archive" ? "pending" : "archived";
+  // Action: Delete review from moderation queue
+  const handleDeleteReview = async (review: AdminReviewItem) => {
     try {
-      await updateStatusMutation.mutateAsync({
-        id: review.id,
-        status: nextStatus,
-      });
-      toast.success(
-        nextStatus === "archived"
-          ? `Ulasan dari "${review.userEmail}" telah diarsipkan.`
-          : `Ulasan dari "${review.userEmail}" dipulihkan dari arsip.`
-      );
+      await deleteReviewMutation.mutateAsync(review.id);
+      toast.success(`Ulasan dari "${review.userEmail}" berhasil dihapus.`);
     } catch {
-      toast.error("Gagal mengubah status arsip ulasan.");
+      toast.error("Gagal menghapus ulasan.");
     }
   };
 
@@ -432,7 +426,7 @@ export default function AdminReviewsPage() {
                   isPostedView={isPostedViewOnly}
                   onPost={handlePromptPost}
                   onHide={handleHide}
-                  onArchive={handleArchive}
+                  onArchive={handleDeleteReview}
                   onReply={handleOpenReply}
                   onViewImage={(img) => setPreviewImage(img)}
                 />
@@ -447,7 +441,7 @@ export default function AdminReviewsPage() {
           review={postModalState.review}
           onClose={() => setPostModalState({ isOpen: false, review: null })}
           onPost={handleExecutePost}
-          onArchive={handleArchive}
+          onArchive={handleDeleteReview}
           onViewImage={(img) => setPreviewImage(img)}
         />
 

@@ -2,6 +2,7 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { Pill } from "@/components/ui/Pill";
+import { resolveImageUrl } from "@/utils/image-url";
 import type { AdminReviewItem } from "../../types/admin-review.types";
 
 export interface AdminReviewPostModalProps {
@@ -167,13 +168,13 @@ export function AdminReviewPostModal({
               {review.thumbnails.slice(0, 3).map((thumb, idx) => (
                 <div
                   key={idx}
-                  onClick={() => onViewImage?.(thumb)}
+                  onClick={() => onViewImage?.(resolveImageUrl(thumb))}
                   className="bg-deep-blue-900 border border-deep-blue-700 rounded-lg p-2.5 flex flex-col gap-2 cursor-pointer hover:border-deep-blue-600 transition-colors group"
                   title="Lihat screenshot"
                 >
                   <div className="w-full h-16 sm:h-20 rounded-md overflow-hidden bg-deep-blue-950">
                     <img
-                      src={thumb}
+                      src={resolveImageUrl(thumb)}
                       alt={`Screenshot ${idx + 1}`}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-200"
                     />
@@ -210,7 +211,7 @@ export function AdminReviewPostModal({
           />
         </div>
 
-        {/* Section 5: Actions: [ Arsipkan ]  [ Post ] */}
+        {/* Section 5: Actions: [ Delete ]  [ Post ] */}
         <div className="flex items-center justify-end gap-3 pt-2">
           <Button
             type="button"
@@ -219,7 +220,7 @@ export function AdminReviewPostModal({
             onClick={handleArchiveClick}
             className="min-w-24 justify-center"
           >
-            Arsipkan
+            Delete
           </Button>
 
           <Button

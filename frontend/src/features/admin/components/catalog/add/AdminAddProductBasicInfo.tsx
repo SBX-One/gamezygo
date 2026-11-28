@@ -58,36 +58,75 @@ export function AdminAddProductBasicInfo({
     );
   }, [formData.genres]);
 
-  // Combine standard GENRE_CHOICES with dynamic product categories from /admin/categories (BUG-033)
-  const allGenres = React.useMemo(() => {
-    const list = [...GENRE_CHOICES] as string[];
+  // Separate core "Genre" choices from custom Product Main Categories (2-level hierarchy)
+  const { allGenres, customCategoryGroups } = React.useMemo(() => {
+    const genreList = [...GENRE_CHOICES] as string[];
+    const customGroups: Array<{
+      id: string;
+      title: string;
+      items: string[];
+    }> = [];
+
     const dynamicGroups = adminCategoriesData?.productCategories ?? [];
     dynamicGroups.forEach((group) => {
       const groupTitleLower = group.title.trim().toLowerCase();
-      // Skip launcher/promotion parent groups when listing genre tags
-      if (groupTitleLower === "launcher" || groupTitleLower === "promotion") {
+      // Launcher & Promotion are rendered in AdminAddProductLauncherSection
+      if (
+        groupTitleLower === "launcher" ||
+        groupTitleLower === "platform" ||
+        groupTitleLower === "promotion"
+      ) {
         return;
       }
-      if (group.subCategories && group.subCategories.length > 0) {
-        group.subCategories.forEach((sub) => {
+
+      if (groupTitleLower === "genre") {
+        (group.subCategories ?? []).forEach((sub) => {
           const norm = normalizeGenreName(sub.name);
-          if (norm && !list.some((c) => c.toLowerCase() === norm.toLowerCase())) {
-            list.push(norm);
+          if (norm && !genreList.some((c) => c.toLowerCase() === norm.toLowerCase())) {
+            genreList.push(norm);
           }
         });
-      } else if (group.title && groupTitleLower !== "genre") {
+        return;
+      }
+
+      // Custom Main Category with sub-categories -> render its own dedicated row below GENRE
+      if (group.subCategories && group.subCategories.length > 0) {
+        const uniqueSubs = Array.from(
+          new Set(group.subCategories.map((sub) => sub.name.trim()).filter(Boolean))
+        );
+        if (uniqueSubs.length > 0) {
+          customGroups.push({
+            id: group.id,
+            title: group.title.trim(),
+            items: uniqueSubs,
+          });
+        }
+        return;
+      }
+
+      // Legacy flat root category without sub-categories -> include in GENRE
+      if (group.title) {
         const norm = normalizeGenreName(group.title);
-        if (norm && !list.some((c) => c.toLowerCase() === norm.toLowerCase())) {
-          list.push(norm);
+        if (norm && !genreList.some((c) => c.toLowerCase() === norm.toLowerCase())) {
+          genreList.push(norm);
         }
       }
     });
+
+    const customSubSet = new Set(
+      customGroups.flatMap((g) => g.items.map((item) => item.toLowerCase()))
+    );
+
     canonicalSelectedGenres.forEach((g) => {
-      if (!list.some((choice) => choice.toLowerCase() === g.toLowerCase())) {
-        list.push(g);
+      if (
+        !customSubSet.has(g.toLowerCase()) &&
+        !genreList.some((choice) => choice.toLowerCase() === g.toLowerCase())
+      ) {
+        genreList.push(g);
       }
     });
-    return list;
+
+    return { allGenres: genreList, customCategoryGroups: customGroups };
   }, [adminCategoriesData, canonicalSelectedGenres]);
 
   const toggleGenre = (genre: string) => {
@@ -196,6 +235,34 @@ export function AdminAddProductBasicInfo({
             })}
           </div>
         </div>
+
+        {/* Dynamic Custom Product Main Categories (e.g. Promo / Event -> Happy New Year, etc.) */}
+        {customCategoryGroups.map((group) => (
+          <div key={group.id} className="flex flex-col gap-2.5 pt-1">
+            <label className="text-label-xs font-semibold tracking-wider text-gray-400 uppercase select-none">
+              {group.title}
+            </label>
+            <div className="flex flex-wrap items-center gap-2">
+              {group.items.map((subName) => {
+                const isSelected = canonicalSelectedGenres.some(
+                  (g) => g.toLowerCase() === subName.toLowerCase()
+                );
+                return (
+                  <Button
+                    key={`${group.id}-${subName}`}
+                    type="button"
+                    variant={isSelected ? "active" : "inactive"}
+                    size="sm"
+                    onClick={() => toggleGenre(subName)}
+                    className="cursor-pointer"
+                  >
+                    {subName}
+                  </Button>
+                );
+              })}
+            </div>
+          </div>
+        ))}
       </div>
     </div>
   );

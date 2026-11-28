@@ -852,17 +852,34 @@ export default function LandingPage() {
   const { data: reviewsRes } = useReviews();
   const testimonialItems = React.useMemo(() => {
     if (reviewsRes?.data && reviewsRes.data.length >= 3) {
-      return reviewsRes.data.slice(0, 3).map((r) => ({
-        id: String(r.id),
-        userName: r.user?.name || "Pelanggan Gamezygo",
-        avatarSrc:
-          r.user?.avatar_url ||
-          "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&h=120&q=80",
-        rating: `${r.rating || 5} Star`,
-        review: r.review,
-        gameName: "Black Myth Wukong & Koleksi Toko",
-        images: (r.images || []).map((img) => img.url || img.file_url || "").filter(Boolean),
-      }));
+      return reviewsRes.data.slice(0, 3).map((r) => {
+        const raw = r as unknown as {
+          admin_reply?: string | null;
+          reply?: string | null;
+          replies?: Array<{ message?: string; reply?: string }>;
+        };
+        const latestReply =
+          raw.admin_reply ||
+          raw.reply ||
+          (Array.isArray(raw.replies) && raw.replies.length > 0
+            ? raw.replies[raw.replies.length - 1]?.message ||
+              raw.replies[raw.replies.length - 1]?.reply ||
+              ""
+            : "");
+
+        return {
+          id: String(r.id),
+          userName: r.user?.name || "Pelanggan Gamezygo",
+          avatarSrc:
+            r.user?.avatar_url ||
+            "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&w=120&h=120&q=80",
+          rating: `${r.rating || 5} Star`,
+          review: r.review,
+          gameName: "Black Myth Wukong & Koleksi Toko",
+          images: (r.images || []).map((img) => img.url || img.file_url || "").filter(Boolean),
+          adminReply: latestReply || undefined,
+        };
+      });
     }
     return [
       {
@@ -1615,6 +1632,7 @@ export default function LandingPage() {
                     rating={t.rating}
                     review={t.review}
                     images={t.images}
+                    adminReply={(t as { adminReply?: string }).adminReply}
                     className="h-full bg-deep-blue-900 border border-white/10 flex flex-col justify-between"
                   />
                 </div>

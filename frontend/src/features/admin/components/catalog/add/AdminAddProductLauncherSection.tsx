@@ -3,6 +3,7 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/Button";
 import { AdminDropdown } from "@/components/admin/AdminDropdown";
 import { useAdminSections } from "@/hooks/use-admin-sections";
+import { useAdminCategories } from "@/hooks/use-admin-categories";
 import { fetchSteamGame, parseSteamRequirements } from "@/services/steam";
 import { toast } from "@/stores/use-toast-store";
 import {
@@ -165,6 +166,25 @@ export function AdminAddProductLauncherSection({
     }
   };
 
+  // Dynamically load Launcher sub-categories from /admin/categories
+  const { data: adminCategoriesData } = useAdminCategories();
+  const launcherOptions = React.useMemo(() => {
+    const list: string[] = [...LAUNCHER_CHOICES];
+    const groups = adminCategoriesData?.productCategories ?? [];
+    groups.forEach((group) => {
+      const titleLower = group.title.trim().toLowerCase();
+      if (titleLower === "launcher" || titleLower === "platform") {
+        (group.subCategories ?? []).forEach((sub) => {
+          const name = sub.name.trim();
+          if (name && !list.some((l) => l.toLowerCase() === name.toLowerCase())) {
+            list.push(name);
+          }
+        });
+      }
+    });
+    return list;
+  }, [adminCategoriesData]);
+
   // Dynamically load sections from Product Section Management
   const { data: serverSections } = useAdminSections();
   const promotionOptions = React.useMemo(() => {
@@ -191,15 +211,20 @@ export function AdminAddProductLauncherSection({
             LAUNCHER
           </label>
           <div className="flex flex-wrap items-center gap-2">
-            {LAUNCHER_CHOICES.map((launcher) => {
-              const isSelected = formData.launcher === launcher;
+            {launcherOptions.map((launcher) => {
+              const isSelected =
+                formData.launcher.toLowerCase() === launcher.toLowerCase();
               return (
                 <Button
                   key={launcher}
                   type="button"
                   variant={isSelected ? "active" : "inactive"}
                   size="sm"
-                  onClick={() => onChange({ launcher })}
+                  onClick={() =>
+                    onChange({
+                      launcher: launcher as AdminAddProductFormData["launcher"],
+                    })
+                  }
                   className="cursor-pointer"
                 >
                   {launcher}

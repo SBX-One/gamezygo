@@ -1051,6 +1051,12 @@ export default function LandingPage() {
           name="description"
           content="Jelajahi ribuan akun game original Steam, Epic Games, dan EA dengan harga terjangkau, pengiriman instan, dan garansi penuh di Gamezygo."
         />
+        <link
+          rel="preload"
+          as="image"
+          href="/assets/png/Banner.png"
+          fetchPriority="high"
+        />
       </Head>
 
       <StoreLayout
@@ -1075,15 +1081,11 @@ export default function LandingPage() {
            ======================================================== */}
         <section data-animate-section="hero" className="w-full flex flex-col gap-12">
           <div data-animate="hero-banner">
-            {isAnnouncementsLoading && !announcementsRes ? (
-              <Skeleton className="w-full h-55 sm:h-75 lg:h-105 min-h-55 sm:min-h-75 lg:min-h-105 rounded-lg" />
-            ) : (
-              <BannerCarousel
-                slides={bannerSlides}
-                autoPlayInterval={6000}
-                className="w-full h-55 sm:h-75 lg:h-105 min-h-55 sm:min-h-75 lg:min-h-105 rounded-lg overflow-hidden shadow-2xl"
-              />
-            )}
+            <BannerCarousel
+              slides={bannerSlides}
+              autoPlayInterval={6000}
+              className="w-full h-55 sm:h-75 lg:h-105 min-h-55 sm:min-h-75 lg:min-h-105 rounded-lg overflow-hidden shadow-2xl"
+            />
           </div>
 
         {/* ========================================================

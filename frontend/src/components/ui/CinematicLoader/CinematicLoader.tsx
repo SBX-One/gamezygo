@@ -53,8 +53,16 @@ export function CinematicLoader({
       typeof window !== "undefined" &&
       new URLSearchParams(window.location.search).has("intro");
     const shouldForce = forceShow || isForcedByUrl;
+    const isMobileViewport =
+      typeof window !== "undefined" && window.innerWidth < 768;
+    const prefersReducedMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
     const isAlreadyLoaded =
-      !shouldForce && Boolean(sessionStorage.getItem("gamezygo_loaded"));
+      !shouldForce &&
+      (Boolean(sessionStorage.getItem("gamezygo_loaded")) ||
+        isMobileViewport ||
+        prefersReducedMotion);
 
     if (isAlreadyLoaded) {
       setIsDismissed(true);

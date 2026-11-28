@@ -24,16 +24,16 @@ export function useLandingAnimations({ enabled = true }: UseLandingAnimationsOpt
       const easeDefault = "power3.out";
 
       // ========================================================
-      // 1. HERO BANNER CAROUSEL
+      // 1. HERO BANNER CAROUSEL (keep opacity: 1 for immediate LCP paint)
       // ========================================================
       const heroSection = document.querySelector('[data-animate-section="hero"]');
-      if (heroSection) {
+      if (heroSection && window.innerWidth >= 768) {
         const heroBanner = heroSection.querySelector('[data-animate="hero-banner"]');
         if (heroBanner) {
           gsap.fromTo(
             heroBanner,
-            { opacity: 0, y: 40, scale: 0.97 },
-            { opacity: 1, y: 0, scale: 1, duration: 0.8, ease: easeDefault }
+            { y: 16, scale: 0.99 },
+            { y: 0, scale: 1, duration: 0.5, ease: easeDefault }
           );
         }
       }

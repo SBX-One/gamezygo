@@ -18,10 +18,11 @@ export async function fetchAnnouncements(): Promise<
 
 /**
  * Fetch frequently asked questions
- * Endpoint: GET /api/v1/faqs
+ * Endpoint: GET /api/v1/faqs?page=home|subscription
  */
-export async function fetchFaqs(): Promise<ApiResponse<FaqItem[]>> {
-  return apiGet<ApiResponse<FaqItem[]>>("/faqs");
+export async function fetchFaqs(page?: string): Promise<ApiResponse<FaqItem[]>> {
+  const qs = page ? `?page=${encodeURIComponent(page)}` : "";
+  return apiGet<ApiResponse<FaqItem[]>>(`/faqs${qs}`);
 }
 
 export interface FetchCommunitiesParams {

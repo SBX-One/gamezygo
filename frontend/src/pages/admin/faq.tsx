@@ -50,7 +50,7 @@ export default function AdminFaqPage() {
 
   const categories = React.useMemo(() => {
     if (serverCategories && serverCategories.length > 0) return serverCategories;
-    return FAQ_CATEGORIES;
+    return ["Landing Page", "Bundle"];
   }, [serverCategories]);
 
   const faqs: AdminFaqItem[] = React.useMemo(() => {

@@ -605,7 +605,7 @@ export default function BundlePage() {
     isFetchingNextPage: isFetchingNextSubsProducts,
     fetchNextPage: fetchNextSubsProducts,
   });
-  const { data: faqsApiRes, isLoading: isFaqsLoading } = useFaqs();
+  const { data: faqsApiRes, isLoading: isFaqsLoading } = useFaqs("subscription");
   const resolvedFaqs = React.useMemo(() => {
     if (faqsApiRes?.data && faqsApiRes.data.length > 0) {
       return faqsApiRes.data

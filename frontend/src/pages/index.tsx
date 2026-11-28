@@ -937,7 +937,7 @@ export default function LandingPage() {
   }, [testimonialItems]);
 
   // 9. FAQs
-  const { data: faqsRes, isLoading: isFaqsLoading } = useFaqs();
+  const { data: faqsRes, isLoading: isFaqsLoading } = useFaqs("home");
   const faqItems = React.useMemo(() => {
     const rawData = faqsRes?.data ?? faqsRes;
     const rawList: FaqItem[] = Array.isArray(rawData)

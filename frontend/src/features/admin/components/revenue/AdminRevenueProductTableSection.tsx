@@ -242,7 +242,7 @@ export function AdminRevenueProductTableSection({
                       {isMenuOpen && (
                         <div
                           className={cn(
-                            "absolute right-0 z-50 w-44 rounded-2xl bg-[#10131E] border border-deep-blue-700/80 p-2 shadow-2xl shadow-black/80 flex flex-col gap-1 text-left select-none animate-in fade-in zoom-in-95 duration-150",
+                            "absolute right-0 z-50 min-w-37.5 rounded-lg bg-deep-blue-950 border border-deep-blue-700 p-3 shadow-2xl animate-in fade-in zoom-in-95 duration-100 flex flex-col gap-2 text-left",
                             isNearBottom
                               ? "bottom-full mb-1.5"
                               : "top-full mt-1.5"
@@ -251,9 +251,9 @@ export function AdminRevenueProductTableSection({
                           <Link
                             href={perfHref}
                             onClick={() => setActiveMenuId(null)}
-                            className="flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-semibold text-white hover:bg-white/5 transition-colors cursor-pointer group"
+                            className="flex items-center gap-3 w-full px-2 py-1.5 rounded-lg text-sm font-medium text-white hover:bg-white/5 text-left transition-colors cursor-pointer select-none"
                           >
-                            <AnalyticsIcon className="w-[18px] h-[18px] text-indigo-200/90 group-hover:text-white transition-colors shrink-0" />
+                            <AnalyticsIcon className="w-4.5 h-4.5 text-white shrink-0" />
                             <span>Analytics</span>
                           </Link>
                         </div>

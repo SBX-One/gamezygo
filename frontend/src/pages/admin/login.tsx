@@ -5,6 +5,45 @@ import { useRouter } from "next/router";
 import { StoreLayout } from "@/components/layout";
 import { Toast } from "@/components/ui";
 import { useAuthStore } from "@/stores/use-auth-store";
+import { cn } from "@/lib/utils";
+
+const GamezygoEmblem = ({
+  className,
+  ...props
+}: React.SVGProps<SVGSVGElement>) => (
+  <svg
+    width="45"
+    height="24"
+    viewBox="0 0 45 24"
+    fill="none"
+    xmlns="http://www.w3.org/2000/svg"
+    className={cn("shrink-0", className)}
+    {...props}
+  >
+    <path
+      d="M0 24L17.7974 0H45L40.8762 4.18018H21.1978L8.46463 20.9009H16.3505L24.8875 12.6126L16.3505 14.7027L20.1849 9.22523H35.0161L22.4277 24H0Z"
+      fill="url(#admin-login-brand-gradient)"
+    />
+    <path
+      d="M27.492 19.6757L24.0916 24H29.5177L33.4244 19.6757H27.492Z"
+      fill="url(#admin-login-brand-gradient)"
+    />
+    <defs>
+      <linearGradient
+        id="admin-login-brand-gradient"
+        x1="0"
+        y1="0"
+        x2="45"
+        y2="24"
+        gradientUnits="userSpaceOnUse"
+      >
+        <stop offset="0%" stopColor="#FB7185" />
+        <stop offset="50%" stopColor="#E11D48" />
+        <stop offset="100%" stopColor="#9F1239" />
+      </linearGradient>
+    </defs>
+  </svg>
+);
 
 const LockIcon = (props: React.SVGProps<SVGSVGElement>) => (
   <svg
@@ -219,35 +258,38 @@ export default function AdminLoginPage() {
 
         <div className="w-115 max-w-[92vw] sm:w-120 md:w-125 mx-auto flex flex-col">
           <div className="w-full bg-deep-blue-900 border border-white/10 rounded-xl p-6 sm:p-8 md:p-9 flex flex-col gap-6 shadow-2xl backdrop-blur-md">
+            {/* 1. Header: Logo & Branding (matching /login) */}
             <div className="flex flex-col items-center text-center gap-3">
               <Link
                 href="/"
                 className="flex items-center gap-2.5 transition-opacity hover:opacity-90 cursor-pointer"
               >
+                <GamezygoEmblem className="w-11 h-6" />
                 <span className="text-h6 font-black tracking-wider text-gray-50 uppercase">
-                  GAMEZYGO ADMIN
+                  GAMEZYGO
                 </span>
               </Link>
               <div className="flex flex-col gap-1">
                 <h1 className="text-h5 sm:text-h4 font-bold text-gray-50 tracking-tight">
-                  Login Administrator
+                  Selamat Datang Kembali
                 </h1>
                 <p className="text-body-xs sm:text-body-sm text-gray-400">
-                  Portal khusus staf & administrator internal Gamezygo.
+                  Masuk ke panel administrator & manajemen Gamezygo.
                 </p>
               </div>
             </div>
 
             <form onSubmit={handleAdminLoginSubmit} className="flex flex-col gap-4">
+              <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400 select-none">
+                Administrator & Staf
+              </span>
+
               <div className="flex flex-col gap-1.5">
                 <label
                   htmlFor="admin-username"
-                  className="text-body-xs font-medium text-gray-300 select-none flex items-center justify-between"
+                  className="text-body-xs font-medium text-gray-300 select-none"
                 >
-                  <span>Username / Email Admin</span>
-                  <span className="text-[10px] text-rose-400 font-semibold uppercase tracking-wider">
-                    Internal Staf
-                  </span>
+                  Username / Email Admin
                 </label>
                 <div className="relative flex items-center">
                   <div className="absolute left-3.5 pointer-events-none text-gray-400">
@@ -343,10 +385,23 @@ export default function AdminLoginPage() {
                     <span>Memverifikasi Kredensial...</span>
                   </>
                 ) : (
-                  <span>Masuk sebagai Administrator</span>
+                  <span>Masuk</span>
                 )}
               </button>
             </form>
+
+            {/* Bottom Footer Switcher (matching /login) */}
+            <div className="text-center pt-2 border-t border-white/5">
+              <p className="text-body-xs text-gray-400 select-none">
+                Bukan administrator?{" "}
+                <Link
+                  href="/login"
+                  className="text-rose-400 hover:text-rose-300 font-semibold cursor-pointer select-none"
+                >
+                  Masuk sebagai Pelanggan
+                </Link>
+              </p>
+            </div>
           </div>
         </div>
       </StoreLayout>

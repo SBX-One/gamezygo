@@ -2,29 +2,79 @@ import * as React from "react";
 import { cn } from "@/lib/utils";
 import { AdminCard, AdminDropdown, AdminEmptyState } from "@/components/admin";
 import { MOCK_REVENUE_CHART_DATA } from "../../data/admin-revenue-mock-data";
+import { ADMIN_TIMEFRAMES } from "../../data/admin-mock-data";
 import type { RevenueChartPoint } from "../../types/admin-revenue.types";
 import { formatRupiah } from "@/utils/formatters";
-import { AdminRevenueDateRangePicker } from "./AdminRevenueDateRangePicker";
 
-const CHART_RANGE_OPTIONS = [
-  { label: "1W", value: "weekly" },
-  { label: "1M", value: "monthly" },
-  { label: "1Y", value: "yearly" },
-];
+const STATIC_WEEKDAYS = ["senin", "selasa", "rabu", "kamis", "jumat", "sabtu", "minggu"];
+const MONTH_LABELS = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"];
+const HOUR_LABELS = ["00:00", "04:00", "08:00", "12:00", "16:00", "20:00"];
+
+function normalizeChartDataForPeriod(
+  rawPoints: RevenueChartPoint[],
+  period: string
+): RevenueChartPoint[] {
+  if (!rawPoints || rawPoints.length === 0) return [];
+
+  // Check if backend returned its legacy static Senin-Minggu array
+  const isStaticWeekdayPayload =
+    rawPoints.length === 7 &&
+    rawPoints.every((pt, idx) => pt.day.trim().toLowerCase() === STATIC_WEEKDAYS[idx]);
+
+  if (!isStaticWeekdayPayload) {
+    return rawPoints;
+  }
+
+  if (period === "this_month" || period === "monthly") {
+    const weekBuckets = [0, 0, 0, 0];
+    rawPoints.forEach((pt, idx) => {
+      const bucketIdx = Math.min(3, Math.floor((idx * 4) / rawPoints.length));
+      weekBuckets[bucketIdx] += pt.revenue;
+    });
+    return weekBuckets.map((rev, idx) => ({
+      day: `Minggu ${idx + 1}`,
+      revenue: rev,
+    }));
+  }
+
+  if (period === "this_year" || period === "yearly") {
+    const currentMonthIdx = new Date().getMonth();
+    const totalRev = rawPoints.reduce((sum, pt) => sum + pt.revenue, 0);
+    return MONTH_LABELS.map((label, idx) => ({
+      day: label,
+      revenue: idx === currentMonthIdx ? totalRev : 0,
+    }));
+  }
+
+  if (period === "today" || period === "yesterday") {
+    const totalRev = rawPoints.reduce((sum, pt) => sum + pt.revenue, 0);
+    return HOUR_LABELS.map((label, idx) => ({
+      day: label,
+      revenue: idx === 3 ? totalRev : 0,
+    }));
+  }
+
+  // this_week / weekly -> keep Senin..Minggu
+  return rawPoints;
+}
 
 export interface AdminRevenueChartCardProps {
   isEmpty?: boolean;
   data?: RevenueChartPoint[];
   period?: string;
   onPeriodChange?: (period: string) => void;
-  onChangeRange?: (start: Date | null, end: Date | null, label: string) => void;
   className?: string;
   isLoading?: boolean;
 }
 
-function buildSmoothPath(points: { x: number; y: number }[]): string {
+function buildSmoothPath(
+  points: { x: number; y: number }[],
+  minY: number,
+  maxY: number
+): string {
   if (points.length === 0) return "";
   if (points.length === 1) return `M ${points[0].x} ${points[0].y}`;
+  const clampY = (val: number) => Math.max(minY, Math.min(maxY, val));
   let path = `M ${points[0].x.toFixed(1)} ${points[0].y.toFixed(1)}`;
   for (let i = 0; i < points.length - 1; i++) {
     const p0 = points[i === 0 ? i : i - 1];
@@ -33,9 +83,9 @@ function buildSmoothPath(points: { x: number; y: number }[]): string {
     const p3 = points[i + 2 < points.length ? i + 2 : i + 1];
 
     const cp1x = p1.x + (p2.x - p0.x) / 6;
-    const cp1y = p1.y + (p2.y - p0.y) / 6;
+    const cp1y = clampY(p1.y + (p2.y - p0.y) / 6);
     const cp2x = p2.x - (p3.x - p1.x) / 6;
-    const cp2y = p2.y - (p3.y - p1.y) / 6;
+    const cp2y = clampY(p2.y - (p3.y - p1.y) / 6);
 
     path += ` C ${cp1x.toFixed(1)} ${cp1y.toFixed(1)}, ${cp2x.toFixed(1)} ${cp2y.toFixed(1)}, ${p2.x.toFixed(1)} ${p2.y.toFixed(1)}`;
   }
@@ -45,13 +95,13 @@ function buildSmoothPath(points: { x: number; y: number }[]): string {
 export function AdminRevenueChartCard({
   isEmpty = false,
   data = MOCK_REVENUE_CHART_DATA,
-  period = "weekly",
+  period = "this_week",
   onPeriodChange,
-  onChangeRange,
   className,
   isLoading = false,
 }: AdminRevenueChartCardProps) {
   const [hoveredIdx, setHoveredIdx] = React.useState<number | null>(null);
+  const [isDropdownOpen, setIsDropdownOpen] = React.useState(false);
   const containerRef = React.useRef<HTMLDivElement>(null);
 
   // Close tooltip on touch / click outside
@@ -74,29 +124,21 @@ export function AdminRevenueChartCard({
     };
   }, []);
 
-  const [isDatePickerOpen, setIsDatePickerOpen] = React.useState(false);
-
-  // Header right slot: Standard Range Dropdown (1W / 1M / 1Y) + Date Range Calendar Picker
+  // Header right slot: Matching AdminIncomeSpreadCard timeframe dropdown
   const headerRight = (
-    <div className="flex items-center gap-2">
-      {onPeriodChange && (
-        <AdminDropdown
-          options={CHART_RANGE_OPTIONS}
-          selectedValue={period}
-          onSelect={(val) => onPeriodChange(val)}
-          placeholder="1W"
-        />
-      )}
-      <AdminRevenueDateRangePicker
-        onChangeRange={(start, end, label) => {
-          onChangeRange?.(start, end, label);
-        }}
-        onOpenChange={setIsDatePickerOpen}
-      />
-    </div>
+    <AdminDropdown
+      options={ADMIN_TIMEFRAMES}
+      selectedValue={period}
+      onSelect={(val) => onPeriodChange?.(val)}
+      onOpenChange={setIsDropdownOpen}
+    />
   );
 
-  const activeData = data && data.length > 0 ? data : MOCK_REVENUE_CHART_DATA;
+  const rawData = data && data.length > 0 ? data : MOCK_REVENUE_CHART_DATA;
+  const activeData = React.useMemo(
+    () => normalizeChartDataForPeriod(rawData, period),
+    [rawData, period]
+  );
 
   // Dynamically compute yTicks and chart scaling
   const maxVal = Math.max(...activeData.map((d) => d.revenue), 0);
@@ -133,7 +175,10 @@ export function AdminRevenueChartCard({
     });
   }, [activeData, ceilScale, svgWidth, svgHeight]);
 
-  const linePath = React.useMemo(() => buildSmoothPath(chartPoints), [chartPoints]);
+  const linePath = React.useMemo(
+    () => buildSmoothPath(chartPoints, 20, svgHeight - 10),
+    [chartPoints, svgHeight]
+  );
   const areaPath = React.useMemo(() => {
     if (!linePath || chartPoints.length === 0) return "";
     const lastX = chartPoints[chartPoints.length - 1].x;
@@ -166,7 +211,7 @@ export function AdminRevenueChartCard({
     <AdminCard
       title="REVENUE CHART"
       headerRight={headerRight}
-      className={cn("w-full h-full", isDatePickerOpen && "z-50 relative", className)}
+      className={cn("w-full h-full", isDropdownOpen && "z-50 relative", className)}
       bodyClassName={cn(
         "p-4 sm:p-6 flex flex-col justify-between flex-1 h-full overflow-hidden",
         isEmpty && "items-center justify-center min-h-[340px]"
@@ -183,7 +228,7 @@ export function AdminRevenueChartCard({
           className="relative w-full flex-1 flex flex-col justify-between gap-4 h-full overflow-x-auto touch-pan-x"
         >
           {/* Inner content container with min-w-[540px] to preserve optimal aspect ratio on mobile screens */}
-          <div className="min-w-[540px] flex-1 flex flex-col justify-between gap-4 h-full">
+          <div className="w-full min-w-[420px] flex-1 flex flex-col justify-between gap-4 h-full">
             {/* Main Chart Graphic Row (Y-Axis + Plot Area) */}
             <div className="relative flex-1 flex min-h-[260px] sm:min-h-[340px] lg:min-h-[380px]">
               {/* Y-Axis Labels (sticky on mobile horizontal scroll) */}

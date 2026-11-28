@@ -24,9 +24,7 @@ export default function AdminRevenuePage() {
   const [metricsPeriod, setMetricsPeriod] = React.useState<string>("today");
   const [orderPeriod, setOrderPeriod] = React.useState<string>("today");
   const [spreadPeriod, setSpreadPeriod] = React.useState<string>("today");
-  const [chartPeriod, setChartPeriod] = React.useState<string>("weekly");
-  const [chartStartDate, setChartStartDate] = React.useState<string | undefined>(undefined);
-  const [chartEndDate, setChartEndDate] = React.useState<string | undefined>(undefined);
+  const [chartPeriod, setChartPeriod] = React.useState<string>("this_week");
 
   // 2. Granular queries: changing one filter ONLY fetches & renders skeleton for that specific card
   const {
@@ -43,8 +41,6 @@ export default function AdminRevenuePage() {
     refetch: refetchChart,
   } = useAdminRevenueChart({
     period: chartPeriod,
-    start_date: chartStartDate,
-    end_date: chartEndDate,
   });
 
   const {
@@ -68,22 +64,6 @@ export default function AdminRevenuePage() {
   } = useAdminRevenueTables();
 
   const isEmptyState = router.isReady ? router.query.empty === "true" : false;
-
-  const handleDateRangeChange = (start: Date | null, end: Date | null) => {
-    if (!start || !end) {
-      setChartStartDate(undefined);
-      setChartEndDate(undefined);
-      return;
-    }
-    const formatDate = (d: Date) => {
-      const year = d.getFullYear();
-      const month = String(d.getMonth() + 1).padStart(2, "0");
-      const day = String(d.getDate()).padStart(2, "0");
-      return `${year}-${month}-${day}`;
-    };
-    setChartStartDate(formatDate(start));
-    setChartEndDate(formatDate(end));
-  };
 
   const handleReload = () => {
     refetchMetrics();
@@ -131,12 +111,7 @@ export default function AdminRevenuePage() {
               isLoading={isChartLoading}
               data={chartData}
               period={chartPeriod}
-              onPeriodChange={(nextPeriod) => {
-                setChartPeriod(nextPeriod);
-                setChartStartDate(undefined);
-                setChartEndDate(undefined);
-              }}
-              onChangeRange={handleDateRangeChange}
+              onPeriodChange={setChartPeriod}
             />
             <AdminIncomeSpreadCard
               isEmpty={isEmptyState}

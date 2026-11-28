@@ -265,7 +265,7 @@ export default function CartPage() {
     if (isAuthenticated && cartApiRes?.data) {
       clearCartMutation.mutate();
     }
-    showToast("error", "Keranjang Dikosongkan", "Semua item di keranjang telah dihapus.");
+    showToast("error", "Keranjang Dikosongkan", "Semua item di keranjang sudah berhasil dikosongkan.");
   };
 
   // Buy Now on Single Item
@@ -337,7 +337,7 @@ export default function CartPage() {
       <StoreLayout
         hideNavbar={true}
         hideSidebar={true}
-        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 flex flex-col"
+        contentClassName="w-full mx-auto px-4 sm:px-8 lg:px-20 flex flex-col min-h-[calc(100vh-220px)] pb-16"
       >
         {/* ========================================================
             1. PAGE TITLE & FULL-WIDTH DIVIDER (With Back Button)
@@ -363,7 +363,7 @@ export default function CartPage() {
         {/* ========================================================
             2. TWO-COLUMN LAYOUT: Left (Cart List/Empty) & Right (Detail Transaksi)
            ======================================================== */}
-        <div className="flex flex-col-reverse lg:grid lg:grid-cols-12 gap-8 lg:gap-12 items-start w-full">
+        <div className="flex flex-col-reverse lg:grid lg:grid-cols-12 gap-8 lg:gap-12 items-start w-full min-h-[420px] min-w-0">
           {/* ======================================================
               LEFT COLUMN: Subheader (Total Items + Hapus Semua) + Items
              ====================================================== */}
